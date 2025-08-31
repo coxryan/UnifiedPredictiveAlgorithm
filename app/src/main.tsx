@@ -8,12 +8,15 @@ import Predictions from './pages/Predictions'
 import Teams from './pages/Teams'
 
 const router = createBrowserRouter([
+
   { path: '/', element: <App />, children: [
     { index: true, element: <LiveEdge /> },
     { path: 'predictions', element: <Predictions /> },
     { path: 'teams', element: <Teams /> },
   ]}
-])
+], {
+  basename: '/UnifiedPredictiveAlgorithm/',
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
