@@ -1,0 +1,1631 @@
+week,home_team,away_team,neutral_site
+Week 1 (Aug 28-Sept 1),Boston College,Fordham,False
+Week 2 (Sept 5-6),@ Michigan State,Boston College,False
+Week 3 (Sept 11-13),@ Stanford,Boston College,False
+Week 5 (Sept 25-27),Boston College,Cal,False
+Week 6 (Oct 2-4),@ Pitt,Boston College,False
+Week 7 (Oct 8-11),Boston College,Clemson,False
+Week 8 (Oct 14-18),Boston College,UConn,False
+Week 9 (Oct 21-25),@ Louisville,Boston College,False
+Week 10 (Oct 28-Nov 1),Boston College,Notre Dame,False
+Week 11 (Nov 4-8),Boston College,SMU,False
+Week 12 (Nov 11-15),Boston College,Georgia Tech,False
+Week 14 (Nov 25-29),@ Syracuse,Boston College,False
+Week 1 (Aug 28-Sept 1),@ Oregon State,Cal,False
+Week 2 (Sept 5-6),Cal,Texas Southern,False
+Week 3 (Sept 11-13),Cal,Minnesota,False
+Week 4 (Sept 18-20),@ San Diego State,Cal,False
+Week 5 (Sept 25-27),@ Boston College,Cal,False
+Week 6 (Oct 2-4),Cal,Duke,False
+Week 8 (Oct 14-18),Cal,North Carolina,False
+Week 9 (Oct 21-25),@ Virginia Tech,Cal,False
+Week 10 (Oct 28-Nov 1),Cal,Virginia,False
+Week 11 (Nov 4-8),@ Louisville,Cal,False
+Week 13 (Nov 18-22),@ Stanford,Cal,False
+Week 14 (Nov 25-29),Cal,SMU,False
+Week 1 (Aug 28-Sept 1),Clemson,LSU,False
+Week 2 (Sept 5-6),Clemson,Troy,False
+Week 3 (Sept 11-13),@ Georgia Tech,Clemson,False
+Week 4 (Sept 18-20),Clemson,Syracuse,False
+Week 6 (Oct 2-4),@ North Carolina,Clemson,False
+Week 7 (Oct 8-11),@ Boston College,Clemson,False
+Week 8 (Oct 14-18),Clemson,SMU,False
+Week 10 (Oct 28-Nov 1),Clemson,Duke,False
+Week 11 (Nov 4-8),Clemson,Florida State,False
+Week 12 (Nov 11-15),@ Louisville,Clemson,False
+Week 13 (Nov 18-22),Clemson,Furman,False
+Week 14 (Nov 25-29),@ South Carolina,Clemson,False
+Week 1 (Aug 28-Sept 1),Duke,Elon,False
+Week 2 (Sept 5-6),Duke,Illinois,False
+Week 3 (Sept 11-13),@ Tulane,Duke,False
+Week 4 (Sept 18-20),Duke,NC State,False
+Week 5 (Sept 25-27),@ Syracuse,Duke,False
+Week 6 (Oct 2-4),@ Cal,Duke,False
+Week 8 (Oct 14-18),Duke,Georgia Tech,False
+Week 10 (Oct 28-Nov 1),@ Clemson,Duke,False
+Week 11 (Nov 4-8),@ UConn,Duke,False
+Week 12 (Nov 11-15),Duke,Virginia,False
+Week 13 (Nov 18-22),@ North Carolina,Duke,False
+Week 14 (Nov 25-29),Duke,Wake Forest,False
+Week 1 (Aug 28-Sept 1),Florida State,Alabama,False
+Week 2 (Sept 5-6),Florida State,East Texas A&M,False
+Week 4 (Sept 18-20),Florida State,Kent State,False
+Week 5 (Sept 25-27),@ Virginia,Florida State,False
+Week 6 (Oct 2-4),Florida State,Miami (FL),False
+Week 7 (Oct 8-11),Florida State,Pitt,False
+Week 8 (Oct 14-18),@ Stanford,Florida State,False
+Week 10 (Oct 28-Nov 1),Florida State,Wake Forest,False
+Week 11 (Nov 4-8),@ Clemson,Florida State,False
+Week 12 (Nov 11-15),Florida State,Virginia Tech,False
+Week 13 (Nov 18-22),@ NC State,Florida State,False
+Week 14 (Nov 25-29),@ Florida,Florida State,False
+Week 1 (Aug 28-Sept 1),@ Colorado,Georgia Tech,False
+Week 2 (Sept 5-6),Georgia Tech,Gardner-Webb,False
+Week 3 (Sept 11-13),Georgia Tech,Clemson,False
+Week 4 (Sept 18-20),Georgia Tech,Temple,False
+Week 5 (Sept 25-27),@ Wake Forest,Georgia Tech,False
+Week 7 (Oct 8-11),Georgia Tech,Virginia Tech,False
+Week 8 (Oct 14-18),@ Duke,Georgia Tech,False
+Week 9 (Oct 21-25),Georgia Tech,Syracuse,False
+Week 10 (Oct 28-Nov 1),@ NC State,Georgia Tech,False
+Week 12 (Nov 11-15),@ Boston College,Georgia Tech,False
+Week 13 (Nov 18-22),Georgia Tech,Pitt,False
+Week 14 (Nov 25-29),Georgia Tech,Georgia,False
+Week 1 (Aug 28-Sept 1),Louisville,Eastern Kentucky,False
+Week 2 (Sept 5-6),Louisville,James Madison,False
+Week 4 (Sept 18-20),Louisville,Bowling Green,False
+Week 5 (Sept 25-27),@ Pitt,Louisville,False
+Week 6 (Oct 2-4),Louisville,Virginia,False
+Week 8 (Oct 14-18),@ Miami (FL),Louisville,False
+Week 9 (Oct 21-25),Louisville,Boston College,False
+Week 10 (Oct 28-Nov 1),@ Virginia Tech,Louisville,False
+Week 11 (Nov 4-8),Louisville,Cal,False
+Week 12 (Nov 11-15),Louisville,Clemson,False
+Week 13 (Nov 18-22),@ SMU,Louisville,False
+Week 14 (Nov 25-29),Louisville,Kentucky,False
+Week 1 (Aug 28-Sept 1),Miami (FL),Notre Dame,False
+Week 2 (Sept 5-6),Miami (FL),Bethune-Cookman,False
+Week 3 (Sept 11-13),Miami (FL),USF,False
+Week 4 (Sept 18-20),Miami (FL),Florida,False
+Week 6 (Oct 2-4),@ Florida State,Miami (FL),False
+Week 8 (Oct 14-18),Miami (FL),Louisville,False
+Week 9 (Oct 21-25),Miami (FL),Stanford,False
+Week 10 (Oct 28-Nov 1),@ SMU,Miami (FL),False
+Week 11 (Nov 4-8),Miami (FL),Syracuse,False
+Week 12 (Nov 11-15),Miami (FL),NC State,False
+Week 13 (Nov 18-22),@ Virginia Tech,Miami (FL),False
+Week 14 (Nov 25-29),@ Pitt,Miami (FL),False
+Week 1 (Aug 28-Sept 1),NC State,East Carolina,False
+Week 2 (Sept 5-6),NC State,Virginia,False
+Week 3 (Sept 11-13),@ Wake Forest,NC State,False
+Week 4 (Sept 18-20),@ Duke,NC State,False
+Week 5 (Sept 25-27),NC State,Virginia Tech,False
+Week 6 (Oct 2-4),NC State,Campbell,False
+Week 7 (Oct 8-11),@ Notre Dame,NC State,False
+Week 9 (Oct 21-25),@ Pitt,NC State,False
+Week 10 (Oct 28-Nov 1),NC State,Georgia Tech,False
+Week 12 (Nov 11-15),@ Miami (FL),NC State,False
+Week 13 (Nov 18-22),NC State,Florida State,False
+Week 14 (Nov 25-29),NC State,North Carolina,False
+Week 1 (Aug 28-Sept 1),North Carolina,TCU,False
+Week 2 (Sept 5-6),@ Charlotte,North Carolina,False
+Week 3 (Sept 11-13),North Carolina,Richmond,False
+Week 4 (Sept 18-20),@ UCF,North Carolina,False
+Week 6 (Oct 2-4),North Carolina,Clemson,False
+Week 8 (Oct 14-18),@ Cal,North Carolina,False
+Week 9 (Oct 21-25),North Carolina,Virginia,False
+Week 10 (Oct 28-Nov 1),@ Syracuse,North Carolina,False
+Week 11 (Nov 4-8),North Carolina,Stanford,False
+Week 12 (Nov 11-15),@ Wake Forest,North Carolina,False
+Week 13 (Nov 18-22),North Carolina,Duke,False
+Week 14 (Nov 25-29),@ NC State,North Carolina,False
+Week 1 (Aug 28-Sept 1),Pitt,Duquesne,False
+Week 2 (Sept 5-6),Pitt,Central Michigan,False
+Week 3 (Sept 11-13),@ West Virginia,Pitt,False
+Week 5 (Sept 25-27),Pitt,Louisville,False
+Week 6 (Oct 2-4),Pitt,Boston College,False
+Week 7 (Oct 8-11),@ Florida State,Pitt,False
+Week 8 (Oct 14-18),@ Syracuse,Pitt,False
+Week 9 (Oct 21-25),Pitt,NC State,False
+Week 10 (Oct 28-Nov 1),@ Stanford,Pitt,False
+Week 12 (Nov 11-15),Pitt,Notre Dame,False
+Week 13 (Nov 18-22),@ Georgia Tech,Pitt,False
+Week 14 (Nov 25-29),Pitt,Miami (FL),False
+Week 1 (Aug 28-Sept 1),SMU,East Texas A&M,False
+Week 2 (Sept 5-6),SMU,Baylor,False
+Week 3 (Sept 11-13),@ Missouri State,SMU,False
+Week 4 (Sept 18-20),@ TCU,SMU,False
+Week 6 (Oct 2-4),SMU,Syracuse,False
+Week 7 (Oct 8-11),SMU,Stanford,False
+Week 8 (Oct 14-18),@ Clemson,SMU,False
+Week 9 (Oct 21-25),@ Wake Forest,SMU,False
+Week 10 (Oct 28-Nov 1),SMU,Miami (FL),False
+Week 11 (Nov 4-8),@ Boston College,SMU,False
+Week 13 (Nov 18-22),SMU,Louisville,False
+Week 14 (Nov 25-29),@ Cal,SMU,False
+Week 0 (August 23),@ Hawaii,Stanford,False
+Week 2 (Sept 5-6),@ BYU,Stanford,False
+Week 3 (Sept 11-13),Stanford,Boston College,False
+Week 4 (Sept 18-20),@ Virginia,Stanford,False
+Week 5 (Sept 25-27),Stanford,San Jose State,False
+Week 7 (Oct 8-11),@ SMU,Stanford,False
+Week 8 (Oct 14-18),Stanford,Florida State,False
+Week 9 (Oct 21-25),@ Miami (FL),Stanford,False
+Week 10 (Oct 28-Nov 1),Stanford,Pitt,False
+Week 11 (Nov 4-8),@ North Carolina,Stanford,False
+Week 13 (Nov 18-22),Stanford,Cal,False
+Week 14 (Nov 25-29),Stanford,Notre Dame,False
+Week 1 (Aug 28-Sept 1),Syracuse,vs Tennessee,True
+Week 2 (Sept 5-6),Syracuse,UConn,False
+Week 3 (Sept 11-13),Syracuse,Colgate,False
+Week 4 (Sept 18-20),@ Clemson,Syracuse,False
+Week 5 (Sept 25-27),Syracuse,Duke,False
+Week 6 (Oct 2-4),@ SMU,Syracuse,False
+Week 8 (Oct 14-18),Syracuse,Pitt,False
+Week 9 (Oct 21-25),@ Georgia Tech,Syracuse,False
+Week 10 (Oct 28-Nov 1),Syracuse,North Carolina,False
+Week 11 (Nov 4-8),@ Miami (FL),Syracuse,False
+Week 13 (Nov 18-22),@ Notre Dame,Syracuse,False
+Week 14 (Nov 25-29),Syracuse,Boston College,False
+Week 1 (Aug 28-Sept 1),Virginia,Coastal Carolina,False
+Week 2 (Sept 5-6),@ NC State,Virginia,False
+Week 3 (Sept 11-13),Virginia,William & Mary,False
+Week 4 (Sept 18-20),Virginia,Stanford,False
+Week 5 (Sept 25-27),Virginia,Florida State,False
+Week 6 (Oct 2-4),@ Louisville,Virginia,False
+Week 8 (Oct 14-18),Virginia,Washington State,False
+Week 9 (Oct 21-25),@ North Carolina,Virginia,False
+Week 10 (Oct 28-Nov 1),@ Cal,Virginia,False
+Week 11 (Nov 4-8),Virginia,Wake Forest,False
+Week 12 (Nov 11-15),@ Duke,Virginia,False
+Week 14 (Nov 25-29),Virginia,Virginia Tech,False
+Week 1 (Aug 28-Sept 1),Virginia Tech,vs South Carolina,True
+Week 2 (Sept 5-6),Virginia Tech,Vanderbilt,False
+Week 3 (Sept 11-13),Virginia Tech,Old Dominion,False
+Week 4 (Sept 18-20),Virginia Tech,Wofford,False
+Week 5 (Sept 25-27),@ NC State,Virginia Tech,False
+Week 6 (Oct 2-4),Virginia Tech,Wake Forest,False
+Week 7 (Oct 8-11),@ Georgia Tech,Virginia Tech,False
+Week 9 (Oct 21-25),Virginia Tech,Cal,False
+Week 10 (Oct 28-Nov 1),Virginia Tech,Louisville,False
+Week 12 (Nov 11-15),@ Florida State,Virginia Tech,False
+Week 13 (Nov 18-22),Virginia Tech,Miami (FL),False
+Week 14 (Nov 25-29),@ Virginia,Virginia Tech,False
+Week 1 (Aug 28-Sept 1),Wake Forest,Kennesaw State,False
+Week 2 (Sept 5-6),Wake Forest,Western Carolina,False
+Week 3 (Sept 11-13),Wake Forest,NC State,False
+Week 5 (Sept 25-27),Wake Forest,Georgia Tech,False
+Week 6 (Oct 2-4),@ Virginia Tech,Wake Forest,False
+Week 7 (Oct 8-11),@ Oregon State,Wake Forest,False
+Week 9 (Oct 21-25),Wake Forest,SMU,False
+Week 10 (Oct 28-Nov 1),@ Florida State,Wake Forest,False
+Week 11 (Nov 4-8),@ Virginia,Wake Forest,False
+Week 12 (Nov 11-15),Wake Forest,North Carolina,False
+Week 13 (Nov 18-22),Wake Forest,Delaware,False
+Week 14 (Nov 25-29),@ Duke,Wake Forest,False
+Week 1 (Aug 28-Sept 1),Arizona,Hawaii,False
+Week 2 (Sept 5-6),Arizona,Weber State,False
+Week 3 (Sept 11-13),Arizona,Kansas State,False
+Week 5 (Sept 25-27),@ Iowa State,Arizona,False
+Week 6 (Oct 2-4),Arizona,Oklahoma State,False
+Week 7 (Oct 8-11),Arizona,BYU,False
+Week 8 (Oct 14-18),@ Houston,Arizona,False
+Week 10 (Oct 28-Nov 1),@ Colorado,Arizona,False
+Week 11 (Nov 4-8),Arizona,Kansas,False
+Week 12 (Nov 11-15),@ Cincinnati,Arizona,False
+Week 13 (Nov 18-22),Arizona,Baylor,False
+Week 14 (Nov 25-29),@ Arizona State,Arizona,False
+Week 1 (Aug 28-Sept 1),Arizona State,Northern Arizona,False
+Week 2 (Sept 5-6),@ Mississippi State,Arizona State,False
+Week 3 (Sept 11-13),Arizona State,Texas State,False
+Week 4 (Sept 18-20),@ Baylor,Arizona State,False
+Week 5 (Sept 25-27),Arizona State,TCU,False
+Week 7 (Oct 8-11),@ Utah,Arizona State,False
+Week 8 (Oct 14-18),Arizona State,Texas Tech,False
+Week 9 (Oct 21-25),Arizona State,Houston,False
+Week 10 (Oct 28-Nov 1),@ Iowa State,Arizona State,False
+Week 12 (Nov 11-15),Arizona State,West Virginia,False
+Week 13 (Nov 18-22),@ Colorado,Arizona State,False
+Week 14 (Nov 25-29),Arizona State,Arizona,False
+Week 1 (Aug 28-Sept 1),Baylor,Auburn,False
+Week 2 (Sept 5-6),@ SMU,Baylor,False
+Week 3 (Sept 11-13),Baylor,Samford,False
+Week 4 (Sept 18-20),Baylor,Arizona State,False
+Week 5 (Sept 25-27),@ Oklahoma State,Baylor,False
+Week 6 (Oct 2-4),Baylor,Kansas State,False
+Week 8 (Oct 14-18),@ TCU,Baylor,False
+Week 9 (Oct 21-25),@ Cincinnati,Baylor,False
+Week 10 (Oct 28-Nov 1),Baylor,UCF,False
+Week 12 (Nov 11-15),Baylor,Utah,False
+Week 13 (Nov 18-22),@ Arizona,Baylor,False
+Week 14 (Nov 25-29),Baylor,Houston,False
+Week 1 (Aug 28-Sept 1),BYU,Portland State,False
+Week 2 (Sept 5-6),BYU,Stanford,False
+Week 4 (Sept 18-20),@ East Carolina,BYU,False
+Week 5 (Sept 25-27),@ Colorado,BYU,False
+Week 6 (Oct 2-4),BYU,West Virginia,False
+Week 7 (Oct 8-11),@ Arizona,BYU,False
+Week 8 (Oct 14-18),BYU,Utah,False
+Week 9 (Oct 21-25),@ Iowa State,BYU,False
+Week 11 (Nov 4-8),@ Texas Tech,BYU,False
+Week 12 (Nov 11-15),BYU,TCU,False
+Week 13 (Nov 18-22),@ Cincinnati,BYU,False
+Week 14 (Nov 25-29),BYU,UCF,False
+Week 1 (Aug 28-Sept 1),Cincinnati,vs Nebraska,True
+Week 2 (Sept 5-6),Cincinnati,Bowling Green,False
+Week 3 (Sept 11-13),Cincinnati,Northwestern State,False
+Week 5 (Sept 25-27),@ Kansas,Cincinnati,False
+Week 6 (Oct 2-4),Cincinnati,Iowa State,False
+Week 7 (Oct 8-11),Cincinnati,UCF,False
+Week 8 (Oct 14-18),@ Oklahoma State,Cincinnati,False
+Week 9 (Oct 21-25),Cincinnati,Baylor,False
+Week 10 (Oct 28-Nov 1),@ Utah,Cincinnati,False
+Week 12 (Nov 11-15),Cincinnati,Arizona,False
+Week 13 (Nov 18-22),Cincinnati,BYU,False
+Week 14 (Nov 25-29),@ TCU,Cincinnati,False
+Week 1 (Aug 28-Sept 1),Colorado,Georgia Tech,False
+Week 2 (Sept 5-6),Colorado,Delaware,False
+Week 3 (Sept 11-13),@ Houston,Colorado,False
+Week 4 (Sept 18-20),Colorado,Wyoming,False
+Week 5 (Sept 25-27),Colorado,BYU,False
+Week 6 (Oct 2-4),@ TCU,Colorado,False
+Week 7 (Oct 8-11),Colorado,Iowa State,False
+Week 9 (Oct 21-25),@ Utah,Colorado,False
+Week 10 (Oct 28-Nov 1),Colorado,Arizona,False
+Week 11 (Nov 4-8),@ West Virginia,Colorado,False
+Week 13 (Nov 18-22),Colorado,Arizona State,False
+Week 14 (Nov 25-29),@ Kansas State,Colorado,False
+Week 1 (Aug 28-Sept 1),Houston,Stephen F. Austin,False
+Week 2 (Sept 5-6),@ Rice,Houston,False
+Week 3 (Sept 11-13),Houston,Colorado,False
+Week 5 (Sept 25-27),@ Oregon State,Houston,False
+Week 6 (Oct 2-4),Houston,Texas Tech,False
+Week 7 (Oct 8-11),@ Oklahoma State,Houston,False
+Week 8 (Oct 14-18),Houston,Arizona,False
+Week 9 (Oct 21-25),@ Arizona State,Houston,False
+Week 10 (Oct 28-Nov 1),Houston,West Virginia,False
+Week 11 (Nov 4-8),@ UCF,Houston,False
+Week 13 (Nov 18-22),Houston,TCU,False
+Week 14 (Nov 25-29),@ Baylor,Houston,False
+Week 0 (August 23),Iowa State,vs Kansas State,True
+Week 1 (Aug 28-Sept 1),Iowa State,South Dakota,False
+Week 2 (Sept 5-6),Iowa State,Iowa,False
+Week 3 (Sept 11-13),@ Arkansas State,Iowa State,False
+Week 5 (Sept 25-27),Iowa State,Arizona,False
+Week 6 (Oct 2-4),@ Cincinnati,Iowa State,False
+Week 7 (Oct 8-11),@ Colorado,Iowa State,False
+Week 9 (Oct 21-25),Iowa State,BYU,False
+Week 10 (Oct 28-Nov 1),Iowa State,Arizona State,False
+Week 11 (Nov 4-8),@ TCU,Iowa State,False
+Week 13 (Nov 18-22),Iowa State,Kansas,False
+Week 14 (Nov 25-29),@ Oklahoma State,Iowa State,False
+Week 0 (August 23),Kansas,Fresno State,False
+Week 1 (Aug 28-Sept 1),Kansas,Wagner,False
+Week 2 (Sept 5-6),@ Missouri,Kansas,False
+Week 4 (Sept 18-20),Kansas,West Virginia,False
+Week 5 (Sept 25-27),Kansas,Cincinnati,False
+Week 6 (Oct 2-4),@ UCF,Kansas,False
+Week 7 (Oct 8-11),@ Texas Tech,Kansas,False
+Week 9 (Oct 21-25),Kansas,Kansas State,False
+Week 10 (Oct 28-Nov 1),Kansas,Oklahoma State,False
+Week 11 (Nov 4-8),@ Arizona,Kansas,False
+Week 13 (Nov 18-22),@ Iowa State,Kansas,False
+Week 14 (Nov 25-29),Kansas,Utah,False
+Week 0 (August 23),Kansas State,vs Iowa State,True
+Week 1 (Aug 28-Sept 1),Kansas State,North Dakota,False
+Week 2 (Sept 5-6),Kansas State,Army,False
+Week 3 (Sept 11-13),@ Arizona,Kansas State,False
+Week 5 (Sept 25-27),Kansas State,UCF,False
+Week 6 (Oct 2-4),@ Baylor,Kansas State,False
+Week 7 (Oct 8-11),Kansas State,TCU,False
+Week 9 (Oct 21-25),@ Kansas,Kansas State,False
+Week 10 (Oct 28-Nov 1),Kansas State,Texas Tech,False
+Week 12 (Nov 11-15),@ Oklahoma State,Kansas State,False
+Week 13 (Nov 18-22),@ Utah,Kansas State,False
+Week 14 (Nov 25-29),Kansas State,Colorado,False
+Week 1 (Aug 28-Sept 1),Oklahoma State,UT Martin,False
+Week 2 (Sept 5-6),@ Oregon,Oklahoma State,False
+Week 4 (Sept 18-20),Oklahoma State,Tulsa,False
+Week 5 (Sept 25-27),Oklahoma State,Baylor,False
+Week 6 (Oct 2-4),@ Arizona,Oklahoma State,False
+Week 7 (Oct 8-11),Oklahoma State,Houston,False
+Week 8 (Oct 14-18),Oklahoma State,Cincinnati,False
+Week 9 (Oct 21-25),@ Texas Tech,Oklahoma State,False
+Week 10 (Oct 28-Nov 1),@ Kansas,Oklahoma State,False
+Week 12 (Nov 11-15),Oklahoma State,Kansas State,False
+Week 13 (Nov 18-22),@ UCF,Oklahoma State,False
+Week 14 (Nov 25-29),Oklahoma State,Iowa State,False
+Week 1 (Aug 28-Sept 1),@ North Carolina,TCU,False
+Week 3 (Sept 11-13),TCU,Abilene Christian,False
+Week 4 (Sept 18-20),TCU,SMU,False
+Week 5 (Sept 25-27),@ Arizona State,TCU,False
+Week 6 (Oct 2-4),TCU,Colorado,False
+Week 7 (Oct 8-11),@ Kansas State,TCU,False
+Week 8 (Oct 14-18),TCU,Baylor,False
+Week 9 (Oct 21-25),@ West Virginia,TCU,False
+Week 11 (Nov 4-8),TCU,Iowa State,False
+Week 12 (Nov 11-15),@ BYU,TCU,False
+Week 13 (Nov 18-22),@ Houston,TCU,False
+Week 14 (Nov 25-29),TCU,Cincinnati,False
+Week 1 (Aug 28-Sept 1),Texas Tech,Arkansas Pine Bluff,False
+Week 2 (Sept 5-6),Texas Tech,Kent State,False
+Week 3 (Sept 11-13),Texas Tech,Oregon State,False
+Week 4 (Sept 18-20),@ Utah,Texas Tech,False
+Week 6 (Oct 2-4),@ Houston,Texas Tech,False
+Week 7 (Oct 8-11),Texas Tech,Kansas,False
+Week 8 (Oct 14-18),@ Arizona State,Texas Tech,False
+Week 9 (Oct 21-25),Texas Tech,Oklahoma State,False
+Week 10 (Oct 28-Nov 1),@ Kansas State,Texas Tech,False
+Week 11 (Nov 4-8),Texas Tech,BYU,False
+Week 12 (Nov 11-15),Texas Tech,UCF,False
+Week 14 (Nov 25-29),@ West Virginia,Texas Tech,False
+Week 1 (Aug 28-Sept 1),UCF,Jacksonville State,False
+Week 2 (Sept 5-6),UCF,North Carolina A&T,False
+Week 4 (Sept 18-20),UCF,North Carolina,False
+Week 5 (Sept 25-27),@ Kansas State,UCF,False
+Week 6 (Oct 2-4),UCF,Kansas,False
+Week 7 (Oct 8-11),@ Cincinnati,UCF,False
+Week 8 (Oct 14-18),UCF,West Virginia,False
+Week 10 (Oct 28-Nov 1),@ Baylor,UCF,False
+Week 11 (Nov 4-8),UCF,Houston,False
+Week 12 (Nov 11-15),@ Texas Tech,UCF,False
+Week 13 (Nov 18-22),UCF,Oklahoma State,False
+Week 14 (Nov 25-29),@ BYU,UCF,False
+Week 1 (Aug 28-Sept 1),@ UCLA,Utah,False
+Week 2 (Sept 5-6),Utah,Cal Poly,False
+Week 3 (Sept 11-13),@ Wyoming,Utah,False
+Week 4 (Sept 18-20),Utah,Texas Tech,False
+Week 5 (Sept 25-27),@ West Virginia,Utah,False
+Week 7 (Oct 8-11),Utah,Arizona State,False
+Week 8 (Oct 14-18),@ BYU,Utah,False
+Week 9 (Oct 21-25),Utah,Colorado,False
+Week 10 (Oct 28-Nov 1),Utah,Cincinnati,False
+Week 12 (Nov 11-15),@ Baylor,Utah,False
+Week 13 (Nov 18-22),Utah,Kansas State,False
+Week 14 (Nov 25-29),@ Kansas,Utah,False
+Week 1 (Aug 28-Sept 1),West Virginia,Robert Morris,False
+Week 2 (Sept 5-6),@ Ohio,West Virginia,False
+Week 3 (Sept 11-13),West Virginia,Pitt,False
+Week 4 (Sept 18-20),@ Kansas,West Virginia,False
+Week 5 (Sept 25-27),West Virginia,Utah,False
+Week 6 (Oct 2-4),@ BYU,West Virginia,False
+Week 8 (Oct 14-18),@ UCF,West Virginia,False
+Week 9 (Oct 21-25),West Virginia,TCU,False
+Week 10 (Oct 28-Nov 1),@ Houston,West Virginia,False
+Week 11 (Nov 4-8),West Virginia,Colorado,False
+Week 12 (Nov 11-15),@ Arizona State,West Virginia,False
+Week 14 (Nov 25-29),West Virginia,Texas Tech,False
+Week 1 (Aug 28-Sept 1),Illinois,Western Illinois,False
+Week 2 (Sept 5-6),@ Duke,Illinois,False
+Week 3 (Sept 11-13),Illinois,Western Michigan,False
+Week 4 (Sept 18-20),@ Indiana,Illinois,False
+Week 5 (Sept 25-27),Illinois,USC,False
+Week 6 (Oct 2-4),@ Purdue,Illinois,False
+Week 7 (Oct 8-11),Illinois,Ohio State,False
+Week 9 (Oct 21-25),@ Washington,Illinois,False
+Week 10 (Oct 28-Nov 1),Illinois,Rutgers,False
+Week 12 (Nov 11-15),Illinois,Maryland,False
+Week 13 (Nov 18-22),@ Wisconsin,Illinois,False
+Week 14 (Nov 25-29),Illinois,Northwestern,False
+Week 1 (Aug 28-Sept 1),Indiana,Old Dominion,False
+Week 2 (Sept 5-6),Indiana,Kennesaw State,False
+Week 3 (Sept 11-13),Indiana,Indiana State,False
+Week 4 (Sept 18-20),Indiana,Illinois,False
+Week 5 (Sept 25-27),@ Iowa,Indiana,False
+Week 7 (Oct 8-11),@ Oregon,Indiana,False
+Week 8 (Oct 14-18),Indiana,Michigan State,False
+Week 9 (Oct 21-25),Indiana,UCLA,False
+Week 10 (Oct 28-Nov 1),@ Maryland,Indiana,False
+Week 11 (Nov 4-8),@ Penn State,Indiana,False
+Week 12 (Nov 11-15),Indiana,Wisconsin,False
+Week 14 (Nov 25-29),@ Purdue,Indiana,False
+Week 1 (Aug 28-Sept 1),Iowa,Albany,False
+Week 2 (Sept 5-6),@ Iowa State,Iowa,False
+Week 3 (Sept 11-13),Iowa,UMass,False
+Week 4 (Sept 18-20),@ Rutgers,Iowa,False
+Week 5 (Sept 25-27),Iowa,Indiana,False
+Week 7 (Oct 8-11),@ Wisconsin,Iowa,False
+Week 8 (Oct 14-18),Iowa,Penn State,False
+Week 9 (Oct 21-25),Iowa,Minnesota,False
+Week 11 (Nov 4-8),Iowa,Oregon,False
+Week 12 (Nov 11-15),@ USC,Iowa,False
+Week 13 (Nov 18-22),Iowa,Michigan State,False
+Week 14 (Nov 25-29),@ Nebraska,Iowa,False
+Week 1 (Aug 28-Sept 1),Maryland,Florida Atlantic,False
+Week 2 (Sept 5-6),Maryland,Northern Illinois,False
+Week 3 (Sept 11-13),Maryland,Towson,False
+Week 4 (Sept 18-20),@ Wisconsin,Maryland,False
+Week 6 (Oct 2-4),Maryland,Washington,False
+Week 7 (Oct 8-11),Maryland,Nebraska,False
+Week 8 (Oct 14-18),@ UCLA,Maryland,False
+Week 10 (Oct 28-Nov 1),Maryland,Indiana,False
+Week 11 (Nov 4-8),@ Rutgers,Maryland,False
+Week 12 (Nov 11-15),@ Illinois,Maryland,False
+Week 13 (Nov 18-22),Maryland,Michigan,False
+Week 14 (Nov 25-29),Maryland,vs Michigan State,True
+Week 1 (Aug 28-Sept 1),Michigan,New Mexico,False
+Week 2 (Sept 5-6),@ Oklahoma,Michigan,False
+Week 3 (Sept 11-13),Michigan,Central Michigan,False
+Week 4 (Sept 18-20),@ Nebraska,Michigan,False
+Week 6 (Oct 2-4),Michigan,Wisconsin,False
+Week 7 (Oct 8-11),@ USC,Michigan,False
+Week 8 (Oct 14-18),Michigan,Washington,False
+Week 9 (Oct 21-25),@ Michigan State,Michigan,False
+Week 10 (Oct 28-Nov 1),Michigan,Purdue,False
+Week 12 (Nov 11-15),@ Northwestern,Michigan,False
+Week 13 (Nov 18-22),@ Maryland,Michigan,False
+Week 14 (Nov 25-29),Michigan,Ohio State,False
+Week 1 (Aug 28-Sept 1),Michigan State,Western Michigan,False
+Week 2 (Sept 5-6),Michigan State,Boston College,False
+Week 3 (Sept 11-13),Michigan State,Youngstown State,False
+Week 4 (Sept 18-20),@ USC,Michigan State,False
+Week 6 (Oct 2-4),@ Nebraska,Michigan State,False
+Week 7 (Oct 8-11),Michigan State,UCLA,False
+Week 8 (Oct 14-18),@ Indiana,Michigan State,False
+Week 9 (Oct 21-25),Michigan State,Michigan,False
+Week 10 (Oct 28-Nov 1),@ Minnesota,Michigan State,False
+Week 12 (Nov 11-15),Michigan State,Penn State,False
+Week 13 (Nov 18-22),@ Iowa,Michigan State,False
+Week 14 (Nov 25-29),Michigan State,vs Maryland,True
+Week 1 (Aug 28-Sept 1),Minnesota,Buffalo,False
+Week 2 (Sept 5-6),Minnesota,Northwestern State,False
+Week 3 (Sept 11-13),@ Cal,Minnesota,False
+Week 5 (Sept 25-27),Minnesota,Rutgers,False
+Week 6 (Oct 2-4),@ Ohio State,Minnesota,False
+Week 7 (Oct 8-11),Minnesota,Purdue,False
+Week 8 (Oct 14-18),Minnesota,Nebraska,False
+Week 9 (Oct 21-25),@ Iowa,Minnesota,False
+Week 10 (Oct 28-Nov 1),Minnesota,Michigan State,False
+Week 12 (Nov 11-15),@ Oregon,Minnesota,False
+Week 13 (Nov 18-22),@ Northwestern,Minnesota,False
+Week 14 (Nov 25-29),Minnesota,Wisconsin,False
+Week 1 (Aug 28-Sept 1),Nebraska,vs Cincinnati,True
+Week 2 (Sept 5-6),Nebraska,Akron,False
+Week 3 (Sept 11-13),Nebraska,Houston Christian,False
+Week 4 (Sept 18-20),Nebraska,Michigan,False
+Week 6 (Oct 2-4),Nebraska,Michigan State,False
+Week 7 (Oct 8-11),@ Maryland,Nebraska,False
+Week 8 (Oct 14-18),@ Minnesota,Nebraska,False
+Week 9 (Oct 21-25),Nebraska,Northwestern,False
+Week 10 (Oct 28-Nov 1),Nebraska,USC,False
+Week 11 (Nov 4-8),@ UCLA,Nebraska,False
+Week 13 (Nov 18-22),@ Penn State,Nebraska,False
+Week 14 (Nov 25-29),Nebraska,Iowa,False
+Week 1 (Aug 28-Sept 1),@ Tulane,Northwestern,False
+Week 2 (Sept 5-6),Northwestern,Western Illinois,False
+Week 3 (Sept 11-13),Northwestern,Oregon,False
+Week 5 (Sept 25-27),Northwestern,UCLA,False
+Week 6 (Oct 2-4),Northwestern,Louisiana Monroe,False
+Week 7 (Oct 8-11),@ Penn State,Northwestern,False
+Week 8 (Oct 14-18),Northwestern,Purdue,False
+Week 9 (Oct 21-25),@ Nebraska,Northwestern,False
+Week 11 (Nov 4-8),@ USC,Northwestern,False
+Week 12 (Nov 11-15),Northwestern,Michigan,False
+Week 13 (Nov 18-22),Northwestern,Minnesota,False
+Week 14 (Nov 25-29),@ Illinois,Northwestern,False
+Week 1 (Aug 28-Sept 1),Ohio State,Texas,False
+Week 2 (Sept 5-6),Ohio State,Grambling State,False
+Week 3 (Sept 11-13),Ohio State,Ohio,False
+Week 5 (Sept 25-27),@ Washington,Ohio State,False
+Week 6 (Oct 2-4),Ohio State,Minnesota,False
+Week 7 (Oct 8-11),@ Illinois,Ohio State,False
+Week 8 (Oct 14-18),@ Wisconsin,Ohio State,False
+Week 10 (Oct 28-Nov 1),Ohio State,Penn State,False
+Week 11 (Nov 4-8),@ Purdue,Ohio State,False
+Week 12 (Nov 11-15),Ohio State,UCLA,False
+Week 13 (Nov 18-22),Ohio State,Rutgers,False
+Week 14 (Nov 25-29),@ Michigan,Ohio State,False
+Week 1 (Aug 28-Sept 1),Oregon,Montana State,False
+Week 2 (Sept 5-6),Oregon,Oklahoma State,False
+Week 3 (Sept 11-13),@ Northwestern,Oregon,False
+Week 4 (Sept 18-20),Oregon,Oregon State,False
+Week 5 (Sept 25-27),@ Penn State,Oregon,False
+Week 7 (Oct 8-11),Oregon,Indiana,False
+Week 8 (Oct 14-18),@ Rutgers,Oregon,False
+Week 9 (Oct 21-25),Oregon,Wisconsin,False
+Week 11 (Nov 4-8),@ Iowa,Oregon,False
+Week 12 (Nov 11-15),Oregon,Minnesota,False
+Week 13 (Nov 18-22),Oregon,USC,False
+Week 14 (Nov 25-29),@ Washington,Oregon,False
+Week 1 (Aug 28-Sept 1),Penn State,Nevada,False
+Week 2 (Sept 5-6),Penn State,Florida International,False
+Week 3 (Sept 11-13),Penn State,Villanova,False
+Week 5 (Sept 25-27),Penn State,Oregon,False
+Week 6 (Oct 2-4),@ UCLA,Penn State,False
+Week 7 (Oct 8-11),Penn State,Northwestern,False
+Week 8 (Oct 14-18),@ Iowa,Penn State,False
+Week 10 (Oct 28-Nov 1),@ Ohio State,Penn State,False
+Week 11 (Nov 4-8),Penn State,Indiana,False
+Week 12 (Nov 11-15),@ Michigan State,Penn State,False
+Week 13 (Nov 18-22),Penn State,Nebraska,False
+Week 14 (Nov 25-29),@ Rutgers,Penn State,False
+Week 1 (Aug 28-Sept 1),Purdue,Ball State,False
+Week 2 (Sept 5-6),Purdue,Southern Illinois,False
+Week 3 (Sept 11-13),Purdue,USC,False
+Week 4 (Sept 18-20),@ Notre Dame,Purdue,False
+Week 6 (Oct 2-4),Purdue,Illinois,False
+Week 7 (Oct 8-11),@ Minnesota,Purdue,False
+Week 8 (Oct 14-18),@ Northwestern,Purdue,False
+Week 9 (Oct 21-25),Purdue,Rutgers,False
+Week 10 (Oct 28-Nov 1),@ Michigan,Purdue,False
+Week 11 (Nov 4-8),Purdue,Ohio State,False
+Week 12 (Nov 11-15),@ Washington,Purdue,False
+Week 14 (Nov 25-29),Purdue,Indiana,False
+Week 1 (Aug 28-Sept 1),Rutgers,Ohio,False
+Week 2 (Sept 5-6),Rutgers,Miami (OH),False
+Week 3 (Sept 11-13),Rutgers,Norfolk State,False
+Week 4 (Sept 18-20),Rutgers,Iowa,False
+Week 5 (Sept 25-27),@ Minnesota,Rutgers,False
+Week 7 (Oct 8-11),@ Washington,Rutgers,False
+Week 8 (Oct 14-18),Rutgers,Oregon,False
+Week 9 (Oct 21-25),@ Purdue,Rutgers,False
+Week 10 (Oct 28-Nov 1),@ Illinois,Rutgers,False
+Week 11 (Nov 4-8),Rutgers,Maryland,False
+Week 13 (Nov 18-22),@ Ohio State,Rutgers,False
+Week 14 (Nov 25-29),Rutgers,Penn State,False
+Week 1 (Aug 28-Sept 1),UCLA,Utah,False
+Week 2 (Sept 5-6),@ UNLV,UCLA,False
+Week 3 (Sept 11-13),UCLA,New Mexico,False
+Week 5 (Sept 25-27),@ Northwestern,UCLA,False
+Week 6 (Oct 2-4),UCLA,Penn State,False
+Week 7 (Oct 8-11),@ Michigan State,UCLA,False
+Week 8 (Oct 14-18),UCLA,Maryland,False
+Week 9 (Oct 21-25),@ Indiana,UCLA,False
+Week 11 (Nov 4-8),UCLA,Nebraska,False
+Week 12 (Nov 11-15),@ Ohio State,UCLA,False
+Week 13 (Nov 18-22),UCLA,Washington,False
+Week 14 (Nov 25-29),@ USC,UCLA,False
+Week 1 (Aug 28-Sept 1),USC,Missouri State,False
+Week 2 (Sept 5-6),USC,Georgia Southern,False
+Week 3 (Sept 11-13),@ Purdue,USC,False
+Week 4 (Sept 18-20),USC,Michigan State,False
+Week 5 (Sept 25-27),@ Illinois,USC,False
+Week 7 (Oct 8-11),USC,Michigan,False
+Week 8 (Oct 14-18),@ Notre Dame,USC,False
+Week 10 (Oct 28-Nov 1),@ Nebraska,USC,False
+Week 11 (Nov 4-8),USC,Northwestern,False
+Week 12 (Nov 11-15),USC,Iowa,False
+Week 13 (Nov 18-22),@ Oregon,USC,False
+Week 14 (Nov 25-29),USC,UCLA,False
+Week 1 (Aug 28-Sept 1),Washington,Colorado State,False
+Week 2 (Sept 5-6),Washington,UC Davis,False
+Week 4 (Sept 18-20),@ Washington State,Washington,False
+Week 5 (Sept 25-27),Washington,Ohio State,False
+Week 6 (Oct 2-4),@ Maryland,Washington,False
+Week 7 (Oct 8-11),Washington,Rutgers,False
+Week 8 (Oct 14-18),@ Michigan,Washington,False
+Week 9 (Oct 21-25),Washington,Illinois,False
+Week 11 (Nov 4-8),@ Wisconsin,Washington,False
+Week 12 (Nov 11-15),Washington,Purdue,False
+Week 13 (Nov 18-22),@ UCLA,Washington,False
+Week 14 (Nov 25-29),Washington,Oregon,False
+Week 1 (Aug 28-Sept 1),Wisconsin,Miami (OH),False
+Week 2 (Sept 5-6),Wisconsin,Middle Tennessee,False
+Week 3 (Sept 11-13),@ Alabama,Wisconsin,False
+Week 4 (Sept 18-20),Wisconsin,Maryland,False
+Week 6 (Oct 2-4),@ Michigan,Wisconsin,False
+Week 7 (Oct 8-11),Wisconsin,Iowa,False
+Week 8 (Oct 14-18),Wisconsin,Ohio State,False
+Week 9 (Oct 21-25),@ Oregon,Wisconsin,False
+Week 11 (Nov 4-8),Wisconsin,Washington,False
+Week 12 (Nov 11-15),@ Indiana,Wisconsin,False
+Week 13 (Nov 18-22),Wisconsin,Illinois,False
+Week 14 (Nov 25-29),@ Minnesota,Wisconsin,False
+Week 1 (Aug 28-Sept 1),@ Florida State,Alabama,False
+Week 2 (Sept 5-6),Alabama,Louisiana Monroe,False
+Week 3 (Sept 11-13),Alabama,Wisconsin,False
+Week 5 (Sept 25-27),@ Georgia,Alabama,False
+Week 6 (Oct 2-4),Alabama,Vanderbilt,False
+Week 7 (Oct 8-11),@ Missouri,Alabama,False
+Week 8 (Oct 14-18),Alabama,Tennessee,False
+Week 9 (Oct 21-25),@ South Carolina,Alabama,False
+Week 11 (Nov 4-8),Alabama,LSU,False
+Week 12 (Nov 11-15),Alabama,Oklahoma,False
+Week 13 (Nov 18-22),Alabama,Eastern Illinois,False
+Week 14 (Nov 25-29),@ Auburn,Alabama,False
+Week 1 (Aug 28-Sept 1),Arkansas,Alabama A&M,False
+Week 2 (Sept 5-6),Arkansas,Arkansas State,False
+Week 3 (Sept 11-13),@ Ole Miss,Arkansas,False
+Week 4 (Sept 18-20),@ Memphis,Arkansas,False
+Week 5 (Sept 25-27),Arkansas,Notre Dame,False
+Week 7 (Oct 8-11),@ Tennessee,Arkansas,False
+Week 8 (Oct 14-18),Arkansas,Texas A&M,False
+Week 9 (Oct 21-25),Arkansas,Auburn,False
+Week 10 (Oct 28-Nov 1),Arkansas,Mississippi State,False
+Week 12 (Nov 11-15),@ LSU,Arkansas,False
+Week 13 (Nov 18-22),@ Texas,Arkansas,False
+Week 14 (Nov 25-29),Arkansas,Missouri,False
+Week 1 (Aug 28-Sept 1),@ Baylor,Auburn,False
+Week 2 (Sept 5-6),Auburn,Ball State,False
+Week 3 (Sept 11-13),Auburn,South Alabama,False
+Week 4 (Sept 18-20),@ Oklahoma,Auburn,False
+Week 5 (Sept 25-27),@ Texas A&M,Auburn,False
+Week 7 (Oct 8-11),Auburn,Georgia,False
+Week 8 (Oct 14-18),Auburn,Missouri,False
+Week 9 (Oct 21-25),@ Arkansas,Auburn,False
+Week 10 (Oct 28-Nov 1),Auburn,Kentucky,False
+Week 11 (Nov 4-8),@ Vanderbilt,Auburn,False
+Week 13 (Nov 18-22),Auburn,Mercer,False
+Week 14 (Nov 25-29),Auburn,Alabama,False
+Week 1 (Aug 28-Sept 1),Florida,Long Island,False
+Week 2 (Sept 5-6),Florida,USF,False
+Week 3 (Sept 11-13),@ LSU,Florida,False
+Week 4 (Sept 18-20),@ Miami (FL),Florida,False
+Week 6 (Oct 2-4),Florida,Texas,False
+Week 7 (Oct 8-11),@ Texas A&M,Florida,False
+Week 8 (Oct 14-18),Florida,Mississippi State,False
+Week 10 (Oct 28-Nov 1),Florida,vs Georgia,True
+Week 11 (Nov 4-8),@ Kentucky,Florida,False
+Week 12 (Nov 11-15),@ Ole Miss,Florida,False
+Week 13 (Nov 18-22),Florida,Tennessee,False
+Week 14 (Nov 25-29),Florida,Florida State,False
+Week 1 (Aug 28-Sept 1),Georgia,Marshall,False
+Week 2 (Sept 5-6),Georgia,Austin Peay,False
+Week 3 (Sept 11-13),@ Tennessee,Georgia,False
+Week 5 (Sept 25-27),Georgia,Alabama,False
+Week 6 (Oct 2-4),Georgia,Kentucky,False
+Week 7 (Oct 8-11),@ Auburn,Georgia,False
+Week 8 (Oct 14-18),Georgia,Ole Miss,False
+Week 10 (Oct 28-Nov 1),Georgia,vs Florida,True
+Week 11 (Nov 4-8),@ Mississippi State,Georgia,False
+Week 12 (Nov 11-15),Georgia,Texas,False
+Week 13 (Nov 18-22),Georgia,Charlotte,False
+Week 14 (Nov 25-29),@ Georgia Tech,Georgia,False
+Week 1 (Aug 28-Sept 1),Kentucky,Toledo,False
+Week 2 (Sept 5-6),Kentucky,Ole Miss,False
+Week 3 (Sept 11-13),Kentucky,Eastern Michigan,False
+Week 5 (Sept 25-27),@ South Carolina,Kentucky,False
+Week 6 (Oct 2-4),@ Georgia,Kentucky,False
+Week 8 (Oct 14-18),Kentucky,Texas,False
+Week 9 (Oct 21-25),Kentucky,Tennessee,False
+Week 10 (Oct 28-Nov 1),@ Auburn,Kentucky,False
+Week 11 (Nov 4-8),Kentucky,Florida,False
+Week 12 (Nov 11-15),Kentucky,Tennessee Tech,False
+Week 13 (Nov 18-22),@ Vanderbilt,Kentucky,False
+Week 14 (Nov 25-29),@ Louisville,Kentucky,False
+Week 1 (Aug 28-Sept 1),@ Clemson,LSU,False
+Week 2 (Sept 5-6),LSU,Louisiana Tech,False
+Week 3 (Sept 11-13),LSU,Florida,False
+Week 4 (Sept 18-20),LSU,Southeastern LA,False
+Week 5 (Sept 25-27),@ Ole Miss,LSU,False
+Week 7 (Oct 8-11),LSU,South Carolina,False
+Week 8 (Oct 14-18),@ Vanderbilt,LSU,False
+Week 9 (Oct 21-25),LSU,Texas A&M,False
+Week 11 (Nov 4-8),@ Alabama,LSU,False
+Week 12 (Nov 11-15),LSU,Arkansas,False
+Week 13 (Nov 18-22),LSU,Western Kentucky,False
+Week 14 (Nov 25-29),@ Oklahoma,LSU,False
+Week 1 (Aug 28-Sept 1),@ Southern Miss,Mississippi State,False
+Week 2 (Sept 5-6),Mississippi State,Arizona State,False
+Week 3 (Sept 11-13),Mississippi State,Alcorn State,False
+Week 4 (Sept 18-20),Mississippi State,Northern Illinois,False
+Week 5 (Sept 25-27),Mississippi State,Tennessee,False
+Week 6 (Oct 2-4),@ Texas A&M,Mississippi State,False
+Week 8 (Oct 14-18),@ Florida,Mississippi State,False
+Week 9 (Oct 21-25),Mississippi State,Texas,False
+Week 10 (Oct 28-Nov 1),@ Arkansas,Mississippi State,False
+Week 11 (Nov 4-8),Mississippi State,Georgia,False
+Week 12 (Nov 11-15),@ Missouri,Mississippi State,False
+Week 14 (Nov 25-29),Mississippi State,Ole Miss,False
+Week 1 (Aug 28-Sept 1),Missouri,Central Arkansas,False
+Week 2 (Sept 5-6),Missouri,Kansas,False
+Week 3 (Sept 11-13),Missouri,Louisiana,False
+Week 4 (Sept 18-20),Missouri,South Carolina,False
+Week 5 (Sept 25-27),Missouri,UMass,False
+Week 7 (Oct 8-11),Missouri,Alabama,False
+Week 8 (Oct 14-18),@ Auburn,Missouri,False
+Week 9 (Oct 21-25),@ Vanderbilt,Missouri,False
+Week 11 (Nov 4-8),Missouri,Texas A&M,False
+Week 12 (Nov 11-15),Missouri,Mississippi State,False
+Week 13 (Nov 18-22),@ Oklahoma,Missouri,False
+Week 14 (Nov 25-29),@ Arkansas,Missouri,False
+Week 1 (Aug 28-Sept 1),Oklahoma,Illinois State,False
+Week 2 (Sept 5-6),Oklahoma,Michigan,False
+Week 3 (Sept 11-13),@ Temple,Oklahoma,False
+Week 4 (Sept 18-20),Oklahoma,Auburn,False
+Week 6 (Oct 2-4),Oklahoma,Kent State,False
+Week 7 (Oct 8-11),Oklahoma,vs Texas,True
+Week 8 (Oct 14-18),@ South Carolina,Oklahoma,False
+Week 9 (Oct 21-25),Oklahoma,Ole Miss,False
+Week 10 (Oct 28-Nov 1),@ Tennessee,Oklahoma,False
+Week 12 (Nov 11-15),@ Alabama,Oklahoma,False
+Week 13 (Nov 18-22),Oklahoma,Missouri,False
+Week 14 (Nov 25-29),Oklahoma,LSU,False
+Week 1 (Aug 28-Sept 1),Ole Miss,Georgia State,False
+Week 2 (Sept 5-6),@ Kentucky,Ole Miss,False
+Week 3 (Sept 11-13),Ole Miss,Arkansas,False
+Week 4 (Sept 18-20),Ole Miss,Tulane,False
+Week 5 (Sept 25-27),Ole Miss,LSU,False
+Week 7 (Oct 8-11),Ole Miss,Washington State,False
+Week 8 (Oct 14-18),@ Georgia,Ole Miss,False
+Week 9 (Oct 21-25),@ Oklahoma,Ole Miss,False
+Week 10 (Oct 28-Nov 1),Ole Miss,South Carolina,False
+Week 11 (Nov 4-8),Ole Miss,The Citadel,False
+Week 12 (Nov 11-15),Ole Miss,Florida,False
+Week 14 (Nov 25-29),@ Mississippi State,Ole Miss,False
+Week 1 (Aug 28-Sept 1),South Carolina,vs Virginia Tech,True
+Week 2 (Sept 5-6),South Carolina,SC State,False
+Week 3 (Sept 11-13),South Carolina,Vanderbilt,False
+Week 4 (Sept 18-20),@ Missouri,South Carolina,False
+Week 5 (Sept 25-27),South Carolina,Kentucky,False
+Week 7 (Oct 8-11),@ LSU,South Carolina,False
+Week 8 (Oct 14-18),South Carolina,Oklahoma,False
+Week 9 (Oct 21-25),South Carolina,Alabama,False
+Week 10 (Oct 28-Nov 1),@ Ole Miss,South Carolina,False
+Week 12 (Nov 11-15),@ Texas A&M,South Carolina,False
+Week 13 (Nov 18-22),South Carolina,Coastal Carolina,False
+Week 14 (Nov 25-29),South Carolina,Clemson,False
+Week 1 (Aug 28-Sept 1),Tennessee,vs Syracuse,True
+Week 2 (Sept 5-6),Tennessee,ETSU,False
+Week 3 (Sept 11-13),Tennessee,Georgia,False
+Week 4 (Sept 18-20),Tennessee,UAB,False
+Week 5 (Sept 25-27),@ Mississippi State,Tennessee,False
+Week 7 (Oct 8-11),Tennessee,Arkansas,False
+Week 8 (Oct 14-18),@ Alabama,Tennessee,False
+Week 9 (Oct 21-25),@ Kentucky,Tennessee,False
+Week 10 (Oct 28-Nov 1),Tennessee,Oklahoma,False
+Week 12 (Nov 11-15),Tennessee,New Mexico State,False
+Week 13 (Nov 18-22),@ Florida,Tennessee,False
+Week 14 (Nov 25-29),Tennessee,Vanderbilt,False
+Week 1 (Aug 28-Sept 1),@ Ohio State,Texas,False
+Week 2 (Sept 5-6),Texas,San Jose State,False
+Week 3 (Sept 11-13),Texas,UTEP,False
+Week 4 (Sept 18-20),Texas,Sam Houston,False
+Week 6 (Oct 2-4),@ Florida,Texas,False
+Week 7 (Oct 8-11),Texas,vs Oklahoma,True
+Week 8 (Oct 14-18),@ Kentucky,Texas,False
+Week 9 (Oct 21-25),@ Mississippi State,Texas,False
+Week 10 (Oct 28-Nov 1),Texas,Vanderbilt,False
+Week 12 (Nov 11-15),@ Georgia,Texas,False
+Week 13 (Nov 18-22),Texas,Arkansas,False
+Week 14 (Nov 25-29),Texas,Texas A&M,False
+Week 1 (Aug 28-Sept 1),Texas A&M,UTSA,False
+Week 2 (Sept 5-6),Texas A&M,Utah State,False
+Week 3 (Sept 11-13),@ Notre Dame,Texas A&M,False
+Week 5 (Sept 25-27),Texas A&M,Auburn,False
+Week 6 (Oct 2-4),Texas A&M,Mississippi State,False
+Week 7 (Oct 8-11),Texas A&M,Florida,False
+Week 8 (Oct 14-18),@ Arkansas,Texas A&M,False
+Week 9 (Oct 21-25),@ LSU,Texas A&M,False
+Week 11 (Nov 4-8),@ Missouri,Texas A&M,False
+Week 12 (Nov 11-15),Texas A&M,South Carolina,False
+Week 13 (Nov 18-22),Texas A&M,Samford,False
+Week 14 (Nov 25-29),@ Texas,Texas A&M,False
+Week 1 (Aug 28-Sept 1),Vanderbilt,Charleston Southern,False
+Week 2 (Sept 5-6),@ Virginia Tech,Vanderbilt,False
+Week 3 (Sept 11-13),@ South Carolina,Vanderbilt,False
+Week 4 (Sept 18-20),Vanderbilt,Georgia State,False
+Week 5 (Sept 25-27),Vanderbilt,Utah State,False
+Week 6 (Oct 2-4),@ Alabama,Vanderbilt,False
+Week 8 (Oct 14-18),Vanderbilt,LSU,False
+Week 9 (Oct 21-25),Vanderbilt,Missouri,False
+Week 10 (Oct 28-Nov 1),@ Texas,Vanderbilt,False
+Week 11 (Nov 4-8),Vanderbilt,Auburn,False
+Week 13 (Nov 18-22),Vanderbilt,Kentucky,False
+Week 14 (Nov 25-29),@ Tennessee,Vanderbilt,False
+Week 1 (Aug 28-Sept 1),Army,Tarleton State,False
+Week 2 (Sept 5-6),@ Kansas State,Army,False
+Week 4 (Sept 18-20),Army,North Texas,False
+Week 5 (Sept 25-27),@ East Carolina,Army,False
+Week 6 (Oct 2-4),@ UAB,Army,False
+Week 7 (Oct 8-11),Army,Charlotte,False
+Week 8 (Oct 14-18),@ Tulane,Army,False
+Week 10 (Oct 28-Nov 1),@ Air Force,Army,False
+Week 11 (Nov 4-8),Army,Temple,False
+Week 13 (Nov 18-22),Army,Tulsa,False
+Week 14 (Nov 25-29),@ UTSA,Army,False
+Week 1 (Aug 28-Sept 1),Charlotte,vs Appalachian State,True
+Week 2 (Sept 5-6),Charlotte,North Carolina,False
+Week 3 (Sept 11-13),Charlotte,Monmouth,False
+Week 4 (Sept 18-20),Charlotte,Rice,False
+Week 6 (Oct 2-4),@ USF,Charlotte,False
+Week 7 (Oct 8-11),@ Army,Charlotte,False
+Week 8 (Oct 14-18),Charlotte,Temple,False
+Week 9 (Oct 21-25),Charlotte,North Texas,False
+Week 11 (Nov 4-8),@ East Carolina,Charlotte,False
+Week 12 (Nov 11-15),Charlotte,UTSA,False
+Week 13 (Nov 18-22),@ Georgia,Charlotte,False
+Week 14 (Nov 25-29),@ Tulane,Charlotte,False
+Week 1 (Aug 28-Sept 1),@ NC State,East Carolina,False
+Week 2 (Sept 5-6),East Carolina,Campbell,False
+Week 3 (Sept 11-13),@ Coastal Carolina,East Carolina,False
+Week 4 (Sept 18-20),East Carolina,BYU,False
+Week 5 (Sept 25-27),East Carolina,Army,False
+Week 7 (Oct 8-11),@ Tulane,East Carolina,False
+Week 8 (Oct 14-18),East Carolina,Tulsa,False
+Week 10 (Oct 28-Nov 1),@ Temple,East Carolina,False
+Week 11 (Nov 4-8),East Carolina,Charlotte,False
+Week 12 (Nov 11-15),East Carolina,Memphis,False
+Week 13 (Nov 18-22),@ UTSA,East Carolina,False
+Week 14 (Nov 25-29),@ Florida Atlantic,East Carolina,False
+Week 1 (Aug 28-Sept 1),@ Maryland,Florida Atlantic,False
+Week 2 (Sept 5-6),Florida Atlantic,Florida A&M,False
+Week 3 (Sept 11-13),@ Florida International,Florida Atlantic,False
+Week 5 (Sept 25-27),Florida Atlantic,Memphis,False
+Week 6 (Oct 2-4),@ Rice,Florida Atlantic,False
+Week 7 (Oct 8-11),Florida Atlantic,UAB,False
+Week 8 (Oct 14-18),@ USF,Florida Atlantic,False
+Week 9 (Oct 21-25),@ Navy,Florida Atlantic,False
+Week 11 (Nov 4-8),Florida Atlantic,Tulsa,False
+Week 12 (Nov 11-15),@ Tulane,Florida Atlantic,False
+Week 13 (Nov 18-22),Florida Atlantic,UConn,False
+Week 14 (Nov 25-29),Florida Atlantic,East Carolina,False
+Week 1 (Aug 28-Sept 1),Memphis,Chattanooga,False
+Week 2 (Sept 5-6),@ Georgia State,Memphis,False
+Week 3 (Sept 11-13),@ Troy,Memphis,False
+Week 4 (Sept 18-20),Memphis,Arkansas,False
+Week 5 (Sept 25-27),@ Florida Atlantic,Memphis,False
+Week 6 (Oct 2-4),Memphis,Tulsa,False
+Week 8 (Oct 14-18),@ UAB,Memphis,False
+Week 9 (Oct 21-25),Memphis,USF,False
+Week 10 (Oct 28-Nov 1),@ Rice,Memphis,False
+Week 11 (Nov 4-8),Memphis,Tulane,False
+Week 12 (Nov 11-15),@ East Carolina,Memphis,False
+Week 14 (Nov 25-29),Memphis,Navy,False
+Week 1 (Aug 28-Sept 1),Navy,VMI,False
+Week 2 (Sept 5-6),Navy,UAB,False
+Week 3 (Sept 11-13),@ Tulsa,Navy,False
+Week 5 (Sept 25-27),Navy,Rice,False
+Week 6 (Oct 2-4),Navy,Air Force,False
+Week 7 (Oct 8-11),@ Temple,Navy,False
+Week 9 (Oct 21-25),Navy,Florida Atlantic,False
+Week 10 (Oct 28-Nov 1),@ North Texas,Navy,False
+Week 11 (Nov 4-8),@ Notre Dame,Navy,False
+Week 12 (Nov 11-15),Navy,USF,False
+Week 14 (Nov 25-29),@ Memphis,Navy,False
+Week 1 (Aug 28-Sept 1),North Texas,Lamar,False
+Week 2 (Sept 5-6),@ Western Michigan,North Texas,False
+Week 3 (Sept 11-13),North Texas,Washington State,False
+Week 4 (Sept 18-20),@ Army,North Texas,False
+Week 5 (Sept 25-27),North Texas,South Alabama,False
+Week 7 (Oct 8-11),North Texas,USF,False
+Week 8 (Oct 14-18),North Texas,UTSA,False
+Week 9 (Oct 21-25),@ Charlotte,North Texas,False
+Week 10 (Oct 28-Nov 1),North Texas,Navy,False
+Week 12 (Nov 11-15),@ UAB,North Texas,False
+Week 13 (Nov 18-22),@ Rice,North Texas,False
+Week 14 (Nov 25-29),North Texas,Temple,False
+Week 1 (Aug 28-Sept 1),@ Louisiana,Rice,False
+Week 2 (Sept 5-6),Rice,Houston,False
+Week 3 (Sept 11-13),Rice,Prairie View A&M,False
+Week 4 (Sept 18-20),@ Charlotte,Rice,False
+Week 5 (Sept 25-27),@ Navy,Rice,False
+Week 6 (Oct 2-4),Rice,Florida Atlantic,False
+Week 7 (Oct 8-11),@ UTSA,Rice,False
+Week 9 (Oct 21-25),Rice,UConn,False
+Week 10 (Oct 28-Nov 1),Rice,Memphis,False
+Week 11 (Nov 4-8),Rice,UAB,False
+Week 13 (Nov 18-22),Rice,North Texas,False
+Week 14 (Nov 25-29),@ USF,Rice,False
+Week 1 (Aug 28-Sept 1),@ UMass,Temple,False
+Week 2 (Sept 5-6),Temple,Howard,False
+Week 3 (Sept 11-13),Temple,Oklahoma,False
+Week 4 (Sept 18-20),@ Georgia Tech,Temple,False
+Week 6 (Oct 2-4),Temple,UTSA,False
+Week 7 (Oct 8-11),Temple,Navy,False
+Week 8 (Oct 14-18),@ Charlotte,Temple,False
+Week 9 (Oct 21-25),@ Tulsa,Temple,False
+Week 10 (Oct 28-Nov 1),Temple,East Carolina,False
+Week 11 (Nov 4-8),@ Army,Temple,False
+Week 13 (Nov 18-22),Temple,Tulane,False
+Week 14 (Nov 25-29),@ North Texas,Temple,False
+Week 1 (Aug 28-Sept 1),Tulane,Northwestern,False
+Week 2 (Sept 5-6),@ South Alabama,Tulane,False
+Week 3 (Sept 11-13),Tulane,Duke,False
+Week 4 (Sept 18-20),@ Ole Miss,Tulane,False
+Week 5 (Sept 25-27),@ Tulsa,Tulane,False
+Week 7 (Oct 8-11),Tulane,East Carolina,False
+Week 8 (Oct 14-18),Tulane,Army,False
+Week 10 (Oct 28-Nov 1),@ UTSA,Tulane,False
+Week 11 (Nov 4-8),@ Memphis,Tulane,False
+Week 12 (Nov 11-15),Tulane,Florida Atlantic,False
+Week 13 (Nov 18-22),@ Temple,Tulane,False
+Week 14 (Nov 25-29),Tulane,Charlotte,False
+Week 1 (Aug 28-Sept 1),Tulsa,Abilene Christian,False
+Week 2 (Sept 5-6),@ New Mexico State,Tulsa,False
+Week 3 (Sept 11-13),Tulsa,Navy,False
+Week 4 (Sept 18-20),@ Oklahoma State,Tulsa,False
+Week 5 (Sept 25-27),Tulsa,Tulane,False
+Week 6 (Oct 2-4),@ Memphis,Tulsa,False
+Week 8 (Oct 14-18),@ East Carolina,Tulsa,False
+Week 9 (Oct 21-25),Tulsa,Temple,False
+Week 11 (Nov 4-8),@ Florida Atlantic,Tulsa,False
+Week 12 (Nov 11-15),Tulsa,Oregon State,False
+Week 13 (Nov 18-22),@ Army,Tulsa,False
+Week 14 (Nov 25-29),Tulsa,UAB,False
+Week 1 (Aug 28-Sept 1),UAB,Alabama State,False
+Week 2 (Sept 5-6),@ Navy,UAB,False
+Week 3 (Sept 11-13),UAB,Akron,False
+Week 4 (Sept 18-20),@ Tennessee,UAB,False
+Week 6 (Oct 2-4),UAB,Army,False
+Week 7 (Oct 8-11),@ Florida Atlantic,UAB,False
+Week 8 (Oct 14-18),UAB,Memphis,False
+Week 10 (Oct 28-Nov 1),@ UConn,UAB,False
+Week 11 (Nov 4-8),@ Rice,UAB,False
+Week 12 (Nov 11-15),UAB,North Texas,False
+Week 13 (Nov 18-22),UAB,USF,False
+Week 14 (Nov 25-29),@ Tulsa,UAB,False
+Week 1 (Aug 28-Sept 1),USF,Boise State,False
+Week 2 (Sept 5-6),@ Florida,USF,False
+Week 3 (Sept 11-13),@ Miami (FL),USF,False
+Week 4 (Sept 18-20),USF,SC State,False
+Week 6 (Oct 2-4),USF,Charlotte,False
+Week 7 (Oct 8-11),@ North Texas,USF,False
+Week 8 (Oct 14-18),USF,Florida Atlantic,False
+Week 9 (Oct 21-25),@ Memphis,USF,False
+Week 11 (Nov 4-8),USF,UTSA,False
+Week 12 (Nov 11-15),@ Navy,USF,False
+Week 13 (Nov 18-22),@ UAB,USF,False
+Week 14 (Nov 25-29),USF,Rice,False
+Week 1 (Aug 28-Sept 1),@ Texas A&M,UTSA,False
+Week 2 (Sept 5-6),UTSA,Texas State,False
+Week 3 (Sept 11-13),UTSA,Incarnate Word,False
+Week 4 (Sept 18-20),@ Colorado State,UTSA,False
+Week 6 (Oct 2-4),@ Temple,UTSA,False
+Week 7 (Oct 8-11),UTSA,Rice,False
+Week 8 (Oct 14-18),@ North Texas,UTSA,False
+Week 10 (Oct 28-Nov 1),UTSA,Tulane,False
+Week 11 (Nov 4-8),@ USF,UTSA,False
+Week 12 (Nov 11-15),@ Charlotte,UTSA,False
+Week 13 (Nov 18-22),UTSA,East Carolina,False
+Week 14 (Nov 25-29),UTSA,Army,False
+Week 1 (Aug 28-Sept 1),Delaware,Delaware State,False
+Week 2 (Sept 5-6),@ Colorado,Delaware,False
+Week 3 (Sept 11-13),Delaware,UConn,False
+Week 4 (Sept 18-20),@ Florida International,Delaware,False
+Week 6 (Oct 2-4),Delaware,Western Kentucky,False
+Week 8 (Oct 14-18),@ Jacksonville State,Delaware,False
+Week 9 (Oct 21-25),Delaware,Middle Tennessee,False
+Week 10 (Oct 28-Nov 1),@ Liberty,Delaware,False
+Week 11 (Nov 4-8),Delaware,Louisiana Tech,False
+Week 12 (Nov 11-15),@ Sam Houston,Delaware,False
+Week 13 (Nov 18-22),@ Wake Forest,Delaware,False
+Week 14 (Nov 25-29),Delaware,UTEP,False
+Week 1 (Aug 28-Sept 1),Florida International,Bethune-Cookman,False
+Week 2 (Sept 5-6),@ Penn State,Florida International,False
+Week 3 (Sept 11-13),Florida International,Florida Atlantic,False
+Week 4 (Sept 18-20),Florida International,Delaware,False
+Week 6 (Oct 2-4),@ UConn,Florida International,False
+Week 8 (Oct 14-18),@ Western Kentucky,Florida International,False
+Week 9 (Oct 21-25),Florida International,Kennesaw State,False
+Week 10 (Oct 28-Nov 1),@ Missouri State,Florida International,False
+Week 11 (Nov 4-8),@ Middle Tennessee,Florida International,False
+Week 12 (Nov 11-15),Florida International,Liberty,False
+Week 13 (Nov 18-22),Florida International,Jacksonville State,False
+Week 14 (Nov 25-29),@ Sam Houston,Florida International,False
+Week 1 (Aug 28-Sept 1),@ UCF,Jacksonville State,False
+Week 2 (Sept 5-6),Jacksonville State,Liberty,False
+Week 3 (Sept 11-13),@ Georgia Southern,Jacksonville State,False
+Week 4 (Sept 18-20),Jacksonville State,Murray State,False
+Week 5 (Sept 25-27),@ Southern Miss,Jacksonville State,False
+Week 7 (Oct 8-11),@ Sam Houston,Jacksonville State,False
+Week 8 (Oct 14-18),Jacksonville State,Delaware,False
+Week 10 (Oct 28-Nov 1),@ Middle Tennessee,Jacksonville State,False
+Week 11 (Nov 4-8),@ UTEP,Jacksonville State,False
+Week 12 (Nov 11-15),Jacksonville State,Kennesaw State,False
+Week 13 (Nov 18-22),@ Florida International,Jacksonville State,False
+Week 14 (Nov 25-29),Jacksonville State,Western Kentucky,False
+Week 1 (Aug 28-Sept 1),@ Wake Forest,Kennesaw State,False
+Week 2 (Sept 5-6),@ Indiana,Kennesaw State,False
+Week 3 (Sept 11-13),Kennesaw State,Merrimack,False
+Week 4 (Sept 18-20),Kennesaw State,Arkansas State,False
+Week 5 (Sept 25-27),Kennesaw State,Middle Tennessee,False
+Week 7 (Oct 8-11),Kennesaw State,Louisiana Tech,False
+Week 9 (Oct 21-25),@ Florida International,Kennesaw State,False
+Week 10 (Oct 28-Nov 1),Kennesaw State,UTEP,False
+Week 11 (Nov 4-8),@ New Mexico State,Kennesaw State,False
+Week 12 (Nov 11-15),@ Jacksonville State,Kennesaw State,False
+Week 13 (Nov 18-22),Kennesaw State,Missouri State,False
+Week 14 (Nov 25-29),@ Liberty,Kennesaw State,False
+Week 1 (Aug 28-Sept 1),Liberty,Maine,False
+Week 2 (Sept 5-6),@ Jacksonville State,Liberty,False
+Week 3 (Sept 11-13),@ Bowling Green,Liberty,False
+Week 4 (Sept 18-20),Liberty,James Madison,False
+Week 5 (Sept 25-27),@ Old Dominion,Liberty,False
+Week 7 (Oct 8-11),@ UTEP,Liberty,False
+Week 8 (Oct 14-18),Liberty,New Mexico State,False
+Week 10 (Oct 28-Nov 1),Liberty,Delaware,False
+Week 11 (Nov 4-8),Liberty,Missouri State,False
+Week 12 (Nov 11-15),@ Florida International,Liberty,False
+Week 13 (Nov 18-22),@ Louisiana Tech,Liberty,False
+Week 14 (Nov 25-29),Liberty,Kennesaw State,False
+Week 1 (Aug 28-Sept 1),Louisiana Tech,Southeastern LA,False
+Week 2 (Sept 5-6),@ LSU,Louisiana Tech,False
+Week 3 (Sept 11-13),Louisiana Tech,New Mexico State,False
+Week 4 (Sept 18-20),Louisiana Tech,Southern Miss,False
+Week 5 (Sept 25-27),@ UTEP,Louisiana Tech,False
+Week 7 (Oct 8-11),@ Kennesaw State,Louisiana Tech,False
+Week 9 (Oct 21-25),Louisiana Tech,Western Kentucky,False
+Week 10 (Oct 28-Nov 1),Louisiana Tech,Sam Houston,False
+Week 11 (Nov 4-8),@ Delaware,Louisiana Tech,False
+Week 12 (Nov 11-15),@ Washington State,Louisiana Tech,False
+Week 13 (Nov 18-22),Louisiana Tech,Liberty,False
+Week 14 (Nov 25-29),@ Missouri State,Louisiana Tech,False
+Week 1 (Aug 28-Sept 1),Middle Tennessee,Austin Peay,False
+Week 2 (Sept 5-6),@ Wisconsin,Middle Tennessee,False
+Week 3 (Sept 11-13),@ Nevada,Middle Tennessee,False
+Week 4 (Sept 18-20),Middle Tennessee,Marshall,False
+Week 5 (Sept 25-27),@ Kennesaw State,Middle Tennessee,False
+Week 7 (Oct 8-11),Middle Tennessee,Missouri State,False
+Week 9 (Oct 21-25),@ Delaware,Middle Tennessee,False
+Week 10 (Oct 28-Nov 1),Middle Tennessee,Jacksonville State,False
+Week 11 (Nov 4-8),Middle Tennessee,Florida International,False
+Week 12 (Nov 11-15),@ Western Kentucky,Middle Tennessee,False
+Week 13 (Nov 18-22),Middle Tennessee,Sam Houston,False
+Week 14 (Nov 25-29),@ New Mexico State,Middle Tennessee,False
+Week 1 (Aug 28-Sept 1),@ USC,Missouri State,False
+Week 2 (Sept 5-6),@ Marshall,Missouri State,False
+Week 3 (Sept 11-13),Missouri State,SMU,False
+Week 4 (Sept 18-20),Missouri State,UT Martin,False
+Week 5 (Sept 25-27),Missouri State,Western Kentucky,False
+Week 7 (Oct 8-11),@ Middle Tennessee,Missouri State,False
+Week 9 (Oct 21-25),@ New Mexico State,Missouri State,False
+Week 10 (Oct 28-Nov 1),Missouri State,Florida International,False
+Week 11 (Nov 4-8),@ Liberty,Missouri State,False
+Week 12 (Nov 11-15),Missouri State,UTEP,False
+Week 13 (Nov 18-22),@ Kennesaw State,Missouri State,False
+Week 14 (Nov 25-29),Missouri State,Louisiana Tech,False
+Week 1 (Aug 28-Sept 1),New Mexico State,Bryant,False
+Week 2 (Sept 5-6),New Mexico State,Tulsa,False
+Week 3 (Sept 11-13),@ Louisiana Tech,New Mexico State,False
+Week 5 (Sept 25-27),@ New Mexico,New Mexico State,False
+Week 6 (Oct 2-4),New Mexico State,Sam Houston,False
+Week 8 (Oct 14-18),@ Liberty,New Mexico State,False
+Week 9 (Oct 21-25),New Mexico State,Missouri State,False
+Week 10 (Oct 28-Nov 1),@ Western Kentucky,New Mexico State,False
+Week 11 (Nov 4-8),New Mexico State,Kennesaw State,False
+Week 12 (Nov 11-15),@ Tennessee,New Mexico State,False
+Week 13 (Nov 18-22),@ UTEP,New Mexico State,False
+Week 14 (Nov 25-29),New Mexico State,Middle Tennessee,False
+Week 0 (August 23),@ Western Kentucky,Sam Houston,False
+Week 1 (Aug 28-Sept 1),Sam Houston,UNLV,False
+Week 2 (Sept 5-6),@ Hawaii,Sam Houston,False
+Week 4 (Sept 18-20),@ Texas,Sam Houston,False
+Week 6 (Oct 2-4),@ New Mexico State,Sam Houston,False
+Week 7 (Oct 8-11),Sam Houston,Jacksonville State,False
+Week 8 (Oct 14-18),Sam Houston,UTEP,False
+Week 10 (Oct 28-Nov 1),@ Louisiana Tech,Sam Houston,False
+Week 11 (Nov 4-8),@ Oregon State,Sam Houston,False
+Week 12 (Nov 11-15),Sam Houston,Delaware,False
+Week 13 (Nov 18-22),@ Middle Tennessee,Sam Houston,False
+Week 14 (Nov 25-29),Sam Houston,Florida International,False
+Week 1 (Aug 28-Sept 1),@ Utah State,UTEP,False
+Week 2 (Sept 5-6),UTEP,UT Martin,False
+Week 3 (Sept 11-13),@ Texas,UTEP,False
+Week 4 (Sept 18-20),UTEP,Louisiana Monroe,False
+Week 5 (Sept 25-27),UTEP,Louisiana Tech,False
+Week 7 (Oct 8-11),UTEP,Liberty,False
+Week 8 (Oct 14-18),@ Sam Houston,UTEP,False
+Week 10 (Oct 28-Nov 1),@ Kennesaw State,UTEP,False
+Week 11 (Nov 4-8),UTEP,Jacksonville State,False
+Week 12 (Nov 11-15),@ Missouri State,UTEP,False
+Week 13 (Nov 18-22),UTEP,New Mexico State,False
+Week 14 (Nov 25-29),@ Delaware,UTEP,False
+Week 0 (August 23),Western Kentucky,Sam Houston,False
+Week 1 (Aug 28-Sept 1),Western Kentucky,North Alabama,False
+Week 2 (Sept 5-6),@ Toledo,Western Kentucky,False
+Week 4 (Sept 18-20),Western Kentucky,Nevada,False
+Week 5 (Sept 25-27),@ Missouri State,Western Kentucky,False
+Week 6 (Oct 2-4),@ Delaware,Western Kentucky,False
+Week 8 (Oct 14-18),Western Kentucky,Florida International,False
+Week 9 (Oct 21-25),@ Louisiana Tech,Western Kentucky,False
+Week 10 (Oct 28-Nov 1),Western Kentucky,New Mexico State,False
+Week 12 (Nov 11-15),Western Kentucky,Middle Tennessee,False
+Week 13 (Nov 18-22),@ LSU,Western Kentucky,False
+Week 14 (Nov 25-29),@ Jacksonville State,Western Kentucky,False
+Week 1 (Aug 28-Sept 1),Akron,Wyoming,False
+Week 2 (Sept 5-6),@ Nebraska,Akron,False
+Week 3 (Sept 11-13),@ UAB,Akron,False
+Week 4 (Sept 18-20),Akron,Duquesne,False
+Week 5 (Sept 25-27),@ Toledo,Akron,False
+Week 6 (Oct 2-4),Akron,Central Michigan,False
+Week 7 (Oct 8-11),Akron,Miami (OH),False
+Week 8 (Oct 14-18),@ Ball State,Akron,False
+Week 9 (Oct 21-25),@ Buffalo,Akron,False
+Week 11 (Nov 4-8),Akron,UMass,False
+Week 12 (Nov 11-15),Akron,Kent State,False
+Week 13 (Nov 18-22),@ Bowling Green,Akron,False
+Week 1 (Aug 28-Sept 1),@ Purdue,Ball State,False
+Week 2 (Sept 5-6),@ Auburn,Ball State,False
+Week 3 (Sept 11-13),Ball State,New Hampshire,False
+Week 4 (Sept 18-20),@ UConn,Ball State,False
+Week 6 (Oct 2-4),Ball State,Ohio,False
+Week 7 (Oct 8-11),@ Western Michigan,Ball State,False
+Week 8 (Oct 14-18),Ball State,Akron,False
+Week 9 (Oct 21-25),@ Northern Illinois,Ball State,False
+Week 11 (Nov 4-8),Ball State,Kent State,False
+Week 12 (Nov 11-15),Ball State,Eastern Michigan,False
+Week 13 (Nov 18-22),@ Toledo,Ball State,False
+Week 14 (Nov 25-29),@ Miami (OH),Ball State,False
+Week 1 (Aug 28-Sept 1),Bowling Green,Lafayette,False
+Week 2 (Sept 5-6),@ Cincinnati,Bowling Green,False
+Week 3 (Sept 11-13),Bowling Green,Liberty,False
+Week 4 (Sept 18-20),@ Louisville,Bowling Green,False
+Week 5 (Sept 25-27),@ Ohio,Bowling Green,False
+Week 7 (Oct 8-11),Bowling Green,Toledo,False
+Week 8 (Oct 14-18),Bowling Green,Central Michigan,False
+Week 9 (Oct 21-25),@ Kent State,Bowling Green,False
+Week 10 (Oct 28-Nov 1),Bowling Green,Buffalo,False
+Week 11 (Nov 4-8),@ Eastern Michigan,Bowling Green,False
+Week 13 (Nov 18-22),Bowling Green,Akron,False
+Week 14 (Nov 25-29),@ UMass,Bowling Green,False
+Week 1 (Aug 28-Sept 1),@ Minnesota,Buffalo,False
+Week 2 (Sept 5-6),Buffalo,Saint Francis,False
+Week 3 (Sept 11-13),@ Kent State,Buffalo,False
+Week 4 (Sept 18-20),Buffalo,Troy,False
+Week 5 (Sept 25-27),Buffalo,UConn,False
+Week 6 (Oct 2-4),Buffalo,Eastern Michigan,False
+Week 8 (Oct 14-18),@ UMass,Buffalo,False
+Week 9 (Oct 21-25),Buffalo,Akron,False
+Week 10 (Oct 28-Nov 1),@ Bowling Green,Buffalo,False
+Week 12 (Nov 11-15),@ Central Michigan,Buffalo,False
+Week 13 (Nov 18-22),Buffalo,Miami (OH),False
+Week 14 (Nov 25-29),Buffalo,Ohio,False
+Week 1 (Aug 28-Sept 1),Central Michigan,San Jose State,False
+Week 2 (Sept 5-6),@ Pitt,Central Michigan,False
+Week 3 (Sept 11-13),@ Michigan,Central Michigan,False
+Week 4 (Sept 18-20),Central Michigan,Wagner,False
+Week 5 (Sept 25-27),Central Michigan,Eastern Michigan,False
+Week 6 (Oct 2-4),@ Akron,Central Michigan,False
+Week 8 (Oct 14-18),@ Bowling Green,Central Michigan,False
+Week 9 (Oct 21-25),Central Michigan,UMass,False
+Week 10 (Oct 28-Nov 1),@ Western Michigan,Central Michigan,False
+Week 12 (Nov 11-15),Central Michigan,Buffalo,False
+Week 13 (Nov 18-22),@ Kent State,Central Michigan,False
+Week 14 (Nov 25-29),Central Michigan,Toledo,False
+Week 1 (Aug 28-Sept 1),@ Texas State,Eastern Michigan,False
+Week 2 (Sept 5-6),Eastern Michigan,Long Island,False
+Week 3 (Sept 11-13),@ Kentucky,Eastern Michigan,False
+Week 4 (Sept 18-20),Eastern Michigan,Louisiana,False
+Week 5 (Sept 25-27),@ Central Michigan,Eastern Michigan,False
+Week 6 (Oct 2-4),@ Buffalo,Eastern Michigan,False
+Week 7 (Oct 8-11),Eastern Michigan,Northern Illinois,False
+Week 8 (Oct 14-18),@ Miami (OH),Eastern Michigan,False
+Week 9 (Oct 21-25),Eastern Michigan,Ohio,False
+Week 11 (Nov 4-8),Eastern Michigan,Bowling Green,False
+Week 12 (Nov 11-15),@ Ball State,Eastern Michigan,False
+Week 14 (Nov 25-29),Eastern Michigan,Western Michigan,False
+Week 1 (Aug 28-Sept 1),Kent State,Merrimack,False
+Week 2 (Sept 5-6),@ Texas Tech,Kent State,False
+Week 3 (Sept 11-13),Kent State,Buffalo,False
+Week 4 (Sept 18-20),@ Florida State,Kent State,False
+Week 6 (Oct 2-4),@ Oklahoma,Kent State,False
+Week 7 (Oct 8-11),Kent State,UMass,False
+Week 8 (Oct 14-18),@ Toledo,Kent State,False
+Week 9 (Oct 21-25),Kent State,Bowling Green,False
+Week 11 (Nov 4-8),@ Ball State,Kent State,False
+Week 12 (Nov 11-15),@ Akron,Kent State,False
+Week 13 (Nov 18-22),Kent State,Central Michigan,False
+Week 14 (Nov 25-29),@ Northern Illinois,Kent State,False
+Week 1 (Aug 28-Sept 1),@ Wisconsin,Miami (OH),False
+Week 2 (Sept 5-6),@ Rutgers,Miami (OH),False
+Week 4 (Sept 18-20),Miami (OH),UNLV,False
+Week 5 (Sept 25-27),Miami (OH),Lindenwood,False
+Week 6 (Oct 2-4),@ Northern Illinois,Miami (OH),False
+Week 7 (Oct 8-11),@ Akron,Miami (OH),False
+Week 8 (Oct 14-18),Miami (OH),Eastern Michigan,False
+Week 9 (Oct 21-25),Miami (OH),Western Michigan,False
+Week 11 (Nov 4-8),@ Ohio,Miami (OH),False
+Week 12 (Nov 11-15),Miami (OH),Toledo,False
+Week 13 (Nov 18-22),@ Buffalo,Miami (OH),False
+Week 14 (Nov 25-29),Miami (OH),Ball State,False
+Week 1 (Aug 28-Sept 1),Northern Illinois,Holy Cross,False
+Week 2 (Sept 5-6),@ Maryland,Northern Illinois,False
+Week 4 (Sept 18-20),@ Mississippi State,Northern Illinois,False
+Week 5 (Sept 25-27),Northern Illinois,San Diego State,False
+Week 6 (Oct 2-4),Northern Illinois,Miami (OH),False
+Week 7 (Oct 8-11),@ Eastern Michigan,Northern Illinois,False
+Week 8 (Oct 14-18),@ Ohio,Northern Illinois,False
+Week 9 (Oct 21-25),Northern Illinois,Ball State,False
+Week 11 (Nov 4-8),@ Toledo,Northern Illinois,False
+Week 12 (Nov 11-15),@ UMass,Northern Illinois,False
+Week 13 (Nov 18-22),Northern Illinois,Western Michigan,False
+Week 14 (Nov 25-29),Northern Illinois,Kent State,False
+Week 1 (Aug 28-Sept 1),@ Rutgers,Ohio,False
+Week 2 (Sept 5-6),Ohio,West Virginia,False
+Week 3 (Sept 11-13),@ Ohio State,Ohio,False
+Week 4 (Sept 18-20),Ohio,Gardner-Webb,False
+Week 5 (Sept 25-27),Ohio,Bowling Green,False
+Week 6 (Oct 2-4),@ Ball State,Ohio,False
+Week 8 (Oct 14-18),Ohio,Northern Illinois,False
+Week 9 (Oct 21-25),@ Eastern Michigan,Ohio,False
+Week 11 (Nov 4-8),Ohio,Miami (OH),False
+Week 12 (Nov 11-15),@ Western Michigan,Ohio,False
+Week 13 (Nov 18-22),Ohio,UMass,False
+Week 14 (Nov 25-29),@ Buffalo,Ohio,False
+Week 1 (Aug 28-Sept 1),@ Kentucky,Toledo,False
+Week 2 (Sept 5-6),Toledo,Western Kentucky,False
+Week 3 (Sept 11-13),Toledo,Morgan State,False
+Week 4 (Sept 18-20),@ Western Michigan,Toledo,False
+Week 5 (Sept 25-27),Toledo,Akron,False
+Week 7 (Oct 8-11),@ Bowling Green,Toledo,False
+Week 8 (Oct 14-18),Toledo,Kent State,False
+Week 9 (Oct 21-25),@ Washington State,Toledo,False
+Week 11 (Nov 4-8),Toledo,Northern Illinois,False
+Week 12 (Nov 11-15),@ Miami (OH),Toledo,False
+Week 13 (Nov 18-22),Toledo,Ball State,False
+Week 14 (Nov 25-29),@ Central Michigan,Toledo,False
+Week 1 (Aug 28-Sept 1),UMass,Temple,False
+Week 2 (Sept 5-6),UMass,Bryant,False
+Week 3 (Sept 11-13),@ Iowa,UMass,False
+Week 5 (Sept 25-27),@ Missouri,UMass,False
+Week 6 (Oct 2-4),UMass,Western Michigan,False
+Week 7 (Oct 8-11),@ Kent State,UMass,False
+Week 8 (Oct 14-18),UMass,Buffalo,False
+Week 9 (Oct 21-25),@ Central Michigan,UMass,False
+Week 11 (Nov 4-8),@ Akron,UMass,False
+Week 12 (Nov 11-15),UMass,Northern Illinois,False
+Week 13 (Nov 18-22),@ Ohio,UMass,False
+Week 14 (Nov 25-29),UMass,Bowling Green,False
+Week 1 (Aug 28-Sept 1),@ Michigan State,Western Michigan,False
+Week 2 (Sept 5-6),Western Michigan,North Texas,False
+Week 3 (Sept 11-13),@ Illinois,Western Michigan,False
+Week 4 (Sept 18-20),Western Michigan,Toledo,False
+Week 5 (Sept 25-27),Western Michigan,Rhode Island,False
+Week 6 (Oct 2-4),@ UMass,Western Michigan,False
+Week 7 (Oct 8-11),Western Michigan,Ball state,False
+Week 9 (Oct 21-25),@ Miami (OH),Western Michigan,False
+Week 10 (Oct 28-Nov 1),Western Michigan,Central Michigan,False
+Week 12 (Nov 11-15),Western Michigan,Ohio,False
+Week 13 (Nov 18-22),@ Northern Illinois,Western Michigan,False
+Week 14 (Nov 25-29),@ Eastern Michigan,Western Michigan,False
+Week 1 (Aug 28-Sept 1),Air Force,Bucknell,False
+Week 3 (Sept 11-13),@ Utah State,Air Force,False
+Week 4 (Sept 18-20),Air Force,Boise State,False
+Week 5 (Sept 25-27),Air Force,Hawaii,False
+Week 6 (Oct 2-4),@ Navy,Air Force,False
+Week 7 (Oct 8-11),@ UNLV,Air Force,False
+Week 8 (Oct 14-18),Air Force,Wyoming,False
+Week 10 (Oct 28-Nov 1),Air Force,Army,False
+Week 11 (Nov 4-8),@ San Jose State,Air Force,False
+Week 12 (Nov 11-15),@ UConn,Air Force,False
+Week 13 (Nov 18-22),Air Force,New Mexico,False
+Week 14 (Nov 25-29),@ Colorado State,Air Force,False
+Week 1 (Aug 28-Sept 1),@ USF,Boise State,False
+Week 2 (Sept 5-6),Boise State,Eastern Washington,False
+Week 4 (Sept 18-20),@ Air Force,Boise State,False
+Week 5 (Sept 25-27),Boise State,Appalachian State,False
+Week 6 (Oct 2-4),@ Notre Dame,Boise State,False
+Week 7 (Oct 8-11),Boise State,New Mexico,False
+Week 8 (Oct 14-18),Boise State,UNLV,False
+Week 9 (Oct 21-25),@ Nevada,Boise State,False
+Week 10 (Oct 28-Nov 1),Boise State,Fresno State,False
+Week 12 (Nov 11-15),@ San Diego State,Boise State,False
+Week 13 (Nov 18-22),Boise State,Colorado State,False
+Week 14 (Nov 25-29),@ Utah State,Boise State,False
+Week 1 (Aug 28-Sept 1),Colorado State,Washington,False
+Week 2 (Sept 5-6),Colorado State,Northern Colorado,False
+Week 4 (Sept 18-20),Colorado State,UTSA,False
+Week 5 (Sept 25-27),Colorado State,Washington State,False
+Week 6 (Oct 2-4),@ San Diego State,Colorado State,False
+Week 7 (Oct 8-11),Colorado State,Fresno State,False
+Week 8 (Oct 14-18),Colorado State,Hawaii,False
+Week 9 (Oct 21-25),@ Wyoming,Colorado State,False
+Week 11 (Nov 4-8),Colorado State,UNLV,False
+Week 12 (Nov 11-15),@ New Mexico,Colorado State,False
+Week 13 (Nov 18-22),@ Boise State,Colorado State,False
+Week 14 (Nov 25-29),Colorado State,Air Force,False
+Week 0 (August 23),Fresno State,Kansas,False
+Week 1 (Aug 28-Sept 1),Fresno State,Georgia Southern,False
+Week 2 (Sept 5-6),@ Oregon State,Fresno State,False
+Week 3 (Sept 11-13),Fresno State,Southern,False
+Week 4 (Sept 18-20),@ Hawaii,Fresno State,False
+Week 6 (Oct 2-4),Fresno State,Nevada,False
+Week 7 (Oct 8-11),@ Colorado State,Fresno State,False
+Week 9 (Oct 21-25),Fresno State,San Diego State,False
+Week 10 (Oct 28-Nov 1),@ Boise State,Fresno State,False
+Week 12 (Nov 11-15),Fresno State,Wyoming,False
+Week 13 (Nov 18-22),Fresno State,Utah State,False
+Week 14 (Nov 25-29),@ San Jose State,Fresno State,False
+Week 0 (August 23),Hawaii,Stanford,False
+Week 1 (Aug 28-Sept 1),@ Arizona,Hawaii,False
+Week 2 (Sept 5-6),Hawaii,Sam Houston,False
+Week 3 (Sept 11-13),Hawaii,Portland State,False
+Week 4 (Sept 18-20),Hawaii,Fresno State,False
+Week 5 (Sept 25-27),@ Air Force,Hawaii,False
+Week 7 (Oct 8-11),Hawaii,Utah State,False
+Week 8 (Oct 14-18),@ Colorado State,Hawaii,False
+Week 10 (Oct 28-Nov 1),@ San Jose State,Hawaii,False
+Week 11 (Nov 4-8),Hawaii,San Diego State,False
+Week 13 (Nov 18-22),@ UNLV,Hawaii,False
+Week 14 (Nov 25-29),Hawaii,Wyoming,False
+Week 1 (Aug 28-Sept 1),@ Penn State,Nevada,False
+Week 2 (Sept 5-6),Nevada,Sacramento State,False
+Week 3 (Sept 11-13),Nevada,Middle Tennessee,False
+Week 4 (Sept 18-20),@ Western Kentucky,Nevada,False
+Week 6 (Oct 2-4),@ Fresno State,Nevada,False
+Week 7 (Oct 8-11),Nevada,San Diego State,False
+Week 8 (Oct 14-18),@ New Mexico,Nevada,False
+Week 9 (Oct 21-25),Nevada,Boise State,False
+Week 11 (Nov 4-8),@ Utah State,Nevada,False
+Week 12 (Nov 11-15),Nevada,San Jose State,False
+Week 13 (Nov 18-22),@ Wyoming,Nevada,False
+Week 14 (Nov 25-29),Nevada,UNLV,False
+Week 1 (Aug 28-Sept 1),@ Michigan,New Mexico,False
+Week 2 (Sept 5-6),New Mexico,Idaho State,False
+Week 3 (Sept 11-13),@ UCLA,New Mexico,False
+Week 5 (Sept 25-27),New Mexico,New Mexico State,False
+Week 6 (Oct 2-4),@ San Jose State,New Mexico,False
+Week 7 (Oct 8-11),@ Boise State,New Mexico,False
+Week 8 (Oct 14-18),New Mexico,Nevada,False
+Week 9 (Oct 21-25),New Mexico,Utah State,False
+Week 10 (Oct 28-Nov 1),@ UNLV,New Mexico,False
+Week 12 (Nov 11-15),New Mexico,Colorado State,False
+Week 13 (Nov 18-22),@ Air Force,New Mexico,False
+Week 14 (Nov 25-29),New Mexico,San Diego State,False
+Week 1 (Aug 28-Sept 1),San Diego State,Stony Brook,False
+Week 2 (Sept 5-6),@ Washington State,San Diego State,False
+Week 4 (Sept 18-20),San Diego State,Cal,False
+Week 5 (Sept 25-27),@ Northern Illinois,San Diego State,False
+Week 6 (Oct 2-4),San Diego State,Colorado State,False
+Week 7 (Oct 8-11),@ Nevada,San Diego State,False
+Week 9 (Oct 21-25),@ Fresno State,San Diego State,False
+Week 10 (Oct 28-Nov 1),San Diego State,Wyoming,False
+Week 11 (Nov 4-8),@ Hawaii,San Diego State,False
+Week 12 (Nov 11-15),San Diego State,Boise State,False
+Week 13 (Nov 18-22),San Diego State,San Jose State,False
+Week 14 (Nov 25-29),@ New Mexico,San Diego State,False
+Week 1 (Aug 28-Sept 1),San Jose State,Central Michigan,False
+Week 2 (Sept 5-6),@ Texas,San Jose State,False
+Week 4 (Sept 18-20),San Jose State,Idaho,False
+Week 5 (Sept 25-27),@ Stanford,San Jose State,False
+Week 6 (Oct 2-4),San Jose State,New Mexico,False
+Week 7 (Oct 8-11),@ Wyoming,San Jose State,False
+Week 8 (Oct 14-18),@ Utah State,San Jose State,False
+Week 10 (Oct 28-Nov 1),San Jose State,Hawaii,False
+Week 11 (Nov 4-8),San Jose State,Air Force,False
+Week 12 (Nov 11-15),@ Nevada,San Jose State,False
+Week 13 (Nov 18-22),@ San Diego State,San Jose State,False
+Week 14 (Nov 25-29),San Jose State,Fresno State,False
+Week 0 (August 23),UNLV,Idaho State,False
+Week 1 (Aug 28-Sept 1),@ Sam Houston,UNLV,False
+Week 2 (Sept 5-6),UNLV,UCLA,False
+Week 4 (Sept 18-20),@ Miami (OH),UNLV,False
+Week 6 (Oct 2-4),@ Wyoming,UNLV,False
+Week 7 (Oct 8-11),UNLV,Air Force,False
+Week 8 (Oct 14-18),@ Boise State,UNLV,False
+Week 10 (Oct 28-Nov 1),UNLV,New Mexico,False
+Week 11 (Nov 4-8),@ Colorado State,UNLV,False
+Week 12 (Nov 11-15),UNLV,Utah State,False
+Week 13 (Nov 18-22),UNLV,Hawaii,False
+Week 14 (Nov 25-29),@ Nevada,UNLV,False
+Week 1 (Aug 28-Sept 1),Utah State,UTEP,False
+Week 2 (Sept 5-6),@ Texas A&M,Utah State,False
+Week 3 (Sept 11-13),Utah State,Air Force,False
+Week 4 (Sept 18-20),Utah State,McNeese,False
+Week 5 (Sept 25-27),@ Vanderbilt,Utah State,False
+Week 7 (Oct 8-11),@ Hawaii,Utah State,False
+Week 8 (Oct 14-18),Utah State,San Jose State,False
+Week 9 (Oct 21-25),@ New Mexico,Utah State,False
+Week 11 (Nov 4-8),Utah State,Nevada,False
+Week 12 (Nov 11-15),@ UNLV,Utah State,False
+Week 13 (Nov 18-22),@ Fresno State,Utah State,False
+Week 14 (Nov 25-29),Utah State,Boise State,False
+Week 1 (Aug 28-Sept 1),@ Akron,Wyoming,False
+Week 2 (Sept 5-6),Wyoming,Northern Iowa,False
+Week 3 (Sept 11-13),Wyoming,Utah,False
+Week 4 (Sept 18-20),@ Colorado,Wyoming,False
+Week 6 (Oct 2-4),Wyoming,UNLV,False
+Week 7 (Oct 8-11),Wyoming,San Jose State,False
+Week 8 (Oct 14-18),@ Air Force,Wyoming,False
+Week 9 (Oct 21-25),Wyoming,Colorado State,False
+Week 10 (Oct 28-Nov 1),@ San Diego State,Wyoming,False
+Week 12 (Nov 11-15),@ Fresno State,Wyoming,False
+Week 13 (Nov 18-22),Wyoming,Nevada,False
+Week 14 (Nov 25-29),@ Hawaii,Wyoming,False
+Week 1 (Aug 28-Sept 1),Oregon State,Cal,False
+Week 2 (Sept 5-6),Oregon State,Fresno State,False
+Week 3 (Sept 11-13),@ Texas Tech,Oregon State,False
+Week 4 (Sept 18-20),@ Oregon,Oregon State,False
+Week 5 (Sept 25-27),Oregon State,Houston,False
+Week 6 (Oct 2-4),@ Appalachian State,Oregon State,False
+Week 7 (Oct 8-11),Oregon State,Wake Forest,False
+Week 8 (Oct 14-18),Oregon State,Lafayette,False
+Week 10 (Oct 28-Nov 1),Oregon State,Washington State,False
+Week 11 (Nov 4-8),Oregon State,Sam Houston,False
+Week 12 (Nov 11-15),@ Tulsa,Oregon State,False
+Week 14 (Nov 25-29),@ Washington State,Oregon State,False
+Week 1 (Aug 28-Sept 1),Washington State,Idaho,False
+Week 2 (Sept 5-6),Washington State,San Diego State,False
+Week 3 (Sept 11-13),@ North Texas,Washington State,False
+Week 4 (Sept 18-20),Washington State,Washington,False
+Week 5 (Sept 25-27),@ Colorado State,Washington State,False
+Week 7 (Oct 8-11),@ Ole Miss,Washington State,False
+Week 8 (Oct 14-18),@ Virginia,Washington State,False
+Week 9 (Oct 21-25),Washington State,Toledo,False
+Week 10 (Oct 28-Nov 1),@ Oregon State,Washington State,False
+Week 12 (Nov 11-15),Washington State,Louisiana Tech,False
+Week 13 (Nov 18-22),@ James Madison,Washington State,False
+Week 14 (Nov 25-29),Washington State,Oregon State,False
+Week 1 (Aug 28-Sept 1),Appalachian State,vs Charlotte,True
+Week 2 (Sept 5-6),Appalachian State,Lindenwood,False
+Week 3 (Sept 11-13),@ Southern Miss,Appalachian State,False
+Week 5 (Sept 25-27),@ Boise State,Appalachian State,False
+Week 6 (Oct 2-4),Appalachian State,Oregon State,False
+Week 7 (Oct 8-11),@ Georgia State,Appalachian State,False
+Week 8 (Oct 14-18),Appalachian State,Coastal Carolina,False
+Week 9 (Oct 21-25),@ Old Dominion,Appalachian State,False
+Week 11 (Nov 4-8),Appalachian State,Georgia Southern,False
+Week 12 (Nov 11-15),@ James Madison,Appalachian State,False
+Week 13 (Nov 18-22),Appalachian State,Marshall,False
+Week 14 (Nov 25-29),Appalachian State,Arkansas State,False
+Week 1 (Aug 28-Sept 1),Arkansas State,Southeast Missouri,False
+Week 2 (Sept 5-6),@ Arkansas,Arkansas State,False
+Week 3 (Sept 11-13),Arkansas State,Iowa State,False
+Week 4 (Sept 18-20),@ Kennesaw State,Arkansas State,False
+Week 5 (Sept 25-27),@ Louisiana Monroe,Arkansas State,False
+Week 6 (Oct 2-4),Arkansas State,Texas State,False
+Week 8 (Oct 14-18),@ South Alabama,Arkansas State,False
+Week 9 (Oct 21-25),Arkansas State,Georgia Southern,False
+Week 10 (Oct 28-Nov 1),@ Troy,Arkansas State,False
+Week 11 (Nov 4-8),Arkansas State,Southern Miss,False
+Week 13 (Nov 18-22),Arkansas State,Louisiana,False
+Week 14 (Nov 25-29),@ Appalachian State,Arkansas State,False
+Week 1 (Aug 28-Sept 1),@ Virginia,Coastal Carolina,False
+Week 2 (Sept 5-6),Coastal Carolina,Charleston Southern,False
+Week 3 (Sept 11-13),Coastal Carolina,East Carolina,False
+Week 4 (Sept 18-20),@ South Alabama,Coastal Carolina,False
+Week 6 (Oct 2-4),@ Old Dominion,Coastal Carolina,False
+Week 7 (Oct 8-11),Coastal Carolina,Louisiana Monroe,False
+Week 8 (Oct 14-18),@ Appalachian State,Coastal Carolina,False
+Week 10 (Oct 28-Nov 1),Coastal Carolina,Marshall,False
+Week 11 (Nov 4-8),Coastal Carolina,Georgia State,False
+Week 12 (Nov 11-15),@ Georgia Southern,Coastal Carolina,False
+Week 13 (Nov 18-22),@ South Carolina,Coastal Carolina,False
+Week 14 (Nov 25-29),Coastal Carolina,James Madison,False
+Week 1 (Aug 28-Sept 1),@ Fresno State,Georgia Southern,False
+Week 2 (Sept 5-6),@ USC,Georgia Southern,False
+Week 3 (Sept 11-13),Georgia Southern,Jacksonville State,False
+Week 4 (Sept 18-20),Georgia Southern,Maine,False
+Week 5 (Sept 25-27),@ James Madison,Georgia Southern,False
+Week 7 (Oct 8-11),Georgia Southern,Southern Miss,False
+Week 8 (Oct 14-18),Georgia Southern,Georgia State,False
+Week 9 (Oct 21-25),@ Arkansas State,Georgia Southern,False
+Week 11 (Nov 4-8),@ Appalachian State,Georgia Southern,False
+Week 12 (Nov 11-15),Georgia Southern,Coastal Carolina,False
+Week 13 (Nov 18-22),Georgia Southern,Old Dominion,False
+Week 14 (Nov 25-29),@ Marshall,Georgia Southern,False
+Week 1 (Aug 28-Sept 1),@ Ole Miss,Georgia State,False
+Week 2 (Sept 5-6),Georgia State,Memphis,False
+Week 3 (Sept 11-13),Georgia State,Murray State,False
+Week 4 (Sept 18-20),@ Vanderbilt,Georgia State,False
+Week 6 (Oct 2-4),Georgia State,James Madison,False
+Week 7 (Oct 8-11),Georgia State,Appalachian State,False
+Week 8 (Oct 14-18),@ Georgia Southern,Georgia State,False
+Week 9 (Oct 21-25),Georgia State,South Alabama,False
+Week 11 (Nov 4-8),@ Coastal Carolina,Georgia State,False
+Week 12 (Nov 11-15),Georgia State,Marshall,False
+Week 13 (Nov 18-22),@ Troy,Georgia State,False
+Week 14 (Nov 25-29),@ Old Dominion,Georgia State,False
+Week 1 (Aug 28-Sept 1),James Madison,Weber State,False
+Week 2 (Sept 5-6),@ Louisville,James Madison,False
+Week 4 (Sept 18-20),@ Liberty,James Madison,False
+Week 5 (Sept 25-27),James Madison,Georgia Southern,False
+Week 6 (Oct 2-4),@ Georgia State,James Madison,False
+Week 7 (Oct 8-11),James Madison,Louisiana,False
+Week 8 (Oct 14-18),James Madison,Old Dominion,False
+Week 10 (Oct 28-Nov 1),@ Texas State,James Madison,False
+Week 11 (Nov 4-8),@ Marshall,James Madison,False
+Week 12 (Nov 11-15),James Madison,Appalachian State,False
+Week 13 (Nov 18-22),James Madison,Washington State,False
+Week 14 (Nov 25-29),@ Coastal Carolina,James Madison,False
+Week 1 (Aug 28-Sept 1),Louisiana,Rice,False
+Week 2 (Sept 5-6),Louisiana,McNeese,False
+Week 3 (Sept 11-13),@ Missouri,Louisiana,False
+Week 4 (Sept 18-20),@ Eastern Michigan,Louisiana,False
+Week 5 (Sept 25-27),Louisiana,Marshall,False
+Week 7 (Oct 8-11),@ James Madison,Louisiana,False
+Week 8 (Oct 14-18),Louisiana,Southern Miss,False
+Week 9 (Oct 21-25),@ Troy,Louisiana,False
+Week 10 (Oct 28-Nov 1),@ South Alabama,Louisiana,False
+Week 11 (Nov 4-8),Louisiana,Texas State,False
+Week 13 (Nov 18-22),@ Arkansas State,Louisiana,False
+Week 14 (Nov 25-29),Louisiana,Louisiana Monroe,False
+Week 1 (Aug 28-Sept 1),Louisiana Monroe,Saint Francis,False
+Week 2 (Sept 5-6),@ Alabama,Louisiana Monroe,False
+Week 4 (Sept 18-20),@ UTEP,Louisiana Monroe,False
+Week 5 (Sept 25-27),Louisiana Monroe,Arkansas State,False
+Week 6 (Oct 2-4),@ Northwestern,Louisiana Monroe,False
+Week 7 (Oct 8-11),@ Coastal Carolina,Louisiana Monroe,False
+Week 8 (Oct 14-18),Louisiana Monroe,Troy,False
+Week 9 (Oct 21-25),@ Southern Miss,Louisiana Monroe,False
+Week 10 (Oct 28-Nov 1),Louisiana Monroe,Old Dominion,False
+Week 12 (Nov 11-15),Louisiana Monroe,South Alabama,False
+Week 13 (Nov 18-22),@ Texas State,Louisiana Monroe,False
+Week 14 (Nov 25-29),@ Louisiana,Louisiana Monroe,False
+Week 1 (Aug 28-Sept 1),@ Georgia,Marshall,False
+Week 2 (Sept 5-6),Marshall,Missouri State,False
+Week 3 (Sept 11-13),Marshall,Eastern Kentucky,False
+Week 4 (Sept 18-20),@ Middle Tennessee,Marshall,False
+Week 5 (Sept 25-27),@ Louisiana,Marshall,False
+Week 7 (Oct 8-11),Marshall,Old Dominion,False
+Week 8 (Oct 14-18),Marshall,Texas State,False
+Week 10 (Oct 28-Nov 1),@ Coastal Carolina,Marshall,False
+Week 11 (Nov 4-8),Marshall,James Madison,False
+Week 12 (Nov 11-15),@ Georgia State,Marshall,False
+Week 13 (Nov 18-22),@ Appalachian State,Marshall,False
+Week 14 (Nov 25-29),Marshall,Georgia Southern,False
+Week 1 (Aug 28-Sept 1),@ Indiana,Old Dominion,False
+Week 2 (Sept 5-6),Old Dominion,NC Central,False
+Week 3 (Sept 11-13),@ Virginia Tech,Old Dominion,False
+Week 5 (Sept 25-27),Old Dominion,Liberty,False
+Week 6 (Oct 2-4),Old Dominion,Coastal Carolina,False
+Week 7 (Oct 8-11),@ Marshall,Old Dominion,False
+Week 8 (Oct 14-18),@ James Madison,Old Dominion,False
+Week 9 (Oct 21-25),Old Dominion,Appalachian State,False
+Week 10 (Oct 28-Nov 1),@ Louisiana Monroe,Old Dominion,False
+Week 12 (Nov 11-15),Old Dominion,Troy,False
+Week 13 (Nov 18-22),@ Georgia Southern,Old Dominion,False
+Week 14 (Nov 25-29),Old Dominion,Georgia State,False
+Week 1 (Aug 28-Sept 1),South Alabama,Morgan State,False
+Week 2 (Sept 5-6),South Alabama,Tulane,False
+Week 3 (Sept 11-13),@ Auburn,South Alabama,False
+Week 4 (Sept 18-20),South Alabama,Coastal Carolina,False
+Week 5 (Sept 25-27),@ North Texas,South Alabama,False
+Week 6 (Oct 2-4),@ Troy,South Alabama,False
+Week 8 (Oct 14-18),South Alabama,Arkansas State,False
+Week 9 (Oct 21-25),@ Georgia State,South Alabama,False
+Week 10 (Oct 28-Nov 1),South Alabama,Louisiana,False
+Week 12 (Nov 11-15),@ Louisiana Monroe,South Alabama,False
+Week 13 (Nov 18-22),South Alabama,Southern Miss,False
+Week 14 (Nov 25-29),@ Texas State,South Alabama,False
+Week 1 (Aug 28-Sept 1),Southern Miss,Mississippi State,False
+Week 2 (Sept 5-6),Southern Miss,Jackson State,False
+Week 3 (Sept 11-13),Southern Miss,Appalachian State,False
+Week 4 (Sept 18-20),@ Louisiana Tech,Southern Miss,False
+Week 5 (Sept 25-27),Southern Miss,Jacksonville State,False
+Week 7 (Oct 8-11),@ Georgia Southern,Southern Miss,False
+Week 8 (Oct 14-18),@ Louisiana,Southern Miss,False
+Week 9 (Oct 21-25),Southern Miss,Louisiana Monroe,False
+Week 11 (Nov 4-8),@ Arkansas State,Southern Miss,False
+Week 12 (Nov 11-15),Southern Miss,Texas State,False
+Week 13 (Nov 18-22),@ South Alabama,Southern Miss,False
+Week 14 (Nov 25-29),Southern Miss,Troy,False
+Week 1 (Aug 28-Sept 1),Texas State,Eastern Michigan,False
+Week 2 (Sept 5-6),@ UTSA,Texas State,False
+Week 3 (Sept 11-13),@ Arizona State,Texas State,False
+Week 4 (Sept 18-20),Texas State,Nicholls,False
+Week 6 (Oct 2-4),@ Arkansas State,Texas State,False
+Week 7 (Oct 8-11),Texas State,Troy,False
+Week 8 (Oct 14-18),@ Marshall,Texas State,False
+Week 10 (Oct 28-Nov 1),Texas State,James Madison,False
+Week 11 (Nov 4-8),@ Louisiana,Texas State,False
+Week 12 (Nov 11-15),@ Southern Miss,Texas State,False
+Week 13 (Nov 18-22),Texas State,Louisiana Monroe,False
+Week 14 (Nov 25-29),Texas State,South Alabama,False
+Week 1 (Aug 28-Sept 1),Troy,Nicholls,False
+Week 2 (Sept 5-6),@ Clemson,Troy,False
+Week 3 (Sept 11-13),Troy,Memphis,False
+Week 4 (Sept 18-20),@ Buffalo,Troy,False
+Week 6 (Oct 2-4),Troy,South Alabama,False
+Week 7 (Oct 8-11),@ Texas State,Troy,False
+Week 8 (Oct 14-18),@ Louisiana Monroe,Troy,False
+Week 9 (Oct 21-25),Troy,Louisiana,False
+Week 10 (Oct 28-Nov 1),Troy,Arkansas State,False
+Week 12 (Nov 11-15),@ Old Dominion,Troy,False
+Week 13 (Nov 18-22),Troy,Georgia State,False
+Week 14 (Nov 25-29),@ Southern Miss,Troy,False
+Week 1 (Aug 28-Sept 1),@ Miami (FL),Notre Dame,False
+Week 3 (Sept 11-13),Notre Dame,Texas A&M,False
+Week 4 (Sept 18-20),Notre Dame,Purdue,False
+Week 5 (Sept 25-27),@ Arkansas,Notre Dame,False
+Week 6 (Oct 2-4),Notre Dame,Boise State,False
+Week 7 (Oct 8-11),Notre Dame,NC State,False
+Week 8 (Oct 14-18),Notre Dame,USC,False
+Week 10 (Oct 28-Nov 1),@ Boston College,Notre Dame,False
+Week 11 (Nov 4-8),Notre Dame,Navy,False
+Week 12 (Nov 11-15),@ Pitt,Notre Dame,False
+Week 13 (Nov 18-22),Notre Dame,Syracuse,False
+Week 14 (Nov 25-29),@ Stanford,Notre Dame,False
+Week 1 (Aug 28-Sept 1),UConn,Central Connecticut,False
+Week 2 (Sept 5-6),@ Syracuse,UConn,False
+Week 3 (Sept 11-13),@ Delaware,UConn,False
+Week 4 (Sept 18-20),UConn,Ball State,False
+Week 5 (Sept 25-27),@ Buffalo,UConn,False
+Week 6 (Oct 2-4),UConn,Florida International,False
+Week 8 (Oct 14-18),@ Boston College,UConn,False
+Week 9 (Oct 21-25),@ Rice,UConn,False
+Week 10 (Oct 28-Nov 1),UConn,UAB,False
+Week 11 (Nov 4-8),UConn,Duke,False
+Week 12 (Nov 11-15),UConn,Air Force,False
+Week 13 (Nov 18-22),@ Florida Atlantic,UConn,False
