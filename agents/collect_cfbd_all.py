@@ -338,54 +338,17 @@ def main():
     }
     with open(os.path.join(DATA_DIR, "status.json"), "w") as f:
         json.dump(status, f, indent=2)
-from pandas.errors import EmptyDataError, ParserError
 
-# --- Predictions / Live Edge generation ---
-sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
-preds_csv  = os.path.join(DATA_DIR, "upa_predictions.csv")
-edge_csv   = os.path.join(DATA_DIR, "live_edge_report.csv")
+    # --- Predictions / Live Edge generation ---
+    from pandas.errors import EmptyDataError, ParserError
 
-sc = None
-# 1) Try to load a user-provided schedule if present
-if os.path.exists(sched_path):
-    try:
-        if os.path.getsize(sched_path) < 10:
-            raise EmptyDataError("file too small / empty")
-        sc = pd.read_csv(sched_path)
-        sc = sc.rename(columns={
-            "home": "home_team", "away": "away_team",
-            "homeTeam": "home_team", "awayTeam": "away_team",
-            "neutral": "neutral_site", "is_neutral_site": "neutral_site"
-        })
-        req = {"week","home_team","away_team"}
-        have = {c.strip().lower() for c in sc.columns.astype(str)}
-        if not req.issubset(have):
-            raise ParserError(f"missing required columns; got {list(sc.columns)}")
-        print(f"DEBUG schedule CSV loaded: {len(sc)} rows", flush=True)
-    except (EmptyDataError, ParserError) as e:
-        print(f"[warn] schedule CSV unusable ({e}); switching to auto-build.", file=sys.stderr)
-        sc = None
-    except Exception as e:
-        print(f"[warn] schedule CSV read error: {e}; switching to auto-build.", file=sys.stderr)
-        sc = None
+    sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
+    preds_csv  = os.path.join(DATA_DIR, "upa_predictions.csv")
+    edge_csv   = os.path.join(DATA_DIR, "live_edge_report.csv")
 
-# 2) Auto-build if we still don’t have a schedule
-if sc is None:
-    rows = []
-    try:
-        # Attempt A: regular season + FBS
-        games = games_api.get_games(year=YEAR, season_type="regular", division="fbs")
-        print(f"DEBUG auto-schedule attempt A (regular,fbs): {len(games or [])} games", flush=True)
-        if not games:
-            # Attempt B: both season types (some years are tagged this way)
-            games = games_api.get_games(year=YEAR, season_type="both", division="fbs")
-            print(f"DEBUG auto-schedule attempt B (both,fbs): {len(games or [])} games", flush=True)
-        if not games:
-            # Attempt C: drop division filter entirely as a last resort
-            games = games_api.get_games(year=YEAR, season_type="both")
-            print(f"DEBUG auto-schedule attempt C (both,all divisions): {len(games or [])} games", flush=True)
-
-        for g in games or []:
+    def _games_to_rows(glist):
+        rows = []
+        for g in glist or []:
             ht, at = getattr(g, "home_team", None), getattr(g, "away_team", None)
             if not ht or not at:
                 continue
@@ -397,22 +360,94 @@ if sc is None:
                 "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
                 "market_spread": None,
             })
-    except Exception as e:
-        print(f"[warn] auto-schedule build failed: {e}", file=sys.stderr)
+        return rows
 
-    sc = pd.DataFrame(rows)
-    print(f"DEBUG auto-schedule built {len(sc)} rows total", flush=True)
+    sc = None
+    # 1) Try to load a user-provided schedule if present & non-empty
+    if os.path.exists(sched_path):
+        try:
+            if os.path.getsize(sched_path) < 10:
+                raise EmptyDataError("file too small / empty")
+            sc = pd.read_csv(sched_path)
+            sc = sc.rename(columns={
+                "home": "home_team", "away": "away_team",
+                "homeTeam": "home_team", "awayTeam": "away_team",
+                "neutral": "neutral_site", "is_neutral_site": "neutral_site"
+            })
+            req = {"week","home_team","away_team"}
+            have = {c.strip().lower() for c in sc.columns.astype(str)}
+            if not req.issubset(have):
+                raise ParserError(f"missing required columns; got {list(sc.columns)}")
+            print(f"DEBUG schedule CSV loaded: {len(sc)} rows", flush=True)
+        except (EmptyDataError, ParserError) as e:
+            print(f"[warn] schedule CSV unusable ({e}); switching to auto-build.", file=sys.stderr)
+            sc = None
+        except Exception as e:
+            print(f"[warn] schedule CSV read error: {e}; switching to auto-build.", file=sys.stderr)
+            sc = None
 
-# 3) Always persist a CSV so the portal link works (write headers even if empty)
-cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
-if sc is None or sc.empty:
-    pd.DataFrame(columns=cols).to_csv(sched_path, index=False)
-    print(f"[warn] wrote header-only schedule CSV to {sched_path} (0 rows)", file=sys.stderr)
-else:
-    sc_out = sc[cols] if all(c in sc.columns for c in cols) else sc
-    sc_out.to_csv(sched_path, index=False)
-    print(f"DEBUG wrote schedule CSV to {sched_path} with {len(sc_out)} rows", flush=True)
+    # 2) Auto-build if we still don’t have a schedule
+    if sc is None:
+        all_rows = []
 
+        # Attempt A/B/C: broad pulls
+        try:
+            a = games_api.get_games(year=YEAR, season_type="regular", division="fbs") or []
+            print(f"DEBUG auto A (regular,fbs): {len(a)}", flush=True)
+            all_rows += _games_to_rows(a)
+            if len(all_rows) == 0:
+                b = games_api.get_games(year=YEAR, season_type="both", division="fbs") or []
+                print(f"DEBUG auto B (both,fbs): {len(b)}", flush=True)
+                all_rows += _games_to_rows(b)
+            if len(all_rows) == 0:
+                c = games_api.get_games(year=YEAR, season_type="both") or []
+                print(f"DEBUG auto C (both,all divisions): {len(c)}", flush=True)
+                all_rows += _games_to_rows(c)
+        except Exception as e:
+            print(f"[warn] auto one-shot failed: {e}", file=sys.stderr)
+
+        # Attempt D: week-by-week loop (more reliable on some seasons)
+        if len(all_rows) == 0:
+            print("DEBUG auto D: week-by-week loop start", flush=True)
+            try:
+                # Week range with buffer (0 captures Week 0)
+                for wk in range(0, 22):
+                    try:
+                        g1 = games_api.get_games(year=YEAR, week=wk, season_type="regular", division="fbs") or []
+                        if g1:
+                            print(f"DEBUG week {wk} (regular,fbs): {len(g1)}", flush=True)
+                            all_rows += _games_to_rows(g1)
+                            continue
+
+                        g2 = games_api.get_games(year=YEAR, week=wk, season_type="both", division="fbs") or []
+                        if g2:
+                            print(f"DEBUG week {wk} (both,fbs): {len(g2)}", flush=True)
+                            all_rows += _games_to_rows(g2)
+                            continue
+
+                        g3 = games_api.get_games(year=YEAR, week=wk, season_type="both") or []
+                        if g3:
+                            print(f"DEBUG week {wk} (both,all divisions): {len(g3)}", flush=True)
+                            all_rows += _games_to_rows(g3)
+                    except Exception as we:
+                        print(f"[warn] week {wk} fetch failed: {we}", file=sys.stderr)
+            except Exception as e:
+                print(f"[warn] week-by-week loop failed: {e}", file=sys.stderr)
+
+        sc = pd.DataFrame(all_rows)
+        print(f"DEBUG auto-schedule built total rows: {len(sc)}", flush=True)
+
+    # 3) Always persist a CSV so the portal link works (write headers even if empty)
+    cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
+    if sc is None or sc.empty:
+        pd.DataFrame(columns=cols).to_csv(sched_path, index=False)
+        print(f"[warn] wrote header-only schedule CSV to {sched_path} (0 rows)", file=sys.stderr)
+    else:
+        sc_out = sc[cols] if all(c in sc.columns for c in cols) else sc
+        sc_out.to_csv(sched_path, index=False)
+        print(f"DEBUG wrote schedule CSV to {sched_path} with {len(sc_out)} rows", flush=True)
+
+    # 4) Only proceed to predictions if we have rows
     if sc is not None and not sc.empty:
         # Build rating from available features
         base = df.copy()
@@ -437,8 +472,7 @@ else:
         rating = base.set_index("team")["team_rating"].to_dict()
         confmap = base.set_index("team")["conference"].to_dict()
 
-        # Home field (points). Use 2.0 default, 0 neutral.
-        HFA = 2.0
+        HFA = 2.0  # home-field advantage (points)
 
         out_rows = []
         for _, r in sc.iterrows():
