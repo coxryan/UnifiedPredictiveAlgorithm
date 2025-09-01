@@ -48,7 +48,7 @@ def df_from_returning():
     conferences = sorted({t.conference for t in fbs if t.conference})
 
     rows = []
-    total_records = 0
+    total = 0
     for conf in conferences:
         try:
             items = players_api.get_returning_production(year=YEAR, conference=conf)
@@ -57,9 +57,8 @@ def df_from_returning():
             items = []
 
         n = len(items or [])
-        total_records += n
+        total += n
         print(f"DEBUG returning production for {conf}: {n} records", flush=True)
-
         if n:
             # sample keys (only when non-empty)
             try:
@@ -91,10 +90,9 @@ def df_from_returning():
 
     df = pd.DataFrame(rows).drop_duplicates(subset=["team"])
 
-    # HARD FALLBACK: if endpoint gave us nothing, still return neutral WRPS so CSV isn’t blank
+    # HARD FALLBACK: if endpoint gave us nothing, seed with neutral 50s
     if df.empty:
-        print("[warn] returning production endpoint returned 0 records across all conferences; using neutral 50s fallback.", flush=True)
-        # seed with all FBS teams so conferences are preserved
+        print("[warn] returning production endpoint returned 0 records; using neutral 50s fallback.", flush=True)
         teams = sorted(team_conf.keys())
         df = pd.DataFrame({
             "team": teams,
@@ -119,8 +117,10 @@ def df_from_returning():
             df[out] = df[src].apply(normalize_percent)
 
     # If any are missing or fully NA, fall back to min–max scaled PPA
-    need_proxy = any((c not in df.columns) or df[c].isna().all()
-                     for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"])
+    need_proxy = any(
+        (c not in df.columns) or df[c].isna().all()
+        for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"]
+    )
 
     if need_proxy:
         for col in ["_ppa_tot","_ppa_off","_ppa_def"]:
@@ -173,7 +173,9 @@ def df_from_returning():
     df["wrps_defense_percent"] = _clip01(df["wrps_defense_percent"])
     if df["wrps_defense_percent"].isna().any():
         med = pd.to_numeric(df["wrps_defense_percent"], errors="coerce").median()
-        df["wrps_defense_percent"] = df["wrps_defense_percent"].fillna(50.0 if pd.isna(med) else round(float(med), 1))
+        df["wrps_defense_percent"] = df["wrps_defense_percent"].fillna(
+            50.0 if pd.isna(med) else round(float(med), 1)
+        )
     # --- end robust defense fill ---
 
     # Ensure expected columns exist
@@ -338,21 +340,38 @@ def main():
         json.dump(status, f, indent=2)
 
     # --- Predictions / Live Edge generation ---
+    from pandas.errors import EmptyDataError, ParserError
+
     sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
     preds_csv  = os.path.join(DATA_DIR, "upa_predictions.csv")
     edge_csv   = os.path.join(DATA_DIR, "live_edge_report.csv")
 
     sc = None
     if os.path.exists(sched_path):
-        # Load user-provided schedule
-        sc = pd.read_csv(sched_path)
-        sc = sc.rename(columns={
-            "home": "home_team", "away": "away_team",
-            "homeTeam": "home_team", "awayTeam": "away_team",
-            "neutral": "neutral_site", "is_neutral_site": "neutral_site"
-        })
-    else:
-        # Auto-build from CFBD if no schedule file present
+        try:
+            if os.path.getsize(sched_path) < 10:
+                raise EmptyDataError("file too small / empty")
+            sc = pd.read_csv(sched_path)
+            sc = sc.rename(columns={
+                "home": "home_team", "away": "away_team",
+                "homeTeam": "home_team", "awayTeam": "away_team",
+                "neutral": "neutral_site", "is_neutral_site": "neutral_site"
+            })
+            # sanity check
+            req = {"week","home_team","away_team"}
+            have = {c.strip().lower() for c in sc.columns.astype(str)}
+            if not req.issubset(have):
+                raise ParserError(f"missing required columns; got {list(sc.columns)}")
+            print(f"DEBUG schedule CSV loaded: {len(sc)} rows", flush=True)
+        except (EmptyDataError, ParserError) as e:
+            print(f"[warn] schedule CSV unusable ({e}); switching to auto-build.", file=sys.stderr)
+            sc = None
+        except Exception as e:
+            print(f"[warn] schedule CSV read error: {e}; switching to auto-build.", file=sys.stderr)
+            sc = None
+
+    if sc is None:
+        # Auto-build from CFBD
         try:
             games = games_api.get_games(year=YEAR, season_type="regular")
             rows = []
@@ -362,17 +381,24 @@ def main():
                     continue
                 rows.append({
                     "week": getattr(g, "week", None),
-                    "date": (getattr(g, "start_date", None) or "")[:10] if getattr(g, "start_date", None) else None,
+                    "date": (getattr(g, "start_date", None) or "")[:10],
                     "home_team": ht,
                     "away_team": at,
                     "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
-                    "market_spread": None,  # leave blank unless you have odds
+                    "market_spread": None,  # leave empty unless you have a line
                 })
-            if rows:
-                sc = pd.DataFrame(rows)
-                print(f"DEBUG auto-schedule built {len(rows)} games from CFBD", flush=True)
+            sc = pd.DataFrame(rows)
+            print(f"DEBUG auto-schedule built {len(sc)} games from CFBD", flush=True)
         except Exception as e:
             print(f"[warn] auto-schedule build failed: {e}", file=sys.stderr)
+            sc = pd.DataFrame()
+
+    # Persist schedule so the portal can link to it
+    if sc is not None and not sc.empty:
+        cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
+        sc_out = sc[cols] if all(c in sc.columns for c in cols) else sc
+        sc_out.to_csv(sched_path, index=False)
+        print(f"DEBUG wrote schedule CSV to {sched_path} with {len(sc_out)} rows", flush=True)
 
     if sc is not None and not sc.empty:
         # Build rating from available features
@@ -398,7 +424,8 @@ def main():
         rating = base.set_index("team")["team_rating"].to_dict()
         confmap = base.set_index("team")["conference"].to_dict()
 
-        HFA = 2.0  # home-field advantage (points)
+        # Home field (points). Use 2.0 default, 0 neutral.
+        HFA = 2.0
 
         out_rows = []
         for _, r in sc.iterrows():
@@ -424,10 +451,13 @@ def main():
                 "market_spread_home": market if pd.notna(market) else None,
                 "edge_points": round(edge, 2) if edge is not None else None
             })
+
         pred_df = pd.DataFrame(out_rows)
         if not pred_df.empty:
             pred_df.to_csv(preds_csv, index=False)
-            le = pred_df.dropna(subset=["edge_points"]).sort_values(by="edge_points", key=lambda s: s.abs(), ascending=False)
+            le = pred_df.dropna(subset=["edge_points"]).sort_values(
+                by="edge_points", key=lambda s: s.abs(), ascending=False
+            )
             le[["week","date","home_team","away_team","edge_points"]].head(200).to_csv(edge_csv, index=False)
             print(f"DEBUG wrote predictions: {pred_df.shape[0]} rows; live edge: {min(200, le.shape[0])} rows", flush=True)
         else:
