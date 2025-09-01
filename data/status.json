@@ -1,6 +1,19 @@
 {
-  "generated_at_utc": null,
-  "next_run_eta_utc": null,
-  "teams": 0,
-  "fields": []
+  "generated_at_utc": "2025-09-01T19:36:22Z",
+  "year": 2025,
+  "teams": 134,
+  "fields": [
+    "team",
+    "conference",
+    "wrps_offense_percent",
+    "wrps_defense_percent",
+    "wrps_overall_percent",
+    "wrps_percent_0_100",
+    "talent_score_0_100",
+    "prev_season_sos_rank_1_133",
+    "portal_net_0_100",
+    "portal_net_count",
+    "portal_net_value"
+  ],
+  "next_run_eta_utc": "2025-09-01T20:06:22Z"
 }
