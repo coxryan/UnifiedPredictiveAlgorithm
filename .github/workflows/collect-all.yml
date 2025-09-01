@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       year:
-        description: "Season year to collect (defaults to env UPA_YEAR or 2025)"
+        description: "Season year to collect (defaults to 2025)"
         required: false
         type: string
   schedule:
-    # run twice daily (UTC) — adjust as you like
+    # Twice daily (UTC) — adjust as needed
     - cron: "15 5,17 * * *"
 
 permissions:
-  contents: write   # needed to push data updates
+  contents: write
 
 concurrency:
   group: collect-all
@@ -21,9 +21,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   TZ: America/Phoenix
-  # You can override this per-run via workflow_dispatch input
-  UPA_YEAR: ${{ inputs.year || '2025' }}
-  # Optional: set to "1" to allow HTTP fallback for schedule if SDK returns 0
+  # Optional: set to "1" to allow HTTP fallback if SDK returns 0 schedule rows
   UPA_ALLOW_HTTP_FALLBACK: "0"
 
 jobs:
@@ -55,24 +53,17 @@ jobs:
           if [ -f agents/requirements.txt ]; then
             pip install -r agents/requirements.txt
           fi
-          # Ensure these are present in case requirements.txt is minimal
+          # Ensure these are present even if requirements.txt is minimal
           pip install cfbd pandas requests google-auth google-auth-oauthlib gspread
-
-      # Optional: write service account JSON from a secret so Sheets can be updated.
-      # Add a repo secret named GOOGLE_SA_JSON with the raw JSON if you want this.
-      - name: Create service account key (optional)
-        if: ${{ secrets.GOOGLE_SA_JSON }}
-        run: |
-          mkdir -p .secrets
-          echo '${{ secrets.GOOGLE_SA_JSON }}' > .secrets/sa.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/.secrets/sa.json" >> $GITHUB_ENV
 
       - name: Run collector
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}          # <-- set this repo secret
-          SHEET_ID: ${{ secrets.SHEET_ID }}                  # optional
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
-          UPA_YEAR: ${{ env.UPA_YEAR }}
+          # REQUIRED
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+          # OPTIONAL (leave unset if not using Sheets)
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          # Year: use dispatch input if provided, otherwise 2025
+          UPA_YEAR: ${{ github.event.inputs.year || '2025' }}
           UPA_ALLOW_HTTP_FALLBACK: ${{ env.UPA_ALLOW_HTTP_FALLBACK }}
         run: |
           set -e
@@ -83,14 +74,14 @@ jobs:
           echo "== data directory =="
           ls -l data || true
           echo "== head: cfb_schedule.csv =="
-          sed -n '1,15p' data/cfb_schedule.csv || true
+          sed -n '1,20p' data/cfb_schedule.csv || true
           echo "== head: upa_team_inputs_datadriven_v0.csv =="
           sed -n '1,10p' data/upa_team_inputs_datadriven_v0.csv || true
           echo "== head: upa_predictions.csv =="
-          sed -n '1,15p' data/upa_predictions.csv || true
+          sed -n '1,20p' data/upa_predictions.csv || true
           echo "== head: live_edge_report.csv =="
-          sed -n '1,15p' data/live_edge_report.csv || true
-          echo "== status =="
+          sed -n '1,20p' data/live_edge_report.csv || true
+          echo "== status.json =="
           cat data/status.json || true
 
       - name: Upload data as workflow artifact (for quick download)
@@ -117,10 +108,10 @@ jobs:
             exit 0
           fi
 
-          git commit -m "data: update (${{ env.UPA_YEAR }})"
+          git commit -m "data: update (${{ github.event.inputs.year || '2025' }})"
 
           # Rebase on latest main to avoid non-fast-forward errors
-          git fetch origin
-          git pull --rebase origin main || git merge --no-edit origin/main
+          git fetch origin main
+          git pull --rebase origin main || true
 
           git push origin HEAD:main
