@@ -31,6 +31,7 @@ teams_api = cfbd.TeamsApi(api_client)
 players_api = cfbd.PlayersApi(api_client)
 ratings_api = cfbd.RatingsApi(api_client)
 games_api = cfbd.GamesApi(api_client)
+betting_api = cfbd.BettingApi(api_client)
 
 EXPECTED_RETURNING_COLS = [
     "team", "conference",
@@ -479,6 +480,74 @@ def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.Da
 
     return pd.DataFrame(out_rows)
 
+def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
+    """
+    Fills sc['market_spread'] with closing/consensus home-team spread (points),
+    using CFBD BettingApi.get_lines week-by-week. Positive = home favored.
+    """
+    if sc is None or sc.empty:
+        return sc
+
+    all_rows = []
+    weeks = sorted(sc["week"].dropna().unique().tolist())
+    lines_rows = []
+
+    for wk in weeks:
+        try:
+            # pull both regular & 'both' as some books land under different season_type
+            items = betting_api.get_lines(year=YEAR, week=int(wk), season_type="regular") or []
+            if not items:
+                items = betting_api.get_lines(year=YEAR, week=int(wk), season_type="both") or []
+        except Exception as e:
+            print(f"[warn] betting lines fetch failed for week {wk}: {e}", file=sys.stderr)
+            items = []
+
+        # Flatten to one consensus spread per game if possible
+        for li in items:
+            ht = getattr(li, "home_team", None)
+            at = getattr(li, "away_team", None)
+            if not ht or not at:
+                continue
+
+            # each 'lines' element can have multiple books; choose closing then open then first
+            spread_vals = []
+            for book in (getattr(li, "lines", None) or []):
+                # prefer closing spread; fallback to spread
+                val = getattr(book, "spread", None)
+                # cfbd uses spread (home spread, usually negative if home favored),
+                # but book sign conventions vary; we normalize below.
+                if val is not None:
+                    try:
+                        spread_vals.append(float(val))
+                    except Exception:
+                        pass
+
+                # sometimes there's a 'formattedSpread' or similar; ignore unless numeric
+
+            if not spread_vals:
+                continue
+
+            # heuristic: median across books is fairly stable
+            import statistics as st
+            s = st.median(spread_vals)
+
+            # Normalize to "home spread" where positive = home favored
+            # Many feeds set home favored as negative. If home is favorite, s is negative.
+            # We'll invert sign so positive always means "home by X".
+            home_spread = -s
+
+            lines_rows.append({"week": int(wk), "home_team": ht, "away_team": at, "market_spread": home_spread})
+
+    if not lines_rows:
+        print("[warn] no market spreads found; leaving market_spread blank.", file=sys.stderr)
+        return sc
+
+    df_lines = pd.DataFrame(lines_rows)
+    # Merge by exact team names + week
+    sc2 = sc.merge(df_lines, on=["week", "home_team", "away_team"], how="left")
+
+    return sc2
+
 # -----------------------------
 # Main
 # -----------------------------
@@ -520,6 +589,7 @@ def main():
     # Build schedule and persist
     sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
     schedule_df = build_schedule_df()
+    schedule_df = enrich_schedule_with_market_spread(schedule_df)
 
     cols_sched = ["week", "date", "home_team", "away_team", "neutral_site", "market_spread"]
     if schedule_df is None or schedule_df.empty:

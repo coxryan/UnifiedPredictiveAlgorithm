@@ -1,81 +1,126 @@
-# .github/workflows/collect-all.yml
-name: Agent Collect & Update CSVs (All FBS)
+name: Collect all CFB data (UPA-F)
 
 on:
   workflow_dispatch:
+    inputs:
+      year:
+        description: "Season year to collect (defaults to env UPA_YEAR or 2025)"
+        required: false
+        type: string
   schedule:
-    - cron: "*/30 * * * *"
+    # run twice daily (UTC) — adjust as you like
+    - cron: "15 5,17 * * *"
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write   # needed to push data updates
+
+concurrency:
+  group: collect-all
+  cancel-in-progress: false
 
 env:
   PYTHONUNBUFFERED: "1"
   TZ: America/Phoenix
+  # You can override this per-run via workflow_dispatch input
+  UPA_YEAR: ${{ inputs.year || '2025' }}
+  # Optional: set to "1" to allow HTTP fallback for schedule if SDK returns 0
+  UPA_ALLOW_HTTP_FALLBACK: "0"
 
 jobs:
   collect:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r agents/requirements.txt
+          if [ -f agents/requirements.txt ]; then
+            pip install -r agents/requirements.txt
+          fi
+          # Ensure these are present in case requirements.txt is minimal
+          pip install cfbd pandas requests google-auth google-auth-oauthlib gspread
+
+      # Optional: write service account JSON from a secret so Sheets can be updated.
+      # Add a repo secret named GOOGLE_SA_JSON with the raw JSON if you want this.
+      - name: Create service account key (optional)
+        if: ${{ secrets.GOOGLE_SA_JSON != '' }}
+        run: |
+          mkdir -p .secrets
+          echo '${{ secrets.GOOGLE_SA_JSON }}' > .secrets/sa.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/.secrets/sa.json" >> $GITHUB_ENV
+
       - name: Run collector
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          SHEET_ID: ${{ vars.SHEET_ID }}
-        run: python agents/collect_cfbd_all.py
-      - name: Commit & Push changes (if any)
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}          # <-- set this repo secret
+          SHEET_ID: ${{ secrets.SHEET_ID }}                  # optional
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+          UPA_YEAR: ${{ env.UPA_YEAR }}
+          UPA_ALLOW_HTTP_FALLBACK: ${{ env.UPA_ALLOW_HTTP_FALLBACK }}
         run: |
-          git config user.name github-actions
-          git config user.email actions@github.com
-          git add -A
-          if git diff --cached --quiet; then echo "No changes"; else git commit -m "data update"; git push; fi
+          set -e
+          python agents/collect_cfbd_all.py
 
-  build-and-deploy:
-    needs: collect
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-
-      - name: Debug tree (sanity)
+      - name: Debug artifacts
         run: |
-          pwd
-          ls -la
+          echo "== data directory =="
+          ls -l data || true
+          echo "== head: cfb_schedule.csv =="
+          sed -n '1,15p' data/cfb_schedule.csv || true
+          echo "== head: upa_team_inputs_datadriven_v0.csv =="
+          sed -n '1,10p' data/upa_team_inputs_datadriven_v0.csv || true
+          echo "== head: upa_predictions.csv =="
+          sed -n '1,15p' data/upa_predictions.csv || true
+          echo "== head: live_edge_report.csv =="
+          sed -n '1,15p' data/live_edge_report.csv || true
+          echo "== status =="
+          cat data/status.json || true
 
-      - name: Install (root)
-        run: npm ci || npm i
-        working-directory: .
-
-      - name: Build (root)
-        run: npm run build
-        working-directory: .
-
-      - name: Copy data into build output
-        run: |
-          mkdir -p dist/data
-          if [ -d data ]; then cp -R data/* dist/data/ || true; fi
-          echo "== dist/data =="
-          ls -l dist/data || true
-          echo "== head schedule in dist =="
-          sed -n '1,5p' dist/data/cfb_schedule.csv || true
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload data as workflow artifact (for quick download)
+        uses: actions/upload-artifact@v4
         with:
-          path: ./dist
+          name: upa-f-data
+          path: |
+            data/*.csv
+            data/status.json
+          if-no-files-found: warn
+          retention-days: 7
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit & push data (auto-rebase)
+        run: |
+          set -e
+          git config user.name  "github-actions"
+          git config user.email "actions@github.com"
+
+          # Stage only generated data files
+          git add data/*.csv data/status.json || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "data: update (${{ env.UPA_YEAR }})"
+
+          # Rebase on latest main to avoid non-fast-forward errors
+          git fetch origin
+          git pull --rebase origin main || git merge --no-edit origin/main
+
+          git push origin HEAD:main
