@@ -411,6 +411,95 @@ def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
             spreads = []
             for book in books:
                 val = None
+                for attr in ("home_spread", "spread"):
+                    if hasattr(book, attr):
+                        try:
+                            val = float(getattr(book, attr))
+                            break
+                        except Exception:
+                            pass
+                if val is None and hasattr(book, "away_spread"):
+                    try:
+                        away_val = float(getattr(book, "away_spread"))
+                        val = -away_val
+                    except Exception:
+                        pass
+                if val is not None:
+                    # normalize: home favored → POSITIVE
+                    spreads.append(-val)
+
+            if spreads:
+                import statistics as st
+                consensus = st.median(spreads)
+                line_rows.append({
+                    "game_id": gid,
+                    "week": wk,
+                    "home_team": ht,
+                    "away_team": at,
+                    "market_spread": round(float(consensus), 2),
+                })
+
+    if not line_rows:
+        print("[warn] no betting lines found; leaving market_spread blank.", file=sys.stderr)
+        # ensure column exists
+        out = sc.copy()
+        if "market_spread" not in out.columns:
+            out["market_spread"] = pd.NA
+        return out
+
+    df_lines = pd.DataFrame(line_rows)
+
+    # ----- Primary merge by game_id -----
+    out = sc.copy()
+    # make sure we don't end up with _x/_y; drop the preexisting column first
+    out = out.drop(columns=["market_spread"], errors="ignore")
+    out = out.merge(df_lines[["game_id", "market_spread"]], on="game_id", how="left")
+
+    # If the column still doesn't exist for some reason, create it
+    if "market_spread" not in out.columns:
+        out["market_spread"] = pd.NA
+
+    # ----- Fallback merge by (week, home_team, away_team) for any remaining NA -----
+    need = out["market_spread"].isna()
+    if need.any():
+        join_cols = ["week", "home_team", "away_team"]
+        fallback = df_lines[join_cols + ["market_spread"]].rename(columns={"market_spread": "market_spread_fb"})
+        out = out.merge(fallback, on=join_cols, how="left")
+        out.loc[need, "market_spread"] = out.loc[need, "market_spread_fb"]
+        out.drop(columns=["market_spread_fb"], inplace=True, errors="ignore")
+
+    return out
+    """
+    Populate sc['market_spread'] using CFBD BettingApi.get_lines.
+    Positive = home favored by X points.
+    Merge primarily by game_id; fallback to (week, home_team, away_team).
+    """
+    if sc is None or sc.empty:
+        return sc
+
+    weeks = sorted([int(w) for w in sc["week"].dropna().unique().tolist()])
+    if not weeks:
+        return sc
+
+    line_rows = []
+    for wk in weeks:
+        try:
+            items = betting_api.get_lines(year=YEAR, week=wk, season_type="regular") or []
+            if not items:
+                items = betting_api.get_lines(year=YEAR, week=wk, season_type="both") or []
+        except Exception as e:
+            print(f"[warn] betting lines fetch failed for week {wk}: {e}", file=sys.stderr)
+            items = []
+
+        for gi in items or []:
+            gid = getattr(gi, "id", None) or getattr(gi, "game_id", None)
+            ht = getattr(gi, "home_team", None)
+            at = getattr(gi, "away_team", None)
+            books = getattr(gi, "lines", None) or []
+
+            spreads = []
+            for book in books:
+                val = None
                 # try home_spread/spread first
                 for attr in ("home_spread", "spread"):
                     if hasattr(book, attr):
