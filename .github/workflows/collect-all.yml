@@ -1,39 +1,53 @@
-name: Collect all CFB data (UPA-F)
+name: Collect data + Build & Deploy site (UPA-F)
 
 on:
   workflow_dispatch:
     inputs:
       year:
-        description: "Season year to collect (defaults to 2025)"
+        description: "Season year (defaults to 2025)"
         required: false
         type: string
   schedule:
     # Twice daily (UTC) — adjust as needed
     - cron: "15 5,17 * * *"
+  push:
+    branches: [ "main" ] # also deploy on commits to main (e.g., local edits)
 
+# Required for Pages
 permissions:
-  contents: write
+  contents: write       # we commit data/* updates back to main (optional but useful)
+  pages: write          # deploy to GitHub Pages
+  id-token: write       # needed by actions/deploy-pages
 
 concurrency:
-  group: collect-all
+  group: upa-f-collect-build-deploy
   cancel-in-progress: false
 
 env:
   PYTHONUNBUFFERED: "1"
   TZ: America/Phoenix
-  # Optional: set to "1" to allow HTTP fallback if SDK returns 0 schedule rows
+  # Year used by the collector; dispatch input wins else default 2025
+  UPA_YEAR: ${{ github.event.inputs.year || '2025' }}
+  # Optional: allow HTTP fallback if SDK returns 0 rows
   UPA_ALLOW_HTTP_FALLBACK: "0"
+  # If your Vite config uses base from env, set it here (project pages):
+  # Change this to your repo name (it must include the leading and trailing slash)
+  VITE_BASE: "/UnifiedPredictiveAlgorithm/"
 
 jobs:
-  collect:
+  collect_build_deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ----- Python collector -----
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -47,7 +61,7 @@ jobs:
           restore-keys: |
             pip-${{ runner.os }}-
 
-      - name: Install deps
+      - name: Install collector deps
         run: |
           python -m pip install --upgrade pip
           if [ -f agents/requirements.txt ]; then
@@ -56,62 +70,67 @@ jobs:
           # Ensure these are present even if requirements.txt is minimal
           pip install cfbd pandas requests google-auth google-auth-oauthlib gspread
 
-      - name: Run collector
+      - name: Run collector (writes data/*.csv + status.json)
         env:
-          # REQUIRED
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          # OPTIONAL (leave unset if not using Sheets)
-          SHEET_ID: ${{ secrets.SHEET_ID }}
-          # Year: use dispatch input if provided, otherwise 2025
-          UPA_YEAR: ${{ github.event.inputs.year || '2025' }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}     # REQUIRED
+          SHEET_ID: ${{ secrets.SHEET_ID }}             # optional
+          UPA_YEAR: ${{ env.UPA_YEAR }}
           UPA_ALLOW_HTTP_FALLBACK: ${{ env.UPA_ALLOW_HTTP_FALLBACK }}
         run: |
           set -e
           python agents/collect_cfbd_all.py
-
-      - name: Debug artifacts
-        run: |
-          echo "== data directory =="
+          echo "Collector finished. Listing /data:"
           ls -l data || true
-          echo "== head: cfb_schedule.csv =="
-          sed -n '1,20p' data/cfb_schedule.csv || true
-          echo "== head: upa_team_inputs_datadriven_v0.csv =="
-          sed -n '1,10p' data/upa_team_inputs_datadriven_v0.csv || true
-          echo "== head: upa_predictions.csv =="
-          sed -n '1,20p' data/upa_predictions.csv || true
-          echo "== head: live_edge_report.csv =="
-          sed -n '1,20p' data/live_edge_report.csv || true
-          echo "== status.json =="
-          cat data/status.json || true
 
-      - name: Upload data as workflow artifact (for quick download)
-        uses: actions/upload-artifact@v4
-        with:
-          name: upa-f-data
-          path: |
-            data/*.csv
-            data/status.json
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Commit & push data (auto-rebase)
+      # Optional: commit the refreshed data back to main so it's versioned
+      - name: Commit & push data updates
         run: |
           set -e
-          git config user.name  "github-actions"
-          git config user.email "actions@github.com"
-
-          # Stage only generated data files
-          git add data/*.csv data/status.json || true
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+          if git status --porcelain data | grep .; then
+            git config user.name  "github-actions"
+            git config user.email "actions@github.com"
+            git add data/*.csv data/status.json || true
+            git commit -m "data: refresh (${{ env.UPA_YEAR }})"
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          else
+            echo "No data changes to commit."
           fi
 
-          git commit -m "data: update (${{ github.event.inputs.year || '2025' }})"
+      # ----- Node build for the portal -----
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-          # Rebase on latest main to avoid non-fast-forward errors
-          git fetch origin main
-          git pull --rebase origin main || true
+      - name: Install web deps
+        run: npm ci
 
-          git push origin HEAD:main
+      - name: Build site
+        env:
+          # Provide base for Vite if your vite.config.ts reads process.env.VITE_BASE
+          VITE_BASE: ${{ env.VITE_BASE }}
+        run: npm run build
+
+      # Ensure CSVs are included in the published site
+      - name: Copy data artifacts into site bundle
+        run: |
+          mkdir -p dist/data
+          cp -v data/*.csv dist/data/ || true
+          cp -v data/status.json dist/data/ || true
+          echo "Dist data contents:"
+          ls -l dist/data || true
+
+      # ----- Deploy to GitHub Pages -----
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
