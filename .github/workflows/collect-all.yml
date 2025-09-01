@@ -61,7 +61,7 @@ jobs:
       # Optional: write service account JSON from a secret so Sheets can be updated.
       # Add a repo secret named GOOGLE_SA_JSON with the raw JSON if you want this.
       - name: Create service account key (optional)
-        if: ${{ secrets.GOOGLE_SA_JSON != '' }}
+        if: ${{ secrets.GOOGLE_SA_JSON }}
         run: |
           mkdir -p .secrets
           echo '${{ secrets.GOOGLE_SA_JSON }}' > .secrets/sa.json
