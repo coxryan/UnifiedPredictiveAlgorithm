@@ -244,21 +244,34 @@ def build_schedule_df() -> pd.DataFrame:
     season_type='regular', fallback 'both'. No division arg.
     Returns: columns week,date,home_team,away_team,neutral_site,market_spread
     """
-    def rows_from_games(glist):
-        rows = []
-        for g in glist or []:
-            ht, at = getattr(g, "home_team", None), getattr(g, "away_team", None)
-            if not ht or not at:
-                continue
-            rows.append({
-                "week": getattr(g, "week", None),
-                "date": (getattr(g, "start_date", None) or "")[:10],
-                "home_team": ht,
-                "away_team": at,
-                "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
-                "market_spread": None,
-            })
-        return rows
+def rows_from_games(glist):
+    rows = []
+    for g in glist or []:
+        ht = getattr(g, "home_team", None)
+        at = getattr(g, "away_team", None)
+        if not ht or not at:
+            continue
+
+        # --- robust date extraction ---
+        sd = getattr(g, "start_date", None) or getattr(g, "start_time", None)
+        if isinstance(sd, datetime):
+            date_str = sd.date().isoformat()
+        else:
+            # cfbd may return ISO string; fall back safely
+            try:
+                date_str = str(sd)[:10] if sd else ""
+            except Exception:
+                date_str = ""
+
+        rows.append({
+            "week": getattr(g, "week", None),
+            "date": date_str,
+            "home_team": ht,
+            "away_team": at,
+            "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
+            "market_spread": None,
+        })
+    return rows
 
     all_rows = []
     for wk in range(0, 22):  # Week 0 .. Week 21 buffer
