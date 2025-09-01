@@ -55,7 +55,12 @@ def df_from_returning():
                 "_defense": getattr(it, "defense", None),
                 "_ppa_tot": getattr(it, "total_ppa", None),
                 "_ppa_off": getattr(it, "total_offense_ppa", None) or (getattr(it, "total_passing_ppa", 0) + getattr(it, "total_rushing_ppa", 0)),
-                "_ppa_def": getattr(it, "total_defense_ppa", None) or getattr(it, "total_defensive_ppa", None),
+                "_ppa_def": (
+                    getattr(it, "total_defense_ppa", None)
+                    or getattr(it, "total_defensive_ppa", None)
+                    or getattr(it, "defense_ppa", None)
+                    or getattr(it, "defensive_ppa", None)
+                ),
             }
             rows.append(rec)
 
@@ -100,6 +105,19 @@ def df_from_returning():
             df["wrps_defense_percent"] = scale(df["_ppa_def"])
 
     df["wrps_percent_0_100"] = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce").round(1)
+
+    if "wrps_defense_percent" in df.columns:
+        if df["wrps_defense_percent"].isna().all():
+            if "wrps_overall_percent" in df.columns and df["wrps_overall_percent"].notna().any():
+                df["wrps_defense_percent"] = df["wrps_overall_percent"]
+            elif "wrps_offense_percent" in df.columns and df["wrps_offense_percent"].notna().any():
+                df["wrps_defense_percent"] = df["wrps_offense_percent"]
+    # Optionally, fill any stragglers with column median
+    df["wrps_defense_percent"] = pd.to_numeric(df["wrps_defense_percent"], errors="coerce")
+    if df["wrps_defense_percent"].isna().any():
+        med = df["wrps_defense_percent"].median()
+        if pd.notna(med):
+            df["wrps_defense_percent"] = df["wrps_defense_percent"].fillna(round(float(med), 1))
 
     for col in EXPECTED_RETURNING_COLS:
         if col not in df.columns:
