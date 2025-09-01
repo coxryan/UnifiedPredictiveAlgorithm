@@ -240,6 +240,118 @@ def df_transfer_portal():
 # -----------------------------
 def build_schedule_df() -> pd.DataFrame:
     """
+    Build the schedule week-by-week using the CFBD SDK GamesApi.get_games.
+    We try season_type='regular' first, then 'both'.
+    Logs loudly so we can see exactly what's returned per week.
+    Returns columns: week,date,home_team,away_team,neutral_site,market_spread
+    """
+    print("BEGIN schedule: SDK week-by-week get_games()", flush=True)
+
+    def safe_date(g) -> str:
+        # g.start_date may be a datetime OR a string, depending on SDK version
+        sd = getattr(g, "start_date", None) or getattr(g, "start_time", None)
+        if isinstance(sd, datetime):
+            return sd.date().isoformat()
+        try:
+            s = str(sd)
+            return s[:10] if s else ""
+        except Exception:
+            return ""
+
+    def rows_from_games(glist):
+        rows = []
+        for g in glist or []:
+            ht = getattr(g, "home_team", None)
+            at = getattr(g, "away_team", None)
+            if not ht or not at:
+                continue
+            rows.append({
+                "week": getattr(g, "week", None),
+                "date": safe_date(g),
+                "home_team": ht,
+                "away_team": at,
+                "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
+                "market_spread": None,
+            })
+        return rows
+
+    all_rows = []
+    try:
+        for wk in range(0, 22):  # Week 0 .. 21 buffer
+            last_err = None
+            for attempt in range(4):
+                try:
+                    games = games_api.get_games(year=YEAR, week=wk, season_type="regular") or []
+                    if not games:
+                        games = games_api.get_games(year=YEAR, week=wk, season_type="both") or []
+                    print(f"DEBUG SDK games week {wk}: {len(games)}", flush=True)
+                    all_rows += rows_from_games(games)
+                    break
+                except Exception as e:
+                    last_err = e
+                    backoff = 0.6 * (attempt + 1)
+                    print(f"[warn] SDK get_games week {wk} attempt {attempt+1}/4 failed: {e}; retrying in {backoff:.1f}s", file=sys.stderr)
+                    time.sleep(backoff)
+            else:
+                print(f"[warn] SDK get_games week {wk} failed after retries: {last_err}", file=sys.stderr)
+    except Exception as e:
+        print(f"[error] schedule loop crashed: {e}", file=sys.stderr)
+
+    df = pd.DataFrame(all_rows)
+    total = len(df)
+    print(f"END schedule: SDK built total rows = {total}", flush=True)
+
+    cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
+
+    # Optional fallback to HTTP if SDK returns 0 — only if you explicitly allow it.
+    allow_http = os.environ.get("UPA_ALLOW_HTTP_FALLBACK", "0").strip() in ("1","true","yes")
+    if total == 0 and allow_http:
+        print("[info] SDK returned 0 rows; attempting HTTP fallback (UPA_ALLOW_HTTP_FALLBACK=1).", flush=True)
+        try:
+            import requests
+            base_url = "https://api.collegefootballdata.com/games"
+            headers = {"Authorization": f"Bearer {BEARER}", "Accept": "application/json"}
+            http_rows = []
+            for wk in range(0, 22):
+                r = requests.get(base_url, headers=headers, params={
+                    "year": str(YEAR),
+                    "week": str(wk),
+                    "seasonType": "regular"
+                }, timeout=30)
+                if r.status_code == 200:
+                    for g in r.json() or []:
+                        ht, at = g.get("home_team"), g.get("away_team")
+                        if not ht or not at: continue
+                        http_rows.append({
+                            "week": g.get("week"),
+                            "date": (g.get("start_date") or "")[:10],
+                            "home_team": ht,
+                            "away_team": at,
+                            "neutral_site": 1 if g.get("neutral_site") else 0,
+                            "market_spread": None,
+                        })
+                else:
+                    print(f"[warn] HTTP fallback week {wk} status {r.status_code}", file=sys.stderr)
+            df = pd.DataFrame(http_rows)
+            total = len(df)
+            print(f"HTTP fallback built rows = {total}", flush=True)
+        except Exception as e:
+            print(f"[warn] HTTP fallback failed: {e}", file=sys.stderr)
+
+    if total == 0:
+        # Sanity check: can token pull prior season?
+        try:
+            prior = games_api.get_games(year=YEAR-1, week=1, season_type="regular") or []
+            print(f"DEBUG token sanity: prior season week 1 via SDK returned {len(prior)} games", flush=True)
+        except Exception as e:
+            print(f"[warn] prior-season sanity check failed: {e}", file=sys.stderr)
+        return pd.DataFrame(columns=cols)
+
+    df = df[cols]
+    df["week"] = pd.to_numeric(df["week"], errors="coerce").astype("Int64")
+    df["neutral_site"] = pd.to_numeric(df["neutral_site"], errors="coerce").fillna(0).astype(int)
+    return df
+    """
     Build schedule using GamesApi.get_games week-by-week with retries.
     season_type='regular', fallback 'both'. No division arg.
     Returns: columns week,date,home_team,away_team,neutral_site,market_spread
