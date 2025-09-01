@@ -42,30 +42,17 @@ EXPECTED_RETURNING_COLS = [
 # -----------------------------
 def df_from_returning():
     print("Pulling returning production…", flush=True)
-
     fbs = teams_api.get_fbs_teams(year=YEAR)
     team_conf = {t.school: (t.conference or "FBS") for t in fbs}
     conferences = sorted({t.conference for t in fbs if t.conference})
 
     rows = []
-    total = 0
     for conf in conferences:
         try:
             items = players_api.get_returning_production(year=YEAR, conference=conf)
         except Exception as e:
             print(f"[warn] returning production fetch failed for {conf}: {e}", file=sys.stderr)
             items = []
-
-        n = len(items or [])
-        total += n
-        print(f"DEBUG returning production for {conf}: {n} records", flush=True)
-        if n:
-            try:
-                sample = items[0].to_dict() if hasattr(items[0], "to_dict") else items[0].__dict__
-                print(f"DEBUG keys {conf}: {list(sample.keys())}", flush=True)
-            except Exception as e:
-                print(f"[debug-fail] cannot inspect object for {conf}: {e}", file=sys.stderr)
-
         for it in items or []:
             rec = {
                 "team": getattr(it, "team", None),
@@ -97,10 +84,8 @@ def df_from_returning():
 
     def normalize_percent(x):
         if pd.isna(x): return None
-        try:
-            x = float(x)
-        except Exception:
-            return None
+        try: x = float(x)
+        except Exception: return None
         return x*100.0 if x <= 1.0 else x
 
     for src, out in [("_offense","wrps_offense_percent"),
@@ -109,58 +94,29 @@ def df_from_returning():
         if src in df.columns:
             df[out] = df[src].apply(normalize_percent)
 
-    need_proxy = any(
-        (c not in df.columns) or df[c].isna().all()
-        for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"]
-    )
+    def scale(series):
+        s = pd.to_numeric(series, errors="coerce")
+        if s.notna().sum() == 0: return pd.Series([None]*len(s), index=s.index)
+        mn, mx = float(s.min()), float(s.max())
+        if mx == mn: return pd.Series([50.0]*len(s), index=s.index)
+        return (s - mn) / (mx - mn) * 100.0
 
-    if need_proxy:
-        for col in ["_ppa_tot","_ppa_off","_ppa_def"]:
-            if col not in df.columns:
-                df[col] = None
-
-        def scale(series):
-            s = pd.to_numeric(series, errors="coerce")
-            if s.notna().sum() == 0:
-                return pd.Series([None]*len(s), index=s.index)
-            mn, mx = float(s.min()), float(s.max())
-            if mx == mn:
-                return pd.Series([50.0]*len(s), index=s.index)
-            return (s - mn) / (mx - mn) * 100.0
-
-        if "wrps_overall_percent" not in df.columns or df["wrps_overall_percent"].isna().all():
-            df["wrps_overall_percent"] = scale(df["_ppa_tot"])
-        if "wrps_offense_percent" not in df.columns or df["wrps_offense_percent"].isna().all():
-            df["wrps_offense_percent"] = scale(df["_ppa_off"])
-        if "wrps_defense_percent" not in df.columns or df["wrps_defense_percent"].isna().all():
-            df["wrps_defense_percent"] = scale(df["_ppa_def"])
+    # fill via PPA scaling where needed
+    if "wrps_overall_percent" not in df.columns or df["wrps_overall_percent"].isna().all():
+        df["wrps_overall_percent"] = scale(df["_ppa_tot"])
+    if "wrps_offense_percent" not in df.columns or df["wrps_offense_percent"].isna().all():
+        df["wrps_offense_percent"] = scale(df["_ppa_off"])
+    if "wrps_defense_percent" not in df.columns or df["wrps_defense_percent"].isna().all():
+        df["wrps_defense_percent"] = scale(df["_ppa_def"])
 
     df["wrps_percent_0_100"] = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce").round(1)
 
-    def _clip01(s):
-        s = pd.to_numeric(s, errors="coerce")
-        return s.clip(lower=0, upper=100).round(1)
-
-    if "wrps_defense_percent" not in df.columns:
-        df["wrps_defense_percent"] = pd.NA
-
+    # robust DEF fill if still missing
     if df["wrps_defense_percent"].isna().all():
-        if "_ppa_def" in df.columns and pd.to_numeric(df["_ppa_def"], errors="coerce").notna().any():
-            s = pd.to_numeric(df["_ppa_def"], errors="coerce")
-            mn, mx = float(s.min(skipna=True)), float(s.max(skipna=True))
-            df["wrps_defense_percent"] = 50.0 if mx == mn else ((s - mn) / (mx - mn) * 100.0)
-        if df["wrps_defense_percent"].isna().all():
-            ovr = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce")
-            off = pd.to_numeric(df.get("wrps_offense_percent"), errors="coerce")
-            if ovr.notna().any() and off.notna().any():
-                df["wrps_defense_percent"] = (2*ovr - off)
-
-    df["wrps_defense_percent"] = _clip01(df["wrps_defense_percent"])
-    if df["wrps_defense_percent"].isna().any():
-        med = pd.to_numeric(df["wrps_defense_percent"], errors="coerce").median()
-        df["wrps_defense_percent"] = df["wrps_defense_percent"].fillna(
-            50.0 if pd.isna(med) else round(float(med), 1)
-        )
+        ovr = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce")
+        off = pd.to_numeric(df.get("wrps_offense_percent"), errors="coerce")
+        if ovr.notna().any() and off.notna().any():
+            df["wrps_defense_percent"] = (2*ovr - off).clip(0, 100)
 
     for col in EXPECTED_RETURNING_COLS:
         if col not in df.columns:
@@ -172,7 +128,7 @@ def df_from_returning():
     return df[EXPECTED_RETURNING_COLS].copy()
 
 # -----------------------------
-# Talent
+# Team Talent
 # -----------------------------
 def df_from_talent():
     print("Pulling Team Talent composite…", flush=True)
@@ -184,7 +140,6 @@ def df_from_talent():
 
     rows = [{"team": x.team, "talent": float(getattr(x, "talent", 0) or 0)} for x in items or []]
     df = pd.DataFrame(rows)
-
     if df.empty:
         return pd.DataFrame({"team": [], "talent_score_0_100": []})
 
@@ -193,7 +148,7 @@ def df_from_talent():
     return df[["team", "talent_score_0_100"]]
 
 # -----------------------------
-# Previous Season SOS (via SRS + opponent average)
+# Previous Season SOS (SRS + opp avg)
 # -----------------------------
 def df_prev_season_sos_rank():
     print("Computing previous-season SOS rank via SRS…", flush=True)
@@ -241,24 +196,17 @@ def df_transfer_portal():
         to_team = getattr(p, "destination", None) or getattr(p, "to_team", None)
         from_team = getattr(p, "origin", None) or getattr(p, "from_team", None)
         val = getattr(p, "rating", None) or getattr(p, "stars", None) or 1.0
-        try:
-            val = float(val)
-        except Exception:
-            val = 1.0
+        try: val = float(val)
+        except: val = 1.0
         if to_team:
             incoming[to_team] += 1; rating_in[to_team] += val
         if from_team:
             outgoing[from_team] += 1; rating_out[from_team] += val
 
-    teams = set(incoming) | set(outgoing)
-    rows = []
-    for t in teams:
-        rows.append({
-            "team": t,
-            "portal_net_count": incoming[t]-outgoing[t],
-            "portal_net_value": rating_in[t]-rating_out[t],
-        })
-
+    teams = set(list(incoming.keys()) + list(outgoing.keys()))
+    rows = [{"team": t,
+             "portal_net_count": incoming[t] - outgoing[t],
+             "portal_net_value": rating_in[t] - rating_out[t]} for t in teams]
     df = pd.DataFrame(rows)
     if df.empty:
         return pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
@@ -268,125 +216,71 @@ def df_transfer_portal():
         if s.notna().sum() == 0: return pd.Series([50.0]*len(s), index=s.index)
         mn, mx = s.min(), s.max()
         if mx == mn: return pd.Series([50.0]*len(s), index=s.index)
-        return (s-mn)/(mx-mn)*100.0
+        return (s - mn)/(mx - mn)*100.0
 
     df["portal_net_0_100"] = (0.5*scale(df["portal_net_count"]) + 0.5*scale(df["portal_net_value"])).round(1)
     return df[["team","portal_net_0_100","portal_net_count","portal_net_value"]]
 
 # -----------------------------
-# Helpers: CFBD schedule pulls with calendar
+# Schedule builder (SDK week-by-week)
 # -----------------------------
-def _games_to_rows(glist):
-    rows = []
-    for g in glist or []:
-        ht, at = getattr(g, "home_team", None), getattr(g, "away_team", None)
-        if not ht or not at:
-            continue
-        rows.append({
-            "week": getattr(g, "week", None),
-            "date": (getattr(g, "start_date", None) or "")[:10],
-            "home_team": ht,
-            "away_team": at,
-            "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
-            "market_spread": None,
-        })
-    return rows
-
-def build_schedule_df():
-    """Robust schedule builder:
-       1) Use existing CSV if present & valid
-       2) Try broad pulls (regular/both + division toggles)
-       3) Use CFBD calendar weeks to fetch week-by-week
+def build_schedule_df() -> pd.DataFrame:
     """
-    from pandas.errors import EmptyDataError, ParserError
-
-    sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
-    sc = None
-
-    # A: manual CSV
-    if os.path.exists(sched_path):
-        try:
-            if os.path.getsize(sched_path) < 10:
-                raise EmptyDataError("file too small / empty")
-            sc_try = pd.read_csv(sched_path)
-            sc_try = sc_try.rename(columns={
-                "home": "home_team", "away": "away_team",
-                "homeTeam": "home_team", "awayTeam": "away_team",
-                "neutral": "neutral_site", "is_neutral_site": "neutral_site"
+    Build schedule using GamesApi.get_games week-by-week with retries.
+    season_type='regular', division='fbs'
+    """
+    def rows_from_games(glist):
+        rows = []
+        for g in glist or []:
+            ht, at = getattr(g, "home_team", None), getattr(g, "away_team", None)
+            if not ht or not at: 
+                continue
+            rows.append({
+                "week": getattr(g, "week", None),
+                "date": (getattr(g, "start_date", None) or "")[:10],
+                "home_team": ht,
+                "away_team": at,
+                "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
+                "market_spread": None,
             })
-            req = {"week","home_team","away_team"}
-            have = {c.strip().lower() for c in sc_try.columns.astype(str)}
-            if not req.issubset(have):
-                raise ParserError(f"missing required columns; got {list(sc_try.columns)}")
-            print(f"DEBUG schedule CSV loaded: {len(sc_try)} rows", flush=True)
-            return sc_try
-        except (EmptyDataError, ParserError) as e:
-            print(f"[warn] schedule CSV unusable ({e}); switching to auto-build.", file=sys.stderr)
-        except Exception as e:
-            print(f"[warn] schedule CSV read error: {e}; switching to auto-build.", file=sys.stderr)
+        return rows
 
-    # B: broad pulls
     all_rows = []
-    try:
-        a = games_api.get_games(year=YEAR, season_type="regular", division="fbs") or []
-        print(f"DEBUG auto A (regular,fbs): {len(a)}", flush=True)
-        all_rows += _games_to_rows(a)
-        if len(all_rows) == 0:
-            b = games_api.get_games(year=YEAR, season_type="both", division="fbs") or []
-            print(f"DEBUG auto B (both,fbs): {len(b)}", flush=True)
-            all_rows += _games_to_rows(b)
-        if len(all_rows) == 0:
-            c = games_api.get_games(year=YEAR, season_type="both") or []
-            print(f"DEBUG auto C (both,all divisions): {len(c)}", flush=True)
-            all_rows += _games_to_rows(c)
-    except Exception as e:
-        print(f"[warn] auto one-shot failed: {e}", file=sys.stderr)
+    for wk in range(0, 22):  # 0..21 covers Week 0 + regular season w/ buffer
+        last_err = None
+        for attempt in range(4):
+            try:
+                games = games_api.get_games(
+                    year=YEAR, week=wk,
+                    season_type="regular",
+                    division="fbs",
+                ) or []
+                print(f"DEBUG SDK games week {wk}: {len(games)}", flush=True)
+                all_rows += rows_from_games(games)
+                break
+            except Exception as e:
+                last_err = e
+                backoff = 0.6 * (attempt + 1)
+                print(f"[warn] SDK get_games week {wk} attempt {attempt+1}/4 failed: {e}; retrying in {backoff:.1f}s", file=sys.stderr)
+                time.sleep(backoff)
+        else:
+            print(f"[warn] SDK get_games week {wk} failed after retries: {last_err}", file=sys.stderr)
 
-    # C: calendar-driven week-by-week (most reliable)
-    if len(all_rows) == 0:
+    df = pd.DataFrame(all_rows)
+    print(f"DEBUG SDK built schedule total rows: {len(df)}", flush=True)
+    cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
+    if df.empty:
+        # Sanity check: can token pull prior season?
         try:
-            cal = games_api.get_calendar(year=YEAR, season_type="regular") or []
-            print(f"DEBUG calendar regular weeks: {len(cal)}", flush=True)
-            if not cal:
-                cal = games_api.get_calendar(year=YEAR, season_type="both") or []
-                print(f"DEBUG calendar both weeks: {len(cal)}", flush=True)
-
-            # calendar items often have .week; sometimes .season_week
-            weeks = []
-            for c in cal:
-                wk = getattr(c, "week", None)
-                if wk is None:
-                    wk = getattr(c, "season_week", None)
-                if wk is not None:
-                    weeks.append(int(wk))
-            weeks = sorted(set(weeks))
-            print(f"DEBUG calendar-derived weeks: {weeks}", flush=True)
-
-            for wk in weeks:
-                # throttle just a little to be nice to API
-                for attempt in range(3):
-                    try:
-                        g1 = games_api.get_games(year=YEAR, week=wk, season_type="regular", division="fbs") or []
-                        if not g1:
-                            g1 = games_api.get_games(year=YEAR, week=wk, season_type="both", division="fbs") or []
-                        if not g1:
-                            g1 = games_api.get_games(year=YEAR, week=wk, season_type="both") or []
-                        if g1:
-                            print(f"DEBUG calendar week {wk}: {len(g1)} games", flush=True)
-                            all_rows += _games_to_rows(g1)
-                            break
-                    except Exception as we:
-                        print(f"[warn] calendar week {wk} attempt {attempt+1} failed: {we}", file=sys.stderr)
-                        time.sleep(0.5)
+            prior = games_api.get_games(year=YEAR-1, week=1, season_type="regular", division="fbs") or []
+            print(f"DEBUG token sanity: prior season week 1 returned {len(prior)} games", flush=True)
         except Exception as e:
-            print(f"[warn] calendar-based build failed: {e}", file=sys.stderr)
-
-    sc = pd.DataFrame(all_rows)
-    print(f"DEBUG auto-schedule built total rows: {len(sc)}", flush=True)
-    return sc
+            print(f"[warn] prior-season sanity check failed: {e}", file=sys.stderr)
+        return pd.DataFrame(columns=cols)
+    return df[cols]
 
 # -----------------------------
-# Main: Merge, Write, Predictions/Edges
+# Main: Merge, Write, Predict
 # -----------------------------
 def main():
     start = datetime.now(timezone.utc)
@@ -413,34 +307,32 @@ def main():
         "year": YEAR,
         "teams": int(df.shape[0]),
         "fields": list(df.columns),
-        "next_run_eta_utc": (start + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        "next_run_eta_utc": (start + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     with open(os.path.join(DATA_DIR, "status.json"), "w") as f:
         json.dump(status, f, indent=2)
 
-    # --- Schedule handling (robust) ---
+    # --- Schedule + Predictions / Live Edge ---
     sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
     preds_csv  = os.path.join(DATA_DIR, "upa_predictions.csv")
     edge_csv   = os.path.join(DATA_DIR, "live_edge_report.csv")
 
     sc = build_schedule_df()
 
-    # Always persist a CSV for the portal (headers even if empty)
+    # Always persist (header-only if empty)
     cols = ["week","date","home_team","away_team","neutral_site","market_spread"]
     if sc is None or sc.empty:
         pd.DataFrame(columns=cols).to_csv(sched_path, index=False)
         print(f"[warn] wrote header-only schedule CSV to {sched_path} (0 rows)", file=sys.stderr)
     else:
-        sc_out = sc[cols] if all(c in sc.columns for c in cols) else sc
-        sc_out.to_csv(sched_path, index=False)
-        print(f"DEBUG wrote schedule CSV to {sched_path} with {len(sc_out)} rows", flush=True)
+        sc.to_csv(sched_path, index=False)
+        print(f"DEBUG wrote schedule CSV to {sched_path} with {len(sc)} rows", flush=True)
 
-    # --- Predictions / Live Edge ---
     if sc is not None and not sc.empty:
+        # Build composite rating
         base = df.copy()
         for need in ["wrps_percent_0_100","talent_score_0_100","portal_net_0_100"]:
-            if need not in base.columns:
-                base[need] = 50.0
+            if need not in base.columns: base[need] = 50.0
         if "prev_season_sos_rank_1_133" in base.columns and pd.to_numeric(base["prev_season_sos_rank_1_133"], errors="coerce").notna().any():
             sosr = pd.to_numeric(base["prev_season_sos_rank_1_133"], errors="coerce")
             base["sos_0_100"] = (1 - (sosr - 1) / (sosr.max() - 1 if sosr.max() > 1 else 1)) * 100.0
@@ -462,7 +354,7 @@ def main():
         out_rows = []
         for _, r in sc.iterrows():
             ht, at = r.get("home_team"), r.get("away_team")
-            if pd.isna(ht) or pd.isna(at):
+            if pd.isna(ht) or pd.isna(at): 
                 continue
             hr = float(rating.get(ht, 0.0))
             ar = float(rating.get(at, 0.0))
@@ -472,12 +364,12 @@ def main():
             market = pd.to_numeric(r.get("market_spread", None), errors="coerce")
             edge = model_spread - market if pd.notna(market) else None
             out_rows.append({
-                "week": r.get("week", None),
-                "date": r.get("date", None),
+                "week": r.get("week"),
+                "date": r.get("date"),
                 "home_team": ht,
                 "away_team": at,
-                "home_conf": confmap.get(ht, None),
-                "away_conf": confmap.get(at, None),
+                "home_conf": confmap.get(ht),
+                "away_conf": confmap.get(at),
                 "neutral_site": int(neutral),
                 "model_spread_home": round(model_spread, 2),
                 "market_spread_home": market if pd.notna(market) else None,
@@ -497,7 +389,9 @@ def main():
     else:
         print("[warn] no schedule dataframe available; skipping predictions/edge.", file=sys.stderr)
 
-    # Optional: Google Sheets upsert if creds + SHEET_ID provided
+    # -----------------------------
+    # Optional: Google Sheets upsert
+    # -----------------------------
     SHEET_ID = os.environ.get("SHEET_ID", "").strip()
     SA = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
     if SHEET_ID and SA and os.path.exists(SA):
