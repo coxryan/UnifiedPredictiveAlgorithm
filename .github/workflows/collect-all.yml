@@ -1,4 +1,4 @@
-name: Collect data + Build & Deploy site (UPA-F)
+name: Collect data ➜ Build & Deploy site (UPA-F)
 
 on:
   workflow_dispatch:
@@ -8,16 +8,14 @@ on:
         required: false
         type: string
   schedule:
-    # Twice daily (UTC) — adjust as needed
-    - cron: "15 5,17 * * *"
+    - cron: "15 5,17 * * *"   # twice daily (UTC)
   push:
-    branches: [ "main" ] # also deploy on commits to main (e.g., local edits)
+    branches: [ "main" ]
 
-# Required for Pages
 permissions:
-  contents: write       # we commit data/* updates back to main (optional but useful)
-  pages: write          # deploy to GitHub Pages
-  id-token: write       # needed by actions/deploy-pages
+  contents: write        # commit data/* updates
+  pages: write           # deploy to Pages
+  id-token: write        # required by actions/deploy-pages
 
 concurrency:
   group: upa-f-collect-build-deploy
@@ -26,40 +24,25 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   TZ: America/Phoenix
-  # Year used by the collector; dispatch input wins else default 2025
   UPA_YEAR: ${{ github.event.inputs.year || '2025' }}
-  # Optional: allow HTTP fallback if SDK returns 0 rows
   UPA_ALLOW_HTTP_FALLBACK: "0"
-  # If your Vite config uses base from env, set it here (project pages):
-  # Change this to your repo name (it must include the leading and trailing slash)
+  # Adjust to your repo name if different; used by the app to form correct asset paths
   VITE_BASE: "/UnifiedPredictiveAlgorithm/"
 
 jobs:
-  collect_build_deploy:
+  collect:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ----- Python collector -----
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
 
       - name: Install collector deps
         run: |
@@ -67,7 +50,7 @@ jobs:
           if [ -f agents/requirements.txt ]; then
             pip install -r agents/requirements.txt
           fi
-          # Ensure these are present even if requirements.txt is minimal
+          # Ensure required libs even if requirements.txt is minimal
           pip install cfbd pandas requests google-auth google-auth-oauthlib gspread
 
       - name: Run collector (writes data/*.csv + status.json)
@@ -79,11 +62,21 @@ jobs:
         run: |
           set -e
           python agents/collect_cfbd_all.py
-          echo "Collector finished. Listing /data:"
+          echo "Collector finished. Contents of data/:"
           ls -l data || true
+          sed -n '1,10p' data/cfb_schedule.csv || true
 
-      # Optional: commit the refreshed data back to main so it's versioned
-      - name: Commit & push data updates
+      - name: Upload site-data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-data
+          path: |
+            data/*.csv
+            data/status.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit & push data updates (optional, keeps data versioned)
         run: |
           set -e
           if git status --porcelain data | grep .; then
@@ -97,40 +90,60 @@ jobs:
             echo "No data changes to commit."
           fi
 
-      # ----- Node build for the portal -----
+  build_deploy:
+    runs-on: ubuntu-latest
+    needs: collect
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download site-data artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-data
+          path: site-data
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          # IMPORTANT: no cache here (lockfile may be absent)
 
       - name: Install web deps
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-fund --no-audit
+          fi
 
       - name: Build site
         env:
-          # Provide base for Vite if your vite.config.ts reads process.env.VITE_BASE
           VITE_BASE: ${{ env.VITE_BASE }}
         run: npm run build
 
-      # Ensure CSVs are included in the published site
-      - name: Copy data artifacts into site bundle
+      - name: Copy data into site bundle
         run: |
           mkdir -p dist/data
-          cp -v data/*.csv dist/data/ || true
-          cp -v data/status.json dist/data/ || true
-          echo "Dist data contents:"
+          cp -v site-data/*.csv dist/data/ || true
+          cp -v site-data/status.json dist/data/ || true
+          echo "dist/data:"
           ls -l dist/data || true
 
-      # ----- Deploy to GitHub Pages -----
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload artifact (site)
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deploy
         uses: actions/deploy-pages@v4
