@@ -1,0 +1,5 @@
+
+pandas==2.2.2
+cfbd==5.11.2
+gspread==6.1.2
+google-auth==2.31.0

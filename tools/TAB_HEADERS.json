@@ -1,0 +1,13 @@
+{
+  "team": "Team name (CFBD standard)",
+  "conference": "Conference",
+  "wrps_offense_percent": "Offensive returning production % (0-100)",
+  "wrps_defense_percent": "Defensive returning production % (0-100)",
+  "wrps_overall_percent": "Overall returning production % (0-100)",
+  "wrps_percent_0_100": "Unified % used by UPA-F",
+  "prev_season_sos_rank_1_133": "Prior-year schedule strength rank (1=hardest)",
+  "talent_score_0_100": "Team Talent Composite normalized 0-100",
+  "portal_net_0_100": "Portal net composite (0-100)",
+  "portal_net_count": "Net incoming-outgoing count",
+  "portal_net_value": "Rating-weighted net"
+}
