@@ -3,18 +3,18 @@
 UPA-F collector — end-to-end data builder
 
 Outputs (in ./data):
-- cfb_schedule.csv                 (game_id, week, date, home_team, away_team, neutral_site, market_spread)
-- upa_team_inputs_datadriven_v0.csv  (team-level features incl. WRPS, Talent, Portal, SOS)
-- upa_predictions.csv              (model spread vs market; per-game)
-- live_edge_report.csv             (top N edges)
-- status.json                      (dashboard heartbeat)
+- cfb_schedule.csv                    (game_id, week, date, home_team, away_team, neutral_site, market_spread)
+- upa_team_inputs_datadriven_v0.csv   (team-level features incl. WRPS, Talent, Portal, SOS, power indices)
+- upa_predictions.csv                 (per-game model vs market, calibrated)
+- live_edge_report.csv                (top edges)
+- status.json                         (dashboard heartbeat)
 
 Env:
-- BEARER_TOKEN (required)           CFBD API bearer
-- UPA_YEAR (optional, default 2025) season year
-- UPA_ALLOW_HTTP_FALLBACK ("1" to enable) fallback to REST if SDK returns 0 schedule rows
-- SHEET_ID (optional)               Google Sheet to upsert "Team Inputs"
-- GOOGLE_APPLICATION_CREDENTIALS (optional) service account json path for Sheets
+- BEARER_TOKEN (required)             CFBD API bearer
+- UPA_YEAR (optional, default 2025)   season year
+- UPA_ALLOW_HTTP_FALLBACK (0/1)       try HTTP REST schedule if SDK returns 0 rows
+- SHEET_ID (optional)                 Google Sheet to upsert "Team Inputs"
+- GOOGLE_APPLICATION_CREDENTIALS      path to service account JSON (for Sheets)
 """
 
 import os
@@ -22,6 +22,7 @@ import sys
 import json
 import time
 from datetime import datetime, timedelta, timezone
+from typing import Tuple
 
 import pandas as pd
 
@@ -30,7 +31,7 @@ import pandas as pd
 # -----------------------------
 try:
     import cfbd
-except Exception as e:
+except Exception:
     print("ERROR: cfbd package not available. Ensure Actions installed 'cfbd'.", file=sys.stderr)
     raise
 
@@ -61,6 +62,9 @@ EXPECTED_RETURNING_COLS = [
     "wrps_percent_0_100"
 ]
 
+POWER5 = {"ACC", "Big Ten", "Big 12", "Pac-12", "SEC"}  # simple institutional factor
+
+
 # -----------------------------
 # Returning Production
 # -----------------------------
@@ -85,14 +89,14 @@ def df_from_returning() -> pd.DataFrame:
                 "_overall": getattr(it, "overall", None),
                 "_offense": getattr(it, "offense", None),
                 "_defense": getattr(it, "defense", None) or getattr(it, "defensive", None),
-                # fallbacks from PPA when percents missing
+                # PPA fallbacks when percent fields missing
                 "_ppa_tot": getattr(it, "total_ppa", None),
                 "_ppa_off": getattr(it, "total_offense_ppa", None) or (
                     getattr(it, "total_passing_ppa", 0) + getattr(it, "total_rushing_ppa", 0)
                 ),
-                "_ppa_def": getattr(it, "total_defense_ppa", None) \
-                            or getattr(it, "total_defensive_ppa", None) \
-                            or getattr(it, "defense_ppa", None) \
+                "_ppa_def": getattr(it, "total_defense_ppa", None)
+                            or getattr(it, "total_defensive_ppa", None)
+                            or getattr(it, "defense_ppa", None)
                             or getattr(it, "defensive_ppa", None),
             }
             rows.append(rec)
@@ -100,7 +104,7 @@ def df_from_returning() -> pd.DataFrame:
     df = pd.DataFrame(rows).drop_duplicates(subset=["team"])
 
     if df.empty:
-        print("[warn] returning production endpoint returned 0 records; using neutral 50s fallback.", flush=True)
+        print("[warn] returning production endpoint returned 0; using neutral 50s.", flush=True)
         teams = sorted(team_conf.keys())
         df = pd.DataFrame({
             "team": teams,
@@ -108,9 +112,10 @@ def df_from_returning() -> pd.DataFrame:
             "_overall": 50.0, "_offense": 50.0, "_defense": 50.0
         })
 
-    # normalize 0..1 to 0..100
+    # normalize 0..1 → 0..100
     def normalize_percent(x):
-        if pd.isna(x): return None
+        if pd.isna(x):
+            return None
         try:
             x = float(x)
         except Exception:
@@ -120,7 +125,7 @@ def df_from_returning() -> pd.DataFrame:
     for src, out in [
         ("_offense", "wrps_offense_percent"),
         ("_defense", "wrps_defense_percent"),
-        ("_overall", "wrps_overall_percent")
+        ("_overall", "wrps_overall_percent"),
     ]:
         if src in df.columns:
             df[out] = df[src].apply(normalize_percent)
@@ -160,6 +165,7 @@ def df_from_returning() -> pd.DataFrame:
 
     return df[EXPECTED_RETURNING_COLS].copy()
 
+
 # -----------------------------
 # Team Talent
 # -----------------------------
@@ -179,6 +185,7 @@ def df_from_talent() -> pd.DataFrame:
     mn, mx = df["talent"].min(), df["talent"].max()
     df["talent_score_0_100"] = 50.0 if mx == mn else ((df["talent"] - mn) / (mx - mn) * 100.0).round(1)
     return df[["team", "talent_score_0_100"]]
+
 
 # -----------------------------
 # Previous Season SOS (SRS + opp avg)
@@ -209,6 +216,7 @@ def df_prev_season_sos_rank() -> pd.DataFrame:
 
     df["prev_season_sos_rank_1_133"] = df["sos_value"].rank(ascending=False, method="min").astype(int)
     return df[["team", "prev_season_sos_rank_1_133"]]
+
 
 # -----------------------------
 # Transfer Portal (net)
@@ -260,13 +268,14 @@ def df_transfer_portal() -> pd.DataFrame:
     df["portal_net_0_100"] = (0.5 * scale(df["portal_net_count"]) + 0.5 * scale(df["portal_net_value"])).round(1)
     return df[["team", "portal_net_0_100", "portal_net_count", "portal_net_value"]]
 
+
 # -----------------------------
 # Schedule builder (SDK week-by-week, no division arg)
 # -----------------------------
 def build_schedule_df() -> pd.DataFrame:
     """
     Build schedule using GamesApi.get_games week-by-week with retries.
-    season_type='regular', fallback 'both'. No division arg.
+    season_type='regular', fallback 'both'.
     Returns: columns game_id, week, date, home_team, away_team, neutral_site, market_spread
     """
     print("BEGIN schedule: SDK week-by-week get_games()", flush=True)
@@ -301,7 +310,7 @@ def build_schedule_df() -> pd.DataFrame:
 
     all_rows = []
     try:
-        for wk in range(0, 22):  # Week 0 .. 21 buffer
+        for wk in range(0, 22):  # Week 0..21
             last_err = None
             for attempt in range(4):
                 try:
@@ -327,7 +336,6 @@ def build_schedule_df() -> pd.DataFrame:
 
     cols = ["game_id", "week", "date", "home_team", "away_team", "neutral_site", "market_spread"]
 
-    # Optional HTTP fallback if SDK gives 0 rows
     if total == 0 and ALLOW_HTTP_FALLBACK:
         print("[info] SDK returned 0 rows; attempting HTTP fallback (UPA_ALLOW_HTTP_FALLBACK=1).", flush=True)
         try:
@@ -344,7 +352,8 @@ def build_schedule_df() -> pd.DataFrame:
                 if r.status_code == 200:
                     for g in r.json() or []:
                         ht, at = g.get("home_team"), g.get("away_team")
-                        if not ht or not at: continue
+                        if not ht or not at:
+                            continue
                         http_rows.append({
                             "game_id": g.get("id") or g.get("game_id"),
                             "week": g.get("week"),
@@ -376,8 +385,9 @@ def build_schedule_df() -> pd.DataFrame:
     df["neutral_site"] = pd.to_numeric(df["neutral_site"], errors="coerce").fillna(0).astype(int)
     return df
 
+
 # -----------------------------
-# Betting lines → market spread (home positive)
+# Betting lines → market spread (home positive), with safe merges
 # -----------------------------
 def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
     """
@@ -390,7 +400,10 @@ def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
 
     weeks = sorted([int(w) for w in sc["week"].dropna().unique().tolist()])
     if not weeks:
-        return sc
+        out = sc.copy()
+        if "market_spread" not in out.columns:
+            out["market_spread"] = pd.NA
+        return out
 
     line_rows = []
     for wk in weeks:
@@ -439,27 +452,22 @@ def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
                     "market_spread": round(float(consensus), 2),
                 })
 
+    out = sc.copy()
     if not line_rows:
         print("[warn] no betting lines found; leaving market_spread blank.", file=sys.stderr)
-        # ensure column exists
-        out = sc.copy()
         if "market_spread" not in out.columns:
             out["market_spread"] = pd.NA
         return out
 
     df_lines = pd.DataFrame(line_rows)
 
-    # ----- Primary merge by game_id -----
-    out = sc.copy()
-    # make sure we don't end up with _x/_y; drop the preexisting column first
+    # Primary: join by game_id; avoid _x/_y by removing existing column first
     out = out.drop(columns=["market_spread"], errors="ignore")
     out = out.merge(df_lines[["game_id", "market_spread"]], on="game_id", how="left")
-
-    # If the column still doesn't exist for some reason, create it
     if "market_spread" not in out.columns:
         out["market_spread"] = pd.NA
 
-    # ----- Fallback merge by (week, home_team, away_team) for any remaining NA -----
+    # Fallback: (week, home_team, away_team) for remaining NaN
     need = out["market_spread"].isna()
     if need.any():
         join_cols = ["week", "home_team", "away_team"]
@@ -469,101 +477,52 @@ def enrich_schedule_with_market_spread(sc: pd.DataFrame) -> pd.DataFrame:
         out.drop(columns=["market_spread_fb"], inplace=True, errors="ignore")
 
     return out
+
+
+# -----------------------------
+# Helpers for team power & calibration
+# -----------------------------
+def qb_boost_series(team_df: pd.DataFrame) -> pd.Series:
     """
-    Populate sc['market_spread'] using CFBD BettingApi.get_lines.
-    Positive = home favored by X points.
-    Merge primarily by game_id; fallback to (week, home_team, away_team).
+    Placeholder QB-leaning offense boost:
+    - Use top-quartile talent as a crude proxy for returning QB/program stability.
+    Replace with explicit 'returning_qb' when available.
     """
-    if sc is None or sc.empty:
-        return sc
+    t = pd.to_numeric(team_df.get("talent_score_0_100", 50), errors="coerce").fillna(50)
+    flag = (t >= t.quantile(0.75)).astype(int)
+    off = pd.to_numeric(team_df.get("wrps_offense_percent", 50), errors="coerce").fillna(50)
+    boosted = off + flag * 5.0
+    return boosted.clip(0, 100)
 
-    weeks = sorted([int(w) for w in sc["week"].dropna().unique().tolist()])
-    if not weeks:
-        return sc
 
-    line_rows = []
-    for wk in weeks:
-        try:
-            items = betting_api.get_lines(year=YEAR, week=wk, season_type="regular") or []
-            if not items:
-                items = betting_api.get_lines(year=YEAR, week=wk, season_type="both") or []
-        except Exception as e:
-            print(f"[warn] betting lines fetch failed for week {wk}: {e}", file=sys.stderr)
-            items = []
+def calibrate_spread(preds_df: pd.DataFrame) -> Tuple[float, float]:
+    """
+    Learn market calibration: market ≈ α * model + β (OLS).
+    Returns (α, β). Falls back to (1.25, 0.0) if insufficient data.
+    """
+    df = preds_df.dropna(subset=["model_spread_home", "market_spread_home"]).copy()
+    if df.shape[0] < 20:
+        return 1.25, 0.0
+    import numpy as np
+    x = pd.to_numeric(df["model_spread_home"], errors="coerce")
+    y = pd.to_numeric(df["market_spread_home"], errors="coerce")
+    m = pd.concat([x, y], axis=1).dropna()
+    if m.empty:
+        return 1.25, 0.0
+    X = m.iloc[:, 0].values
+    Y = m.iloc[:, 1].values
+    Xc, Yc = X - X.mean(), Y - Y.mean()
+    denom = float((Xc ** 2).sum())
+    alpha = float((Xc * Yc).sum() / denom) if denom != 0 else 1.25
+    beta = float(Y.mean() - alpha * X.mean())
+    return alpha, beta
 
-        for gi in items or []:
-            gid = getattr(gi, "id", None) or getattr(gi, "game_id", None)
-            ht = getattr(gi, "home_team", None)
-            at = getattr(gi, "away_team", None)
-            books = getattr(gi, "lines", None) or []
-
-            spreads = []
-            for book in books:
-                val = None
-                # try home_spread/spread first
-                for attr in ("home_spread", "spread"):
-                    if hasattr(book, attr):
-                        try:
-                            val = float(getattr(book, attr))
-                            break
-                        except Exception:
-                            pass
-                # fallback: away_spread and invert
-                if val is None and hasattr(book, "away_spread"):
-                    try:
-                        away_val = float(getattr(book, "away_spread"))
-                        val = -away_val
-                    except Exception:
-                        pass
-                if val is not None:
-                    # normalize: home favored → POSITIVE
-                    home_spread = -val
-                    spreads.append(home_spread)
-
-            if spreads:
-                import statistics as st
-                consensus = st.median(spreads)
-                line_rows.append({
-                    "game_id": gid,
-                    "week": wk,
-                    "home_team": ht,
-                    "away_team": at,
-                    "market_spread": round(float(consensus), 2),
-                })
-
-    if not line_rows:
-        print("[warn] no betting lines found; leaving market_spread blank.", file=sys.stderr)
-        return sc
-
-    df_lines = pd.DataFrame(line_rows)
-
-    # Primary: join by game_id
-    out = sc.merge(df_lines[["game_id", "market_spread"]], on="game_id", how="left")
-
-    # Fallback: (week, home_team, away_team)
-    need = out["market_spread"].isna()
-    if need.any():
-        join_cols = ["week", "home_team", "away_team"]
-        out = out.merge(
-            df_lines[join_cols + ["market_spread"]],
-            on=join_cols,
-            how="left",
-            suffixes=("", "_wkteams"),
-        )
-        out.loc[need, "market_spread"] = out.loc[need, "market_spread_wkteams"]
-        out.drop(columns=["market_spread_wkteams"], inplace=True, errors="ignore")
-
-    return out
 
 # -----------------------------
 # Predictions / Live Edge
 # -----------------------------
 def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.DataFrame:
     base = team_df.copy()
-
-    for need in ["wrps_percent_0_100", "talent_score_0_100", "portal_net_0_100"]:
-        if need not in base.columns:
-            base[need] = 50.0
 
     # SOS to 0..100 where higher is tougher
     if "prev_season_sos_rank_1_133" in base.columns and \
@@ -573,13 +532,24 @@ def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.Da
     else:
         base["sos_0_100"] = 50.0
 
+    # Institutional factor (Power 5 bump)
+    base["is_p5"] = base.get("conference", "").isin(POWER5).astype(int)
+
+    # QB-leaning offense boost
+    off_wrps = qb_boost_series(base)
+
+    # Power index (UPA-F spirit: Off (QB-lean) > Def > Talent > Portal + P5 & SOS seasoning)
     base["team_power_0_100"] = (
-        0.35 * pd.to_numeric(base["wrps_percent_0_100"], errors="coerce").fillna(50.0) +
-        0.35 * pd.to_numeric(base["talent_score_0_100"], errors="coerce").fillna(50.0) +
-        0.15 * pd.to_numeric(base["portal_net_0_100"], errors="coerce").fillna(50.0) +
-        0.15 * pd.to_numeric(base["sos_0_100"], errors="coerce").fillna(50.0)
+        0.40 * off_wrps +
+        0.25 * pd.to_numeric(base.get("wrps_defense_percent", 50), errors="coerce").fillna(50) +
+        0.20 * pd.to_numeric(base.get("talent_score_0_100", 50), errors="coerce").fillna(50) +
+        0.10 * pd.to_numeric(base.get("portal_net_0_100", 50), errors="coerce").fillna(50) +
+        0.05  * pd.to_numeric(base.get("sos_0_100", 50), errors="coerce").fillna(50) +
+        0.05  * base["is_p5"] * 100.0 / 10.0   # ≈ +5 power for P5 → a few model points pre-cal
     )
-    base["team_rating"] = (base["team_power_0_100"] - 50.0) * 0.5
+
+    # Keep rating centered; calibration will scale to points
+    base["team_rating"] = base["team_power_0_100"] - 50.0
 
     rating = base.set_index("team")["team_rating"].to_dict()
     confmap = base.set_index("team")["conference"].to_dict()
@@ -594,7 +564,7 @@ def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.Da
         ar = float(rating.get(at, 0.0))
         neutral = bool(int(r.get("neutral_site", 0))) if str(r.get("neutral_site", "")).strip() != "" else False
         hfa = 0.0 if neutral else HFA
-        model_spread = (hr + hfa) - ar
+        model_spread = (hr + hfa) - ar  # home positive
 
         market = pd.to_numeric(r.get("market_spread", None), errors="coerce")
         edge = model_spread - market if pd.notna(market) else None
@@ -612,7 +582,19 @@ def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.Da
             "edge_points": round(edge, 2) if edge is not None else None
         })
 
-    return pd.DataFrame(out_rows)
+    preds = pd.DataFrame(out_rows)
+
+    # Calibrate model → market scale
+    alpha, beta = calibrate_spread(preds)
+    preds["model_spread_cal"] = (alpha * preds["model_spread_home"] + beta).round(2)
+    preds["edge_points"] = (preds["model_spread_cal"] - preds["market_spread_home"]).round(2)
+
+    # Attach calibration params for debugging (same value per row; handy for inspection)
+    preds["cal_alpha"] = round(alpha, 4)
+    preds["cal_beta"] = round(beta, 4)
+
+    return preds
+
 
 # -----------------------------
 # Main
@@ -620,7 +602,7 @@ def build_predictions(team_df: pd.DataFrame, schedule_df: pd.DataFrame) -> pd.Da
 def main():
     start = datetime.now(timezone.utc)
 
-    # Collect modules
+    # Team modules
     rp = df_from_returning()
     talent = df_from_talent()
     sos = df_prev_season_sos_rank()
@@ -668,22 +650,18 @@ def main():
         schedule_df.to_csv(sched_path, index=False)
         print(f"DEBUG wrote schedule CSV to {sched_path} with {len(schedule_df)} rows", flush=True)
 
-    # Predictions + live edge
+    # Predictions + live edge (calibrated)
     preds_df = build_predictions(team_df, schedule_df)
     preds_csv = os.path.join(DATA_DIR, "upa_predictions.csv")
     preds_df.to_csv(preds_csv, index=False)
     print(f"DEBUG wrote predictions CSV to {preds_csv} with {preds_df.shape[0]} rows", flush=True)
 
     edge_csv = os.path.join(DATA_DIR, "live_edge_report.csv")
-    if "edge_points" in preds_df.columns:
-        edge = preds_df.dropna(subset=["edge_points"]).sort_values(
-            by="edge_points", key=lambda s: s.abs(), ascending=False
-        )
-        edge[["week", "date", "home_team", "away_team", "edge_points"]].head(200).to_csv(edge_csv, index=False)
-        print(f"DEBUG wrote live edge CSV to {edge_csv} with {min(200, edge.shape[0])} rows", flush=True)
-    else:
-        pd.DataFrame(columns=["week", "date", "home_team", "away_team", "edge_points"]).to_csv(edge_csv, index=False)
-        print(f"[warn] preds_df has no edge_points; wrote header-only {edge_csv}", file=sys.stderr)
+    cols = ["week", "date", "home_team", "away_team", "model_spread_cal", "market_spread_home", "edge_points"]
+    preds_df.dropna(subset=["edge_points"]).reindex(columns=cols).sort_values(
+        by="edge_points", key=lambda s: s.abs(), ascending=False
+    ).head(200).to_csv(edge_csv, index=False)
+    print(f"DEBUG wrote live edge CSV to {edge_csv}", flush=True)
 
     # Optional: Google Sheets upsert
     SHEET_ID = os.environ.get("SHEET_ID", "").strip()
@@ -707,6 +685,7 @@ def main():
             print(f"[warn] Sheets update skipped/failed: {e}", file=sys.stderr)
 
     print(f"Wrote {inputs_csv} with {team_df.shape[0]} rows.", flush=True)
+
 
 # -----------------------------
 # Entrypoint
