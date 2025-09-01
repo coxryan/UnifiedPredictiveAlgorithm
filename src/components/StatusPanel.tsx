@@ -62,11 +62,11 @@ export default function StatusPanel() {
     try {
       const r = await fetch(STATUS_URL, { cache: "no-store" });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const json = (await r.json()) as StatusPayload;
+      const json = await r.json();
       setStatus(json);
       setError(null);
-    } catch (e: any) {
-      setError(`Status unavailable (${e?.message || "fetch error"})`);
+    } catch (e) {
+      setError(`Status unavailable (HTTP ${e?.message?.match(/\d+/)?.[0] || "fetch"})`);
     }
   }, []);
 
@@ -100,6 +100,14 @@ export default function StatusPanel() {
 
   const mins = minutesSince(status?.generated_at_utc);
 
+  function diff(ms: number){
+    const s = Math.max(0, Math.floor(ms/1000));
+    const hh = String(Math.floor(s/3600)).padStart(2,'0');
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    return `${hh}:${mm}:${ss}`;
+  }
+
   return (
     <div>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
@@ -118,15 +126,15 @@ export default function StatusPanel() {
       <div style={{display:"grid",gap:12,gridTemplateColumns:"repeat(5, minmax(0, 1fr))",marginTop:12}}>
         <div className="mono cardlet">
           <div style={{fontSize:12,color:"#6b7280"}}>Last updated</div>
-          <div>{fmt(status?.generated_at_utc)}</div>
+          <div>{status?.generated_at_utc ? new Date(status.generated_at_utc).toLocaleString() : "—"}</div>
         </div>
         <div className="mono cardlet">
           <div style={{fontSize:12,color:"#6b7280"}}>Next run ETA</div>
-          <div>{fmt(status?.next_run_eta_utc)}</div>
+          <div>{status?.next_run_eta_utc ? new Date(status.next_run_eta_utc).toLocaleString() : "—"}</div>
         </div>
         <div className="mono cardlet">
           <div style={{fontSize:12,color:"#6b7280"}}>Countdown</div>
-          <div>{etaMs == null ? "—" : diffHHMMSS(etaMs)}</div>
+          <div>{status?.next_run_eta_utc ? diff(new Date(status.next_run_eta_utc).getTime() - now) : "—"}</div>
         </div>
         <div className="mono cardlet">
           <div style={{fontSize:12,color:"#6b7280"}}>Teams</div>
@@ -137,15 +145,6 @@ export default function StatusPanel() {
           <div>{csvLastMod ?? "—"}</div>
         </div>
       </div>
-
-      {status?.fields && (
-        <details style={{marginTop:12}}>
-          <summary style={{cursor:"pointer", fontSize:14, color:"#4b5563"}}>Columns</summary>
-          <div style={{marginTop:6, fontSize:12, color:"#374151"}}>
-            {status.fields.join(", ")}
-          </div>
-        </details>
-      )}
     </div>
   );
 }
