@@ -1,4 +1,3 @@
-
 import os, json, sys
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
@@ -33,45 +32,79 @@ def df_from_returning():
     fbs = teams_api.get_fbs_teams(year=YEAR)
     team_conf = {t.school: (t.conference or "FBS") for t in fbs}
     conferences = sorted({t.conference for t in fbs if t.conference})
+
     rows = []
     for conf in conferences:
         try:
             items = players_api.get_returning_production(year=YEAR, conference=conf)
-        except Exception:
+        except Exception as e:
+            print(f"[warn] returning production fetch failed for {conf}: {e}", file=sys.stderr)
             items = []
-            for team, c in team_conf.items():
-                if c != conf: continue
-                try:
-                    items.extend(players_api.get_returning_production(year=YEAR, team=team))
-                except Exception as e:
-                    print(f"Returning production missing for {team}: {e}", file=sys.stderr)
-        for it in items:
-            rec = { "team": it.team, "conference": it.conference or team_conf.get(it.team, "") }
-            for k_guess in ["overall", "offense", "defense"]:
-                v = getattr(it, k_guess, None)
-                if isinstance(v, (int, float)):
-                    rec[f"wrps_{k_guess}_percent"] = float(v) * (100.0 if v <= 1.0 else 1.0)
-            if not all(k in rec for k in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"]):
-                totals = {
-                    "off": getattr(it, "total_offense_ppa", None) or getattr(it, "total_passing_ppa", 0) + getattr(it, "total_rushing_ppa", 0),
-                    "def": getattr(it, "total_defense_ppa", None) or getattr(it, "total_defensive_ppa", None),
-                    "tot": getattr(it, "total_ppa", None),
-                }
-                rec["_ppa_overall"] = totals["tot"] if totals["tot"] is not None else None
-                rec["_ppa_off"] = totals["off"] if totals["off"] is not None else None
-                rec["_ppa_def"] = totals["def"] if totals["def"] is not None else None
+        for it in items or []:
+            rec = {
+                "team": getattr(it, "team", None),
+                "conference": getattr(it, "conference", None) or team_conf.get(getattr(it, "team", None), ""),
+                "_overall": getattr(it, "overall", None),
+                "_offense": getattr(it, "offense", None),
+                "_defense": getattr(it, "defense", None),
+                "_ppa_tot": getattr(it, "total_ppa", None),
+                "_ppa_off": getattr(it, "total_offense_ppa", None) or (getattr(it, "total_passing_ppa", 0) + getattr(it, "total_rushing_ppa", 0)),
+                "_ppa_def": getattr(it, "total_defense_ppa", None) or getattr(it, "total_defensive_ppa", None),
+            }
             rows.append(rec)
+
     df = pd.DataFrame(rows).drop_duplicates(subset=["team"])
-    if "_ppa_overall" in df.columns:
-        for col, out in [("_ppa_overall","wrps_overall_percent"),("_ppa_off","wrps_offense_percent"),("_ppa_def","wrps_defense_percent")]:
-            if col in df.columns:
-                s = df[col].astype(float)
-                if s.notna().sum() > 0:
-                    mn, mx = s.min(), s.max()
-                    if mx != mn:
-                        df[out] = (s - mn) / (mx - mn) * 100.0
-    if "wrps_overall_percent" in df.columns:
-        df["wrps_percent_0_100"] = df["wrps_overall_percent"].round(1)
+
+    # Helper to coerce 0..1 to 0..100, and pass through 0..100
+    def normalize_percent(x):
+        if pd.isna(x): return None
+        try:
+            x = float(x)
+        except Exception:
+            return None
+        return x * 100.0 if x <= 1.0 else x
+
+    # Use explicit percent fields if present
+    for src, out in [("_offense", "wrps_offense_percent"),
+                     ("_defense", "wrps_defense_percent"),
+                     ("_overall", "wrps_overall_percent")]:
+        if src in df.columns:
+            df[out] = df[src].apply(normalize_percent)
+
+    # If any of the percent columns are entirely missing or NA, fall back to PPA min-max scaling
+    need_proxy = any((col not in df.columns) or df[col].isna().all() for col in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"])
+    if need_proxy:
+        for col in ["_ppa_tot", "_ppa_off", "_ppa_def"]:
+            if col not in df.columns:
+                df[col] = None
+
+        def scale(series):
+            s = pd.to_numeric(series, errors="coerce")
+            if s.notna().sum() == 0:
+                return pd.Series([None]*len(s), index=s.index)
+            mn, mx = float(s.min()), float(s.max())
+            if mx == mn:
+                return pd.Series([50.0]*len(s), index=s.index)
+            return (s - mn) / (mx - mn) * 100.0
+
+        if "wrps_overall_percent" not in df.columns or df["wrps_overall_percent"].isna().all():
+            df["wrps_overall_percent"] = scale(df["_ppa_tot"])
+        if "wrps_offense_percent" not in df.columns or df["wrps_offense_percent"].isna().all():
+            df["wrps_offense_percent"] = scale(df["_ppa_off"])
+        if "wrps_defense_percent" not in df.columns or df["wrps_defense_percent"].isna().all():
+            df["wrps_defense_percent"] = scale(df["_ppa_def"])
+
+    # Compute unified 0-100 overall and guarantee all expected columns exist
+    df["wrps_percent_0_100"] = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce").round(1)
+
+    for col in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100"]:
+        if col not in df.columns:
+            df[col] = None
+
+    # Ensure 'conference' exists even if upstream misses it
+    if "conference" not in df.columns:
+        df["conference"] = df["team"].map(team_conf).fillna("FBS")
+
     return df[["team","conference","wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100"]].copy()
 
 def df_from_talent():
