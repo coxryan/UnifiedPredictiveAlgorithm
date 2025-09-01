@@ -37,6 +37,7 @@ export default function App() {
               <li><a className="link" href="data/upa_team_inputs_datadriven_v0.csv" target="_blank">team inputs CSV ↗</a></li>
               <li><a className="link" href="data/upa_predictions.csv" target="_blank">predictions CSV ↗</a></li>
               <li><a className="link" href="data/live_edge_report.csv" target="_blank">live edge CSV ↗</a></li>
+              <li><a className="link" href="data/cfb_schedule.csv" target="_blank">schedule CSV ↗</a></li>
               <li><a className="link" href="data/status.json" target="_blank">status.json ↗</a> <span className="badge">dashboard polls this</span></li>
             </ul>
             <p style={{color:"#4b5563"}}>Pages auto-redeploys when the collector commits new data.</p>
