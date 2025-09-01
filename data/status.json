@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2025-09-01T20:38:14Z",
+  "generated_at_utc": "2025-09-01T20:41:46Z",
   "year": 2025,
   "teams": 134,
   "fields": [
@@ -15,5 +15,5 @@
     "portal_net_count",
     "portal_net_value"
   ],
-  "next_run_eta_utc": "2025-09-01T21:08:14Z"
+  "next_run_eta_utc": "2025-09-01T21:11:46Z"
 }
