@@ -1,8 +1,8 @@
 metric,value
-MAE_overall,11.046
-MAE_0-3,2.491
-MAE_3-7,4.446
-MAE_7-14,9.921
-MAE_14+,22.959
-qualified_edges,114.0
-qualified_hit_rate,0.516
+MAE_overall,11.019
+MAE_0-3,2.656
+MAE_3-7,4.411
+MAE_7-14,9.984
+MAE_14+,22.742
+qualified_edges,125.0
+qualified_hit_rate,0.457
