@@ -1,28 +1,28 @@
-name: collect-all
+name: deploy
 
 on:
-  schedule:
-    - cron: "15 10 * * *"        # daily at 10:15 UTC (adjust if you like)
   push:
-    branches: [ main ]           # ← ensure it also runs on pushes to main
-    paths-ignore:
-      - ".github/**"
-      - "dist/**"
-  workflow_dispatch: {}          # manual “Run workflow” button
+    branches: [ main ]
+  workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  collect:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
-      - name: Set up Python
+      # ---------- COLLECTOR (Python) ----------
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -30,24 +30,89 @@ jobs:
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r agents/requirements.txt
+          if [ -f agents/requirements.txt ]; then
+            pip install -r agents/requirements.txt
+          else
+            # fallback if requirements file missing
+            pip install cfbd pandas numpy
+          fi
+
+      - name: Sanity check BEARER_TOKEN
+        env:
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+        run: |
+          if [ -z "${BEARER_TOKEN:-}" ]; then
+            echo "ERROR: BEARER_TOKEN secret is not set in repo settings."
+            exit 1
+          fi
+          echo "BEARER_TOKEN is present (length > 0)."
 
       - name: Run collector (writes data/*.csv + status.json)
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}   # ← add in repo secrets
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           UPA_YEAR: "2025"
         run: |
+          set -euo pipefail
           python agents/collect_cfbd_all.py
-          echo "Generated files:" && ls -la data
+          echo "Collector wrote these files:"
+          ls -la data || true
+          [ -f data/status.json ] && cat data/status.json || true
 
-      - name: Commit updated data
+      - name: Verify required data files exist
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A data
-          if git diff --cached --quiet; then
-            echo "No data changes; skipping commit."
+          set -e
+          req_files=(
+            "data/status.json"
+            "data/upa_team_inputs_datadriven_v0.csv"
+            "data/cfb_schedule.csv"
+            "data/upa_predictions.csv"
+            "data/live_edge_report.csv"
+          )
+          for f in "${req_files[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "Missing required data file: $f"
+              exit 1
+            fi
+          done
+          echo "All required data files are present."
+
+      # ---------- BUILD (Node) ----------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps (lockfile-aware)
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            npm ci --no-fund --no-audit
           else
-            git commit -m "data update"
-            git push
+            npm install --no-fund --no-audit
           fi
+
+      - name: Build site
+        run: npm run build
+
+      # copy data into the built site so Pages can serve it
+      - name: Copy data into site artifact
+        run: |
+          mkdir -p dist/data
+          cp -R data/* dist/data/ 2>/dev/null || true
+          echo "dist/data contents:" && ls -la dist/data || true
+          [ -d dist/data/2024 ] && echo "dist/data/2024 contents:" && ls -la dist/data/2024 || true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-pages.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
