@@ -2,8 +2,13 @@ name: collect-all
 
 on:
   schedule:
-    - cron: "15 10 * * *"   # daily at 10:15 UTC (adjust if you want)
-  workflow_dispatch:
+    - cron: "15 10 * * *"        # daily at 10:15 UTC (adjust if you like)
+  push:
+    branches: [ main ]           # ← ensure it also runs on pushes to main
+    paths-ignore:
+      - ".github/**"
+      - "dist/**"
+  workflow_dispatch: {}          # manual “Run workflow” button
 
 permissions:
   contents: write
@@ -11,7 +16,6 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,11 +34,11 @@ jobs:
 
       - name: Run collector (writes data/*.csv + status.json)
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}   # CFBD API token
-          UPA_YEAR: "2025"                            # live season
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}   # ← add in repo secrets
+          UPA_YEAR: "2025"
         run: |
           python agents/collect_cfbd_all.py
-          ls -la data
+          echo "Generated files:" && ls -la data
 
       - name: Commit updated data
         run: |
