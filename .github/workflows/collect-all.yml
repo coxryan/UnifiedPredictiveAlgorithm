@@ -1,149 +1,49 @@
-name: Collect data ➜ Build & Deploy site (UPA-F)
+name: collect-all
 
 on:
-  workflow_dispatch:
-    inputs:
-      year:
-        description: "Season year (defaults to 2025)"
-        required: false
-        type: string
   schedule:
-    - cron: "15 5,17 * * *"   # twice daily (UTC)
-  push:
-    branches: [ "main" ]
+    - cron: "15 10 * * *"   # daily at 10:15 UTC (adjust if you want)
+  workflow_dispatch:
 
 permissions:
-  contents: write        # commit data/* updates
-  pages: write           # deploy to Pages
-  id-token: write        # required by actions/deploy-pages
-
-concurrency:
-  group: upa-f-collect-build-deploy
-  cancel-in-progress: false
-
-env:
-  PYTHONUNBUFFERED: "1"
-  TZ: America/Phoenix
-  UPA_YEAR: ${{ github.event.inputs.year || '2025' }}
-  UPA_ALLOW_HTTP_FALLBACK: "0"
-  # Adjust to your repo name if different; used by the app to form correct asset paths
-  VITE_BASE: "/UnifiedPredictiveAlgorithm/"
+  contents: write
 
 jobs:
   collect:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install collector deps
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          if [ -f agents/requirements.txt ]; then
-            pip install -r agents/requirements.txt
-          fi
-          # Ensure required libs even if requirements.txt is minimal
-          pip install cfbd pandas requests google-auth google-auth-oauthlib gspread
+          pip install -r agents/requirements.txt
 
       - name: Run collector (writes data/*.csv + status.json)
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}     # REQUIRED
-          SHEET_ID: ${{ secrets.SHEET_ID }}             # optional
-          UPA_YEAR: ${{ env.UPA_YEAR }}
-          UPA_ALLOW_HTTP_FALLBACK: ${{ env.UPA_ALLOW_HTTP_FALLBACK }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}   # CFBD API token
+          UPA_YEAR: "2025"                            # live season
         run: |
-          set -e
           python agents/collect_cfbd_all.py
-          echo "Collector finished. Contents of data/:"
-          ls -l data || true
-          sed -n '1,10p' data/cfb_schedule.csv || true
+          ls -la data
 
-      - name: Upload site-data artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-data
-          path: |
-            data/*.csv
-            data/status.json
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Commit & push data updates (optional, keeps data versioned)
+      - name: Commit updated data
         run: |
-          set -e
-          if git status --porcelain data | grep .; then
-            git config user.name  "github-actions"
-            git config user.email "actions@github.com"
-            git add data/*.csv data/status.json || true
-            git commit -m "data: refresh (${{ env.UPA_YEAR }})"
-            git pull --rebase origin main || true
-            git push origin HEAD:main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A data
+          if git diff --cached --quiet; then
+            echo "No data changes; skipping commit."
           else
-            echo "No data changes to commit."
+            git commit -m "data update"
+            git push
           fi
-
-  build_deploy:
-    runs-on: ubuntu-latest
-    needs: collect
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download site-data artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site-data
-          path: site-data
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          # IMPORTANT: no cache here (lockfile may be absent)
-
-      - name: Install web deps
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install --no-fund --no-audit
-          fi
-
-      - name: Build site
-        env:
-          VITE_BASE: ${{ env.VITE_BASE }}
-        run: npm run build
-
-      - name: Copy data into site bundle
-        run: |
-          mkdir -p dist/data
-          cp -v site-data/*.csv dist/data/ || true
-          cp -v site-data/status.json dist/data/ || true
-          echo "dist/data:"
-          ls -l dist/data || true
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact (site)
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4

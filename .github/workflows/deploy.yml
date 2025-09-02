@@ -1,17 +1,9 @@
-name: build-and-deploy
+name: deploy
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
-    paths:
-      - "data/**"
-      - "src/**"
-      - "public/**"
-      - "package.json"
-      - "tsconfig.json"
-      - "vite.config.*"
-      - "next.config.*"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,7 +12,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -29,29 +21,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: 20
+          cache: npm
 
-      - name: Install
-        run: npm ci
+      - name: Install deps (lockfile-aware)
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            echo "Using npm ci (lockfile present)"
+            npm ci --no-fund --no-audit
+          else
+            echo "Using npm install (no lockfile found)"
+            npm install --no-fund --no-audit
+          fi
 
-      - name: Build
+      - name: Build site
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./dist   # Vite default
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deploy-pages
         uses: actions/deploy-pages@v4
