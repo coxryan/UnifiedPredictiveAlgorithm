@@ -5,8 +5,7 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    # Optional nightly refresh (UTC 09:00). Adjust as you like.
-    - cron: "0 9 * * *"
+    - cron: "0 9 * * *"   # optional nightly refresh
 
 permissions:
   contents: read
@@ -18,9 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  UPA_YEAR: "2025"            # live season
-  UPA_BACKTEST_YEAR: "2024"   # backtest season
-  # Thresholds used by collector & UI
+  UPA_YEAR: "2025"
+  UPA_BACKTEST_YEAR: "2024"
   UPA_EDGE_MIN: "2"
   UPA_VALUE_MIN: "1"
 
@@ -32,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --- Cache the API responses to avoid re-hitting CFBD ---
+      # ---------- CFBD API cache (persists across runs) ----------
       - name: Set cache day
         run: echo "CACHE_DAY=$(date +%Y-%m-%d)" >> $GITHUB_ENV
 
@@ -45,7 +43,7 @@ jobs:
             api-cache-${{ github.ref_name }}-
             api-cache-
 
-      # --- Runtime toolchains ---
+      # ---------- Toolchains ----------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -54,38 +52,42 @@ jobs:
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          # If you have a requirements.txt, prefer that:
           if [ -f "agents/requirements.txt" ]; then
             pip install -r agents/requirements.txt
           else
             pip install cfbd pandas numpy
           fi
 
+      # NOTE: no cache field here (it requires a lockfile)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
-      # --- Data collection (live + backtest) ---
+      # ---------- Data collection (live + backtest) ----------
       - name: Run collector (live + backtest)
         env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}   # set this in repo secrets
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           UPA_YEAR: ${{ env.UPA_YEAR }}
           UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
         run: |
           python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
-          echo "Top-level data dir after collect:"
+          echo "Data files written:"
           find data -maxdepth 2 -type f -printf "%P\n" | sort || true
 
-      # --- Build the site ---
+      # ---------- Build UI ----------
       - name: Install Node deps
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build
         run: npm run build
 
-      # --- Publish artifacts: copy data into built site ---
+      # ---------- Ship data into built site ----------
       - name: Copy data -> dist/data
         run: |
           mkdir -p dist/data
@@ -93,7 +95,7 @@ jobs:
           echo "dist/data listing:"
           find dist/data -maxdepth 2 -type f -printf "%P\n" | sort || true
 
-      # --- Upload & Deploy Pages ---
+      # ---------- Publish to Pages ----------
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
