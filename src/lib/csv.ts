@@ -1,42 +1,41 @@
-
-export async function fetchCSV(path: string): Promise<string[][]> {
-  const res = await fetch(path, { cache: "no-store" })
-  if (!res.ok) throw new Error(`Failed to fetch ${path}: ${res.status}`)
-  const text = await res.text()
-  const rows: string[][] = []
-  let cur: string[] = []
-  let cell = ""
-  let inQuotes = false
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]
-    const nxt = text[i+1]
-    if (ch === '"') {
-      if (inQuotes && nxt === '"') { cell += '"'; i++; }
-      else inQuotes = !inQuotes
-    } else if (ch === "," && !inQuotes) {
-      cur.push(cell); cell = ""
-    } else if (ch === "\n" && !inQuotes) {
-      cur.push(cell); rows.push(cur); cur = []; cell = ""
-    } else {
-      cell += ch
-    }
-  }
-  if (cell.length || cur.length) { cur.push(cell); rows.push(cur) }
-  if (rows.length && rows[rows.length-1].every(x => x.trim() === "")) rows.pop()
-  return rows
+export async function loadText(path: string) {
+  const r = await fetch(path, { cache: "no-store" });
+  if (!r.ok) throw new Error(`Failed to fetch ${path}: ${r.status}`);
+  return r.text();
 }
 
-export function toObjects(rows: string[][]): Record<string,string>[] {
-  if (!rows.length) return []
-  const [hdr, ...data] = rows
-  return data.map(r => {
-    const o: Record<string,string> = {}
-    for (let i=0;i<hdr.length;i++) o[hdr[i]] = (r[i] ?? "").trim()
-    return o
-  })
+export async function loadCsv(path: string) {
+  const txt = await loadText(path);
+  const lines = txt.trim().split(/\r?\n/).filter(Boolean);
+  if (!lines.length) return [];
+  const cols = lines[0].split(",").map((c) => c.trim());
+  return lines.slice(1).map((line) => {
+    const cells = line.split(",");
+    const o: Record<string, string> = {};
+    cols.forEach((c, i) => (o[c] = (cells[i] ?? "").trim()));
+    return o;
+  });
 }
 
-export function num(x: any, fallback = NaN): number {
-  const n = typeof x === "number" ? x : parseFloat(String(x))
-  return Number.isFinite(n) ? n : fallback
+export function toNum(v: any) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+export function fmtNum(v: any, opts: Intl.NumberFormatOptions = {}) {
+  if (v === null || v === undefined || v === "" || v === "NaN") return "—";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString(undefined, { maximumFractionDigits: 1, ...opts });
+}
+
+export function fmtPct01(n: number | string | undefined) {
+  if (n === undefined || n === null || n === "" || n === "NaN") return "—";
+  const x = Number(n);
+  if (!Number.isFinite(x)) return "—";
+  return (x * 100).toFixed(1) + "%";
+}
+
+export function playedBool(v: any) {
+  return v === true || v === "True" || v === "true";
 }

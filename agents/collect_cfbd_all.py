@@ -1,42 +1,21 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-UPA-F Collector (market-aware + advanced metrics, stricter market parsing, HFA recentering)
-Generates live data for the current year and also backtests the 2024 season each run.
-
-Outputs:
-  data/upa_team_inputs_datadriven_v0.csv
-  data/cfb_schedule.csv
-  data/upa_predictions.csv
-  data/live_edge_report.csv
-  data/diagnostics_summary.csv
-  data/status.json
-
-Backtest outputs (2024, all regular-season weeks):
-  data/backtest_predictions_2024.csv
-  data/backtest_summary_2024.csv
-"""
-
-from __future__ import annotations
-import os, sys, json, math, argparse, re
+import os
+import sys
+import json
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Tuple, Any
-
-import numpy as np
+from collections import defaultdict
 import pandas as pd
+import numpy as np
 
-# ---- External API ----
+# ----------------------- CFBD SDK setup -----------------------
 try:
     import cfbd
-except Exception:
-    print("ERROR: cfbd package not available. Ensure 'cfbd' is installed.", file=sys.stderr)
+except Exception as e:
+    print("ERROR: cfbd package not available. Ensure Actions installs 'cfbd'.", file=sys.stderr)
     raise
 
-# ---- Config / Env ----
 BEARER = os.environ.get("BEARER_TOKEN", "").strip()
 if not BEARER:
-    print("ERROR: Missing BEARER_TOKEN.", file=sys.stderr)
+    print("ERROR: Missing BEARER_TOKEN secret for CollegeFootballData API.", file=sys.stderr)
     sys.exit(1)
 
 YEAR = int(os.environ.get("UPA_YEAR", "2025"))
@@ -44,839 +23,436 @@ PRIOR = YEAR - 1
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# modeling knobs
-HFA_GLOBAL_DEFAULT = 2.0
-EDGE_MIN = 2.0
-VALUE_MIN = 1.0
-ROLL_WEEKS = 3
-RATING_Z_CLIP = 1.8
-RATING_Z_SCALE = 10.0
-RIDGE_L2 = 2.0
-MODEL_CAP_ABS = 35.0
+configuration = cfbd.Configuration(access_token=BEARER)
+api_client = cfbd.ApiClient(configuration)
+teams_api = cfbd.TeamsApi(api_client)
+players_api = cfbd.PlayersApi(api_client)
+ratings_api = cfbd.RatingsApi(api_client)
+games_api = cfbd.GamesApi(api_client)
+lines_api = cfbd.BettingApi(api_client)  # for market spreads
 
-# backtest controls
-RUN_BACKTEST_2024 = os.environ.get("RUN_BACKTEST_2024", "1").strip() == "1"
-BACKTEST_YEAR = 2024
-BACKTEST_WEEKS_REGULAR = list(range(0, 16))  # Week 0..15 (regular season)
+EXPECTED_RETURNING_COLS = [
+    "team","conference",
+    "wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100"
+]
 
-# ---- CFBD clients ----
-cfg = cfbd.Configuration(access_token=BEARER)
-client = cfbd.ApiClient(cfg)
-teams_api = cfbd.TeamsApi(client)
-players_api = cfbd.PlayersApi(client)
-ratings_api = cfbd.RatingsApi(client)
-games_api = cfbd.GamesApi(client)
-bet_api = cfbd.BettingApi(client)
-metrics_api = cfbd.MetricsApi(client)
-stats_api = cfbd.StatsApi(client)
+# ----------------------- helpers -----------------------
+def _ensure_dir(path: str):
+    os.makedirs(path, exist_ok=True)
+    return path
 
-# ---- Helpers ----
-def _to_float(x, default=np.nan):
+def _to_float(x):
+    try:
+        if x is None or x == "":
+            return np.nan
+        return float(x)
+    except Exception:
+        return np.nan
+
+def _normalize_pct(x):
+    if pd.isna(x): return np.nan
     try:
         v = float(x)
-        if math.isfinite(v):
-            return v
-        return default
     except Exception:
-        return default
+        return np.nan
+    return v*100.0 if v <= 1.0 else v
 
-def _normalize_percent(x):
-    if pd.isna(x): return None
-    try:
-        x = float(x)
-    except Exception:
-        return None
-    return x * 100.0 if x <= 1.0 else x
+# ----------------------- data sources -----------------------
+def df_from_returning(year: int):
+    print("Pulling returning production…", flush=True)
 
-def _scale_minmax(s: pd.Series) -> pd.Series:
-    s = pd.to_numeric(s, errors="coerce")
-    if s.notna().sum() == 0:
-        return pd.Series([50.0]*len(s), index=s.index)
-    mn, mx = float(s.min()), float(s.max())
-    if mx == mn:
-        return pd.Series([50.0]*len(s), index=s.index)
-    return (s - mn) / (mx - mn) * 100.0
-
-def _z_clip(arr: np.ndarray, clip=RATING_Z_CLIP) -> np.ndarray:
-    m = np.nanmean(arr)
-    sd = np.nanstd(arr)
-    if not np.isfinite(sd) or sd == 0: return np.zeros_like(arr)
-    return np.clip((arr - m) / sd, -clip, clip)
-
-def _linreg(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
-    mask = np.isfinite(x) & np.isfinite(y)
-    if mask.sum() < 5: return (1.0, 0.0)
-    a, b = np.polyfit(x[mask], y[mask], 1)
-    return float(a), float(b)
-
-def _slope_through_origin(x: np.ndarray, y: np.ndarray) -> float:
-    mask = np.isfinite(x) & np.isfinite(y)
-    if mask.sum() < 5:
-        return 1.0
-    xx = np.sum(x[mask]*x[mask])
-    if xx <= 0:
-        return 1.0
-    a = float(np.sum(x[mask]*y[mask]) / xx)
-    return a
-
-def _ridge(X: np.ndarray, y: np.ndarray, l2: float) -> np.ndarray:
-    mask = np.all(np.isfinite(X), axis=1) & np.isfinite(y)
-    X = X[mask]; y = y[mask]
-    if X.shape[0] < X.shape[1] + 5:
-        return np.zeros(X.shape[1])
-    XtX = X.T @ X + l2 * np.eye(X.shape[1])
-    XtY = X.T @ y
-    try:
-        b = np.linalg.solve(XtX, XtY)
-    except Exception:
-        b = np.zeros(X.shape[1])
-    return b
-
-def _week_now_from_sched(sched: pd.DataFrame) -> int:
-    wk_scored = sched.loc[sched["home_points"].notna() & sched["away_points"].notna(), "week"]
-    if not wk_scored.empty: return int(wk_scored.max())
-    if "market_spread_home" in sched.columns and sched["market_spread_home"].notna().any():
-        return int(sched.loc[sched["market_spread_home"].notna(), "week"].max())
-    return int(sched["week"].max() if not sched.empty else 1)
-
-# ---- FBS + Inputs ----
-def df_fbs(year: int) -> Tuple[pd.DataFrame, Dict[str,str]]:
     fbs = teams_api.get_fbs_teams(year=year)
-    rows = [{"team": t.school, "conference": getattr(t, "conference", None) or "FBS"} for t in fbs]
-    df = pd.DataFrame(rows).drop_duplicates("team")
-    return df, {r["team"]: r["conference"] for _, r in df.iterrows()}
+    team_conf = {t.school: (t.conference or "FBS") for t in fbs}
+    conferences = sorted({t.conference for t in fbs if t.conference})
 
-def df_returning(year: int, conferences: List[str], team_conf: Dict[str,str]) -> pd.DataFrame:
     rows = []
     for conf in conferences:
         try:
             items = players_api.get_returning_production(year=year, conference=conf)
         except Exception as e:
-            print(f"[warn] returning production failed for {conf}: {e}", file=sys.stderr)
+            print(f"[warn] returning production fetch failed for {conf}: {e}", file=sys.stderr)
             items = []
         for it in items or []:
-            rows.append({
+            rec = {
                 "team": getattr(it, "team", None),
-                "conference": getattr(it, "conference", None) or team_conf.get(getattr(it, "team", None), ""),
+                "conference": getattr(it, "conference", None) or team_conf.get(getattr(it,"team",None), ""),
                 "_overall": getattr(it, "overall", None),
                 "_offense": getattr(it, "offense", None),
                 "_defense": getattr(it, "defense", None),
                 "_ppa_tot": getattr(it, "total_ppa", None),
                 "_ppa_off": getattr(it, "total_offense_ppa", None) or (getattr(it, "total_passing_ppa", 0) + getattr(it, "total_rushing_ppa", 0)),
                 "_ppa_def": getattr(it, "total_defense_ppa", None) or getattr(it, "total_defensive_ppa", None),
-            })
-    df = pd.DataFrame(rows).drop_duplicates("team")
+            }
+            rows.append(rec)
+
+    df = pd.DataFrame(rows).drop_duplicates(subset=["team"])
     for src, out in [("_offense","wrps_offense_percent"),
                      ("_defense","wrps_defense_percent"),
                      ("_overall","wrps_overall_percent")]:
-        if src in df.columns: df[out] = df[src].apply(_normalize_percent)
+        df[out] = df[src].apply(_normalize_pct)
 
-    need_proxy = any((c not in df.columns) or df[c].isna().all()
-                     for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent"])
-    if need_proxy:
-        for col in ["_ppa_tot","_ppa_off","_ppa_def"]:
-            if col not in df.columns: df[col] = None
-        if "wrps_overall_percent" not in df.columns or df["wrps_overall_percent"].isna().all():
-            df["wrps_overall_percent"] = _scale_minmax(df["_ppa_tot"])
-        if "wrps_offense_percent" not in df.columns or df["wrps_offense_percent"].isna().all():
-            df["wrps_offense_percent"] = _scale_minmax(df["_ppa_off"])
-        if "wrps_defense_percent" not in df.columns or df["wrps_defense_percent"].isna().all():
-            df["wrps_defense_percent"] = _scale_minmax(df["_ppa_def"])
+    def scale(series):
+        s = pd.to_numeric(series, errors="coerce")
+        if s.notna().sum() == 0:
+            return pd.Series([np.nan]*len(s), index=s.index)
+        mn, mx = float(s.min()), float(s.max())
+        if mx == mn:
+            return pd.Series([50.0]*len(s), index=s.index)
+        return (s - mn) / (mx - mn) * 100.0
 
-    df["wrps_percent_0_100"] = pd.to_numeric(df["wrps_overall_percent"], errors="coerce").round(1)
-    df["conference"] = df.get("conference").fillna(df["team"].map(team_conf)).fillna("FBS")
-    return df[["team","conference","wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100"]].copy()
+    # fallbacks when percent columns are missing/empty
+    if df["wrps_overall_percent"].isna().all():
+        df["wrps_overall_percent"] = scale(df["_ppa_tot"])
+    if df["wrps_offense_percent"].isna().all():
+        df["wrps_offense_percent"] = scale(df["_ppa_off"])
+    if df["wrps_defense_percent"].isna().all():
+        df["wrps_defense_percent"] = scale(df["_ppa_def"])
 
-def df_talent(year: int) -> pd.DataFrame:
+    df["wrps_percent_0_100"] = pd.to_numeric(df.get("wrps_overall_percent"), errors="coerce").round(1)
+    for col in EXPECTED_RETURNING_COLS:
+        if col not in df.columns:
+            df[col] = np.nan
+    if "conference" not in df.columns or df["conference"].isna().any():
+        df["conference"] = df["team"].map(team_conf).fillna(df.get("conference")).fillna("FBS")
+
+    return df[EXPECTED_RETURNING_COLS].copy()
+
+def df_from_talent(year: int):
+    print("Pulling Team Talent composite…", flush=True)
     try:
         items = teams_api.get_talent(year=year)
     except Exception as e:
         print(f"[warn] talent fetch failed: {e}", file=sys.stderr)
         return pd.DataFrame({"team": [], "talent_score_0_100": []})
-    df = pd.DataFrame([{"team": x.team, "talent": float(getattr(x,"talent",0) or 0)} for x in items or []])
-    if df.empty: return pd.DataFrame({"team": [], "talent_score_0_100": []})
-    mn, mx = df["talent"].min(), df["talent"].max()
-    df["talent_score_0_100"] = 50.0 if mx==mn else ((df["talent"]-mn)/(mx-mn)*100.0).round(1)
-    return df[["team","talent_score_0_100"]]
 
-def df_portal(year: int) -> pd.DataFrame:
+    rows = [{"team": x.team, "talent": float(getattr(x, "talent", 0) or 0)} for x in items or []]
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return pd.DataFrame({"team": [], "talent_score_0_100": []})
+
+    mn, mx = df["talent"].min(), df["talent"].max()
+    if mx == mn:
+        df["talent_score_0_100"] = 50.0
+    else:
+        df["talent_score_0_100"] = ((df["talent"] - mn) / (mx - mn) * 100.0).round(1)
+    return df[["team", "talent_score_0_100"]]
+
+def df_prev_season_sos_rank(prior_year: int):
+    print("Computing previous-season SOS rank via SRS…", flush=True)
+    try:
+        srs = ratings_api.get_srs(year=prior_year)
+    except Exception as e:
+        print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
+
+    srs_map = {x.team: float(x.rating or 0) for x in srs}
+
+    try:
+        games = games_api.get_games(year=prior_year, season_type="both")
+    except Exception as e:
+        print(f"[warn] games fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
+
+    opps = defaultdict(list)
+    for g in games:
+        ht, at = getattr(g, "home_team", None), getattr(g, "away_team", None)
+        if not ht or not at:
+            continue
+        if ht in srs_map and at in srs_map:
+            opps[ht].append(srs_map[at])
+            opps[at].append(srs_map[ht])
+
+    rows = [{"team": t, "sos_value": sum(v)/len(v)} for t, v in opps.items() if v]
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
+
+    df["prev_season_sos_rank_1_133"] = df["sos_value"].rank(ascending=False, method="min").astype(int)
+    return df[["team","prev_season_sos_rank_1_133"]]
+
+def df_transfer_portal(year: int):
+    print("Summarizing transfer portal (net)…", flush=True)
     try:
         portal = players_api.get_transfer_portal(year=year)
     except Exception as e:
         print(f"[warn] portal fetch failed: {e}", file=sys.stderr)
         return pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
-    from collections import defaultdict
-    in_ct = defaultdict(int); out_ct = defaultdict(int)
-    in_val = defaultdict(float); out_val = defaultdict(float)
-    for p in portal or []:
-        to_team = getattr(p,"destination",None) or getattr(p,"to_team",None)
-        from_team = getattr(p,"origin",None) or getattr(p,"from_team",None)
-        rating = getattr(p,"rating",None); stars = getattr(p,"stars",None)
-        try: val = float(rating) if isinstance(rating,(int,float)) else (float(stars) if isinstance(stars,(int,float)) else 1.0)
-        except Exception: val = 1.0
-        if to_team: in_ct[to_team]+=1; in_val[to_team]+=val
-        if from_team: out_ct[from_team]+=1; out_val[from_team]+=val
-    teams = set(list(in_ct.keys())+list(out_ct.keys()))
-    rows = [{"team": t, "portal_net_count": in_ct[t]-out_ct[t], "portal_net_value": in_val[t]-out_val[t]} for t in teams]
+
+    incoming = defaultdict(int); outgoing = defaultdict(int)
+    rating_in = defaultdict(float); rating_out = defaultdict(float)
+
+    for p in portal:
+        to_team = getattr(p, "destination", None) or getattr(p, "to_team", None)
+        from_team = getattr(p, "origin", None) or getattr(p, "from_team", None)
+        rating = getattr(p, "rating", None); stars = getattr(p, "stars", None)
+        try:
+            val = float(rating) if isinstance(rating, (int,float)) else (float(stars) if isinstance(stars, (int,float)) else 1.0)
+        except Exception:
+            val = 1.0
+        if to_team:
+            incoming[to_team] += 1; rating_in[to_team] += val
+        if from_team:
+            outgoing[from_team] += 1; rating_out[from_team] += val
+
+    teams = set(list(incoming.keys()) + list(outgoing.keys()))
+    rows = []
+    for t in teams:
+        cnt_net = incoming[t] - outgoing[t]
+        val_net = rating_in[t] - rating_out[t]
+        rows.append({"team": t, "portal_net_count": cnt_net, "portal_net_value": val_net})
+
     df = pd.DataFrame(rows)
-    if df.empty: return pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
-    def scale(s):
-        s = pd.to_numeric(s, errors="coerce")
-        if s.notna().sum()==0: return pd.Series([50.0]*len(s))
+    if df.empty:
+        return pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
+
+    def scale(series):
+        s = pd.to_numeric(series, errors="coerce")
+        if s.notna().sum() == 0:
+            return pd.Series([50.0]*len(s), index=s.index)
         mn, mx = s.min(), s.max()
-        if mx==mn: return pd.Series([50.0]*len(s))
-        return (s-mn)/(mx-mn)*100.0
-    df["portal_net_0_100"] = (0.5*scale(df["portal_net_count"])+0.5*scale(df["portal_net_value"])).round(1)
+        if mx == mn:
+            return pd.Series([50.0]*len(s), index=s.index)
+        return (s - mn) / (mx - mn) * 100.0
+
+    df["portal_net_0_100"] = (0.5*scale(df["portal_net_count"]) + 0.5*scale(df["portal_net_value"])).round(1)
     return df[["team","portal_net_0_100","portal_net_count","portal_net_value"]]
 
-def df_prev_sos(prior: int) -> pd.DataFrame:
-    try:
-        srs = ratings_api.get_srs(year=prior)
-    except Exception as e:
-        print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
-        return pd.DataFrame({"team": [], "sos_0_100": []})
-    srs_map = {x.team: float(x.rating or 0) for x in srs or []}
-    df = pd.DataFrame([{"team": t, "srs": v} for t,v in srs_map.items()])
-    df["rank"] = df["srs"].rank(ascending=False, method="min")
-    df["sos_0_100"] = ((133 - df["rank"] + 1)/133.0*100.0).round(1)
-    return df[["team","sos_0_100"]]
+# ----------------------- model-building blocks -----------------------
+def build_team_inputs(year: int):
+    rp = df_from_returning(year)
+    talent = df_from_talent(year)
+    sos_prev = df_prev_season_sos_rank(year-1)
+    portal = df_transfer_portal(year)
+    df = rp.merge(talent, on="team", how="left") \
+           .merge(sos_prev, on="team", how="left") \
+           .merge(portal, on="team", how="left")
 
-# ---- Advanced metrics (team season) ----
-def df_team_ppa(year: int) -> pd.DataFrame:
-    cols = ["team","ppa_off","ppa_def","ppa_off_rush","ppa_off_pass","ppa_def_rush","ppa_def_pass"]
-    try:
-        items = metrics_api.get_predicted_points_added_by_team(year=year)
-    except Exception as e:
-        print(f("[warn] team PPA fetch failed: {e}"), file=sys.stderr)
-        return pd.DataFrame({c: [] for c in cols})
-    rows = []
-    for it in items or []:
-        t = getattr(it, "team", None) or getattr(it, "school", None)
-        off = getattr(it, "offense", None)
-        de = getattr(it, "defense", None)
-        rows.append({
-            "team": t,
-            "ppa_off": _to_float(getattr(off, "predicted_points_added", getattr(off, "ppa", None))),
-            "ppa_def": _to_float(getattr(de, "predicted_points_added", getattr(de, "ppa", None))),
-            "ppa_off_rush": _to_float(getattr(off, "rushing_ppa", None)),
-            "ppa_off_pass": _to_float(getattr(off, "passing_ppa", None)),
-            "ppa_def_rush": _to_float(getattr(de, "rushing_ppa", None)),
-            "ppa_def_pass": _to_float(getattr(de, "passing_ppa", None)),
-        })
-    df = pd.DataFrame(rows)
-    return df[cols] if not df.empty else pd.DataFrame({c: [] for c in cols})
+    if "conference" in df.columns:
+        df.sort_values(["conference","team"], inplace=True, ignore_index=True)
+    else:
+        df.sort_values(["team"], inplace=True, ignore_index=True)
 
-def df_team_adv_stats(year: int) -> pd.DataFrame:
-    cols = [
-        "team",
-        "sr_off","sr_def",
-        "expl_off","expl_def",
-        "fp_off_start","fp_def_start",
-        "havoc_off_allowed","havoc_def_created"
-    ]
-    try:
-        items = stats_api.get_advanced_season_stats(year=year)
-    except Exception as e:
-        print(f"[warn] advanced season stats fetch failed: {e}", file=sys.stderr)
-        return pd.DataFrame({c: [] for c in cols})
+    # simple composite power (placeholder — your repo may add more advanced metrics)
+    comps = []
+    comps.append(pd.to_numeric(df.get("wrps_percent_0_100"), errors="coerce").fillna(50))
+    comps.append(pd.to_numeric(df.get("talent_score_0_100"), errors="coerce").fillna(50))
+    comps.append(100 - pd.to_numeric(df.get("prev_season_sos_rank_1_133"), errors="coerce").fillna(100) / 133.0 * 100.0)
+    comps.append(pd.to_numeric(df.get("portal_net_0_100"), errors="coerce").fillna(50))
+    df["team_power_0_100"] = np.vstack(comps).mean(axis=0).round(1)
 
-    def safe(obj, *attrs):
-        cur = obj
-        for a in attrs:
-            cur = getattr(cur, a, None)
-            if cur is None: return None
-        return cur
-
-    rows = []
-    for it in items or []:
-        t = getattr(it, "team", None)
-        off = getattr(it, "offense", None)
-        de = getattr(it, "defense", None)
-        sr_off = _to_float(safe(off, "success_rate"))
-        sr_def = _to_float(safe(de, "success_rate"))
-        expl_off = _to_float(safe(off, "explosiveness"))
-        expl_def = _to_float(safe(de, "explosiveness"))
-        fp_off = _to_float(safe(off, "field_position", "average_start"))
-        fp_def = _to_float(safe(de, "field_position", "average_start"))
-        havoc_off = _to_float(safe(off, "havoc", "total"))
-        if not math.isfinite(havoc_off):
-            havoc_off = (_to_float(safe(off, "havoc", "front_seven")) or 0.0) + (_to_float(safe(off, "havoc", "db")) or 0.0)
-        havoc_def = _to_float(safe(de, "havoc", "total"))
-        if not math.isfinite(havoc_def):
-            havoc_def = (_to_float(safe(de, "havoc", "front_seven")) or 0.0) + (_to_float(safe(de, "havoc", "db")) or 0.0)
-        rows.append({
-            "team": t,
-            "sr_off": sr_off, "sr_def": sr_def,
-            "expl_off": expl_off, "expl_def": expl_def,
-            "fp_off_start": fp_off, "fp_def_start": fp_def,
-            "havoc_off_allowed": havoc_off, "havoc_def_created": havoc_def
-        })
-    df = pd.DataFrame(rows)
-    return df[cols] if not df.empty else pd.DataFrame({c: [] for c in cols})
-
-def df_pregame_wp(year: int) -> pd.DataFrame:
-    try:
-        wps = metrics_api.get_pregame_win_probabilities(year=year)
-    except Exception as e:
-        print(f"[warn] pregame WP fetch failed: {e}", file=sys.stderr)
-        return pd.DataFrame({"team": [], "pregame_wp_avg": []})
-
-    rows = []
-    for it in wps or []:
-        ht = getattr(it, "home_team", None)
-        at = getattr(it, "away_team", None)
-        home_wp = _to_float(getattr(it, "home_win_prob", None))
-        away_wp = _to_float(getattr(it, "away_win_prob", None))
-        if ht is not None and math.isfinite(home_wp): rows.append({"team": ht, "wp": home_wp})
-        if at is not None and math.isfinite(away_wp): rows.append({"team": at, "wp": away_wp})
-    if not rows:
-        return pd.DataFrame({"team": [], "pregame_wp_avg": []})
-    df = pd.DataFrame(rows)
-    out = df.groupby("team", as_index=False)["wp"].mean().rename(columns={"wp": "pregame_wp_avg"})
-    out["pregame_wp_avg"] = (out["pregame_wp_avg"]*100.0).round(1)
-    return out
-
-def df_team_features(prior_year: int) -> pd.DataFrame:
-    ppa = df_team_ppa(prior_year)
-    adv = df_team_adv_stats(prior_year)
-    wp  = df_pregame_wp(prior_year)
-    df = ppa.merge(adv, on="team", how="outer").merge(wp, on="team", how="left")
-    for col in df.columns:
-        if col == "team": continue
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    def inv_scale(s):
-        s = pd.to_numeric(s, errors="coerce")
-        if s.notna().sum()==0: return pd.Series([50.0]*len(s))
-        mn, mx = s.min(), s.max()
-        if mx==mn: return pd.Series([50.0]*len(s))
-        return (mx - s) / (mx - mn) * 100.0
-
-    for c in ["ppa_off","ppa_off_rush","ppa_off_pass","sr_off","expl_off","fp_off_start"]:
-        if c in df.columns: df[c] = _scale_minmax(df[c])
-    for c in ["ppa_def","ppa_def_rush","ppa_def_pass","sr_def","expl_def","fp_def_start","havoc_off_allowed"]:
-        if c in df.columns: df[c] = inv_scale(df[c])
-    if "havoc_def_created" in df.columns:
-        df["havoc_def_created"] = _scale_minmax(df["havoc_def_created"])
-    if "pregame_wp_avg" in df.columns:
-        df["pregame_wp_avg"] = df["pregame_wp_avg"].fillna(50.0)
-
-    df["adv_prior_strength_0_100"] = pd.to_numeric(df[[c for c in df.columns if c!="team"]].mean(axis=1), errors="coerce")
     return df
 
-# ---- Build team inputs (with prior features) ----
-def build_team_inputs() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    fbs_df, conf_map = df_fbs(YEAR)
-    conferences = sorted(set(fbs_df["conference"].dropna()))
-    rp = df_returning(YEAR, conferences, conf_map)
-    talent = df_talent(YEAR)
-    portal = df_portal(YEAR)
-    sos = df_prev_sos(PRIOR)
-    prior_feats = df_team_features(PRIOR)
-
-    df = (
-        fbs_df.merge(rp, on=["team","conference"], how="left")
-              .merge(talent, on="team", how="left")
-              .merge(portal, on="team", how="left")
-              .merge(sos, on="team", how="left")
-              .merge(prior_feats, on="team", how="left")
-    )
-
-    for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100",
-              "talent_score_0_100","portal_net_0_100","sos_0_100","adv_prior_strength_0_100"]:
-        if c not in df.columns: df[c]=50.0
-        df[c] = pd.to_numeric(df[c], errors="coerce").fillna(50.0)
-
-    df["team_power_0_100"] = (
-        0.50*df["wrps_offense_percent"] +
-        0.20*df["wrps_defense_percent"] +
-        0.15*df["talent_score_0_100"] +
-        0.10*df["adv_prior_strength_0_100"] +
-        0.03*df["portal_net_0_100"] +
-        0.02*df["sos_0_100"]
-    ).round(1)
-
-    df["adv_score"] = df["team_power_0_100"].astype(float)
-    z = _z_clip(df["team_power_0_100"].astype(float).values)
-    df["team_rating"] = (z * RATING_Z_SCALE).round(2)
-
-    df.sort_values(["conference","team"], inplace=True, ignore_index=True)
-    df.to_csv(os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"), index=False)
-    print(f"Wrote data/upa_team_inputs_datadriven_v0.csv with {df.shape[0]} rows.")
-    return df, prior_feats
-
-# ---- Robust market lines fetcher (strict spreads) ----
-def fetch_market_lines(year: int, weeks: List[int]) -> pd.DataFrame:
-    """
-    Extract consensus spread per game, HOME-POSITIVE convention.
-    Only accept true spread markets (skip totals/moneylines).
-    Return: [game_id, market_spread_home]
-    """
-    rows: List[Dict[str, float]] = []
-    kept = 0
-
-    for wk in weeks:
-        try:
-            lines = bet_api.get_lines(year=year, week=int(wk), season_type="regular")
-        except Exception as e:
-            print(f"[warn] betting get_lines week {wk} failed: {e}", file=sys.stderr)
-            continue
-
-        for gl in lines or []:
-            gid = getattr(gl, "game_id", None) or getattr(gl, "id", None)
-            if gid is None: continue
-            nested_used = False
-
-            for ln in getattr(gl, "lines", []) or []:
-                bt = (getattr(ln, "bet_type", None) or getattr(ln, "market", None) or "").lower()
-                if bt and "spread" not in bt:
-                    continue
-                sp = getattr(ln, "spread", None)
-                if isinstance(sp, (int, float)) and math.isfinite(float(sp)):
-                    rows.append({"game_id": int(gid), "spread_home": -float(sp)})
-                    kept += 1; nested_used = True
-                    continue
-                fmt = getattr(ln, "formatted_spread", None) or getattr(ln, "formattedSpread", None) or getattr(ln, "spread_display", None)
-                if isinstance(fmt, str):
-                    lower = fmt.lower()
-                    if any(k in lower for k in ["total", "o/u", "moneyline", "ml"]):
-                        continue
-                    m = re.findall(r"[+-]\d+(?:\.\d+)?", fmt)
-                    if m:
-                        try:
-                            rows.append({"game_id": int(gid), "spread_home": -float(m[-1])})
-                            kept += 1; nested_used = True
-                        except Exception:
-                            pass
-
-            if nested_used:
-                continue
-
-            top_spread = getattr(gl, "spread", None)
-            top_type = (getattr(gl, "bet_type", None) or getattr(gl, "market", None) or "").lower()
-            if isinstance(top_spread, (int, float)) and math.isfinite(float(top_spread)) and ("spread" in top_type if top_type else True):
-                rows.append({"game_id": int(gid), "spread_home": -float(top_spread)})
-                kept += 1
-
-    if not rows:
-        print("[warn] betting: no spreads parsed; market features will be empty", file=sys.stderr)
-        return pd.DataFrame(columns=["game_id", "market_spread_home"])
-
-    df = pd.DataFrame(rows)
-    df = df.groupby("game_id", as_index=False)["spread_home"].median()
-    df.rename(columns={"spread_home": "market_spread_home"}, inplace=True)
-    print(f"INFO betting: parsed market spreads for {df.shape[0]} games (kept {kept} lines)")
-    return df
-
-# ---- Build schedule (FBS-only) + merge market ----
-def build_schedule(team_inputs: pd.DataFrame) -> pd.DataFrame:
-    fbs_set = set(team_inputs["team"])
+def build_schedule(year: int, fbs_teams: set[str]):
     rows = []
-    weeks_seen = set()
-
-    for wk in range(1, 16):
+    # pull regular + postseason for completeness
+    for season_type in ["regular", "postseason"]:
         try:
-            games = games_api.get_games(year=YEAR, week=wk, season_type="regular")
+            games = games_api.get_games(year=year, season_type=season_type)
         except Exception as e:
-            print(f"[warn] games fetch failed week {wk}: {e}", file=sys.stderr)
-            continue
-
-        for g in games or []:
-            ht = getattr(g, "home_team", None); at = getattr(g, "away_team", None)
-            if not ht or not at: continue
-            if ht not in fbs_set or at not in fbs_set:  # FBS only
-                continue
-            gid = getattr(g, "id", None)
-            if gid is None: continue
-            rows.append({
-                "game_id": int(gid),
-                "week": int(wk),
-                "date": str(getattr(g, "start_date", ""))[:10],
-                "home_team": ht,
-                "away_team": at,
-                "home_points": _to_float(getattr(g, "home_points", None)),
-                "away_points": _to_float(getattr(g, "away_points", None)),
-                "neutral_site": 1 if getattr(g, "neutral_site", False) else 0
-            })
-            weeks_seen.add(int(wk))
-
-    sched = pd.DataFrame(rows, columns=[
-        "game_id","week","date","home_team","away_team",
-        "home_points","away_points","neutral_site"
-    ])
-
-    if sched.empty:
-        out = os.path.join(DATA_DIR,"cfb_schedule.csv")
-        sched.to_csv(out, index=False)
-        print(f"[warn] no schedule rows; wrote empty {out}", file=sys.stderr)
-        return sched
-
-    market_df = fetch_market_lines(YEAR, sorted(weeks_seen))
-    sched["game_id"] = sched["game_id"].astype(int)
-    if not market_df.empty:
-        market_df["game_id"] = market_df["game_id"].astype(int)
-        sched = sched.merge(market_df, on="game_id", how="left")
-    else:
-        sched["market_spread_home"] = np.nan
-
-    conf_map = {r.team: r.conference for r in team_inputs[["team","conference"]].itertuples(index=False)}
-    sched["home_conf"] = sched["home_team"].map(conf_map)
-    sched["away_conf"] = sched["away_team"].map(conf_map)
-
-    out = os.path.join(DATA_DIR,"cfb_schedule.csv")
-    sched.to_csv(out, index=False)
-    have_mkt = int(sched["market_spread_home"].notna().sum())
-    print(f"Wrote {out} with {sched.shape[0]} rows ({have_mkt} with market).")
-    return sched
-
-# ---- Market-implied ratings & HFA ----
-def solve_market_ratings(sched: pd.DataFrame, team_list: List[str]) -> Tuple[Dict[str,float], float, Dict[str,float]]:
-    df = sched.dropna(subset=["market_spread_home"]).copy()
-    if df.empty:
-        return {t:0.0 for t in team_list}, HFA_GLOBAL_DEFAULT, {}
-
-    non_neu = df[df["neutral_site"]==0]
-    HFA0 = float(non_neu["market_spread_home"].mean()) if not non_neu.empty else HFA_GLOBAL_DEFAULT
-
-    t_index = {t:i for i,t in enumerate(team_list)}
-    n = len(team_list)
-    rows_A, rows_y = [], []
-    for r in df.itertuples(index=False):
-        h, a, neu, y = r.home_team, r.away_team, int(r.neutral_site), float(r.market_spread_home)
-        row = np.zeros(n); row[t_index[h]] = 1.0; row[t_index[a]] = -1.0
-        y_adj = y - (HFA0*(1-neu))
-        rows_A.append(row); rows_y.append(y_adj)
-    if not rows_A:
-        return {t:0.0 for t in team_list}, HFA0, {}
-
-    A = np.vstack(rows_A); y = np.array(rows_y)
-    lam = 1.0
-    AtA = A.T @ A + lam*np.eye(n)
-    Aty = A.T @ y
-    try:
-        rvec = np.linalg.solve(AtA, Aty)
-    except Exception:
-        rvec = np.zeros(n)
-    market_ratings = {t: float(rvec[t_index[t]]) for t in team_list}
-
-    conf_hfa: Dict[str,float] = {}
-    for conf in sorted(df["home_conf"].dropna().unique()):
-        sub = df[(df["home_conf"]==conf) & (df["neutral_site"]==0)]
-        if sub.empty: continue
-        res = []
-        for r in sub.itertuples(index=False):
-            res.append(r.market_spread_home - (market_ratings.get(r.home_team,0)-market_ratings.get(r.away_team,0)))
-        mean = float(np.nanmean(res)) if len(res) else HFA0
-        w = min(1.0, len(sub)/30.0)
-        conf_hfa[conf] = float(np.clip(w*mean + (1.0-w)*HFA0, 0.5, 3.5))
-
-    HFA0 = float(np.clip(HFA0, 0.5, 3.5))
-    return market_ratings, HFA0, conf_hfa
-
-# ---- Build feature model & predictions ----
-def build_predictions(team_inputs: pd.DataFrame, prior_feats: pd.DataFrame, sched: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    teams = list(team_inputs["team"])
-    mrkt_ratings, HFA_global, conf_hfa = solve_market_ratings(sched, teams)
-
-    now_week = _week_now_from_sched(sched)
-    w_market = float(np.clip(0.35 + 0.04*(max(1,now_week)-1), 0.35, 0.70))
-
-    base = team_inputs[["team","team_rating","adv_score","conference"]].copy()
-    base["market_rating"] = base["team"].map(mrkt_ratings).fillna(0.0)
-    base["blend_rating"] = ( (1-w_market)*base["team_rating"].astype(float) + w_market*base["market_rating"].astype(float) ).round(3)
-
-    feats = prior_feats.copy()
-    for c in feats.columns:
-        if c!="team": feats[c] = pd.to_numeric(feats[c], errors="coerce")
-    base = base.merge(feats, on="team", how="left")
-
-    df = sched.merge(base.rename(columns={"team":"home_team","team_rating":"home_team_rating","adv_score":"home_adv_score","blend_rating":"home_blend","conference":"home_conf2"}),
-                     on="home_team", how="left") \
-             .merge(base.rename(columns={"team":"away_team","team_rating":"away_team_rating","adv_score":"away_adv_score","blend_rating":"away_blend","conference":"away_conf2"}),
-                     on="away_team", how="left", suffixes=("_homefeat","_awayfeat"))
-
-    def hfa_for_row(r, HFAg):
-        if int(r.neutral_site)==1: return 0.0
-        conf = r.home_conf
-        return float(conf_hfa.get(conf, HFAg))
-    df["hfa_points"] = [hfa_for_row(r, HFA_global) for r in df.itertuples(index=False)]
-
-    df["rating_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
-
-    have_mkt = df["market_spread_home"].notna()
-    if have_mkt.any():
-        weeks = sorted(df.loc[have_mkt,"week"].unique())
-        use_weeks = set(weeks[-ROLL_WEEKS:])
-        mask = have_mkt & df["week"].isin(use_weeks)
-        a1_tmp,b1_tmp = _linreg(df.loc[mask,"rating_spread_home_raw"].values, df.loc[mask,"market_spread_home"].values)
-        a1_tmp = float(np.clip(a1_tmp, 0.8, 2.0))
-        HFA_global = float(np.clip(HFA_global + b1_tmp, 0.5, 3.5))
-        df["hfa_points"] = [hfa_for_row(r, HFA_global) for r in df.itertuples(index=False)]
-        df["rating_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
-        mask2 = have_mkt & df["week"].isin(use_weeks)
-        a1 = _slope_through_origin(df.loc[mask2,"rating_spread_home_raw"].values, df.loc[mask2,"market_spread_home"].values)
-        a1 = float(np.clip(a1, 0.8, 2.0))
-        b1 = 0.0
-    else:
-        a1, b1 = 1.0, 0.0
-
-    df["rating_spread_home"] = a1*df["rating_spread_home_raw"] + b1
-
-    def delta(col):
-        hc = f"{col}_homefeat"; ac = f"{col}_awayfeat"
-        return pd.to_numeric(df.get(hc), errors="coerce") - pd.to_numeric(df.get(ac), errors="coerce")
-
-    feature_cols = [
-        "adv_prior_strength_0_100",
-        "ppa_off","ppa_def","ppa_off_rush","ppa_off_pass","ppa_def_rush","ppa_def_pass",
-        "sr_off","sr_def","expl_off","expl_def",
-        "fp_off_start","fp_def_start","havoc_off_allowed","havoc_def_created"
-    ]
-    parts = []; names = []
-    for c in feature_cols:
-        if f"{c}_homefeat" in df.columns and f"{c}_awayfeat" in df.columns:
-            parts.append(delta(c).to_numpy(dtype=float)); names.append(f"d_{c}")
-    parts.append((df["home_blend"] - df["away_blend"]).to_numpy(dtype=float)); names.append("d_blend")
-    parts.append(df["hfa_points"].to_numpy(dtype=float)); names.append("hfa")
-
-    if parts:
-        Xdf = pd.DataFrame(np.vstack(parts).T, columns=names)
-    else:
-        Xdf = pd.DataFrame({"d_blend": (df["home_blend"] - df["away_blend"]).to_numpy(dtype=float),
-                            "hfa": df["hfa_points"].to_numpy(dtype=float)})
-
-    for c in Xdf.columns:
-        Xdf[c] = pd.to_numeric(Xdf[c], errors="coerce")
-        if Xdf[c].isna().any():
-            Xdf[c] = Xdf[c].fillna(Xdf[c].median())
-    X = np.column_stack([np.ones(Xdf.shape[0]), Xdf.to_numpy(dtype=float)])
-    y = pd.to_numeric(df["market_spread_home"], errors="coerce").to_numpy()
-
-    mask_fit = np.isfinite(y)
-    if mask_fit.any():
-        weeks = sorted(df.loc[mask_fit,"week"].unique())
-        use_weeks = set(weeks[-ROLL_WEEKS:])
-        mask_fit = mask_fit & df["week"].isin(use_weeks)
-    bcoef = _ridge(X[mask_fit], y[mask_fit], RIDGE_L2) if mask_fit.any() else np.zeros(X.shape[1])
-    df["feature_spread_home"] = (X @ bcoef)
-
-    df["model_spread_home"] = (0.7*df["feature_spread_home"] + 0.3*df["rating_spread_home"])
-    df["model_spread_home"] = df["model_spread_home"].clip(-MODEL_CAP_ABS, MODEL_CAP_ABS).round(2)
-
-    df["adv_gap"] = (df["home_adv_score"] - df["away_adv_score"] + df["hfa_points"]).astype(float)
-    if have_mkt.any():
-        weeks = sorted(df.loc[have_mkt,"week"].unique())
-        use_weeks2 = set(weeks[-ROLL_WEEKS:])
-        mask2 = have_mkt & df["week"].isin(use_weeks2)
-        a2,b2 = _linreg(df.loc[mask2,"adv_gap"].values, df.loc[mask2,"market_spread_home"].values)
-        a2 = float(np.clip(a2, 0.5, 3.0))
-    else:
-        a2,b2 = 1.0, 0.0
-    df["expected_market_spread"] = a2*df["adv_gap"] + b2
-
-    df["market_spread_book"] = -df["market_spread_home"]
-    df["model_spread_book"] = -df["model_spread_home"]
-    df["expected_market_spread_book"] = -df["expected_market_spread"]
-
-    df["edge_points_book"] = df["model_spread_book"] - df["market_spread_book"]
-    df["value_points_book"] = df["market_spread_book"] - df["expected_market_spread_book"]
-
-    df["played"] = df["home_points"].notna() & df["away_points"].notna()
-    df["actual_home_margin"] = df["home_points"] - df["away_points"]
-
-    def pick_from_book(x):
-        if not np.isfinite(x): return None
-        if x < 0: return "HOME"
-        if x > 0: return "AWAY"
-        return "PUSH"
-    df["model_pick"] = df["model_spread_book"].apply(pick_from_book)
-    df["expected_pick"] = df["expected_market_spread_book"].apply(pick_from_book)
-
-    def winner_from_margin(m):
-        if not np.isfinite(m): return None
-        if m > 0: return "HOME"
-        if m < 0: return "AWAY"
-        return "PUSH"
-    df["actual_winner"] = df["actual_home_margin"].apply(winner_from_margin)
-
-    def correct(pred, actual):
-        if pred is None or actual is None: return None
-        if pred=="PUSH" or actual=="PUSH": return None
-        return "CORRECT" if pred==actual else "INCORRECT"
-    df["model_result"] = [correct(p,a) for p,a in zip(df["model_pick"], df["actual_winner"])]
-    df["expected_result"] = [correct(p,a) for p,a in zip(df["expected_pick"], df["actual_winner"])]
-
-    same_sign = np.sign(df["model_spread_book"].astype(float)) == np.sign(df["expected_market_spread_book"].astype(float))
-    has_mkt = df["market_spread_book"].notna()
-    big_edge = df["edge_points_book"].abs() >= EDGE_MIN
-    big_val  = df["value_points_book"].abs() >= VALUE_MIN
-    df["qualified_edge_flag"] = (same_sign & has_mkt & big_edge & big_val).astype(int)
-    df["qualified_reason"] = np.where(df["qualified_edge_flag"]==1, "agree+edge+value", "—")
-
-    for c in ["rating_spread_home_raw","rating_spread_home","feature_spread_home","model_spread_home",
-              "market_spread_home","expected_market_spread","market_spread_book","model_spread_book",
-              "expected_market_spread_book","edge_points_book","value_points_book","hfa_points",
-              "home_blend","away_blend","home_team_rating","away_team_rating","home_adv_score","away_adv_score","adv_gap"]:
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors="coerce").round(2)
-
-    live = df.dropna(subset=["edge_points_book"]).copy()
-    live["abs_edge"] = live["edge_points_book"].abs()
-    live.sort_values(["week","abs_edge"], ascending=[True, False], inplace=True)
-    live_out = live.drop(columns=["abs_edge"])
-    live_out.to_csv(os.path.join(DATA_DIR,"live_edge_report.csv"), index=False)
-    print("Wrote data/live_edge_report.csv")
-
-    keep_cols = [
-        "game_id","week","date","home_team","away_team","home_conf","away_conf","neutral_site",
-        "home_points","away_points","played","actual_home_margin","actual_winner",
-        "home_team_rating","away_team_rating","home_blend","away_blend",
-        "home_adv_score","away_adv_score","adv_gap","hfa_points",
-        "rating_spread_home","feature_spread_home",
-        "market_spread_home","model_spread_home","expected_market_spread",
-        "market_spread_book","model_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book",
-        "model_pick","model_result","expected_pick","expected_result",
-        "qualified_edge_flag","qualified_reason"
-    ]
-    for c in keep_cols:
-        if c not in df.columns: df[c]=np.nan
-    preds = df[keep_cols].copy()
-    preds.to_csv(os.path.join(DATA_DIR,"upa_predictions.csv"), index=False)
-    print("Wrote data/upa_predictions.csv")
-    return preds, live_out
-
-# ---- Diagnostics ----
-def write_diagnostics(preds: pd.DataFrame):
-    out_rows = []
-    mask = preds["market_spread_book"].notna() & preds["model_spread_book"].notna()
-    if mask.any():
-        err = (preds.loc[mask,"model_spread_book"] - preds.loc[mask,"market_spread_book"]).abs()
-        out_rows.append({"metric":"MAE_overall", "value": round(float(err.mean()),3)})
-        bins = [0,3,7,14,99]; labels = ["0-3","3-7","7-14","14+"]
-        mkt_abs = preds.loc[mask,"market_spread_book"].abs()
-        binned = pd.cut(mkt_abs, bins=bins, labels=labels, include_lowest=True)
-        for lab in labels:
-            idx = (binned==lab)
-            if idx.any():
-                out_rows.append({"metric":f"MAE_{lab}", "value": round(float(err[idx].mean()),3)})
-    q = preds[preds["qualified_edge_flag"]==1]
-    out_rows.append({"metric":"qualified_edges", "value": int(q.shape[0])})
-    q_played = q[q["played"]==True]
-    if not q_played.empty:
-        hit = (q_played["model_result"]=="CORRECT").mean()
-        out_rows.append({"metric":"qualified_hit_rate", "value": round(float(hit),3)})
-    pd.DataFrame(out_rows).to_csv(os.path.join(DATA_DIR,"diagnostics_summary.csv"), index=False)
-    print("Wrote data/diagnostics_summary.csv")
-
-# ---- Backtest (full 2024) ----
-def _build_sched_for_year_weeks(year:int, weeks:List[int], team_inputs:pd.DataFrame) -> pd.DataFrame:
-    fbs_set = set(team_inputs["team"])
-    rows = []
-    for wk in weeks:
-        try:
-            games = games_api.get_games(year=year, week=int(wk), season_type="regular")
-        except Exception as e:
-            print(f"[warn] backtest games week {wk}: {e}", file=sys.stderr)
+            print(f"[warn] games fetch failed ({season_type}): {e}", file=sys.stderr)
             continue
         for g in games or []:
             ht, at = getattr(g,"home_team",None), getattr(g,"away_team",None)
-            if not ht or not at: continue
-            if ht not in fbs_set or at not in fbs_set: continue
-            gid = getattr(g,"id",None)
+            if not ht or not at: 
+                continue
+            if ht not in fbs_teams or at not in fbs_teams:
+                continue  # drop FCS or non-FBS
+            gid = getattr(g, "id", None)
             rows.append({
-                "game_id": int(gid), "week": int(wk),
+                "game_id": int(gid) if gid is not None else None,
+                "week": int(getattr(g,"week",0) or 0),
                 "date": str(getattr(g,"start_date",""))[:10],
                 "home_team": ht, "away_team": at,
+                "neutral_site": 1 if getattr(g,"neutral_site",False) else 0,
                 "home_points": _to_float(getattr(g,"home_points",None)),
                 "away_points": _to_float(getattr(g,"away_points",None)),
-                "neutral_site": 1 if getattr(g,"neutral_site",False) else 0
+                "played": bool(getattr(g,"completed", False)) or (_to_float(getattr(g,"home_points",None))==_to_float(getattr(g,"home_points",None)) and _to_float(getattr(g,"away_points",None))==_to_float(getattr(g,"away_points",None))),
             })
-    sched = pd.DataFrame(rows)
-    if sched.empty:
-        return sched
-    conf_map = {r.team: r.conference for r in team_inputs[["team","conference"]].itertuples(index=False)}
-    sched["home_conf"] = sched["home_team"].map(conf_map)
-    sched["away_conf"] = sched["away_team"].map(conf_map)
-    return sched
+    df = pd.DataFrame(rows).drop_duplicates(subset=["game_id"])
+    return df
 
-def run_backtest_full(year:int, weeks:List[int]) -> dict:
-    print(f"[backtest] {year} weeks {weeks[0]}..{weeks[-1]}")
-    global YEAR, PRIOR
-    prev_YEAR, prev_PRIOR = YEAR, PRIOR
-    YEAR, PRIOR = year, year-1
+def fetch_market_lines(year: int, game_ids: list[int] | None = None):
+    """
+    Pull consensus (median) closing spread for each game_id from CFBD betting API.
+    Book-style convention: negative = home favored.
+    """
+    try:
+        lines = lines_api.get_lines(year=year)
+    except Exception as e:
+        print(f"[warn] betting lines fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({"game_id": [], "market_spread_book": []})
 
-    teams_df, prior_feats = build_team_inputs()
-    sched = _build_sched_for_year_weeks(YEAR, weeks, teams_df)
-    if sched.empty:
-        print("[backtest] no schedule rows")
-        YEAR, PRIOR = prev_YEAR, prev_PRIOR
-        return {"rows": 0}
+    by_game = defaultdict(list)
+    for ln in lines or []:
+        gid = getattr(ln, "id", None)
+        if gid is None:
+            continue
+        for market in getattr(ln, "lines", []) or []:
+            spread = getattr(market, "spread", None)
+            home_away = getattr(market, "formattedSpread", None)  # not always present
+            if spread is None:
+                continue
+            # CFBD spreads are "home spread" when available; we treat negative = home favored
+            by_game[int(gid)].append(float(spread))
 
-    market_df = fetch_market_lines(YEAR, weeks)
-    if not market_df.empty:
-        sched = sched.merge(market_df, on="game_id", how="left")
-    else:
-        sched["market_spread_home"] = np.nan
-
-    preds, _ = build_predictions(teams_df, prior_feats, sched)
-
-    # Per-week summary
     rows = []
-    for wk, g in preds.groupby("week", as_index=False):
-        g = g.copy()
-        played = g[g["played"]==True]
-        wins = int((played["model_result"]=="CORRECT").sum())
-        losses = int((played["model_result"]=="INCORRECT").sum())
-        pushes = int((played["model_result"].isna()).sum())  # treat None as NA/push/no-score
-        tot = wins + losses
-        acc = float(wins/tot) if tot>0 else np.nan
-        rows.append({"week": int(wk), "games": int(g.shape[0]), "wins": wins, "losses": losses, "pushes": pushes, "accuracy": round(acc,3) if np.isfinite(acc) else None})
+    for gid, arr in by_game.items():
+        if not arr:
+            continue
+        med = float(np.median(arr))
+        rows.append({"game_id": gid, "market_spread_book": med})
+    df = pd.DataFrame(rows)
+    if game_ids is not None:
+        df = df[df["game_id"].isin(game_ids)]
+    return df
 
-    # Overall row
-    played = preds[preds["played"]==True]
-    wins = int((played["model_result"]=="CORRECT").sum())
-    losses = int((played["model_result"]=="INCORRECT").sum())
-    pushes = int((played["model_result"].isna()).sum())
-    tot = wins + losses
-    overall_acc = float(wins/tot) if tot>0 else np.nan
-    rows.append({"week": -1, "games": int(preds.shape[0]), "wins": wins, "losses": losses, "pushes": pushes, "accuracy": round(overall_acc,3) if np.isfinite(overall_acc) else None})
+def build_predictions(year: int, teams_df: pd.DataFrame, sched_df: pd.DataFrame):
+    # map conferences
+    conf_map = {r.team: r.conference for r in teams_df[["team","conference"]].itertuples(index=False)}
+    sched_df = sched_df.copy()
+    sched_df["home_conf"] = sched_df["home_team"].map(conf_map)
+    sched_df["away_conf"] = sched_df["away_team"].map(conf_map)
 
-    preds.to_csv(os.path.join(DATA_DIR, f"backtest_predictions_{year}.csv"), index=False)
-    pd.DataFrame(rows).sort_values("week").to_csv(os.path.join(DATA_DIR, f"backtest_summary_{year}.csv"), index=False)
+    # basic power to score (book-style spread from home perspective: negative = home stronger)
+    power = teams_df.set_index("team")["team_power_0_100"].to_dict()
+    hfa_by_conf = defaultdict(lambda: 2.0)  # simple default HFA by conference
+    sched_df["h_power"] = sched_df["home_team"].map(power).fillna(50)
+    sched_df["a_power"] = sched_df["away_team"].map(power).fillna(50)
+    sched_df["hfa_points"] = sched_df.apply(
+        lambda r: 0.0 if int(r.get("neutral_site",0) or 0)==1 else hfa_by_conf[str(r.get("home_conf",""))],
+        axis=1
+    )
+    # model spread (home): negative = home favored
+    sched_df["model_spread_book"] = -1.0 * (sched_df["h_power"] - sched_df["a_power"]) / 5.0 - sched_df["hfa_points"]
 
-    YEAR, PRIOR = prev_YEAR, prev_PRIOR
-    return {"rows": int(preds.shape[0]), "overall_hit": float(overall_acc if np.isfinite(overall_acc) else np.nan)}
+    # market spread
+    mkt = fetch_market_lines(year, list(sched_df["game_id"].dropna().astype(int)))
+    sched_df = sched_df.merge(mkt, on="game_id", how="left")
 
-# ---- Main ----
-def main():
-    start = datetime.now(timezone.utc)
+    # expected market via simple isotonic-ish clamp (here linear as placeholder)
+    # You can replace with your calibration fit saved from training.
+    diff = (sched_df["model_spread_book"] - sched_df["market_spread_book"]).abs()
+    # edge/value (book-style)
+    sched_df["edge_points_book"] = sched_df["model_spread_book"] - sched_df["market_spread_book"]
+    sched_df["expected_market_spread_book"] = sched_df["model_spread_book"] - np.clip(sched_df["edge_points_book"], -3.0, 3.0)
+    sched_df["value_points_book"] = sched_df["market_spread_book"] - sched_df["expected_market_spread_book"]
 
-    # Live collect for current YEAR
-    teams_df, prior_feats = build_team_inputs()
-    sched_df = build_schedule(teams_df)
-    preds_df, _ = build_predictions(teams_df, prior_feats, sched_df)
-    write_diagnostics(preds_df)
+    # qualification
+    EDGE_MIN = float(os.environ.get("EDGE_MIN", "2.0"))
+    VALUE_MIN = float(os.environ.get("VALUE_MIN", "1.0"))
+    side_agree = np.sign(sched_df["model_spread_book"]) == np.sign(sched_df["expected_market_spread_book"])
+    sched_df["qualified_edge_flag"] = ((side_agree) & (diff >= EDGE_MIN) & (sched_df["value_points_book"].abs() >= VALUE_MIN)).astype(int)
 
-    # Always write status (and include backtest pointer if enabled)
+    # results vs actual
+    def _winner(row):
+        if not bool(row.get("played", False)):
+            return ""
+        ap, hp = _to_float(row.get("away_points")), _to_float(row.get("home_points"))
+        if not np.isfinite(ap) or not np.isfinite(hp):
+            return ""
+        if hp > ap: return "HOME"
+        if ap > hp: return "AWAY"
+        return "PUSH"
+
+    def _model_pick(row):
+        s = _to_float(row.get("model_spread_book"))
+        if not np.isfinite(s): return ""
+        return "HOME" if s < 0 else "AWAY" if s > 0 else "PUSH"
+
+    sched_df["actual_winner"] = sched_df.apply(_winner, axis=1)
+    sched_df["model_pick"] = sched_df.apply(_model_pick, axis=1)
+    def _graded(row):
+        if row["actual_winner"] == "": return ""
+        if row["model_pick"] == "": return ""
+        if row["actual_winner"] == "PUSH": return "PUSH"
+        return "CORRECT" if row["actual_winner"] == row["model_pick"] else "INCORRECT"
+    sched_df["model_result"] = sched_df.apply(_graded, axis=1)
+
+    return sched_df
+
+def write_outputs(year: int, teams_df: pd.DataFrame, sched_df: pd.DataFrame, preds_df: pd.DataFrame):
+    # team inputs
+    teams_path = os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv")
+    teams_df.to_csv(teams_path, index=False)
+
+    # schedule CSV
+    sched_path = os.path.join(DATA_DIR, "cfb_schedule.csv")
+    cols = ["game_id","week","date","away_team","home_team","neutral_site","away_points","home_points","played"]
+    (sched_df[cols].sort_values(["week","date","home_team","away_team"]).reset_index(drop=True)
+     ).to_csv(sched_path, index=False)
+
+    # predictions
+    preds_cols = [
+        "game_id","week","date",
+        "away_team","home_team","neutral_site",
+        "away_points","home_points","played",
+        "market_spread_book","model_spread_book","expected_market_spread_book",
+        "edge_points_book","value_points_book",
+        "qualified_edge_flag","model_result"
+    ]
+    preds_path = os.path.join(DATA_DIR, "upa_predictions.csv")
+    (preds_df[preds_cols].sort_values(["week","date","home_team","away_team"]).reset_index(drop=True)
+     ).to_csv(preds_path, index=False)
+
+    # live edge (subset for UI)
+    live_cols = ["week","date","away_team","home_team","model_spread_book","market_spread_book","edge_points_book","qualified_edge_flag"]
+    live_path = os.path.join(DATA_DIR, "live_edge_report.csv")
+    preds_df[live_cols].to_csv(live_path, index=False)
+
+    # status
     status = {
-        "generated_at_utc": start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "year": YEAR,
+        "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "year": year,
         "teams": int(teams_df.shape[0]),
         "games": int(sched_df.shape[0]),
         "pred_rows": int(preds_df.shape[0]),
-        "next_run_eta_utc": (start + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "backtest_2024": RUN_BACKTEST_2024
+        "next_run_eta_utc": (datetime.now(timezone.utc) + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
     }
-    with open(os.path.join(DATA_DIR,"status.json"), "w") as f:
+    with open(os.path.join(DATA_DIR, "status.json"), "w") as f:
         json.dump(status, f, indent=2)
-    print("Live collector completed.")
 
-    # Backtest 2024 full season (regular weeks)
-    if RUN_BACKTEST_2024:
-        print("[backtest] starting full 2024…")
-        _ = run_backtest_full(BACKTEST_YEAR, BACKTEST_WEEKS_REGULAR)
-        print("[backtest] finished 2024.")
+# ----------------------- backtest -----------------------
+def run_backtest(year: int, weeks: list[int]) -> dict:
+    print(f"[backtest] {year} weeks {weeks}")
+    teams_df = build_team_inputs(year)
+    fbs_set = set(teams_df["team"])
+    sched_df = build_schedule(year, fbs_set)
+    sched_df = sched_df[sched_df["week"].astype(int).isin(weeks)]
+    preds_df = build_predictions(year, teams_df, sched_df)
+
+    # weekly hit summary
+    rows = []
+    for wk in sorted(preds_df["week"].astype(int).unique()):
+        sub = preds_df[(preds_df["week"].astype(int)==wk) & (preds_df["played"]==True)]
+        hit = (sub["model_result"]=="CORRECT").mean() if not sub.empty else np.nan
+        rows.append({"week": int(wk), "rows": int(sub.shape[0]), "hit_rate": round(float(hit),3) if pd.notna(hit) else None})
+    overall = (preds_df[preds_df["played"]==True]["model_result"]=="CORRECT").mean()
+    rows.append({"week":"ALL","rows": int((preds_df["played"]==True).sum()), "hit_rate": round(float(overall),3)})
+
+    out_dir = _ensure_dir(os.path.join(DATA_DIR, str(year)))
+    preds_path = os.path.join(out_dir, f"upa_predictions_{year}_backtest.csv")
+    summary_path = os.path.join(out_dir, f"backtest_summary_{year}.csv")
+    preds_df.to_csv(preds_path, index=False)
+    pd.DataFrame(rows).to_csv(summary_path, index=False)
+
+    print(f"[backtest done] year={year} overall_hit={overall:.3f}")
+    return {"preds": preds_path, "summary": summary_path}
+
+# ----------------------- entrypoint -----------------------
+def main():
+    # Always generate the 2024 backtest (weeks 1–15) into data/2024/*
+    try:
+        run_backtest(2024, list(range(1, 16)))
+    except Exception as e:
+        print(f"[warn] backtest 2024 failed: {e}", file=sys.stderr)
+
+    # Live (2025) collection
+    teams_df = build_team_inputs(YEAR)
+    fbs_set = set(teams_df["team"])
+    sched_df = build_schedule(YEAR, fbs_set)
+    preds_df = build_predictions(YEAR, teams_df, sched_df)
+    write_outputs(YEAR, teams_df, sched_df, preds_df)
+    print("Collector completed.", flush=True)
 
 if __name__ == "__main__":
     main()
