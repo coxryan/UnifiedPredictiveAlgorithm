@@ -13,7 +13,7 @@ async function loadCsv(path: string) {
   if (!lines.length) return [];
   const cols = lines[0].split(",").map((c) => c.trim());
   return lines.slice(1).map((line) => {
-    // NOTE: assumes no embedded commas in data files we produce
+    // NOTE: our generated CSVs do not include embedded commas
     const cells = line.split(",");
     const o: Record<string, string> = {};
     cols.forEach((c, i) => (o[c] = (cells[i] ?? "").trim()));
@@ -52,7 +52,7 @@ function downloadCsv(filename: string, rows: Record<string, any>[]) {
 }
 
 /* ------------------------- types ------------------------- */
-type Tab = "status" | "team" | "preds" | "edge" | "bets" | "help";
+type Tab = "status" | "team" | "preds" | "edge" | "bets" | "backtest" | "help";
 
 type Status = {
   generated_at_utc: string;
@@ -119,7 +119,7 @@ function nextUpcomingWeek(rows: PredRow[]): number | null {
   if (future.length) {
     const wk = Math.min(...future.map(x => Number(x.r.week)));
     return isFinite(wk) ? wk : null;
-  }
+    }
   const unplayed = rows.filter(r => !playedBool(r.played));
   if (unplayed.length) {
     const wk = Math.min(...unplayed.map(r => Number(r.week)));
@@ -141,7 +141,9 @@ function kellyFraction(p: number, oddsAmerican: number) {
   return Math.max(0, Math.min(0.25, f)); // cap to 25%
 }
 
-/* ------------------------- Status tab ------------------------- */
+/* ======================================================================= */
+/*                                 STATUS                                  */
+/* ======================================================================= */
 function StatusTab() {
   const [status, setStatus] = useState<Status | null>(null);
   const [preds, setPreds] = useState<PredRow[]>([]);
@@ -272,7 +274,9 @@ function StatusTab() {
   );
 }
 
-/* ------------------------- Predictions tab (week selector) ------------------------- */
+/* ======================================================================= */
+/*                                PREDICTIONS                              */
+/* ======================================================================= */
 function PredictionsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [week, setWeek] = useState<string>("");
@@ -354,7 +358,9 @@ function PredictionsTab() {
   );
 }
 
-/* ------------------------- Team (schedule) tab ------------------------- */
+/* ======================================================================= */
+/*                                TEAM VIEW                                 */
+/* ======================================================================= */
 function TeamTab() {
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [rows, setRows] = useState<PredRow[]>([]);
@@ -443,7 +449,9 @@ function TeamTab() {
   );
 }
 
-/* ------------------------- Live Edge tab ------------------------- */
+/* ======================================================================= */
+/*                                LIVE EDGE                                 */
+/* ======================================================================= */
 function LiveEdgeTab() {
   const [rows, setRows] = useState<any[]>([]);
   const [q, setQ] = useState("");
@@ -490,7 +498,9 @@ function LiveEdgeTab() {
   );
 }
 
-/* ------------------------- Recommended Bets (strong only, DQ via stdev) ------------------------- */
+/* ======================================================================= */
+/*                           RECOMMENDED BETS                               */
+/* ======================================================================= */
 type StakeMode = "flat" | "prop" | "kelly";
 function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
@@ -514,25 +524,23 @@ function BetsTab() {
     );
   }, [rows, wk]);
 
-  // Compute week distribution of |edge|
   const strongFiltered = useMemo(()=>{
     if (!candidatesRaw.length) return [];
 
-    const edges = candidatesRaw.map(r => Math.abs(toNum(r.edge_points_book)));
-    const mean = edges.filter(Number.isFinite).reduce((a,b)=>a+b,0) / Math.max(1, edges.filter(Number.isFinite).length);
-    const variance = edges.filter(Number.isFinite).reduce((a,b)=>a + (b-mean)*(b-mean), 0) / Math.max(1, edges.filter(Number.isFinite).length);
+    const edges = candidatesRaw.map(r => Math.abs(toNum(r.edge_points_book))).filter(Number.isFinite);
+    const mean = edges.length ? edges.reduce((a,b)=>a+b,0)/edges.length : 0;
+    const variance = edges.length ? edges.reduce((a,b)=>a + (b-mean)*(b-mean), 0)/edges.length : 0;
     const sd = Math.sqrt(variance);
 
     const isDQ = (r: PredRow) => {
       const e = Math.abs(toNum(r.edge_points_book));
       const v = Math.abs(toNum(r.value_points_book));
       if (!Number.isFinite(e) || !Number.isFinite(v)) return true;
-      if (e > mean + 2.5*sd) return true; // outlier edge
-      if (v > 40) return true; // absurd value -> likely bad market scrape
+      if (e > mean + 2.5*sd) return true;   // outlier edge
+      if (v > 40) return true;              // absurd value -> likely bad market scrape
       return false;
     };
 
-    // Rank: Qualified ✓ first, then |edge| desc, then |value| desc; exclude DQ
     const list = candidatesRaw.filter(r => !isDQ(r));
     const ranked = [...list].sort((a,b)=>{
       const qa = a.qualified_edge_flag === "1" ? 1 : 0;
@@ -666,7 +674,117 @@ function BetsTab() {
   );
 }
 
-/* ------------------------- Help tab ------------------------- */
+/* ======================================================================= */
+/*                               BACKTEST TAB                               */
+/* ======================================================================= */
+function BacktestTab() {
+  const [summary,setSummary] = useState<any[]>([]);
+  const [preds,setPreds] = useState<PredRow[]>([]);
+  const [week,setWeek] = useState<string>("ALL");
+
+  useEffect(()=>{(async()=>{
+    try{ setSummary(await loadCsv("data/backtest_summary_2024.csv")); }catch{ setSummary([]); }
+    try{ setPreds(await loadCsv("data/upa_predictions_2024_backtest.csv") as PredRow[]); }catch{ setPreds([]); }
+  })();},[]);
+
+  const weeks = useMemo(()=>{
+    const s = new Set<string>(["ALL"]);
+    summary.forEach(r => s.add(String(r.week)));
+    // If summary missing, derive from preds
+    if (!summary.length && preds.length) {
+      preds.forEach(r => s.add(String(r.week)));
+      s.add("ALL");
+    }
+    return Array.from(s).sort((a,b) => {
+      if (a==="ALL") return -1;
+      if (b==="ALL") return 1;
+      return Number(a)-Number(b);
+    });
+  }, [summary, preds]);
+
+  // Compute W/L/P and hit rate for selected week (or ALL) from preds
+  const counts = useMemo(()=>{
+    const rows = week==="ALL" ? preds : preds.filter(r => String(r.week)===String(week));
+    let w=0,l=0,p=0;
+    for (const r of rows) {
+      if (!playedBool(r.played)) continue;
+      const res = r.model_result;
+      if (res === "CORRECT") w++;
+      else if (res === "INCORRECT") l++;
+      else p++;
+    }
+    const tot = w + l;
+    const hit = tot ? w / tot : NaN;
+    return { w, l, p, hit, rows: rows.filter(r=>playedBool(r.played)).length };
+  }, [preds, week]);
+
+  // If we have summary, surface the row for reference too
+  const summaryRow = useMemo(()=>{
+    if (!summary.length) return null;
+    if (week==="ALL") {
+      const all = summary.find(r => String(r.week)==="ALL");
+      return all || null;
+    }
+    return summary.find(r => String(r.week)===String(week)) || null;
+  }, [summary, week]);
+
+  return (
+    <section className="card">
+      <div className="card-title">2024 Backtest Results</div>
+      <div className="controls">
+        <label>Week
+          <select className="input" value={week} onChange={(e)=>setWeek(e.target.value)}>
+            {weeks.map(w=><option key={w} value={w}>{w}</option>)}
+          </select>
+        </label>
+        <Badge tone="muted">Games: {fmtNum(counts.rows)}</Badge>
+        <Badge tone="pos">W: {counts.w}</Badge>
+        <Badge tone="neg">L: {counts.l}</Badge>
+        <Badge tone="muted">Push: {counts.p}</Badge>
+        <Badge>Hit: {fmtPct01(counts.hit)}</Badge>
+      </div>
+
+      {!!summaryRow && (
+        <div className="note" style={{marginBottom:8}}>
+          From summary file — Week: <b>{summaryRow.week}</b>, Rows: <b>{summaryRow.rows}</b>, Hit Rate: <b>{fmtPct01(summaryRow.hit_rate)}</b>
+        </div>
+      )}
+
+      <div className="table-wrap">
+        <table className="tbl compact">
+          <thead>
+            <tr>
+              <th>Week</th><th>Date</th><th>Away</th><th>Home</th>
+              <th>Model (H)</th><th>Market (H)</th><th>Edge</th><th>Qualified</th><th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(week==="ALL" ? preds : preds.filter(r=>String(r.week)===String(week))).map((r,i)=>(
+              <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i%2?"alt":undefined}>
+                <td>{r.week}</td><td>{r.date}</td><td>{r.away_team}</td><td>{r.home_team}</td>
+                <td>{fmtNum(r.model_spread_book)}</td>
+                <td>{fmtNum(r.market_spread_book)}</td>
+                <td className={Number(toNum(r.edge_points_book))>0?"pos":"neg"}>{fmtNum(r.edge_points_book)}</td>
+                <td>{r.qualified_edge_flag==="1" ? "✓" : "—"}</td>
+                <td>{r.model_result==="CORRECT" ? <Badge tone="pos">✓ Model</Badge> : r.model_result==="INCORRECT" ? <Badge tone="neg">✗ Model</Badge> : "—"}</td>
+              </tr>
+            ))}
+            {!preds.length && <tr><td colSpan={9} style={{textAlign:"center",padding:12}}>No backtest data found.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="note" style={{marginTop:8}}>
+        Source files: <a href="data/upa_predictions_2024_backtest.csv" target="_blank" rel="noreferrer">predictions (2024 backtest)</a> •{" "}
+        <a href="data/backtest_summary_2024.csv" target="_blank" rel="noreferrer">summary (weekly hit rates)</a>
+      </div>
+    </section>
+  );
+}
+
+/* ======================================================================= */
+/*                                  HELP                                   */
+/* ======================================================================= */
 const EDGE_MIN = 2.0;
 const VALUE_MIN = 1.0;
 function HelpTab() {
@@ -684,20 +802,23 @@ function HelpTab() {
           <li><b>Qualified</b>: “✓” only when model & expected agree on side and |Edge| ≥ {EDGE_MIN} & |Value| ≥ {VALUE_MIN}.</li>
           <li><b>HFA</b>: Home-field advantage, estimated by conference with shrinkage; neutral-site = 0.</li>
           <li><b>Advanced metrics used</b>: team PPA/EPA (off/def + rush/pass), Success Rate, Explosiveness, Starting Field Position, Havoc, Pregame WP (priors).</li>
+          <li><b>Backtest</b>: 2024 season Weeks 1–15 recomputed each build. Backtest tab shows per-week W/L/Push and hit rate.</li>
         </ul>
       </div>
     </section>
   );
 }
 
-/* ------------------------- Shell ------------------------- */
+/* ======================================================================= */
+/*                                   SHELL                                 */
+/* ======================================================================= */
 export default function App() {
   const [tab, setTab] = useState<Tab>("preds");
   return (
     <div className="page">
       <header className="header">
         <h1>UPA-F Dashboard</h1>
-        <p className="sub">Calibrated predictions (book-style), value, results & recommended bets</p>
+        <p className="sub">Calibrated predictions (book-style), value, results, backtests & recommended bets</p>
       </header>
       <nav className="tabs">
         <button className={tab==="status"?"active":""} onClick={()=>setTab("status")}>Status</button>
@@ -705,6 +826,7 @@ export default function App() {
         <button className={tab==="preds"?"active":""} onClick={()=>setTab("preds")}>Predictions</button>
         <button className={tab==="edge"?"active":""} onClick={()=>setTab("edge")}>Live Edge</button>
         <button className={tab==="bets"?"active":""} onClick={()=>setTab("bets")}>Recommended Bets</button>
+        <button className={tab==="backtest"?"active":""} onClick={()=>setTab("backtest")}>Backtest</button>
         <button className={tab==="help"?"active":""} onClick={()=>setTab("help")}>Help</button>
       </nav>
       {tab==="status" && <StatusTab/>}
@@ -712,6 +834,7 @@ export default function App() {
       {tab==="preds" && <PredictionsTab/>}
       {tab==="edge" && <LiveEdgeTab/>}
       {tab==="bets" && <BetsTab/>}
+      {tab==="backtest" && <BacktestTab/>}
       {tab==="help" && <HelpTab/>}
       <footer className="footer">© {new Date().getFullYear()} UPA-F</footer>
     </div>
