@@ -1,4 +1,3 @@
-# .github/workflows/deploy.yml
 name: deploy
 
 on:
@@ -26,20 +25,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # cache: npm   # ❌ remove this line because no lockfile exists
+          # (no cache here since there's no lockfile)
 
       - name: Install deps (lockfile-aware)
         run: |
           if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
-            echo "Using npm ci (lockfile present)"
             npm ci --no-fund --no-audit
           else
-            echo "Using npm install (no lockfile found)"
             npm install --no-fund --no-audit
           fi
 
       - name: Build site
         run: npm run build
+
+      - name: Copy data into site artifact   # ← ADD THIS
+        run: |
+          mkdir -p dist/data
+          cp -R data/* dist/data/ 2>/dev/null || true
+          echo "dist/data contents:" && ls -la dist/data || true
+          [ -d dist/data/2024 ] && echo "dist/data/2024 contents:" && ls -la dist/data/2024 || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
