@@ -5,44 +5,44 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 1,2025-08-23,Stanford,Hawai'i,1.1,-1.5,2.6,0
 1,2025-08-28,Boise State,South Florida,-2.5599999999999996,5.5,-8.059999999999999,0
 1,2025-08-28,Ohio,Rutgers,-4.140000000000001,-15.5,11.36,1
+1,2025-08-28,East Carolina,NC State,-7.340000000000001,-13.5,6.159999999999999,1
 1,2025-08-28,Wyoming,Akron,-1.4199999999999988,5.0,-6.419999999999999,0
 1,2025-08-28,Jacksonville State,UCF,-2.4799999999999995,-20.5,18.02,1
-1,2025-08-28,East Carolina,NC State,-7.340000000000001,-13.5,6.159999999999999,1
 1,2025-08-29,Buffalo,Minnesota,-6.5200000000000005,-16.5,9.98,1
 1,2025-08-29,Miami (OH),Wisconsin,-3.7399999999999993,-18.0,14.260000000000002,1
 1,2025-08-29,Nebraska,Cincinnati,-2.9999999999999987,6.0,-8.999999999999998,0
-1,2025-08-29,Western Michigan,Michigan State,-3.8599999999999994,-21.5,17.64,1
 1,2025-08-29,Kennesaw State,Wake Forest,-6.08,-18.5,12.42,1
 1,2025-08-29,App State,Charlotte,-0.2799999999999997,8.5,-8.78,0
+1,2025-08-29,Western Michigan,Michigan State,-3.8599999999999994,-21.5,17.64,1
 1,2025-08-30,Georgia Tech,Colorado,0.20000000000000018,3.5,-3.3,0
 1,2025-08-30,Auburn,Baylor,-5.639999999999999,1.0,-6.639999999999999,1
 1,2025-08-30,UNLV,Sam Houston,1.0399999999999991,9.0,-7.960000000000001,1
 1,2025-08-30,Central Michigan,San José State,-5.819999999999999,-14.5,8.68,1
+1,2025-08-30,Texas,Ohio State,-2.5599999999999996,-2.0,-0.5599999999999996,0
 1,2025-08-30,Ball State,Purdue,-6.859999999999999,-16.5,9.64,1
-1,2025-08-30,Mississippi State,Southern Miss,1.8599999999999994,14.5,-12.64,1
 1,2025-08-30,Syracuse,Tennessee,-0.5399999999999991,-13.5,12.96,1
 1,2025-08-30,Florida Atlantic,Maryland,-5.339999999999999,-13.5,8.16,1
+1,2025-08-30,Mississippi State,Southern Miss,1.8599999999999994,14.5,-12.64,1
 1,2025-08-30,Northwestern,Tulane,-0.19999999999999996,-6.5,6.3,1
-1,2025-08-30,Texas,Ohio State,-2.5599999999999996,-2.0,-0.5599999999999996,0
 1,2025-08-30,Toledo,Kentucky,-3.4400000000000004,-10.0,6.56,1
 1,2025-08-30,Old Dominion,Indiana,-2.680000000000001,-23.5,20.82,1
 1,2025-08-30,Alabama,Florida State,0.9200000000000004,13.5,-12.58,1
-1,2025-08-30,Marshall,Georgia,-4.9,-38.5,33.6,1
 1,2025-08-30,Temple,Massachusetts,-1.7200000000000002,2.5,-4.220000000000001,0
+1,2025-08-30,Marshall,Georgia,-4.9,-38.5,33.6,1
 1,2025-08-30,Nevada,Penn State,-7.92,-43.5,35.58,1
 1,2025-08-30,Coastal Carolina,Virginia,-3.2399999999999993,-13.5,10.260000000000002,1
 1,2025-08-30,UTSA,Texas A&M,-4.42,-23.5,19.08,1
 1,2025-08-30,LSU,Clemson,-0.9800000000000011,-5.5,4.519999999999999,1
-1,2025-08-30,New Mexico,Michigan,-8.8,-34.5,25.7,1
 1,2025-08-30,UTEP,Utah State,-3.72,-4.5,0.7799999999999998,0
+1,2025-08-30,New Mexico,Michigan,-8.8,-34.5,25.7,1
 1,2025-08-30,Georgia State,Ole Miss,-2.560000000000001,-33.5,30.939999999999998,1
-1,2025-08-31,Rice,Louisiana,-3.0,-9.5,6.5,1
 1,2025-08-31,Eastern Michigan,Texas State,-8.2,-14.0,5.800000000000001,1
+1,2025-08-31,Rice,Louisiana,-3.0,-9.5,6.5,1
 1,2025-08-31,Georgia Southern,Fresno State,2.8,-2.0,4.8,0
 1,2025-08-31,Hawai'i,Arizona,-6.279999999999999,-15.5,9.22,1
 1,2025-08-31,California,Oregon State,-2.12,2.5,-4.62,0
-1,2025-08-31,Colorado State,Washington,-5.0,-22.5,17.5,1
 1,2025-08-31,Utah,UCLA,-4.540000000000001,6.5,-11.040000000000001,1
+1,2025-08-31,Colorado State,Washington,-5.0,-22.5,17.5,1
 1,2025-08-31,Virginia Tech,South Carolina,-1.4199999999999988,-7.5,6.080000000000001,1
 1,2025-08-31,Notre Dame,Miami,1.2600000000000007,2.5,-1.2399999999999993,0
 1,2025-09-02,TCU,North Carolina,1.9799999999999995,3.5,-1.5200000000000005,0
@@ -50,44 +50,44 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 2,2025-09-05,Northern Illinois,Maryland,-4.9799999999999995,-17.75,12.77,1
 2,2025-09-06,San José State,Texas,-6.5600000000000005,-36.75,30.189999999999998,1
 2,2025-09-06,Florida International,Penn State,-10.84,-42.5,31.66,1
-2,2025-09-06,Iowa,Iowa State,-4.5200000000000005,-3.0,-1.5200000000000005,0
-2,2025-09-06,Illinois,Duke,0.17999999999999972,2.75,-2.5700000000000003,0
-2,2025-09-06,Virginia,NC State,-4.260000000000001,-2.75,-1.5100000000000007,0
 2,2025-09-06,Baylor,SMU,-0.06000000000000094,-3.0,2.939999999999999,0
-2,2025-09-06,UConn,Syracuse,-2.680000000000001,-6.75,4.0699999999999985,1
-2,2025-09-06,Kent State,Texas Tech,-9.200000000000001,-48.25,39.05,1
+2,2025-09-06,Virginia,NC State,-4.260000000000001,-2.75,-1.5100000000000007,0
+2,2025-09-06,Illinois,Duke,0.17999999999999972,2.75,-2.5700000000000003,0
+2,2025-09-06,Iowa,Iowa State,-4.5200000000000005,-3.0,-1.5200000000000005,0
 2,2025-09-06,Liberty,Jacksonville State,-2.9599999999999995,6.5,-9.459999999999999,0
-2,2025-09-06,Kennesaw State,Indiana,-6.380000000000001,-36.0,29.619999999999997,1
+2,2025-09-06,Kent State,Texas Tech,-9.200000000000001,-48.25,39.05,1
 2,2025-09-06,Central Michigan,Pittsburgh,-7.84,-21.5,13.66,1
+2,2025-09-06,UConn,Syracuse,-2.680000000000001,-6.75,4.0699999999999985,1
+2,2025-09-06,Kennesaw State,Indiana,-6.380000000000001,-36.0,29.619999999999997,1
 2,2025-09-06,Utah State,Texas A&M,-6.860000000000001,-29.0,22.14,1
-2,2025-09-06,Bowling Green,Cincinnati,-9.719999999999999,-21.25,11.530000000000001,1
-2,2025-09-06,Ole Miss,Kentucky,-2.9200000000000004,10.25,-13.17,0
-2,2025-09-06,Kansas,Missouri,0.7200000000000002,-6.5,7.220000000000001,0
-2,2025-09-06,Fresno State,Oregon State,-4.839999999999999,-3.25,-1.589999999999999,0
-2,2025-09-06,Troy,Clemson,-8.440000000000001,-33.5,25.06,1
+2,2025-09-06,Miami (OH),Rutgers,-3.88,-14.25,10.370000000000001,1
 2,2025-09-06,UAB,Navy,-2.5200000000000005,-21.5,18.98,1
+2,2025-09-06,Bowling Green,Cincinnati,-9.719999999999999,-21.25,11.530000000000001,1
+2,2025-09-06,Troy,Clemson,-8.440000000000001,-33.5,25.06,1
+2,2025-09-06,Fresno State,Oregon State,-4.839999999999999,-3.25,-1.589999999999999,0
+2,2025-09-06,Kansas,Missouri,0.7200000000000002,-6.5,7.220000000000001,0
+2,2025-09-06,Ole Miss,Kentucky,-2.9200000000000004,10.25,-13.17,0
 2,2025-09-06,Oklahoma State,Oregon,-1.7799999999999998,-28.25,26.47,1
 2,2025-09-06,North Texas,Western Michigan,-2.6400000000000006,9.75,-12.39,0
 2,2025-09-06,Texas State,UTSA,-1.0400000000000005,-4.5,3.4599999999999995,0
-2,2025-09-06,Miami (OH),Rutgers,-3.88,-14.25,10.370000000000001,1
-2,2025-09-06,West Virginia,Ohio,-0.5599999999999994,2.75,-3.3099999999999996,0
 2,2025-09-06,Middle Tennessee,Wisconsin,-5.38,-28.5,23.12,1
+2,2025-09-06,West Virginia,Ohio,-0.5599999999999994,2.75,-3.3099999999999996,0
 2,2025-09-06,South Florida,Florida,-3.6,-17.25,13.65,1
 2,2025-09-06,Arkansas State,Arkansas,-0.8200000000000003,-23.25,22.43,1
-2,2025-09-06,Memphis,Georgia State,-4.039999999999999,13.5,-17.54,1
-2,2025-09-06,Houston,Rice,1.5200000000000005,12.5,-10.98,1
-2,2025-09-06,Tulane,South Alabama,-0.04000000000000048,10.5,-10.540000000000001,0
-2,2025-09-06,Army,Kansas State,-10.8,-17.25,6.449999999999999,1
 2,2025-09-06,North Carolina,Charlotte,-0.8400000000000005,,,0
 2,2025-09-06,Western Kentucky,Toledo,-4.0200000000000005,-6.75,2.7299999999999995,0
-2,2025-09-06,Arizona State,Mississippi State,-0.5400000000000005,6.75,-7.290000000000001,0
-2,2025-09-06,Akron,Nebraska,-4.460000000000001,-34.25,29.79,1
-2,2025-09-06,Ball State,Auburn,-6.38,-42.75,36.37,1
-2,2025-09-06,Vanderbilt,Virginia Tech,-0.8800000000000012,-1.25,0.3699999999999988,0
-2,2025-09-06,Michigan,Oklahoma,-1.8200000000000003,-5.5,3.6799999999999997,0
+2,2025-09-06,Army,Kansas State,-10.8,-17.25,6.449999999999999,1
+2,2025-09-06,Tulane,South Alabama,-0.04000000000000048,10.5,-10.540000000000001,0
+2,2025-09-06,Memphis,Georgia State,-4.039999999999999,13.5,-17.54,1
+2,2025-09-06,Houston,Rice,1.5200000000000005,12.5,-10.98,1
 2,2025-09-06,Boston College,Michigan State,-2.28,-4.0,1.7200000000000002,0
 2,2025-09-06,Georgia Southern,USC,-3.0400000000000005,-28.25,25.21,1
+2,2025-09-06,Arizona State,Mississippi State,-0.5400000000000005,6.75,-7.290000000000001,0
+2,2025-09-06,Akron,Nebraska,-4.460000000000001,-34.25,29.79,1
 2,2025-09-06,Louisiana Tech,LSU,-12.28,-37.75,25.47,1
+2,2025-09-06,Michigan,Oklahoma,-1.8200000000000003,-5.5,3.6799999999999997,0
+2,2025-09-06,Vanderbilt,Virginia Tech,-0.8800000000000012,-1.25,0.3699999999999988,0
+2,2025-09-06,Ball State,Auburn,-6.38,-42.75,36.37,1
 2,2025-09-06,UL Monroe,Alabama,-6.6,-37.5,30.9,1
 2,2025-09-07,UCLA,UNLV,1.080000000000001,2.5,-1.419999999999999,0
 2,2025-09-07,Tulsa,New Mexico State,1.06,3.5,-2.44,0
@@ -98,19 +98,19 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 3,2025-09-12,Colorado,Houston,-3.460000000000001,,,0
 3,2025-09-13,Kansas State,Arizona,0.3799999999999999,,,0
 3,2025-09-13,New Mexico,UCLA,-7.94,,,0
-3,2025-09-13,Arkansas,Ole Miss,-1.7200000000000002,,,0
 3,2025-09-13,Vanderbilt,South Carolina,-2.3,,,0
-3,2025-09-13,Memphis,Troy,-2.0200000000000005,,,0
-3,2025-09-13,Clemson,Georgia Tech,-0.3999999999999986,9.0,-9.399999999999999,0
+3,2025-09-13,Arkansas,Ole Miss,-1.7200000000000002,,,0
 3,2025-09-13,Central Michigan,Michigan,-8.74,,,0
 3,2025-09-13,Oregon,Northwestern,-0.4400000000000006,,,0
 3,2025-09-13,Oklahoma,Temple,0.5,,,0
-3,2025-09-13,Buffalo,Kent State,-0.5,,,0
 3,2025-09-13,Wisconsin,Alabama,-3.9800000000000013,,,0
+3,2025-09-13,Memphis,Troy,-2.0200000000000005,,,0
+3,2025-09-13,Clemson,Georgia Tech,-0.3999999999999986,9.0,-9.399999999999999,0
+3,2025-09-13,Buffalo,Kent State,-0.5,,,0
 3,2025-09-13,South Alabama,Auburn,-5.639999999999999,,,0
-3,2025-09-13,Washington State,North Texas,-5.5,,,0
-3,2025-09-13,Pittsburgh,West Virginia,-1.1,2.25,-3.35,0
 3,2025-09-13,USC,Purdue,-0.4799999999999982,,,0
+3,2025-09-13,Pittsburgh,West Virginia,-1.1,2.25,-3.35,0
+3,2025-09-13,Washington State,North Texas,-5.5,,,0
 3,2025-09-13,Georgia,Tennessee,2.0600000000000005,7.25,-5.1899999999999995,1
 3,2025-09-13,Oregon State,Texas Tech,-5.000000000000002,,,0
 3,2025-09-13,Louisiana,Missouri,-3.1599999999999993,,,0
@@ -120,20 +120,20 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 3,2025-09-13,Middle Tennessee,Nevada,-3.2400000000000007,,,0
 3,2025-09-13,Liberty,Bowling Green,0.7400000000000007,,,0
 3,2025-09-13,Florida Atlantic,Florida International,-1.5599999999999994,,,0
-3,2025-09-13,App State,Southern Miss,-3.6599999999999993,,,0
-3,2025-09-13,Ohio,Ohio State,-7.44,,,0
-3,2025-09-13,Old Dominion,Virginia Tech,-4.640000000000001,,,0
-3,2025-09-13,Jacksonville State,Georgia Southern,-4.24,,,0
 3,2025-09-13,Western Michigan,Illinois,-3.539999999999999,,,0
+3,2025-09-13,App State,Southern Miss,-3.6599999999999993,,,0
+3,2025-09-13,Jacksonville State,Georgia Southern,-4.24,,,0
+3,2025-09-13,Old Dominion,Virginia Tech,-4.640000000000001,,,0
+3,2025-09-13,Ohio,Ohio State,-7.44,,,0
+3,2025-09-13,East Carolina,Coastal Carolina,-3.8400000000000007,,,0
 3,2025-09-13,New Mexico State,Louisiana Tech,-1.6800000000000004,,,0
 3,2025-09-13,Massachusetts,Iowa,-2.2599999999999993,,,0
-3,2025-09-13,Eastern Michigan,Kentucky,-7.460000000000001,,,0
 3,2025-09-13,Florida,LSU,-4.040000000000001,-6.0,1.959999999999999,0
-3,2025-09-13,East Carolina,Coastal Carolina,-3.8400000000000007,,,0
 3,2025-09-13,Texas A&M,Notre Dame,-2.4400000000000004,-6.75,4.31,1
-3,2025-09-14,Duke,Tulane,-2.2,,,0
+3,2025-09-13,Eastern Michigan,Kentucky,-7.460000000000001,,,0
 3,2025-09-14,Utah,Wyoming,-1.7400000000000007,,,0
 3,2025-09-14,Navy,Tulsa,0.0,,,0
+3,2025-09-14,Duke,Tulane,-2.2,,,0
 3,2025-09-14,Akron,UAB,-3.62,,,0
 3,2025-09-14,Air Force,Utah State,-3.6799999999999997,,,0
 3,2025-09-14,Boston College,Stanford,-0.17999999999999972,,,0
@@ -142,47 +142,47 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 4,2025-09-18,Rice,Charlotte,-0.8,,,0
 4,2025-09-19,Tulsa,Oklahoma State,-6.4799999999999995,,,0
 4,2025-09-20,Iowa,Rutgers,-3.6,,,0
-4,2025-09-20,Arkansas,Memphis,0.8799999999999999,,,0
+4,2025-09-20,Tulane,Ole Miss,-3.12,,,0
 4,2025-09-20,Texas Tech,Utah,1.8800000000000012,-3.5,5.380000000000001,0
 4,2025-09-20,West Virginia,Kansas,-4.6,,,0
-4,2025-09-20,Auburn,Oklahoma,-3.3400000000000007,,,0
 4,2025-09-20,BYU,East Carolina,1.7400000000000007,,,0
 4,2025-09-20,Arizona State,Baylor,-2.7,,,0
 4,2025-09-20,Bowling Green,Louisville,-8.459999999999999,,,0
 4,2025-09-20,SMU,TCU,-1.6799999999999997,,,0
-4,2025-09-20,South Carolina,Missouri,0.7399999999999993,,,0
-4,2025-09-20,Tulane,Ole Miss,-3.12,,,0
 4,2025-09-20,Kent State,Florida State,-6.540000000000001,,,0
 4,2025-09-20,NC State,Duke,2.1400000000000006,,,0
 4,2025-09-20,Illinois,Indiana,-0.6600000000000008,-2.5,1.8399999999999992,0
-4,2025-09-20,Maryland,Wisconsin,-3.28,,,0
-4,2025-09-20,Syracuse,Clemson,-6.840000000000001,,,0
-4,2025-09-20,Florida,Miami,0.5399999999999991,-3.25,3.789999999999999,0
 4,2025-09-20,Oregon State,Oregon,-4.68,-26.5,21.82,1
-4,2025-09-20,Stanford,Virginia,-3.4799999999999995,,,0
-4,2025-09-20,North Carolina,UCF,-3.8,,,0
-4,2025-09-20,Toledo,Western Michigan,-1.8400000000000005,,,0
-4,2025-09-20,UNLV,Miami (OH),-2.960000000000001,,,0
-4,2025-09-20,Michigan State,USC,-3.3800000000000012,,,0
+4,2025-09-20,Auburn,Oklahoma,-3.3400000000000007,,,0
+4,2025-09-20,South Carolina,Missouri,0.7399999999999993,,,0
+4,2025-09-20,Arkansas,Memphis,0.8799999999999999,,,0
+4,2025-09-20,Syracuse,Clemson,-6.840000000000001,,,0
 4,2025-09-20,Temple,Georgia Tech,-4.859999999999999,,,0
-4,2025-09-20,Wyoming,Colorado,-3.6399999999999992,,,0
 4,2025-09-20,UTSA,Colorado State,0.2600000000000007,,,0
+4,2025-09-20,Michigan State,USC,-3.3800000000000012,,,0
+4,2025-09-20,Florida,Miami,0.5399999999999991,-3.25,3.789999999999999,0
+4,2025-09-20,North Carolina,UCF,-3.8,,,0
+4,2025-09-20,Stanford,Virginia,-3.4799999999999995,,,0
+4,2025-09-20,Wyoming,Colorado,-3.6399999999999992,,,0
+4,2025-09-20,Maryland,Wisconsin,-3.28,,,0
+4,2025-09-20,UNLV,Miami (OH),-2.960000000000001,,,0
 4,2025-09-20,Coastal Carolina,South Alabama,0.3999999999999999,,,0
 4,2025-09-20,Troy,Buffalo,-1.439999999999999,,,0
+4,2025-09-20,Toledo,Western Michigan,-1.8400000000000005,,,0
 4,2025-09-20,North Texas,Army,2.84,,,0
 4,2025-09-20,UAB,Tennessee,-2.1,,,0
 4,2025-09-20,Ball State,UConn,-4.159999999999999,,,0
+4,2025-09-20,Purdue,Notre Dame,-4.520000000000001,,,0
 4,2025-09-20,Louisiana,Eastern Michigan,1.5400000000000005,,,0
 4,2025-09-20,Michigan,Nebraska,-0.2200000000000002,3.25,-3.47,0
-4,2025-09-20,Purdue,Notre Dame,-4.520000000000001,,,0
 4,2025-09-20,Northern Illinois,Mississippi State,-7.459999999999999,,,0
-4,2025-09-20,James Madison,Liberty,-1.6400000000000006,,,0
 4,2025-09-20,Arkansas State,Kennesaw State,2.3199999999999994,,,0
-4,2025-09-20,Boise State,Air Force,2.0999999999999996,,,0
+4,2025-09-20,James Madison,Liberty,-1.6400000000000006,,,0
 4,2025-09-20,Nevada,Western Kentucky,-0.7599999999999993,,,0
 4,2025-09-20,Marshall,Middle Tennessee,1.2600000000000007,,,0
-4,2025-09-20,Southern Miss,Louisiana Tech,1.5799999999999996,,,0
+4,2025-09-20,Boise State,Air Force,2.0999999999999996,,,0
 4,2025-09-20,Washington,Washington State,4.26,12.5,-8.24,1
+4,2025-09-20,Southern Miss,Louisiana Tech,1.5799999999999996,,,0
 4,2025-09-20,Georgia State,Vanderbilt,-5.159999999999999,,,0
 4,2025-09-21,Sam Houston,Texas,-8.620000000000001,,,0
 4,2025-09-21,UL Monroe,UTEP,-0.31999999999999895,,,0
@@ -192,97 +192,97 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 5,2025-09-26,Florida State,Virginia,-2.6599999999999993,,,0
 5,2025-09-27,TCU,Arizona State,-3.5599999999999996,,,0
 5,2025-09-27,Houston,Oregon State,-0.03999999999999915,,,0
-5,2025-09-27,USC,Illinois,-0.2999999999999985,,,0
 5,2025-09-27,UCLA,Northwestern,-1.4599999999999995,,,0
+5,2025-09-27,USC,Illinois,-0.2999999999999985,,,0
 5,2025-09-27,Indiana,Iowa,-1.8599999999999994,,,0
-5,2025-09-27,Utah,West Virginia,-3.6,,,0
-5,2025-09-27,Hawai'i,Air Force,-2.6,,,0
-5,2025-09-27,Kentucky,South Carolina,-3.979999999999998,,,0
-5,2025-09-27,Auburn,Texas A&M,-4.5600000000000005,,,0
-5,2025-09-27,Ohio State,Washington,0.8400000000000007,13.5,-12.66,1
+5,2025-09-27,Jacksonville State,Southern Miss,-0.8999999999999999,,,0
+5,2025-09-27,UConn,Buffalo,-0.5200000000000002,,,0
+5,2025-09-27,Baylor,Oklahoma State,-0.2600000000000009,,,0
 5,2025-09-27,Rutgers,Minnesota,-2.4,,,0
 5,2025-09-27,Eastern Michigan,Central Michigan,-1.8800000000000003,,,0
-5,2025-09-27,Arkansas State,UL Monroe,-0.7600000000000009,,,0
-5,2025-09-27,South Alabama,North Texas,-3.7599999999999993,,,0
-5,2025-09-27,San Diego State,Northern Illinois,-0.8999999999999999,,,0
-5,2025-09-27,Massachusetts,Missouri,-3.039999999999999,,,0
-5,2025-09-27,Baylor,Oklahoma State,-0.2600000000000009,,,0
-5,2025-09-27,UConn,Buffalo,-0.5200000000000002,,,0
-5,2025-09-27,Marshall,Louisiana,-0.2799999999999998,,,0
-5,2025-09-27,LSU,Ole Miss,2.88,2.25,0.6299999999999999,0
-5,2025-09-27,California,Boston College,-3.460000000000001,,,0
-5,2025-09-27,Duke,Syracuse,-2.3400000000000007,,,0
-5,2025-09-27,Georgia Tech,Wake Forest,1.0399999999999991,,,0
-5,2025-09-27,Louisville,Pittsburgh,-1.1400000000000006,,,0
-5,2025-09-27,Virginia Tech,NC State,-3.3400000000000007,,,0
-5,2025-09-27,San José State,Stanford,-1.9200000000000004,,,0
-5,2025-09-27,Arizona,Iowa State,-3.6400000000000006,,,0
-5,2025-09-27,Cincinnati,Kansas,-1.5800000000000012,,,0
-5,2025-09-27,UCF,Kansas State,-4.88,,,0
-5,2025-09-27,Liberty,Old Dominion,-2.5199999999999987,,,0
-5,2025-09-27,App State,Boise State,-6.159999999999999,,,0
-5,2025-09-27,Jacksonville State,Southern Miss,-0.8999999999999999,,,0
-5,2025-09-27,Georgia Southern,James Madison,0.8400000000000007,,,0
-5,2025-09-27,Memphis,Florida Atlantic,-0.8200000000000003,,,0
-5,2025-09-27,Tennessee,Mississippi State,-4.4799999999999995,,,0
-5,2025-09-27,Tulane,Tulsa,-1.1,,,0
 5,2025-09-27,Bowling Green,Ohio,-5.26,,,0
+5,2025-09-27,Tulane,Tulsa,-1.1,,,0
+5,2025-09-27,Memphis,Florida Atlantic,-0.8200000000000003,,,0
+5,2025-09-27,South Alabama,North Texas,-3.7599999999999993,,,0
+5,2025-09-27,Marshall,Louisiana,-0.2799999999999998,,,0
+5,2025-09-27,Georgia Southern,James Madison,0.8400000000000007,,,0
+5,2025-09-27,San Diego State,Northern Illinois,-0.8999999999999999,,,0
+5,2025-09-27,App State,Boise State,-6.159999999999999,,,0
+5,2025-09-27,Liberty,Old Dominion,-2.5199999999999987,,,0
+5,2025-09-27,UCF,Kansas State,-4.88,,,0
+5,2025-09-27,Cincinnati,Kansas,-1.5800000000000012,,,0
+5,2025-09-27,Arizona,Iowa State,-3.6400000000000006,,,0
+5,2025-09-27,San José State,Stanford,-1.9200000000000004,,,0
+5,2025-09-27,Virginia Tech,NC State,-3.3400000000000007,,,0
+5,2025-09-27,Louisville,Pittsburgh,-1.1400000000000006,,,0
+5,2025-09-27,Georgia Tech,Wake Forest,1.0399999999999991,,,0
+5,2025-09-27,Duke,Syracuse,-2.3400000000000007,,,0
+5,2025-09-27,California,Boston College,-3.460000000000001,,,0
+5,2025-09-27,LSU,Ole Miss,2.88,2.25,0.6299999999999999,0
+5,2025-09-27,Kentucky,South Carolina,-3.979999999999998,,,0
+5,2025-09-27,Tennessee,Mississippi State,-4.4799999999999995,,,0
+5,2025-09-27,Auburn,Texas A&M,-4.5600000000000005,,,0
+5,2025-09-27,Ohio State,Washington,0.8400000000000007,13.5,-12.66,1
+5,2025-09-27,Massachusetts,Missouri,-3.039999999999999,,,0
+5,2025-09-27,Hawai'i,Air Force,-2.6,,,0
+5,2025-09-27,Utah,West Virginia,-3.6,,,0
+5,2025-09-27,Arkansas State,UL Monroe,-0.7600000000000009,,,0
 5,2025-09-27,Notre Dame,Arkansas,1.2800000000000011,10.5,-9.219999999999999,1
 5,2025-09-27,Utah State,Vanderbilt,-6.339999999999999,,,0
-5,2025-09-27,Rice,Navy,-3.9799999999999995,,,0
 5,2025-09-27,Akron,Toledo,-3.6400000000000006,,,0
+5,2025-09-27,Rice,Navy,-3.9799999999999995,,,0
 5,2025-09-27,New Mexico State,New Mexico,-2.3600000000000003,,,0
 5,2025-09-27,Middle Tennessee,Kennesaw State,0.3199999999999994,,,0
 5,2025-09-27,Washington State,Colorado State,-5.26,,,0
-5,2025-09-27,Alabama,Georgia,-2.8,-4.0,1.2000000000000002,0
 5,2025-09-27,Oregon,Penn State,-4.380000000000001,-6.0,1.6199999999999992,0
+5,2025-09-27,Alabama,Georgia,-2.8,-4.0,1.2000000000000002,0
 5,2025-09-28,Louisiana Tech,UTEP,-3.939999999999999,,,0
 5,2025-09-28,BYU,Colorado,-0.8399999999999992,,,0
 6,2025-10-03,Sam Houston,New Mexico State,0.1800000000000006,,,0
 6,2025-10-03,Charlotte,South Florida,-6.4399999999999995,,,0
 6,2025-10-04,New Mexico,San José State,-5.88,,,0
-6,2025-10-04,West Virginia,BYU,-2.9400000000000004,,,0
 6,2025-10-04,Colorado State,San Diego State,-1.2400000000000007,,,0
-6,2025-10-04,Texas,Florida,-1.1199999999999988,6.5,-7.619999999999999,0
-6,2025-10-04,Army,UAB,-7.619999999999999,,,0
-6,2025-10-04,Florida Atlantic,Rice,-3.78,,,0
-6,2025-10-04,Western Michigan,Massachusetts,-1.8,,,0
-6,2025-10-04,South Alabama,Troy,-2.5,,,0
-6,2025-10-04,Coastal Carolina,Old Dominion,-1.519999999999999,,,0
+6,2025-10-04,West Virginia,BYU,-2.9400000000000004,,,0
 6,2025-10-04,Tulsa,Memphis,-1.4200000000000004,,,0
-6,2025-10-04,Virginia,Louisville,-3.4799999999999995,,,0
-6,2025-10-04,Wake Forest,Virginia Tech,-4.26,,,0
-6,2025-10-04,Syracuse,SMU,-5.239999999999999,,,0
-6,2025-10-04,Kansas,UCF,1.12,,,0
-6,2025-10-04,Texas Tech,Houston,-0.9599999999999995,,,0
-6,2025-10-04,Iowa State,Cincinnati,-3.3999999999999986,,,0
-6,2025-10-04,Kansas State,Baylor,-3.5599999999999996,,,0
-6,2025-10-04,Vanderbilt,Alabama,-2.2200000000000015,-24.0,21.779999999999998,1
-6,2025-10-04,Oklahoma State,Arizona,0.20000000000000018,,,0
-6,2025-10-04,Minnesota,Ohio State,-4.9,,,0
-6,2025-10-04,Michigan State,Nebraska,-1.1200000000000003,,,0
 6,2025-10-04,Penn State,UCLA,1.4,,,0
-6,2025-10-04,Illinois,Purdue,-2.1799999999999997,,,0
-6,2025-10-04,Oregon State,App State,1.0399999999999991,,,0
-6,2025-10-04,James Madison,Georgia State,-2.7599999999999993,,,0
-6,2025-10-04,Wisconsin,Michigan,-3.2400000000000007,,,0
+6,2025-10-04,Clemson,North Carolina,3.9000000000000012,13.5,-9.599999999999998,1
+6,2025-10-04,Colorado,TCU,-3.88,,,0
+6,2025-10-04,Texas,Florida,-1.1199999999999988,6.5,-7.619999999999999,0
+6,2025-10-04,Iowa State,Cincinnati,-3.3999999999999986,,,0
+6,2025-10-04,Kansas,UCF,1.12,,,0
+6,2025-10-04,Coastal Carolina,Old Dominion,-1.519999999999999,,,0
+6,2025-10-04,Western Michigan,Massachusetts,-1.8,,,0
 6,2025-10-04,Boston College,Pittsburgh,-2.28,,,0
 6,2025-10-04,Duke,California,-2.7599999999999993,,,0
 6,2025-10-04,Miami,Florida State,-1.6,5.75,-7.35,0
+6,2025-10-04,Virginia,Louisville,-3.4799999999999995,,,0
+6,2025-10-04,Army,UAB,-7.619999999999999,,,0
+6,2025-10-04,Wisconsin,Michigan,-3.2400000000000007,,,0
 6,2025-10-04,Miami (OH),Northern Illinois,0.5200000000000005,,,0
-6,2025-10-04,UTSA,Temple,-0.7,,,0
-6,2025-10-04,Colorado,TCU,-3.88,,,0
-6,2025-10-04,Clemson,North Carolina,3.9000000000000012,13.5,-9.599999999999998,1
+6,2025-10-04,South Alabama,Troy,-2.5,,,0
+6,2025-10-04,James Madison,Georgia State,-2.7599999999999993,,,0
+6,2025-10-04,Syracuse,SMU,-5.239999999999999,,,0
+6,2025-10-04,Wake Forest,Virginia Tech,-4.26,,,0
 6,2025-10-04,Mississippi State,Texas A&M,-3.080000000000001,,,0
-6,2025-10-04,UL Monroe,Northwestern,-4.459999999999999,,,0
+6,2025-10-04,Oklahoma State,Arizona,0.20000000000000018,,,0
+6,2025-10-04,Kansas State,Baylor,-3.5599999999999996,,,0
+6,2025-10-04,Texas Tech,Houston,-0.9599999999999995,,,0
+6,2025-10-04,Florida Atlantic,Rice,-3.78,,,0
 6,2025-10-04,Washington,Maryland,-0.12000000000000033,,,0
-6,2025-10-04,Ohio,Ball State,0.6599999999999993,,,0
-6,2025-10-04,Air Force,Navy,-5.4,,,0
+6,2025-10-04,UL Monroe,Northwestern,-4.459999999999999,,,0
+6,2025-10-04,UTSA,Temple,-0.7,,,0
+6,2025-10-04,Vanderbilt,Alabama,-2.2200000000000015,-24.0,21.779999999999998,1
+6,2025-10-04,Minnesota,Ohio State,-4.9,,,0
+6,2025-10-04,Michigan State,Nebraska,-1.1200000000000003,,,0
+6,2025-10-04,Illinois,Purdue,-2.1799999999999997,,,0
+6,2025-10-04,Oregon State,App State,1.0399999999999991,,,0
 6,2025-10-04,Kentucky,Georgia,-4.7,,,0
-6,2025-10-04,Eastern Michigan,Buffalo,-3.4,,,0
-6,2025-10-04,Central Michigan,Akron,-4.499999999999999,,,0
+6,2025-10-04,Air Force,Navy,-5.4,,,0
+6,2025-10-04,Ohio,Ball State,0.6599999999999993,,,0
 6,2025-10-04,Boise State,Notre Dame,-4.880000000000001,-16.25,11.37,1
+6,2025-10-04,Central Michigan,Akron,-4.499999999999999,,,0
 6,2025-10-04,Florida International,UConn,-4.56,,,0
+6,2025-10-04,Eastern Michigan,Buffalo,-3.4,,,0
 6,2025-10-04,Kent State,Oklahoma,-8.540000000000001,,,0
 6,2025-10-04,Texas State,Arkansas State,0.20000000000000018,,,0
 6,2025-10-04,UNLV,Wyoming,-2.280000000000001,,,0
@@ -293,14 +293,15 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 7,2025-10-09,Louisiana Tech,Kennesaw State,-2.54,,,0
 7,2025-10-10,Jacksonville State,Sam Houston,2.1799999999999997,,,0
 7,2025-10-10,South Florida,North Texas,0.5599999999999996,,,0
-7,2025-10-11,Rutgers,Washington,-2.4599999999999995,,,0
 7,2025-10-11,Fresno State,Colorado State,-3.719999999999999,,,0
-7,2025-10-11,Northwestern,Penn State,-5.94,,,0
+7,2025-10-11,Rutgers,Washington,-2.4599999999999995,,,0
 7,2025-10-11,Louisiana,James Madison,-1.6799999999999997,,,0
+7,2025-10-11,App State,Georgia State,-4.919999999999999,,,0
+7,2025-10-11,Georgia,Auburn,1.060000000000001,6.5,-5.4399999999999995,1
+7,2025-10-11,TCU,Kansas State,-2.7,,,0
 7,2025-10-11,Nebraska,Maryland,-1.2599999999999993,,,0
-7,2025-10-11,UAB,Florida Atlantic,1.2399999999999993,,,0
-7,2025-10-11,Troy,Texas State,-6.239999999999999,,,0
-7,2025-10-11,Old Dominion,Marshall,-3.8800000000000012,,,0
+7,2025-10-11,Miami (OH),Akron,-0.7399999999999991,,,0
+7,2025-10-11,Michigan,USC,-2.4800000000000013,1.5,-3.9800000000000013,0
 7,2025-10-11,UL Monroe,Coastal Carolina,-3.1,,,0
 7,2025-10-11,New Mexico,Boise State,-7.4,,,0
 7,2025-10-11,Arizona State,Utah,2.8199999999999985,-2.5,5.3199999999999985,0
@@ -311,7 +312,6 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 7,2025-10-11,Stanford,SMU,-5.18,,,0
 7,2025-10-11,Virginia Tech,Georgia Tech,-2.78,,,0
 7,2025-10-11,Pittsburgh,Florida State,-0.7200000000000002,,,0
-7,2025-10-11,Iowa State,Colorado,-0.15999999999999948,,,0
 7,2025-10-11,Clemson,Boston College,0.9600000000000009,,,0
 7,2025-10-11,Indiana,Oregon,-4.719999999999999,-14.0,9.280000000000001,1
 7,2025-10-11,Iowa,Wisconsin,-3.4599999999999995,,,0
@@ -320,24 +320,24 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 7,2025-10-11,Florida,Texas A&M,-2.280000000000001,,,0
 7,2025-10-11,Arkansas,Tennessee,-1.2799999999999998,,,0
 7,2025-10-11,South Carolina,LSU,-3.9800000000000013,,,0
+7,2025-10-11,Troy,Texas State,-6.239999999999999,,,0
+7,2025-10-11,UAB,Florida Atlantic,1.2399999999999993,,,0
 7,2025-10-11,Navy,Temple,-1.4200000000000004,,,0
-7,2025-10-11,Georgia,Auburn,1.060000000000001,6.5,-5.4399999999999995,1
-7,2025-10-11,TCU,Kansas State,-2.7,,,0
-7,2025-10-11,Rice,UTSA,-4.7,,,0
-7,2025-10-11,App State,Georgia State,-4.919999999999999,,,0
-7,2025-10-11,Toledo,Bowling Green,1.9,,,0
-7,2025-10-11,Northern Illinois,Eastern Michigan,-0.8799999999999997,,,0
+7,2025-10-11,Northwestern,Penn State,-5.94,,,0
 7,2025-10-11,Massachusetts,Kent State,1.7600000000000007,,,0
-7,2025-10-11,Michigan,USC,-2.4800000000000013,1.5,-3.9800000000000013,0
-7,2025-10-11,Miami (OH),Akron,-0.7399999999999991,,,0
+7,2025-10-11,Northern Illinois,Eastern Michigan,-0.8799999999999997,,,0
+7,2025-10-11,Toledo,Bowling Green,1.9,,,0
+7,2025-10-11,Rice,UTSA,-4.7,,,0
+7,2025-10-11,Iowa State,Colorado,-0.15999999999999948,,,0
+7,2025-10-11,Old Dominion,Marshall,-3.8800000000000012,,,0
 7,2025-10-11,UCLA,Michigan State,-1.9599999999999995,,,0
-7,2025-10-11,Charlotte,Army,0.96,,,0
 7,2025-10-11,Alabama,Missouri,0.660000000000001,,,0
+7,2025-10-11,Charlotte,Army,0.96,,,0
 7,2025-10-11,Washington State,Ole Miss,-6.82,,,0
-7,2025-10-11,Oklahoma,Texas,-1.8200000000000003,-9.5,7.68,1
 7,2025-10-11,Wake Forest,Oregon State,-2.339999999999999,,,0
 7,2025-10-11,Air Force,UNLV,-3.5599999999999996,,,0
 7,2025-10-11,Ball State,Western Michigan,-5.140000000000001,,,0
+7,2025-10-11,Oklahoma,Texas,-1.8200000000000003,-9.5,7.68,1
 7,2025-10-11,NC State,Notre Dame,-2.7400000000000007,,,0
 7,2025-10-11,San José State,Wyoming,-1.260000000000001,,,0
 7,2025-10-12,San Diego State,Nevada,-3.0200000000000005,,,0
@@ -351,24 +351,16 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 8,2025-10-18,Nebraska,Minnesota,-3.0799999999999996,,,0
 8,2025-10-18,San José State,Utah State,-1.1,,,0
 8,2025-10-18,North Carolina,California,-3.4799999999999995,,,0
-8,2025-10-18,Cincinnati,Oklahoma State,-1.1600000000000008,,,0
-8,2025-10-18,Texas,Kentucky,0.7999999999999998,,,0
-8,2025-10-18,Oklahoma,South Carolina,-2.9999999999999987,,,0
-8,2025-10-18,LSU,Vanderbilt,0.28000000000000114,,,0
-8,2025-10-18,Washington,Michigan,-2.6400000000000006,-10.5,7.859999999999999,1
-8,2025-10-18,Purdue,Northwestern,-1.6400000000000006,,,0
-8,2025-10-18,Oregon,Rutgers,-0.7400000000000007,,,0
 8,2025-10-18,Ohio State,Wisconsin,1.4400000000000004,,,0
 8,2025-10-18,Michigan State,Indiana,-0.3400000000000005,,,0
 8,2025-10-18,SMU,Clemson,-3.6000000000000014,-11.5,7.899999999999999,1
 8,2025-10-18,Pittsburgh,Syracuse,0.15999999999999925,,,0
 8,2025-10-18,UConn,Boston College,-4.5600000000000005,,,0
 8,2025-10-18,Texas Tech,Arizona State,-2.9399999999999977,-4.0,1.0600000000000023,0
-8,2025-10-18,Utah,BYU,-4.540000000000001,,,0
-8,2025-10-18,Arizona,Houston,-3.2600000000000007,,,0
-8,2025-10-18,Baylor,TCU,0.25999999999999934,,,0
-8,2025-10-18,West Virginia,UCF,-1.4799999999999998,,,0
 8,2025-10-18,UNLV,Boise State,-4.540000000000001,,,0
+8,2025-10-18,Florida Atlantic,South Florida,-7.019999999999999,,,0
+8,2025-10-18,Buffalo,Massachusetts,-4.260000000000001,,,0
+8,2025-10-18,Maryland,UCLA,-3.660000000000001,,,0
 8,2025-10-18,Nevada,New Mexico,1.4200000000000004,,,0
 8,2025-10-18,Coastal Carolina,App State,0.7999999999999998,,,0
 8,2025-10-18,Georgia State,Georgia Southern,-4.080000000000001,,,0
@@ -376,24 +368,32 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 8,2025-10-18,Troy,UL Monroe,-2.8,,,0
 8,2025-10-18,Southern Miss,Louisiana,-2.8200000000000003,,,0
 8,2025-10-18,Memphis,UAB,-4.06,,,0
-8,2025-10-18,Ole Miss,Georgia,-5.62,-10.5,4.88,1
 8,2025-10-18,Army,Tulane,-7.04,,,0
 8,2025-10-18,Temple,Charlotte,0.6000000000000001,,,0
 8,2025-10-18,UTSA,North Texas,0.020000000000000462,,,0
 8,2025-10-18,Central Michigan,Bowling Green,-2.2399999999999998,,,0
 8,2025-10-18,Eastern Michigan,Miami (OH),-5.640000000000001,,,0
+8,2025-10-18,West Virginia,UCF,-1.4799999999999998,,,0
+8,2025-10-18,Baylor,TCU,0.25999999999999934,,,0
 8,2025-10-18,Kent State,Toledo,-6.12,,,0
+8,2025-10-18,Arizona,Houston,-3.2600000000000007,,,0
+8,2025-10-18,Utah,BYU,-4.540000000000001,,,0
 8,2025-10-18,Northern Illinois,Ohio,-4.26,,,0
+8,2025-10-18,Cincinnati,Oklahoma State,-1.1600000000000008,,,0
 8,2025-10-18,Tennessee,Alabama,-5.260000000000001,-12.0,6.739999999999999,1
 8,2025-10-18,Texas A&M,Arkansas,0.8400000000000007,,,0
 8,2025-10-18,Missouri,Auburn,-2.4,,,0
 8,2025-10-18,Mississippi State,Florida,-2.8,,,0
+8,2025-10-18,Ole Miss,Georgia,-5.62,-10.5,4.88,1
+8,2025-10-18,Texas,Kentucky,0.7999999999999998,,,0
+8,2025-10-18,Oklahoma,South Carolina,-2.9999999999999987,,,0
+8,2025-10-18,LSU,Vanderbilt,0.28000000000000114,,,0
+8,2025-10-18,Washington,Michigan,-2.6400000000000006,-10.5,7.859999999999999,1
+8,2025-10-18,Purdue,Northwestern,-1.6400000000000006,,,0
+8,2025-10-18,Oregon,Rutgers,-0.7400000000000007,,,0
 8,2025-10-18,Penn State,Iowa,3.24,10.5,-7.26,1
-8,2025-10-18,Maryland,UCLA,-3.660000000000001,,,0
-8,2025-10-18,Texas State,Marshall,-1.060000000000001,,,0
 8,2025-10-18,Georgia Tech,Duke,1.5799999999999996,,,0
-8,2025-10-18,Florida Atlantic,South Florida,-7.019999999999999,,,0
-8,2025-10-18,Buffalo,Massachusetts,-4.260000000000001,,,0
+8,2025-10-18,Texas State,Marshall,-1.060000000000001,,,0
 8,2025-10-18,Wyoming,Air Force,-0.15999999999999948,,,0
 8,2025-10-18,Akron,Ball State,-0.3400000000000005,,,0
 8,2025-10-18,Washington State,Virginia,-7.38,,,0
@@ -406,49 +406,49 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 9,2025-10-24,North Texas,Charlotte,-0.12000000000000033,,,0
 9,2025-10-24,California,Virginia Tech,-4.040000000000001,,,0
 9,2025-10-25,Boise State,Nevada,-0.02000000000000024,,,0
+9,2025-10-25,Alabama,South Carolina,-2.0799999999999983,7.5,-9.579999999999998,0
 9,2025-10-25,TCU,West Virginia,-0.3400000000000005,,,0
 9,2025-10-25,Minnesota,Iowa,0.0,,,0
-9,2025-10-25,NC State,Pittsburgh,-0.35999999999999943,,,0
-9,2025-10-25,South Florida,Memphis,1.839999999999999,,,0
+9,2025-10-25,Massachusetts,Central Michigan,1.7800000000000002,,,0
+9,2025-10-25,Bowling Green,Kent State,-1.7799999999999998,,,0
+9,2025-10-25,Temple,Tulsa,-0.5799999999999996,,,0
+9,2025-10-25,Louisiana,Troy,-0.4200000000000004,,,0
+9,2025-10-25,UL Monroe,Southern Miss,-1.9599999999999995,,,0
+9,2025-10-25,Utah State,New Mexico,0.9799999999999995,,,0
+9,2025-10-25,San Diego State,Fresno State,-1.0400000000000005,,,0
+9,2025-10-25,UConn,Rice,-1.6600000000000008,,,0
+9,2025-10-25,Oklahoma State,Texas Tech,-2.1000000000000014,,,0
+9,2025-10-25,Kansas State,Kansas,-2.2400000000000007,4.0,-6.24,0
+9,2025-10-25,BYU,Iowa State,-2.6799999999999997,,,0
+9,2025-10-25,Baylor,Cincinnati,-1.1,,,0
+9,2025-10-25,Houston,Arizona State,-3.979999999999998,,,0
+9,2025-10-25,Virginia,North Carolina,0.6000000000000001,,,0
+9,2025-10-25,Boston College,Louisville,-3.1399999999999992,,,0
+9,2025-10-25,SMU,Wake Forest,1.0399999999999991,,,0
+9,2025-10-25,UCLA,Indiana,-0.30000000000000004,,,0
+9,2025-10-25,Northwestern,Nebraska,-1.6200000000000003,,,0
+9,2025-10-25,Illinois,Washington,-2.5799999999999996,,,0
+9,2025-10-25,Missouri,Vanderbilt,-4.4399999999999995,,,0
+9,2025-10-25,Ole Miss,Oklahoma,-3.9,,,0
+9,2025-10-25,Texas,Mississippi State,-0.31999999999999895,,,0
+9,2025-10-25,Texas A&M,LSU,-3.7599999999999993,-5.5,1.7400000000000007,0
+9,2025-10-25,Tennessee,Kentucky,-3.3600000000000008,,,0
+9,2025-10-25,Auburn,Arkansas,-1.7200000000000002,,,0
+9,2025-10-25,Rutgers,Purdue,-2.0599999999999996,,,0
 9,2025-10-25,Wisconsin,Oregon,-3.4,,,0
 9,2025-10-25,App State,Old Dominion,-4.3199999999999985,,,0
 9,2025-10-25,Michigan,Michigan State,-1.1,8.25,-9.35,0
-9,2025-10-25,Auburn,Arkansas,-1.7200000000000002,,,0
-9,2025-10-25,Tennessee,Kentucky,-3.3600000000000008,,,0
-9,2025-10-25,Texas A&M,LSU,-3.7599999999999993,-5.5,1.7400000000000007,0
-9,2025-10-25,Texas,Mississippi State,-0.31999999999999895,,,0
-9,2025-10-25,Ole Miss,Oklahoma,-3.9,,,0
-9,2025-10-25,Alabama,South Carolina,-2.0799999999999983,7.5,-9.579999999999998,0
-9,2025-10-25,Missouri,Vanderbilt,-4.4399999999999995,,,0
-9,2025-10-25,Illinois,Washington,-2.5799999999999996,,,0
-9,2025-10-25,Northwestern,Nebraska,-1.6200000000000003,,,0
-9,2025-10-25,UCLA,Indiana,-0.30000000000000004,,,0
-9,2025-10-25,SMU,Wake Forest,1.0399999999999991,,,0
-9,2025-10-25,Boston College,Louisville,-3.1399999999999992,,,0
-9,2025-10-25,Rutgers,Purdue,-2.0599999999999996,,,0
-9,2025-10-25,Ball State,Northern Illinois,-2.4,,,0
-9,2025-10-25,Colorado,Utah,-0.6200000000000003,-8.5,7.88,1
-9,2025-10-25,Syracuse,Georgia Tech,-5.239999999999999,,,0
-9,2025-10-25,Temple,Tulsa,-0.5799999999999996,,,0
-9,2025-10-25,Bowling Green,Kent State,-1.7799999999999998,,,0
-9,2025-10-25,Massachusetts,Central Michigan,1.7800000000000002,,,0
-9,2025-10-25,Stanford,Miami,-3.22,,,0
-9,2025-10-25,Ohio,Eastern Michigan,1.38,,,0
+9,2025-10-25,South Florida,Memphis,1.839999999999999,,,0
 9,2025-10-25,Akron,Buffalo,-1.0200000000000002,,,0
-9,2025-10-25,Virginia,North Carolina,0.6000000000000001,,,0
-9,2025-10-25,Houston,Arizona State,-3.979999999999998,,,0
-9,2025-10-25,Baylor,Cincinnati,-1.1,,,0
-9,2025-10-25,BYU,Iowa State,-2.6799999999999997,,,0
-9,2025-10-25,Kansas State,Kansas,-2.2400000000000007,4.0,-6.24,0
-9,2025-10-25,Oklahoma State,Texas Tech,-2.1000000000000014,,,0
-9,2025-10-25,UConn,Rice,-1.6600000000000008,,,0
-9,2025-10-25,San Diego State,Fresno State,-1.0400000000000005,,,0
-9,2025-10-25,Utah State,New Mexico,0.9799999999999995,,,0
-9,2025-10-25,UL Monroe,Southern Miss,-1.9599999999999995,,,0
-9,2025-10-25,Louisiana,Troy,-0.4200000000000004,,,0
-9,2025-10-25,Western Michigan,Miami (OH),-1.7799999999999998,,,0
+9,2025-10-25,Syracuse,Georgia Tech,-5.239999999999999,,,0
+9,2025-10-25,NC State,Pittsburgh,-0.35999999999999943,,,0
+9,2025-10-25,Ball State,Northern Illinois,-2.4,,,0
+9,2025-10-25,Ohio,Eastern Michigan,1.38,,,0
+9,2025-10-25,Stanford,Miami,-3.22,,,0
+9,2025-10-25,Colorado,Utah,-0.6200000000000003,-8.5,7.88,1
 9,2025-10-25,Toledo,Washington State,2.3,,,0
 9,2025-10-25,Florida Atlantic,Navy,-5.76,,,0
+9,2025-10-25,Western Michigan,Miami (OH),-1.7799999999999998,,,0
 9,2025-10-25,Georgia Southern,Arkansas State,0.06000000000000094,,,0
 9,2025-10-25,Colorado State,Wyoming,-1.980000000000001,,,0
 10,2025-10-29,James Madison,Texas State,-4.9799999999999995,,,0
@@ -459,89 +459,89 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 10,2025-10-31,Memphis,Rice,-2.6,,,0
 10,2025-10-31,North Carolina,Syracuse,-3.060000000000001,,,0
 10,2025-11-01,Sam Houston,Louisiana Tech,0.5,,,0
-10,2025-11-01,Oklahoma State,Kansas,-2.4200000000000004,,,0
-10,2025-11-01,Penn State,Ohio State,-1.6599999999999995,-4.0,2.3400000000000007,0
+10,2025-11-01,Indiana,Maryland,-2.039999999999999,,,0
+10,2025-11-01,West Virginia,Houston,-3.2400000000000007,,,0
 10,2025-11-01,Arizona State,Iowa State,-0.40000000000000147,,,0
+10,2025-11-01,Oklahoma State,Kansas,-2.4200000000000004,,,0
+10,2025-11-01,USC,Nebraska,0.2600000000000007,,,0
+10,2025-11-01,East Carolina,Temple,-3.9200000000000004,,,0
+10,2025-11-01,Michigan State,Minnesota,-2.2,,,0
+10,2025-11-01,Buffalo,Bowling Green,-0.7200000000000002,,,0
+10,2025-11-01,Navy,North Texas,-0.7,,,0
 10,2025-11-01,UCF,Baylor,-6.4399999999999995,,,0
 10,2025-11-01,Arizona,Colorado,-1.8,,,0
-10,2025-11-01,West Virginia,Houston,-3.2400000000000007,,,0
+10,2025-11-01,Louisville,Virginia Tech,-1.4400000000000006,,,0
+10,2025-11-01,South Carolina,Ole Miss,0.8999999999999986,,,0
+10,2025-11-01,Wake Forest,Florida State,-2.6799999999999997,,,0
+10,2025-11-01,Duke,Clemson,-7.1800000000000015,,,0
+10,2025-11-01,Oklahoma,Tennessee,0.34000000000000075,,,0
+10,2025-11-01,Virginia,California,-0.8799999999999997,,,0
 10,2025-11-01,Fresno State,Boise State,-5.959999999999999,,,0
-10,2025-11-01,Notre Dame,Boston College,0.660000000000001,,,0
+10,2025-11-01,Arkansas State,Troy,0.03999999999999915,,,0
+10,2025-11-01,Louisiana,South Alabama,0.07999999999999963,,,0
+10,2025-11-01,Old Dominion,UL Monroe,-1.3800000000000012,,,0
+10,2025-11-01,Cincinnati,Utah,2.619999999999999,,,0
+10,2025-11-01,Texas Tech,Kansas State,-2.0799999999999983,-4.25,2.1700000000000017,0
 10,2025-11-01,Mississippi State,Arkansas,-0.24000000000000066,,,0
 10,2025-11-01,Kentucky,Auburn,-1.6399999999999992,,,0
-10,2025-11-01,South Carolina,Ole Miss,0.8999999999999986,,,0
-10,2025-11-01,Oklahoma,Tennessee,0.34000000000000075,,,0
-10,2025-11-01,Michigan State,Minnesota,-2.2,,,0
-10,2025-11-01,USC,Nebraska,0.2600000000000007,,,0
-10,2025-11-01,Virginia,California,-0.8799999999999997,,,0
-10,2025-11-01,Duke,Clemson,-7.1800000000000015,,,0
-10,2025-11-01,Wake Forest,Florida State,-2.6799999999999997,,,0
-10,2025-11-01,Indiana,Maryland,-2.039999999999999,,,0
-10,2025-11-01,Purdue,Michigan,-3.0400000000000005,,,0
-10,2025-11-01,Rutgers,Illinois,-1.8799999999999997,,,0
-10,2025-11-01,Georgia Tech,NC State,-2.560000000000001,,,0
-10,2025-11-01,Louisville,Virginia Tech,-1.4400000000000006,,,0
-10,2025-11-01,Miami,SMU,-3.9599999999999995,1.5,-5.459999999999999,1
-10,2025-11-01,Central Michigan,Western Michigan,-5.98,,,0
 10,2025-11-01,Pittsburgh,Stanford,0.10000000000000009,,,0
-10,2025-11-01,Texas Tech,Kansas State,-2.0799999999999983,-4.25,2.1700000000000017,0
-10,2025-11-01,Cincinnati,Utah,2.619999999999999,,,0
-10,2025-11-01,Old Dominion,UL Monroe,-1.3800000000000012,,,0
-10,2025-11-01,Louisiana,South Alabama,0.07999999999999963,,,0
-10,2025-11-01,Arkansas State,Troy,0.03999999999999915,,,0
-10,2025-11-01,East Carolina,Temple,-3.9200000000000004,,,0
-10,2025-11-01,Navy,North Texas,-0.7,,,0
-10,2025-11-01,Buffalo,Bowling Green,-0.7200000000000002,,,0
+10,2025-11-01,Miami,SMU,-3.9599999999999995,1.5,-5.459999999999999,1
+10,2025-11-01,Notre Dame,Boston College,0.660000000000001,,,0
+10,2025-11-01,Penn State,Ohio State,-1.6599999999999995,-4.0,2.3400000000000007,0
+10,2025-11-01,Georgia Tech,NC State,-2.560000000000001,,,0
+10,2025-11-01,Central Michigan,Western Michigan,-5.98,,,0
+10,2025-11-01,Rutgers,Illinois,-1.8799999999999997,,,0
+10,2025-11-01,Purdue,Michigan,-3.0400000000000005,,,0
+10,2025-11-01,UAB,UConn,-0.8799999999999997,,,0
 10,2025-11-01,Vanderbilt,Texas,-3.120000000000002,,,0
 10,2025-11-01,Army,Air Force,-4.74,,,0
-10,2025-11-01,UAB,UConn,-0.8799999999999997,,,0
 10,2025-11-01,New Mexico,UNLV,-4.859999999999999,,,0
-10,2025-11-01,Georgia,Florida,0.7800000000000011,7.25,-6.469999999999999,1
 10,2025-11-01,New Mexico State,Western Kentucky,-4.54,,,0
+10,2025-11-01,Georgia,Florida,0.7800000000000011,7.25,-6.469999999999999,1
 10,2025-11-01,Wyoming,San Diego State,-1.2599999999999993,,,0
 10,2025-11-01,Washington State,Oregon State,-6.38,,,0
 10,2025-11-02,Hawai'i,San José State,-5.18,,,0
-11,2025-11-05,Massachusetts,Akron,-0.7199999999999989,,,0
 11,2025-11-05,Miami (OH),Ohio,-1.739999999999999,,,0
-11,2025-11-05,Kent State,Ball State,-2.8200000000000003,,,0
+11,2025-11-05,Massachusetts,Akron,-0.7199999999999989,,,0
 11,2025-11-05,Northern Illinois,Toledo,-4.9,,,0
+11,2025-11-05,Kent State,Ball State,-2.8200000000000003,,,0
 11,2025-11-07,Georgia Southern,App State,3.0,,,0
 11,2025-11-07,UTSA,South Florida,-2.539999999999999,,,0
 11,2025-11-07,Houston,UCF,-0.2399999999999991,,,0
-11,2025-11-08,Tulane,Memphis,-0.5200000000000002,,,0
 11,2025-11-08,Northwestern,USC,-3.8800000000000012,,,0
-11,2025-11-08,Maryland,Rutgers,-3.4200000000000004,,,0
-11,2025-11-08,Colorado,West Virginia,-2.22,,,0
-11,2025-11-08,Kansas,Arizona,0.6200000000000001,,,0
-11,2025-11-08,Bowling Green,Eastern Michigan,-1.8799999999999997,,,0
+11,2025-11-08,Tulane,Memphis,-0.5200000000000002,,,0
+11,2025-11-08,UAB,Rice,-0.5400000000000005,,,0
 11,2025-11-08,Charlotte,East Carolina,-2.6799999999999997,,,0
-11,2025-11-08,James Madison,Marshall,-4.040000000000001,,,0
-11,2025-11-08,Georgia State,Coastal Carolina,-1.8800000000000012,,,0
-11,2025-11-08,UNLV,Colorado State,-2.3,,,0
+11,2025-11-08,Ohio State,Purdue,1.2400000000000007,,,0
+11,2025-11-08,Bowling Green,Eastern Michigan,-1.8799999999999997,,,0
+11,2025-11-08,Tulsa,Florida Atlantic,-0.24000000000000066,,,0
+11,2025-11-08,Colorado,West Virginia,-2.22,,,0
+11,2025-11-08,Oregon,Iowa,0.8599999999999994,,,0
+11,2025-11-08,Washington,Wisconsin,-1.4,,,0
+11,2025-11-08,SMU,Boston College,-0.6400000000000006,,,0
+11,2025-11-08,Florida State,Clemson,-5.960000000000001,-16.75,10.79,1
+11,2025-11-08,Syracuse,Miami,-3.28,,,0
+11,2025-11-08,Wake Forest,Virginia,-3.339999999999999,,,0
+11,2025-11-08,Iowa State,TCU,-2.039999999999999,,,0
+11,2025-11-08,BYU,Texas Tech,-3.3400000000000007,,,0
+11,2025-11-08,Air Force,San José State,-4.58,,,0
+11,2025-11-08,Texas A&M,Missouri,0.9600000000000009,,,0
+11,2025-11-08,Florida,Kentucky,-0.08000000000000118,,,0
+11,2025-11-08,LSU,Alabama,0.05999999999999961,-5.75,5.81,0
 11,2025-11-08,Auburn,Vanderbilt,-4.039999999999999,,,0
 11,2025-11-08,Indiana,Penn State,-7.1,-16.0,8.9,1
-11,2025-11-08,Air Force,San José State,-4.58,,,0
-11,2025-11-08,BYU,Texas Tech,-3.3400000000000007,,,0
-11,2025-11-08,Iowa State,TCU,-2.039999999999999,,,0
-11,2025-11-08,Oregon,Iowa,0.8599999999999994,,,0
-11,2025-11-08,UAB,Rice,-0.5400000000000005,,,0
 11,2025-11-08,California,Louisville,-4.6,,,0
-11,2025-11-08,Texas State,Louisiana,0.6599999999999993,,,0
-11,2025-11-08,Ohio State,Purdue,1.2400000000000007,,,0
-11,2025-11-08,Southern Miss,Arkansas State,-3.28,,,0
-11,2025-11-08,Wake Forest,Virginia,-3.339999999999999,,,0
-11,2025-11-08,Syracuse,Miami,-3.28,,,0
-11,2025-11-08,Florida State,Clemson,-5.960000000000001,-16.75,10.79,1
-11,2025-11-08,SMU,Boston College,-0.6400000000000006,,,0
 11,2025-11-08,Nebraska,UCLA,-2.9200000000000004,,,0
-11,2025-11-08,LSU,Alabama,0.05999999999999961,-5.75,5.81,0
-11,2025-11-08,Florida,Kentucky,-0.08000000000000118,,,0
-11,2025-11-08,Washington,Wisconsin,-1.4,,,0
-11,2025-11-08,Texas A&M,Missouri,0.9600000000000009,,,0
+11,2025-11-08,UNLV,Colorado State,-2.3,,,0
+11,2025-11-08,Georgia State,Coastal Carolina,-1.8800000000000012,,,0
+11,2025-11-08,James Madison,Marshall,-4.040000000000001,,,0
+11,2025-11-08,Southern Miss,Arkansas State,-3.28,,,0
+11,2025-11-08,Texas State,Louisiana,0.6599999999999993,,,0
+11,2025-11-08,Kansas,Arizona,0.6200000000000001,,,0
 11,2025-11-08,Stanford,North Carolina,-0.8799999999999997,,,0
-11,2025-11-08,Tulsa,Florida Atlantic,-0.24000000000000066,,,0
-11,2025-11-08,Georgia,Mississippi State,-0.4199999999999988,,,0
+11,2025-11-08,Maryland,Rutgers,-3.4200000000000004,,,0
 11,2025-11-08,Temple,Army,3.5600000000000005,,,0
+11,2025-11-08,Georgia,Mississippi State,-0.4199999999999988,,,0
 11,2025-11-08,Jacksonville State,UTEP,0.7400000000000007,,,0
 11,2025-11-08,Florida International,Middle Tennessee,-3.6799999999999997,,,0
 11,2025-11-08,Duke,UConn,-1.6599999999999995,,,0
@@ -552,52 +552,52 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 11,2025-11-09,San Diego State,Hawai'i,-0.30000000000000004,,,0
 12,2025-11-12,Ohio,Western Michigan,-2.4800000000000013,,,0
 12,2025-11-12,Kent State,Akron,-4.4799999999999995,,,0
-12,2025-11-13,Buffalo,Central Michigan,-0.4800000000000004,,,0
-12,2025-11-13,Northern Illinois,Massachusetts,-4.540000000000001,,,0
 12,2025-11-13,Toledo,Miami (OH),-1.6200000000000003,,,0
+12,2025-11-13,Northern Illinois,Massachusetts,-4.540000000000001,,,0
+12,2025-11-13,Buffalo,Central Michigan,-0.4800000000000004,,,0
 12,2025-11-14,Troy,Old Dominion,-3.419999999999999,,,0
 12,2025-11-15,Clemson,Louisville,-0.17999999999999838,6.25,-6.429999999999998,0
 12,2025-11-15,Minnesota,Oregon,-2.8599999999999994,,,0
+12,2025-11-15,South Alabama,UL Monroe,-3.3,,,0
+12,2025-11-15,Georgia Tech,Boston College,-0.6400000000000006,,,0
+12,2025-11-15,Michigan,Northwestern,1.4,,,0
+12,2025-11-15,Penn State,Michigan State,1.4400000000000004,,,0
+12,2025-11-15,Notre Dame,Pittsburgh,0.3800000000000012,,,0
+12,2025-11-15,Oklahoma,Alabama,-2.9200000000000004,-12.5,9.58,1
+12,2025-11-15,Texas,Georgia,-1.9,-2.5,0.6000000000000001,0
+12,2025-11-15,Arkansas,LSU,-6.6,,,0
+12,2025-11-15,Purdue,Washington,-2.4,,,0
+12,2025-11-15,Maryland,Illinois,-3.3,,,0
 12,2025-11-15,Iowa,USC,-5.1800000000000015,,,0
 12,2025-11-15,Oregon State,Tulsa,-0.4200000000000004,,,0
 12,2025-11-15,Virginia,Duke,-0.12000000000000033,,,0
-12,2025-11-15,Michigan,Northwestern,1.4,,,0
-12,2025-11-15,Notre Dame,Pittsburgh,0.3800000000000012,,,0
-12,2025-11-15,Penn State,Michigan State,1.4400000000000004,,,0
-12,2025-11-15,Eastern Michigan,Ball State,-2.72,,,0
 12,2025-11-15,Virginia Tech,Florida State,-0.4200000000000004,,,0
 12,2025-11-15,NC State,Miami,0.5200000000000005,,,0
 12,2025-11-15,West Virginia,Arizona State,-5.219999999999999,,,0
 12,2025-11-15,Utah,Baylor,-7.519999999999999,,,0
 12,2025-11-15,Arizona,Cincinnati,-5.039999999999999,,,0
 12,2025-11-15,Kansas State,Oklahoma State,-1.8200000000000003,,,0
-12,2025-11-15,Memphis,East Carolina,-2.0799999999999996,,,0
-12,2025-11-15,UTSA,Charlotte,1.9,,,0
-12,2025-11-15,North Texas,UAB,-2.78,,,0
-12,2025-11-15,Georgia Tech,Boston College,-0.6400000000000006,,,0
-12,2025-11-15,Texas State,Southern Miss,1.4799999999999995,,,0
-12,2025-11-15,South Alabama,UL Monroe,-3.3,,,0
-12,2025-11-15,Florida Atlantic,Tulane,-4.659999999999999,,,0
 12,2025-11-15,UCF,Texas Tech,-4.800000000000002,,,0
 12,2025-11-15,Colorado State,New Mexico,1.1599999999999993,,,0
 12,2025-11-15,Wyoming,Fresno State,-0.30000000000000004,,,0
-12,2025-11-15,Marshall,Georgia State,-0.7199999999999989,,,0
 12,2025-11-15,Coastal Carolina,Georgia Southern,-4.2,,,0
-12,2025-11-15,Oklahoma,Alabama,-2.9200000000000004,-12.5,9.58,1
-12,2025-11-15,Texas,Georgia,-1.9,-2.5,0.6000000000000001,0
-12,2025-11-15,Arkansas,LSU,-6.6,,,0
-12,2025-11-15,Purdue,Washington,-2.4,,,0
-12,2025-11-15,Maryland,Illinois,-3.3,,,0
+12,2025-11-15,Marshall,Georgia State,-0.7199999999999989,,,0
+12,2025-11-15,Texas State,Southern Miss,1.4799999999999995,,,0
+12,2025-11-15,North Texas,UAB,-2.78,,,0
+12,2025-11-15,UTSA,Charlotte,1.9,,,0
+12,2025-11-15,Memphis,East Carolina,-2.0799999999999996,,,0
+12,2025-11-15,Eastern Michigan,Ball State,-2.72,,,0
 12,2025-11-15,Wisconsin,Indiana,-0.680000000000001,,,0
 12,2025-11-15,Florida,Ole Miss,0.839999999999999,,,0
 12,2025-11-15,Mississippi State,Missouri,-0.12000000000000033,,,0
 12,2025-11-15,South Carolina,Texas A&M,-2.2200000000000015,,,0
 12,2025-11-15,UCLA,Ohio State,-5.06,,,0
-12,2025-11-15,North Carolina,Wake Forest,-3.2600000000000007,,,0
-12,2025-11-15,TCU,BYU,-1.2800000000000011,,,0
 12,2025-11-15,App State,James Madison,-4.159999999999999,,,0
-12,2025-11-15,Air Force,UConn,-3.7599999999999993,,,0
+12,2025-11-15,Florida Atlantic,Tulane,-4.659999999999999,,,0
+12,2025-11-15,TCU,BYU,-1.2800000000000011,,,0
+12,2025-11-15,North Carolina,Wake Forest,-3.2600000000000007,,,0
 12,2025-11-15,South Florida,Navy,-0.7400000000000007,,,0
+12,2025-11-15,Air Force,UConn,-3.7599999999999993,,,0
 12,2025-11-15,Kennesaw State,Jacksonville State,-6.14,,,0
 12,2025-11-15,San José State,Nevada,-1.5400000000000005,,,0
 12,2025-11-15,Middle Tennessee,Western Kentucky,-2.0,,,0
@@ -607,17 +607,29 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 12,2025-11-16,Louisiana Tech,Washington State,-2.5799999999999996,,,0
 12,2025-11-16,Boise State,San Diego State,1.0,,,0
 13,2025-11-19,Western Michigan,Northern Illinois,0.7400000000000007,,,0
-13,2025-11-19,Massachusetts,Ohio,-1.7199999999999989,,,0
 13,2025-11-19,Akron,Bowling Green,0.25999999999999934,,,0
+13,2025-11-19,Massachusetts,Ohio,-1.7199999999999989,,,0
 13,2025-11-20,Central Michigan,Kent State,-2.0199999999999996,,,0
 13,2025-11-20,Miami (OH),Buffalo,0.24000000000000066,,,0
 13,2025-11-21,Louisiana,Arkansas State,-2.4599999999999995,,,0
 13,2025-11-22,Florida State,NC State,-4.92,,,0
 13,2025-11-22,Hawai'i,UNLV,-4.159999999999999,,,0
-13,2025-11-22,Washington,UCLA,-1.7800000000000011,,,0
-13,2025-11-22,Nebraska,Penn State,-6.32,,,0
-13,2025-11-22,UConn,Florida Atlantic,0.11999999999999877,,,0
-13,2025-11-22,Kansas State,Utah,1.9599999999999995,-1.5,3.4599999999999995,0
+13,2025-11-22,Baylor,Arizona,1.939999999999999,,,0
+13,2025-11-22,TCU,Houston,-1.5800000000000012,,,0
+13,2025-11-22,Tennessee,Florida,-5.279999999999999,-4.0,-1.2799999999999994,0
+13,2025-11-22,East Carolina,UTSA,-5.220000000000001,,,0
+13,2025-11-22,Illinois,Wisconsin,-1.9799999999999998,,,0
+13,2025-11-22,Michigan,Maryland,0.5200000000000005,,,0
+13,2025-11-22,Minnesota,Northwestern,0.7,,,0
+13,2025-11-22,BYU,Cincinnati,-4.079999999999998,,,0
+13,2025-11-22,Arizona State,Colorado,1.439999999999999,4.5,-3.060000000000001,0
+13,2025-11-22,Kansas,Iowa State,-1.0200000000000002,,,0
+13,2025-11-22,Rutgers,Ohio State,-5.3,,,0
+13,2025-11-22,Kentucky,Vanderbilt,-3.6799999999999984,,,0
+13,2025-11-22,Michigan State,Iowa,-0.19999999999999996,,,0
+13,2025-11-22,Arkansas,Texas,-5.44,,,0
+13,2025-11-22,Coastal Carolina,South Carolina,-5.579999999999998,,,0
+13,2025-11-22,Marshall,App State,2.2,,,0
 13,2025-11-22,Oklahoma State,UCF,0.7000000000000002,,,0
 13,2025-11-22,Miami,Virginia Tech,-3.1799999999999997,,,0
 13,2025-11-22,Louisville,SMU,-2.22,,,0
@@ -626,102 +638,90 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 13,2025-11-22,California,Stanford,-1.6400000000000006,,,0
 13,2025-11-22,Washington State,James Madison,-5.5,,,0
 13,2025-11-22,USC,Oregon,-1.6799999999999984,-12.75,11.070000000000002,1
-13,2025-11-22,Minnesota,Northwestern,0.7,,,0
-13,2025-11-22,Kentucky,Vanderbilt,-3.6799999999999984,,,0
-13,2025-11-22,Arkansas,Texas,-5.44,,,0
-13,2025-11-22,Coastal Carolina,South Carolina,-5.579999999999998,,,0
-13,2025-11-22,North Texas,Rice,-1.3200000000000003,,,0
-13,2025-11-22,Tulane,Temple,-2.5200000000000005,,,0
-13,2025-11-22,Illinois,Wisconsin,-1.9799999999999998,,,0
-13,2025-11-22,East Carolina,UTSA,-5.220000000000001,,,0
-13,2025-11-22,Michigan,Maryland,0.5200000000000005,,,0
+13,2025-11-22,Washington,UCLA,-1.7800000000000011,,,0
+13,2025-11-22,Western Kentucky,LSU,-9.42,,,0
+13,2025-11-22,South Florida,UAB,-0.2200000000000002,,,0
+13,2025-11-22,Nebraska,Penn State,-6.32,,,0
 13,2025-11-22,Ball State,Toledo,-5.3,,,0
-13,2025-11-22,Marshall,App State,2.2,,,0
-13,2025-11-22,Rutgers,Ohio State,-5.3,,,0
+13,2025-11-22,Tulane,Temple,-2.5200000000000005,,,0
+13,2025-11-22,North Texas,Rice,-1.3200000000000003,,,0
 13,2025-11-22,Georgia State,Troy,0.019999999999998685,,,0
 13,2025-11-22,UL Monroe,Texas State,-5.4399999999999995,,,0
 13,2025-11-22,Southern Miss,South Alabama,-0.7400000000000007,,,0
 13,2025-11-22,Old Dominion,Georgia Southern,-4.6800000000000015,,,0
 13,2025-11-22,San José State,San Diego State,-0.5200000000000002,,,0
 13,2025-11-22,Colorado State,Boise State,-4.24,,,0
-13,2025-11-22,Kansas,Iowa State,-1.0200000000000002,,,0
-13,2025-11-22,Arizona State,Colorado,1.439999999999999,4.5,-3.060000000000001,0
-13,2025-11-22,BYU,Cincinnati,-4.079999999999998,,,0
-13,2025-11-22,Baylor,Arizona,1.939999999999999,,,0
-13,2025-11-22,Western Kentucky,LSU,-9.42,,,0
-13,2025-11-22,Tennessee,Florida,-5.279999999999999,-4.0,-1.2799999999999994,0
-13,2025-11-22,Michigan State,Iowa,-0.19999999999999996,,,0
-13,2025-11-22,South Florida,UAB,-0.2200000000000002,,,0
-13,2025-11-22,TCU,Houston,-1.5800000000000012,,,0
+13,2025-11-22,UConn,Florida Atlantic,0.11999999999999877,,,0
+13,2025-11-22,Kansas State,Utah,1.9599999999999995,-1.5,3.4599999999999995,0
 13,2025-11-22,Tulsa,Army,2.1399999999999997,,,0
 13,2025-11-22,Missouri,Oklahoma,-3.7400000000000007,-7.5,3.7599999999999993,0
 13,2025-11-22,Charlotte,Georgia,-8.82,,,0
 13,2025-11-22,Nevada,Wyoming,-1.7200000000000002,,,0
-13,2025-11-22,New Mexico State,UTEP,-3.6199999999999997,,,0
 13,2025-11-22,Liberty,Louisiana Tech,1.7200000000000002,,,0
 13,2025-11-22,Sam Houston,Middle Tennessee,-2.3599999999999994,,,0
-13,2025-11-22,Jacksonville State,Florida International,1.5,,,0
+13,2025-11-22,New Mexico State,UTEP,-3.6199999999999997,,,0
 13,2025-11-22,Syracuse,Notre Dame,-6.540000000000001,,,0
+13,2025-11-22,Jacksonville State,Florida International,1.5,,,0
 13,2025-11-23,New Mexico,Air Force,-3.3,,,0
 13,2025-11-23,Utah State,Fresno State,-0.46000000000000085,,,0
-14,2025-11-25,Western Michigan,Eastern Michigan,1.8600000000000008,,,0
 14,2025-11-25,Bowling Green,Massachusetts,-5.540000000000001,,,0
+14,2025-11-25,Western Michigan,Eastern Michigan,1.8600000000000008,,,0
 14,2025-11-28,Navy,Memphis,0.5799999999999996,,,0
-14,2025-11-28,Arizona,Arizona State,-5.239999999999999,,,0
-14,2025-11-28,Army,UTSA,-8.86,,,0
 14,2025-11-28,Air Force,Colorado State,-3.8599999999999994,,,0
-14,2025-11-28,Kent State,Northern Illinois,-3.22,,,0
-14,2025-11-28,Iowa,Nebraska,-2.9200000000000004,-2.5,-0.4200000000000004,0
-14,2025-11-28,Ohio,Buffalo,-0.02000000000000024,,,0
+14,2025-11-28,Army,UTSA,-8.86,,,0
+14,2025-11-28,Arizona,Arizona State,-5.239999999999999,,,0
 14,2025-11-28,Utah,Kansas,-6.2,,,0
+14,2025-11-28,Iowa,Nebraska,-2.9200000000000004,-2.5,-0.4200000000000004,0
 14,2025-11-28,Ole Miss,Mississippi State,-4.039999999999999,11.5,-15.54,1
-14,2025-11-28,Georgia,Georgia Tech,1.3600000000000008,13.5,-12.139999999999999,1
+14,2025-11-28,Ohio,Buffalo,-0.02000000000000024,,,0
+14,2025-11-28,Kent State,Northern Illinois,-3.22,,,0
 14,2025-11-28,San Diego State,New Mexico,0.3999999999999999,,,0
+14,2025-11-28,Georgia,Georgia Tech,1.3600000000000008,13.5,-12.139999999999999,1
 14,2025-11-28,Boise State,Utah State,0.4200000000000004,,,0
 14,2025-11-29,Texas A&M,Texas,-2.6,-10.5,7.9,1
 14,2025-11-29,Indiana,Purdue,-3.5199999999999987,,,0
-14,2025-11-29,Toledo,Central Michigan,2.1399999999999997,,,0
-14,2025-11-29,Northwestern,Illinois,-2.1799999999999997,,,0
-14,2025-11-29,Charlotte,Tulane,-4.08,,,0
-14,2025-11-29,Temple,North Texas,-1.2799999999999998,,,0
-14,2025-11-29,Ball State,Miami (OH),-4.92,,,0
-14,2025-11-29,South Alabama,Texas State,-6.739999999999999,,,0
-14,2025-11-29,UAB,Tulsa,-0.5200000000000002,,,0
-14,2025-11-29,East Carolina,Florida Atlantic,-0.7400000000000007,,,0
-14,2025-11-29,Rice,South Florida,-5.239999999999999,,,0
-14,2025-11-29,LSU,Oklahoma,0.9799999999999995,,,0
-14,2025-11-29,Kentucky,Louisville,-3.1199999999999988,,,0
-14,2025-11-29,James Madison,Coastal Carolina,-2.6400000000000006,,,0
-14,2025-11-29,Arkansas State,App State,0.9399999999999991,,,0
-14,2025-11-29,Texas Tech,West Virginia,0.28000000000000114,,,0
-14,2025-11-29,Florida State,Florida,-4.9399999999999995,,,0
-14,2025-11-29,Cincinnati,TCU,-0.6400000000000006,,,0
-14,2025-11-29,Alabama,Auburn,0.2600000000000007,5.5,-5.239999999999999,1
-14,2025-11-29,Fresno State,San José State,-4.4399999999999995,,,0
-14,2025-11-29,Missouri,Arkansas,-2.12,,,0
-14,2025-11-29,UCLA,USC,-3.3400000000000007,,,0
 14,2025-11-29,Troy,Southern Miss,-2.7599999999999993,,,0
-14,2025-11-29,UL Monroe,Louisiana,-2.78,,,0
-14,2025-11-29,Georgia State,Old Dominion,-1.4,,,0
-14,2025-11-29,Oregon,Washington,-1.2,11.5,-12.7,0
-14,2025-11-29,Vanderbilt,Tennessee,1.0399999999999991,,,0
-14,2025-11-29,Georgia Southern,Marshall,-1.2,,,0
-14,2025-11-29,Notre Dame,Stanford,2.4800000000000013,,,0
-14,2025-11-29,SMU,California,0.8200000000000003,,,0
-14,2025-11-29,Iowa State,Oklahoma State,-2.5599999999999996,,,0
-14,2025-11-29,North Carolina,NC State,-6.860000000000001,-2.5,-4.360000000000001,1
-14,2025-11-29,Penn State,Rutgers,1.6400000000000006,,,0
-14,2025-11-29,Maryland,Michigan State,-1.6200000000000003,,,0
-14,2025-11-29,UCF,BYU,-3.460000000000001,,,0
-14,2025-11-29,Boston College,Syracuse,-0.12000000000000033,,,0
-14,2025-11-29,Houston,Baylor,-4.679999999999998,,,0
 14,2025-11-29,Wisconsin,Minnesota,-2.5400000000000005,,,0
 14,2025-11-29,Wake Forest,Duke,-1.4599999999999995,,,0
+14,2025-11-29,Georgia State,Old Dominion,-1.4,,,0
+14,2025-11-29,Vanderbilt,Tennessee,1.0399999999999991,,,0
+14,2025-11-29,LSU,Oklahoma,0.9799999999999995,,,0
+14,2025-11-29,Texas Tech,West Virginia,0.28000000000000114,,,0
+14,2025-11-29,Cincinnati,TCU,-0.6400000000000006,,,0
+14,2025-11-29,Arkansas State,App State,0.9399999999999991,,,0
+14,2025-11-29,Missouri,Arkansas,-2.12,,,0
+14,2025-11-29,South Alabama,Texas State,-6.739999999999999,,,0
+14,2025-11-29,UL Monroe,Louisiana,-2.78,,,0
+14,2025-11-29,James Madison,Coastal Carolina,-2.6400000000000006,,,0
+14,2025-11-29,Georgia Southern,Marshall,-1.2,,,0
+14,2025-11-29,Northwestern,Illinois,-2.1799999999999997,,,0
+14,2025-11-29,UCLA,USC,-3.3400000000000007,,,0
+14,2025-11-29,Ball State,Miami (OH),-4.92,,,0
+14,2025-11-29,Toledo,Central Michigan,2.1399999999999997,,,0
+14,2025-11-29,Rice,South Florida,-5.239999999999999,,,0
+14,2025-11-29,East Carolina,Florida Atlantic,-0.7400000000000007,,,0
+14,2025-11-29,Fresno State,San José State,-4.4399999999999995,,,0
+14,2025-11-29,Kentucky,Louisville,-3.1199999999999988,,,0
+14,2025-11-29,Florida State,Florida,-4.9399999999999995,,,0
+14,2025-11-29,Charlotte,Tulane,-4.08,,,0
+14,2025-11-29,UAB,Tulsa,-0.5200000000000002,,,0
+14,2025-11-29,Alabama,Auburn,0.2600000000000007,5.5,-5.239999999999999,1
+14,2025-11-29,Temple,North Texas,-1.2799999999999998,,,0
+14,2025-11-29,Oregon,Washington,-1.2,11.5,-12.7,0
+14,2025-11-29,Houston,Baylor,-4.679999999999998,,,0
+14,2025-11-29,North Carolina,NC State,-6.860000000000001,-2.5,-4.360000000000001,1
+14,2025-11-29,Maryland,Michigan State,-1.6200000000000003,,,0
+14,2025-11-29,Penn State,Rutgers,1.6400000000000006,,,0
+14,2025-11-29,Notre Dame,Stanford,2.4800000000000013,,,0
 14,2025-11-29,Virginia Tech,Virginia,-1.0799999999999996,,,0
 14,2025-11-29,Colorado,Kansas State,-4.58,,,0
+14,2025-11-29,UCF,BYU,-3.460000000000001,,,0
+14,2025-11-29,SMU,California,0.8200000000000003,,,0
 14,2025-11-29,Miami,Pittsburgh,-2.88,,,0
-14,2025-11-29,Ohio State,Michigan,0.20000000000000018,5.5,-5.3,1
+14,2025-11-29,Boston College,Syracuse,-0.12000000000000033,,,0
+14,2025-11-29,Iowa State,Oklahoma State,-2.5599999999999996,,,0
 14,2025-11-29,Clemson,South Carolina,-1.0399999999999978,4.5,-5.539999999999997,0
+14,2025-11-29,Ohio State,Michigan,0.20000000000000018,5.5,-5.3,1
 14,2025-11-29,Florida International,Sam Houston,-1.3200000000000003,,,0
 14,2025-11-29,Western Kentucky,Jacksonville State,-3.8200000000000003,,,0
 14,2025-11-29,Middle Tennessee,New Mexico State,0.54,,,0
