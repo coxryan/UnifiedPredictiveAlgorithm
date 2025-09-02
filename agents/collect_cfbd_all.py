@@ -44,7 +44,7 @@ YEAR = int(os.environ.get("UPA_YEAR", "2025"))
 PRIOR = YEAR - 1
 ALLOW_HTTP_FALLBACK = os.environ.get("UPA_ALLOW_HTTP_FALLBACK", "0").strip().lower() in ("1", "true", "yes")
 
-DATA_DIR = "data"
+DATA_DIR = "public/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 configuration = cfbd.Configuration(access_token=BEARER)

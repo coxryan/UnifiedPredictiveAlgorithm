@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import "./styles.css";
 
-/* ----------------------------- utils ----------------------------- */
+/* ============================================================
+   Lightweight loaders (ALWAYS relative to the app): "data/..."
+   ============================================================ */
 
 async function loadText(path: string) {
+  // path examples: "data/status.json", "data/upa_predictions.csv"
   const r = await fetch(path, { cache: "no-store" });
   if (!r.ok) throw new Error(`Failed to fetch ${path}: ${r.status}`);
   return r.text();
@@ -33,12 +36,14 @@ function Badge({ children }: { children: React.ReactNode }) {
   return <span className="badge">{children}</span>;
 }
 
-/* ----------------------------- tabs ----------------------------- */
-
+/* ============================================================
+   Tabs
+   ============================================================ */
 type Tab = "status" | "team" | "preds" | "edge";
 
-/* ----------------------------- Status ----------------------------- */
-
+/* ============================================================
+   Status Tab
+   ============================================================ */
 type Status = {
   generated_at_utc: string;
   year: number;
@@ -54,7 +59,7 @@ function StatusTab() {
   useEffect(() => {
     (async () => {
       try {
-        const txt = await loadText("/data/status.json");
+        const txt = await loadText("data/status.json");
         setStatus(JSON.parse(txt));
       } catch (e: any) {
         setErr(String(e?.message || e));
@@ -76,9 +81,9 @@ function StatusTab() {
             <div className="kv"><div className="k">Teams</div><div className="v">{status.teams}</div></div>
           </div>
           <div className="note" style={{ marginTop: 8 }}>
-            <a href="/data/upa_team_inputs_datadriven_v0.csv" target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
-            <a href="/data/upa_predictions.csv" target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
-            <a href="/data/live_edge_report.csv" target="_blank" rel="noreferrer">live edge CSV ↗</a>
+            <a href={"data/upa_team_inputs_datadriven_v0.csv"} target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
+            <a href={"data/upa_predictions.csv"} target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
+            <a href={"data/live_edge_report.csv"} target="_blank" rel="noreferrer">live edge CSV ↗</a>
           </div>
         </>
       )}
@@ -86,19 +91,20 @@ function StatusTab() {
   );
 }
 
-/* ----------------------------- Team (Schedule) ----------------------------- */
-
+/* ============================================================
+   Team (Schedule) Tab
+   ============================================================ */
 type TeamRow = {
   team: string;
   conference: string;
   wrps_offense_percent?: string;
   wrps_defense_percent?: string;
   wrps_overall_percent?: string;
+  wrps_percent_0_100?: string;
   talent_score_0_100?: string;
   portal_net_0_100?: string;
-  wrps_percent_0_100?: string;
-  sos_0_100?: string; // may be absent if not emitted; handled below
-  team_power_0_100?: string; // may be absent; we display derived if missing
+  sos_0_100?: string;           // optional
+  team_power_0_100?: string;    // optional
 };
 
 type PredRow = {
@@ -106,13 +112,13 @@ type PredRow = {
   date: string;
   home_team: string;
   away_team: string;
-  neutral_site: string;
+  neutral_site: string;         // "1" if neutral
   home_conf?: string;
   away_conf?: string;
-  model_spread_home: string;  // raw
-  model_spread_cal: string;   // calibrated
-  market_spread_home: string; // home-positive
-  edge_points: string;        // model_cal - market_home
+  model_spread_home: string;    // raw model (home-positive)
+  model_spread_cal: string;     // calibrated model (home-positive)
+  market_spread_home: string;   // market (home-positive)
+  edge_points: string;          // model_cal - market_home (home-positive math)
   cal_alpha?: string;
   cal_beta?: string;
 };
@@ -125,35 +131,32 @@ function TeamTab() {
   useEffect(() => {
     (async () => {
       try {
-        setTeams((await loadCsv("/data/upa_team_inputs_datadriven_v0.csv")) as TeamRow[]);
+        setTeams((await loadCsv("data/upa_team_inputs_datadriven_v0.csv")) as TeamRow[]);
       } catch {
         setTeams([]);
       }
       try {
-        setPreds((await loadCsv("/data/upa_predictions.csv")) as PredRow[]);
+        setPreds((await loadCsv("data/upa_predictions.csv")) as PredRow[]);
       } catch {
         setPreds([]);
       }
     })();
   }, []);
 
-  // build quick index for schedule lines
   const scheduleForTeam = useMemo(() => {
-    const map = new Map<string, PredRow[]>();
+    const m = new Map<string, PredRow[]>();
     for (const r of preds) {
-      if (!map.has(r.home_team)) map.set(r.home_team, []);
-      if (!map.has(r.away_team)) map.set(r.away_team, []);
-      map.get(r.home_team)!.push(r);
-      map.get(r.away_team)!.push(r);
+      if (!m.has(r.home_team)) m.set(r.home_team, []);
+      if (!m.has(r.away_team)) m.set(r.away_team, []);
+      m.get(r.home_team)!.push(r);
+      m.get(r.away_team)!.push(r);
     }
-    // sort each by date, then week
-    for (const [k, arr] of map.entries()) {
+    for (const arr of m.values()) {
       arr.sort((a, b) => (a.date || "").localeCompare(b.date || "") || Number(a.week) - Number(b.week));
     }
-    return map;
+    return m;
   }, [preds]);
 
-  // find matching team
   const selTeam = useMemo(() => {
     if (!q.trim()) return null;
     const ql = q.trim().toLowerCase();
@@ -162,21 +165,15 @@ function TeamTab() {
            null;
   }, [q, teams]);
 
-  // compute a display “power / rating” if not present
   const teamSummary = useMemo(() => {
     if (!selTeam) return null;
-    const off = Number(selTeam.wrps_offense_percent ?? 50);
-    const def = Number(selTeam.wrps_defense_percent ?? 50);
+    const off = Number(selTeam.wrps_offense_percent ?? selTeam.wrps_percent_0_100 ?? 50);
+    const def = Number(selTeam.wrps_defense_percent ?? selTeam.wrps_percent_0_100 ?? 50);
     const tal = Number(selTeam.talent_score_0_100 ?? 50);
     const portal = Number(selTeam.portal_net_0_100 ?? 50);
     const sos = Number((selTeam as any).sos_0_100 ?? 50);
-    // mimic collector weights (approx)
-    const power =
-      0.40 * off +
-      0.25 * def +
-      0.20 * tal +
-      0.10 * portal +
-      0.05 * sos;
+    // approximate power weighting
+    const power = 0.40 * off + 0.25 * def + 0.20 * tal + 0.10 * portal + 0.05 * sos;
     const rating = power - 50;
     return {
       off, def, tal, portal, sos,
@@ -214,8 +211,8 @@ function TeamTab() {
           <div className="grid2">
             <div className="kv"><div className="k">Team</div><div className="v">{selTeam.team}</div></div>
             <div className="kv"><div className="k">Conference</div><div className="v">{selTeam.conference}</div></div>
-            <div className="kv"><div className="k">WRPS Off%</div><div className="v">{fmtNum(selTeam.wrps_offense_percent)}</div></div>
-            <div className="kv"><div className="k">WRPS Def%</div><div className="v">{fmtNum(selTeam.wrps_defense_percent)}</div></div>
+            <div className="kv"><div className="k">WRPS Off%</div><div className="v">{fmtNum(selTeam.wrps_offense_percent ?? selTeam.wrps_percent_0_100)}</div></div>
+            <div className="kv"><div className="k">WRPS Def%</div><div className="v">{fmtNum(selTeam.wrps_defense_percent ?? selTeam.wrps_percent_0_100)}</div></div>
             <div className="kv"><div className="k">Talent 0–100</div><div className="v">{fmtNum(selTeam.talent_score_0_100)}</div></div>
             <div className="kv"><div className="k">Portal 0–100</div><div className="v">{fmtNum(selTeam.portal_net_0_100)}</div></div>
             <div className="kv"><div className="k">SOS 0–100</div><div className="v">{fmtNum((selTeam as any).sos_0_100 ?? 50)}</div></div>
@@ -231,8 +228,8 @@ function TeamTab() {
                   <th>Date</th>
                   <th>Opponent</th>
                   <th>H/A/N</th>
-                  <th>Model (H)</th>
-                  <th>Market (H)</th>
+                  <th>Model (Team)</th>
+                  <th>Market (Team)</th>
                   <th>Edge</th>
                 </tr>
               </thead>
@@ -240,7 +237,7 @@ function TeamTab() {
                 {games.map((g, i) => {
                   const isHome = g.home_team === selTeam.team;
                   const opp = isHome ? g.away_team : g.home_team;
-                  // Model/Market are home-positive; if team is away, flip sign to show team-centric view
+                  // underlying numbers are home-positive; flip for away to make it team-centric
                   const modelHome = Number(g.model_spread_cal);
                   const marketHome = Number(g.market_spread_home);
                   const modelForTeam = isHome ? modelHome : -modelHome;
@@ -273,18 +270,19 @@ function TeamTab() {
   );
 }
 
-/* ----------------------------- Predictions (market + calibrated) ----------------------------- */
-
+/* ============================================================
+   Predictions Tab (calibrated model + market; book-style toggle)
+   ============================================================ */
 function PredictionsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [q, setQ] = useState("");
   const [conf, setConf] = useState<"All" | "P5" | "G5">("All");
-  const [bookStyle, setBookStyle] = useState(false); // sportsbook sign convention
+  const [bookStyle, setBookStyle] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        setRows((await loadCsv("/data/upa_predictions.csv")) as PredRow[]);
+        setRows((await loadCsv("data/upa_predictions.csv")) as PredRow[]);
       } catch {
         setRows([]);
       }
@@ -345,7 +343,7 @@ function PredictionsTab() {
             {filtered.map((r, i) => {
               const model = Number(r.model_spread_cal);
               let market = Number(r.market_spread_home);
-              if (bookStyle && Number.isFinite(market)) market = -market;
+              if (bookStyle && Number.isFinite(market)) market = -market; // display only
               const edge = Number(r.edge_points);
               return (
                 <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}`} className={i % 2 ? "alt" : undefined}>
@@ -374,8 +372,9 @@ function PredictionsTab() {
   );
 }
 
-/* ----------------------------- Live Edge ----------------------------- */
-
+/* ============================================================
+   Live Edge Tab
+   ============================================================ */
 type EdgeRow = {
   week: string;
   date: string;
@@ -393,7 +392,7 @@ function LiveEdgeTab() {
   useEffect(() => {
     (async () => {
       try {
-        setRows((await loadCsv("/data/live_edge_report.csv")) as EdgeRow[]);
+        setRows((await loadCsv("data/live_edge_report.csv")) as EdgeRow[]);
       } catch {
         setRows([]);
       }
@@ -456,11 +455,11 @@ function LiveEdgeTab() {
   );
 }
 
-/* ----------------------------- App shell ----------------------------- */
-
+/* ============================================================
+   App Shell
+   ============================================================ */
 export default function App() {
   const [tab, setTab] = useState<Tab>("team");
-
   return (
     <div className="page">
       <header className="header">
