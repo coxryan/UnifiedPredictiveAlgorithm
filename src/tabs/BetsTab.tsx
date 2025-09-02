@@ -1,146 +1,333 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
-import { Badge } from "../lib/ui";
+import { loadCsv, fmtNum, toNum, playedBool } from "../lib/csv";
+import { Badge, TeamLabel, downloadCsv, nextUpcomingWeek } from "../lib/ui";
+import { EDGE_MIN, VALUE_MIN } from "./constants";
 
 type PredRow = {
-  week: string; date: string; away_team: string; home_team: string;
+  week: string; date: string; neutral_site?: string;
+  home_team: string; away_team: string; played?: any;
   model_spread_book?: string; market_spread_book?: string;
-  edge_points_book?: string; qualified_edge_flag?: string;
-  played?: any; model_result?: string;
+  expected_market_spread_book?: string;
+  edge_points_book?: string; value_points_book?: string;
+  qualified_edge_flag?: string;
 };
 
-async function loadFirst(paths: string[]) {
-  for (const p of paths) {
-    try {
-      const rows = await loadCsv(p);
-      if (rows && rows.length) return rows;
-      // If file exists but empty, still return [] to try next path
-    } catch {
-      // try next
-    }
-  }
-  return [];
+type StakeMode = "flat" | "prop" | "kelly";
+
+function probFromEdge(edgePts: number) {
+  // map edge magnitude to a rough win probability for stake sizing (50%..75%)
+  const x = Math.min(20, Math.max(0, Math.abs(edgePts)));
+  return 0.50 + (x / 20) * 0.25;
 }
 
-export default function BacktestTab() {
-  const [summary,setSummary] = useState<any[]>([]);
-  const [preds,setPreds] = useState<PredRow[]>([]);
-  const [week,setWeek] = useState<string>("ALL");
-  const [err, setErr] = useState<string>("");
+function kellyFraction(p: number, oddsAmerican: number) {
+  // Kelly for American odds; capped at 25% to keep sizing sane
+  let b: number;
+  if (oddsAmerican > 0) b = oddsAmerican / 100;
+  else b = 100 / Math.abs(oddsAmerican);
+  const q = 1 - p;
+  const f = (b * p - q) / b;
+  return Math.max(0, Math.min(0.25, f));
+}
 
-  useEffect(()=>{(async()=>{
-    try{
-      const s = await loadFirst([
-        "data/2024/backtest_summary_2024.csv",
-        "data/backtest_summary_2024.csv",
-      ]);
-      setSummary(s);
-    }catch(e:any){ setSummary([]); setErr(String(e?.message||e)); }
-    try{
-      const p = await loadFirst([
-        "data/2024/upa_predictions_2024_backtest.csv",
-        "data/upa_predictions_2024_backtest.csv",
-      ]) as PredRow[];
-      setPreds(p);
-    }catch(e:any){ setPreds([]); setErr(prev=> prev || String(e?.message||e)); }
-  })();},[]);
+export default function BetsTab() {
+  const [rows, setRows] = useState<PredRow[]>([]);
+  const [wk, setWk] = useState<number | null>(null);
 
-  const weeks = useMemo(()=>{
-    const s = new Set<string>();
-    if (summary.length) summary.forEach(r => s.add(String(r.week)));
-    if (!s.size && preds.length) preds.forEach(r => s.add(String(r.week)));
-    s.add("ALL");
-    return Array.from(s).sort((a,b)=>{
-      if (a==="ALL") return -1;
-      if (b==="ALL") return 1;
-      return Number(a)-Number(b);
+  // Controls
+  const [bankroll, setBankroll] = useState<string>("1000");
+  const [mode, setMode] = useState<StakeMode>("prop");
+  const [odds, setOdds] = useState<string>("-110");
+  const [topN, setTopN] = useState<string>("10");
+  const [requireQualified, setRequireQualified] = useState<boolean>(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+        setRows(r);
+        const nextWk = nextUpcomingWeek(r as any);
+        setWk(nextWk);
+      } catch {
+        setRows([]);
+        setWk(null);
+      }
+    })();
+  }, []);
+
+  // Helper to compute edge/value if not present
+  const withComputed = useMemo(() => {
+    return rows.map((r) => {
+      const model = toNum(r.model_spread_book);
+      const market = toNum(r.market_spread_book);
+      const edge = Number.isFinite(toNum(r.edge_points_book))
+        ? toNum(r.edge_points_book)
+        : (Number.isFinite(model) && Number.isFinite(market)) ? (model - market) : NaN;
+      const expected = toNum(r.expected_market_spread_book);
+      const value = Number.isFinite(toNum(r.value_points_book))
+        ? toNum(r.value_points_book)
+        : (Number.isFinite(market) && Number.isFinite(expected)) ? (market - expected) : NaN;
+      return { ...r, _model: model, _market: market, _edge: edge, _value: value };
     });
-  }, [summary, preds]);
+  }, [rows]);
 
-  const counts = useMemo(()=>{
-    const rows = week==="ALL" ? preds : preds.filter(r => String(r.week)===String(week));
-    let w=0,l=0,p=0;
-    for (const r of rows) {
-      if (!playedBool(r.played)) continue;
-      const res = r.model_result;
-      if (res === "CORRECT") w++;
-      else if (res === "INCORRECT") l++;
-      else p++;
-    }
-    const tot = w + l; const hit = tot ? w / tot : NaN;
-    return { w,l,p, hit, rows: rows.filter(r=>playedBool(r.played)).length };
-  }, [preds, week]);
+  const candidatesRaw = useMemo(() => {
+    if (!wk) return [];
+    return withComputed.filter((r) =>
+      Number(r.week) === wk &&
+      !playedBool(r.played) &&
+      Number.isFinite(r._model) &&
+      Number.isFinite(r._market)
+    );
+  }, [withComputed, wk]);
 
-  const tableRows = useMemo(()=> (week==="ALL" ? preds : preds.filter(r=>String(r.week)===String(week))), [preds, week]);
+  // Strong filtering: require thresholds, remove data-quality outliers
+  const strongFiltered = useMemo(() => {
+    if (!candidatesRaw.length) return [];
 
-  const usingFallback =
-    (!summary.length && !preds.length && !err) ? false :
-    // crude indicator: if summary exists but file link 2024 path is empty, we’ll show both links below anyway
-    undefined;
+    // Build edge stats for z-score checks
+    const edgeAbs = candidatesRaw
+      .map((r) => Math.abs(r._edge))
+      .filter((v) => Number.isFinite(v)) as number[];
+
+    const mean =
+      edgeAbs.length ? edgeAbs.reduce((a, b) => a + b, 0) / edgeAbs.length : 0;
+    const variance =
+      edgeAbs.length ? edgeAbs.reduce((a, b) => a + (b - mean) ** 2, 0) / edgeAbs.length : 0;
+    const sd = Math.sqrt(variance);
+
+    const isOutlier = (r: any) => {
+      const e = Math.abs(r._edge);
+      const v = Math.abs(r._value);
+      // Extremely large Value suggests stale/bad market or incomplete data
+      if (!Number.isFinite(e) || !Number.isFinite(v)) return true;
+      if (v > 40) return true;               // hard cap to avoid wild misreads
+      if (sd > 0 && e > mean + 2.5 * sd) return true; // edge z-score outlier
+      return false;
+    };
+
+    const meetsThresholds = (r: any) => {
+      const e = Math.abs(r._edge);
+      const v = Math.abs(r._value);
+      const q = r.qualified_edge_flag === "1";
+      if (requireQualified && !q) return false;
+      if (!Number.isFinite(e) || !Number.isFinite(v)) return false;
+      if (e < EDGE_MIN) return false;
+      if (v < VALUE_MIN) return false;
+      return true;
+    };
+
+    const kept = candidatesRaw.filter((r) => meetsThresholds(r) && !isOutlier(r));
+
+    // Rank: Qualified first, then |Edge| desc, then |Value| desc, then by date
+    kept.sort((a, b) => {
+      const qa = a.qualified_edge_flag === "1" ? 1 : 0;
+      const qb = b.qualified_edge_flag === "1" ? 1 : 0;
+      if (qa !== qb) return qb - qa;
+      const ea = Math.abs(a._edge);
+      const eb = Math.abs(b._edge);
+      if (ea !== eb) return eb - ea;
+      const va = Math.abs(a._value);
+      const vb = Math.abs(b._value);
+      if (va !== vb) return vb - va;
+      return (a.date || "").localeCompare(b.date || "");
+    });
+
+    const limit = Math.max(1, Number(topN) || 10);
+    return kept.slice(0, limit);
+  }, [candidatesRaw, requireQualified, topN]);
+
+  // Stake sizing
+  const staked = useMemo(() => {
+    const bk = Math.max(0, Number(bankroll) || 0);
+    const oddsAm = Number(odds) || -110;
+    if (!bk || !strongFiltered.length) return [];
+
+    const edges = strongFiltered.map((r) => Math.abs(r._edge));
+    const maxEdge = Math.max(...edges.map((e) => (Number.isFinite(e) ? e : 0)));
+
+    const weights = strongFiltered.map((r, i) => {
+      const e = edges[i];
+      if (!Number.isFinite(e) || e <= 0) return 0;
+      if (mode === "flat") return 1;
+      if (mode === "prop") return e / (maxEdge || 1);
+      const p = probFromEdge(r._edge);
+      return kellyFraction(p, oddsAm);
+    });
+
+    const sumW = weights.reduce((a, b) => a + b, 0);
+    return strongFiltered.map((r, i) => {
+      const w = weights[i];
+      const stake = sumW ? bk * (w / sumW) : 0;
+      const sideHome = r._model < 0; // book-style: negative favors HOME
+      const side = sideHome ? `${r.home_team} (home)` : `${r.away_team} (away)`;
+      const neutral = r.neutral_site === "1" || r.neutral_site === "true";
+      return {
+        ...r,
+        _stake: Math.round(stake * 100) / 100,
+        _side: side,
+        _neutral: neutral,
+      };
+    });
+  }, [strongFiltered, bankroll, mode, odds]);
+
+  const totalStake = useMemo(
+    () => staked.reduce((a, b) => a + (b as any)._stake, 0),
+    [staked]
+  );
 
   return (
     <section className="card">
-      <div className="card-title">Backtest — 2024 (Weeks 1–15)</div>
-      <div className="controls">
-        <label>Week
-          <select className="input" value={week} onChange={(e)=>setWeek(e.target.value)}>
-            {weeks.map(w=><option key={w} value={w}>{w}</option>)}
+      <div className="card-title">Recommended Bets (Strong Only) — 2025</div>
+      <div className="controls" style={{ flexWrap: "wrap", gap: 8 }}>
+        <Badge>{wk ? `Week ${wk}` : "No upcoming week detected"}</Badge>
+
+        <label>Bankroll ($)
+          <input
+            className="input"
+            type="number"
+            min="0"
+            step="1"
+            value={bankroll}
+            onChange={(e) => setBankroll(e.target.value)}
+          />
+        </label>
+
+        <label>Stake Mode
+          <select
+            className="input"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as StakeMode)}
+          >
+            <option value="flat">Flat (equal)</option>
+            <option value="prop">Proportional (by edge)</option>
+            <option value="kelly">Kelly-Lite (cap 25%)</option>
           </select>
         </label>
-        <Badge tone="muted">Games: {fmtNum(counts.rows)}</Badge>
-        <Badge tone="pos">W: {counts.w}</Badge>
-        <Badge tone="neg">L: {counts.l}</Badge>
-        <Badge tone="muted">Push: {counts.p}</Badge>
-        <Badge>Hit: {fmtPct01(counts.hit)}</Badge>
+
+        <label>Odds (American)
+          <input
+            className="input"
+            type="number"
+            step="5"
+            value={odds}
+            onChange={(e) => setOdds(e.target.value)}
+          />
+        </label>
+
+        <label>Show Top N
+          <input
+            className="input"
+            type="number"
+            min="1"
+            step="1"
+            value={topN}
+            onChange={(e) => setTopN(e.target.value)}
+          />
+        </label>
+
+        <label className="chk">
+          <input
+            type="checkbox"
+            checked={requireQualified}
+            onChange={(e) => setRequireQualified(e.target.checked)}
+          />
+          Require Qualified ✓ (|Edge| ≥ {EDGE_MIN}, |Value| ≥ {VALUE_MIN}, side agreement)
+        </label>
+
+        <Badge tone="muted">Total Staked: ${fmtNum(totalStake)}</Badge>
+
+        <button
+          className="btn"
+          disabled={!staked.length}
+          onClick={() =>
+            downloadCsv(
+              `week_${wk ?? "NA"}_bets.csv`,
+              staked.map((r: any) => ({
+                week: r.week,
+                date: r.date,
+                matchup: `${r.away_team} @ ${r.home_team}`,
+                side: r._side,
+                neutral_site: r._neutral ? "YES" : "NO",
+                model_line_home: r._model,
+                market_line_home: r._market,
+                edge_points: r._edge,
+                value_points: r._value,
+                qualified: r.qualified_edge_flag === "1" ? "YES" : "NO",
+                stake: r._stake,
+                odds: Number(odds) || -110,
+              }))
+            )
+          }
+        >
+          Download betslip CSV
+        </button>
       </div>
 
-      {!preds.length && (
-        <div className="note" style={{marginBottom:8}}>
-          No backtest data found in <code>data/2024/</code> or <code>data/</code>. Make sure one of these exists:
-          <ul>
-            <li><code>data/2024/upa_predictions_2024_backtest.csv</code></li>
-            <li><code>data/2024/backtest_summary_2024.csv</code></li>
-            <li>or (fallback)</li>
-            <li><code>data/upa_predictions_2024_backtest.csv</code></li>
-            <li><code>data/backtest_summary_2024.csv</code></li>
-          </ul>
+      {!staked.length ? (
+        <div className="note">
+          No strong, data-quality-safe candidates for the upcoming week. If you want to
+          see more plays, uncheck “Require Qualified ✓” or increase “Top N”.
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <table className="tbl wide">
+            <thead>
+              <tr>
+                <th>Wk</th>
+                <th>Date</th>
+                <th colSpan={2}>Matchup</th>
+                <th>Model (H)</th>
+                <th>Market (H)</th>
+                <th>Edge</th>
+                <th>Value</th>
+                <th>Qualified</th>
+                <th>Recommended Side</th>
+                <th>Stake</th>
+                <th>Odds</th>
+              </tr>
+            </thead>
+            <tbody>
+              {staked.map((r: any, i: number) => {
+                const edge = r._edge;
+                const value = r._value;
+                const qual = r.qualified_edge_flag === "1" ? "✓" : "—";
+                return (
+                  <tr
+                    key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`}
+                    className={i % 2 ? "alt" : undefined}
+                  >
+                    <td>{r.week}</td>
+                    <td>{r.date}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <TeamLabel home={false} team={r.away_team} neutral={false} />
+                    </td>
+                    <td style={{ textAlign: "left" }}>
+                      <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
+                    </td>
+                    <td>{fmtNum(r._model)}</td>
+                    <td>{fmtNum(r._market)}</td>
+                    <td className={Number.isFinite(edge) ? (edge > 0 ? "pos" : "neg") : undefined}>
+                      {fmtNum(edge)}
+                    </td>
+                    <td className={Number.isFinite(value) ? (value > 0 ? "pos" : "neg") : undefined}>
+                      {fmtNum(value)}
+                    </td>
+                    <td>{qual}</td>
+                    <td>{r._side}</td>
+                    <td>${fmtNum(r._stake, { maximumFractionDigits: 0 })}</td>
+                    <td>{odds}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
-      <div className="table-wrap">
-        <table className="tbl compact">
-          <thead>
-            <tr>
-              <th>Week</th><th>Date</th><th>Away</th><th>Home</th>
-              <th>Model (H)</th><th>Market (H)</th><th>Edge</th><th>Qualified</th><th>Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableRows.map((r,i)=>(
-              <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i%2?"alt":undefined}>
-                <td>{r.week}</td><td>{r.date}</td><td>{r.away_team}</td><td>{r.home_team}</td>
-                <td>{fmtNum(r.model_spread_book)}</td>
-                <td>{fmtNum(r.market_spread_book)}</td>
-                <td className={Number(toNum(r.edge_points_book))>0?"pos":"neg"}>{fmtNum(r.edge_points_book)}</td>
-                <td>{r.qualified_edge_flag==="1" ? "✓" : "—"}</td>
-                <td>{r.model_result==="CORRECT" ? "✓ Model" : r.model_result==="INCORRECT" ? "✗ Model" : "—"}</td>
-              </tr>
-            ))}
-            {!tableRows.length && <tr><td colSpan={9} style={{textAlign:"center",padding:12}}>No backtest rows to display.</td></tr>}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="note" style={{marginTop:8}}>
-        Sources (tries 2024 subfolder first, then root):
-        {" "}
-        <a href="data/2024/upa_predictions_2024_backtest.csv" target="_blank" rel="noreferrer">2024 predictions</a>
-        {" • "}
-        <a href="data/2024/backtest_summary_2024.csv" target="_blank" rel="noreferrer">2024 summary</a>
-        {" • "}
-        <a href="data/upa_predictions_2024_backtest.csv" target="_blank" rel="noreferrer">root predictions</a>
-        {" • "}
-        <a href="data/backtest_summary_2024.csv" target="_blank" rel="noreferrer">root summary</a>
+      <div className="note" style={{ marginTop: 8 }}>
+        We exclude likely bad data (extreme <i>Value</i> or edge z-score outliers). Ranking favors
+        Qualified ✓ first, then |Edge|, then |Value|. Book-style spreads shown (negative = home).
       </div>
     </section>
   );
