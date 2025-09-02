@@ -15,19 +15,23 @@ type PredRow = {
 type StakeMode = "flat" | "prop" | "kelly";
 
 function probFromEdge(edgePts: number) {
-  // map edge magnitude to a rough win probability for stake sizing (50%..75%)
   const x = Math.min(20, Math.max(0, Math.abs(edgePts)));
-  return 0.50 + (x / 20) * 0.25;
+  return 0.50 + (x / 20) * 0.25; // 50%..75%
 }
 
 function kellyFraction(p: number, oddsAmerican: number) {
-  // Kelly for American odds; capped at 25% to keep sizing sane
   let b: number;
   if (oddsAmerican > 0) b = oddsAmerican / 100;
   else b = 100 / Math.abs(oddsAmerican);
   const q = 1 - p;
   const f = (b * p - q) / b;
-  return Math.max(0, Math.min(0.25, f));
+  return Math.max(0, Math.min(0.25, f)); // cap 25%
+}
+
+function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
+  const edge = modelHome - marketHome; // >0 => market too heavy on HOME => value = AWAY
+  if (!Number.isFinite(edge) || Math.abs(edge) < 1e-9) return { side: "—", edge };
+  return edge > 0 ? { side: `${away} (away)`, edge } : { side: `${home} (home)`, edge };
 }
 
 export default function BetsTab() {
@@ -55,19 +59,20 @@ export default function BetsTab() {
     })();
   }, []);
 
-  // Helper to compute edge/value if not present
   const withComputed = useMemo(() => {
     return rows.map((r) => {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
+      const expected = toNum(r.expected_market_spread_book);
       const edge = Number.isFinite(toNum(r.edge_points_book))
         ? toNum(r.edge_points_book)
         : (Number.isFinite(model) && Number.isFinite(market)) ? (model - market) : NaN;
-      const expected = toNum(r.expected_market_spread_book);
       const value = Number.isFinite(toNum(r.value_points_book))
         ? toNum(r.value_points_book)
         : (Number.isFinite(market) && Number.isFinite(expected)) ? (market - expected) : NaN;
-      return { ...r, _model: model, _market: market, _edge: edge, _value: value };
+      const pick = valueSide(model, market, r.home_team, r.away_team);
+      const neutral = r.neutral_site === "1" || r.neutral_site === "true";
+      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral };
     });
   }, [rows]);
 
@@ -81,28 +86,23 @@ export default function BetsTab() {
     );
   }, [withComputed, wk]);
 
-  // Strong filtering: require thresholds, remove data-quality outliers
   const strongFiltered = useMemo(() => {
     if (!candidatesRaw.length) return [];
 
-    // Build edge stats for z-score checks
     const edgeAbs = candidatesRaw
       .map((r) => Math.abs(r._edge))
       .filter((v) => Number.isFinite(v)) as number[];
 
-    const mean =
-      edgeAbs.length ? edgeAbs.reduce((a, b) => a + b, 0) / edgeAbs.length : 0;
-    const variance =
-      edgeAbs.length ? edgeAbs.reduce((a, b) => a + (b - mean) ** 2, 0) / edgeAbs.length : 0;
+    const mean = edgeAbs.length ? edgeAbs.reduce((a, b) => a + b, 0) / edgeAbs.length : 0;
+    const variance = edgeAbs.length ? edgeAbs.reduce((a, b) => a + (b - mean) ** 2, 0) / edgeAbs.length : 0;
     const sd = Math.sqrt(variance);
 
     const isOutlier = (r: any) => {
       const e = Math.abs(r._edge);
       const v = Math.abs(r._value);
-      // Extremely large Value suggests stale/bad market or incomplete data
       if (!Number.isFinite(e) || !Number.isFinite(v)) return true;
-      if (v > 40) return true;               // hard cap to avoid wild misreads
-      if (sd > 0 && e > mean + 2.5 * sd) return true; // edge z-score outlier
+      if (v > 40) return true;
+      if (sd > 0 && e > mean + 2.5 * sd) return true;
       return false;
     };
 
@@ -119,7 +119,6 @@ export default function BetsTab() {
 
     const kept = candidatesRaw.filter((r) => meetsThresholds(r) && !isOutlier(r));
 
-    // Rank: Qualified first, then |Edge| desc, then |Value| desc, then by date
     kept.sort((a, b) => {
       const qa = a.qualified_edge_flag === "1" ? 1 : 0;
       const qb = b.qualified_edge_flag === "1" ? 1 : 0;
@@ -137,7 +136,6 @@ export default function BetsTab() {
     return kept.slice(0, limit);
   }, [candidatesRaw, requireQualified, topN]);
 
-  // Stake sizing
   const staked = useMemo(() => {
     const bk = Math.max(0, Number(bankroll) || 0);
     const oddsAm = Number(odds) || -110;
@@ -159,15 +157,7 @@ export default function BetsTab() {
     return strongFiltered.map((r, i) => {
       const w = weights[i];
       const stake = sumW ? bk * (w / sumW) : 0;
-      const sideHome = r._model < 0; // book-style: negative favors HOME
-      const side = sideHome ? `${r.home_team} (home)` : `${r.away_team} (away)`;
-      const neutral = r.neutral_site === "1" || r.neutral_site === "true";
-      return {
-        ...r,
-        _stake: Math.round(stake * 100) / 100,
-        _side: side,
-        _neutral: neutral,
-      };
+      return { ...r, _stake: Math.round(stake * 100) / 100 };
     });
   }, [strongFiltered, bankroll, mode, odds]);
 
@@ -183,22 +173,11 @@ export default function BetsTab() {
         <Badge>{wk ? `Week ${wk}` : "No upcoming week detected"}</Badge>
 
         <label>Bankroll ($)
-          <input
-            className="input"
-            type="number"
-            min="0"
-            step="1"
-            value={bankroll}
-            onChange={(e) => setBankroll(e.target.value)}
-          />
+          <input className="input" type="number" min="0" step="1" value={bankroll} onChange={(e) => setBankroll(e.target.value)} />
         </label>
 
         <label>Stake Mode
-          <select
-            className="input"
-            value={mode}
-            onChange={(e) => setMode(e.target.value as StakeMode)}
-          >
+          <select className="input" value={mode} onChange={(e) => setMode(e.target.value as StakeMode)}>
             <option value="flat">Flat (equal)</option>
             <option value="prop">Proportional (by edge)</option>
             <option value="kelly">Kelly-Lite (cap 25%)</option>
@@ -206,32 +185,15 @@ export default function BetsTab() {
         </label>
 
         <label>Odds (American)
-          <input
-            className="input"
-            type="number"
-            step="5"
-            value={odds}
-            onChange={(e) => setOdds(e.target.value)}
-          />
+          <input className="input" type="number" step="5" value={odds} onChange={(e) => setOdds(e.target.value)} />
         </label>
 
         <label>Show Top N
-          <input
-            className="input"
-            type="number"
-            min="1"
-            step="1"
-            value={topN}
-            onChange={(e) => setTopN(e.target.value)}
-          />
+          <input className="input" type="number" min="1" step="1" value={topN} onChange={(e) => setTopN(e.target.value)} />
         </label>
 
         <label className="chk">
-          <input
-            type="checkbox"
-            checked={requireQualified}
-            onChange={(e) => setRequireQualified(e.target.checked)}
-          />
+          <input type="checkbox" checked={requireQualified} onChange={(e) => setRequireQualified(e.target.checked)} />
           Require Qualified ✓ (|Edge| ≥ {EDGE_MIN}, |Value| ≥ {VALUE_MIN}, side agreement)
         </label>
 
@@ -247,8 +209,7 @@ export default function BetsTab() {
                 week: r.week,
                 date: r.date,
                 matchup: `${r.away_team} @ ${r.home_team}`,
-                side: r._side,
-                neutral_site: r._neutral ? "YES" : "NO",
+                recommended_side: r._pick,
                 model_line_home: r._model,
                 market_line_home: r._market,
                 edge_points: r._edge,
@@ -282,7 +243,7 @@ export default function BetsTab() {
                 <th>Edge</th>
                 <th>Value</th>
                 <th>Qualified</th>
-                <th>Recommended Side</th>
+                <th>Recommended Side (value)</th>
                 <th>Stake</th>
                 <th>Odds</th>
               </tr>
@@ -293,10 +254,7 @@ export default function BetsTab() {
                 const value = r._value;
                 const qual = r.qualified_edge_flag === "1" ? "✓" : "—";
                 return (
-                  <tr
-                    key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`}
-                    className={i % 2 ? "alt" : undefined}
-                  >
+                  <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i % 2 ? "alt" : undefined}>
                     <td>{r.week}</td>
                     <td>{r.date}</td>
                     <td style={{ textAlign: "right" }}>
@@ -307,14 +265,10 @@ export default function BetsTab() {
                     </td>
                     <td>{fmtNum(r._model)}</td>
                     <td>{fmtNum(r._market)}</td>
-                    <td className={Number.isFinite(edge) ? (edge > 0 ? "pos" : "neg") : undefined}>
-                      {fmtNum(edge)}
-                    </td>
-                    <td className={Number.isFinite(value) ? (value > 0 ? "pos" : "neg") : undefined}>
-                      {fmtNum(value)}
-                    </td>
+                    <td className={Number.isFinite(edge) ? (edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(edge)}</td>
+                    <td className={Number.isFinite(value) ? (value > 0 ? "pos" : "neg") : undefined}>{fmtNum(value)}</td>
                     <td>{qual}</td>
-                    <td>{r._side}</td>
+                    <td>{r._pick}</td>
                     <td>${fmtNum(r._stake, { maximumFractionDigits: 0 })}</td>
                     <td>{odds}</td>
                   </tr>
@@ -326,8 +280,9 @@ export default function BetsTab() {
       )}
 
       <div className="note" style={{ marginTop: 8 }}>
-        We exclude likely bad data (extreme <i>Value</i> or edge z-score outliers). Ranking favors
-        Qualified ✓ first, then |Edge|, then |Value|. Book-style spreads shown (negative = home).
+        Book-style spreads shown (negative = home favorite). <b>Value side</b> is computed from
+        edge = model − market (home perspective): edge&gt;0 ⇒ market too heavy on home ⇒ value is away;
+        edge&lt;0 ⇒ market too heavy on away ⇒ value is home.
       </div>
     </section>
   );
