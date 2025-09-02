@@ -68,15 +68,12 @@ type PredRow = {
   week: string; date: string; neutral_site?: string;
   home_team: string; away_team: string;
   home_points?: string; away_points?: string; played?: string | boolean;
-  // spreads (book-style means negative favors home)
   market_spread_book?: string;
   model_spread_book?: string;
   expected_market_spread_book?: string;
-  // edges
   edge_points_book?: string;
   value_points_book?: string;
   qualified_edge_flag?: string;
-  // results
   model_result?: string;
   expected_result?: string;
 };
@@ -111,6 +108,39 @@ function toNum(v: any) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+/* ------------------------- helpers for weeks/bets ------------------------- */
+function nextUpcomingWeek(rows: PredRow[]): number | null {
+  if (!rows.length) return null;
+  const today = new Date();
+  const withDates = rows
+    .map(r => ({ r, d: r.date ? new Date(r.date + "T00:00:00Z") : null }))
+    .filter(x => x.d !== null) as {r: PredRow, d: Date}[];
+  const future = withDates.filter(x => x.d.getTime() >= today.getTime());
+  if (future.length) {
+    const wk = Math.min(...future.map(x => Number(x.r.week)));
+    return isFinite(wk) ? wk : null;
+  }
+  const unplayed = rows.filter(r => !playedBool(r.played));
+  if (unplayed.length) {
+    const wk = Math.min(...unplayed.map(r => Number(r.week)));
+    return isFinite(wk) ? wk : null;
+  }
+  const anyWk = Math.min(...rows.map(r => Number(r.week)));
+  return isFinite(anyWk) ? anyWk : null;
+}
+function probFromEdge(edgePts: number) {
+  const x = Math.min(20, Math.max(0, Math.abs(edgePts)));
+  return 0.50 + (x / 20) * 0.25; // 50%..75%
+}
+function kellyFraction(p: number, oddsAmerican: number) {
+  let b: number;
+  if (oddsAmerican > 0) b = oddsAmerican / 100;
+  else b = 100 / Math.abs(oddsAmerican);
+  const q = 1 - p;
+  const f = (b*p - q) / b;
+  return Math.max(0, Math.min(0.25, f)); // cap to 25%
+}
+
 /* ------------------------- Status tab ------------------------- */
 function StatusTab() {
   const [status, setStatus] = useState<Status | null>(null);
@@ -131,7 +161,6 @@ function StatusTab() {
     })();
   }, []);
 
-  // MAE (model vs market) overall + last week played
   const mae = useMemo(() => {
     if (!preds.length) return { overall: NaN, byBucket: [] as {bucket:string, mae:number}[], lastWeek: NaN };
     const mask = preds.filter(r => r.market_spread_book && r.model_spread_book);
@@ -153,7 +182,6 @@ function StatusTab() {
       return { bucket: b.name, mae };
     });
 
-    // last completed week MAE
     const played = preds.filter(r => playedBool(r.played));
     const lastWk = played.length ? Math.max(...played.map(r => Number(r.week))) : NaN;
     const lastRows = mask.filter(r => Number(r.week) === lastWk);
@@ -163,7 +191,6 @@ function StatusTab() {
     return { overall, byBucket: buckets, lastWeek };
   }, [preds]);
 
-  // Accuracy per week (model picks)
   const weekly = useMemo(() => {
     const by: Record<string, {w:number,l:number,p:number}> = {};
     for (const r of preds) {
@@ -177,7 +204,7 @@ function StatusTab() {
     }
     const rows = Object.keys(by).sort((a,b)=>Number(a)-Number(b)).map(wk => {
       const {w,l,p} = by[wk];
-      const tot = w + l; // ignore pushes in accuracy
+      const tot = w + l;
       const acc = tot ? w/tot : NaN;
       return { week: wk, wins: w, losses: l, pushes: p, accuracy: acc };
     });
@@ -245,29 +272,37 @@ function StatusTab() {
   );
 }
 
-/* ------------------------- Predictions tab ------------------------- */
+/* ------------------------- Predictions tab (week selector) ------------------------- */
 function PredictionsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
-  const [q, setQ] = useState("");
+  const [week, setWeek] = useState<string>("");
 
   useEffect(() => { (async () => {
-    try { setRows((await loadCsv("data/upa_predictions.csv")) as PredRow[]); } catch { setRows([]); }
+    try {
+      const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+      setRows(r);
+      const wk = nextUpcomingWeek(r);
+      if (wk) setWeek(String(wk));
+      else if (r.length) setWeek(String(Math.max(...r.map(x => Number(x.week)))));
+    } catch { setRows([]); }
   })(); }, []);
 
+  const weeks = useMemo(() => Array.from(new Set(rows.map(r => r.week))).sort((a,b)=>Number(a)-Number(b)), [rows]);
+
   const filtered = useMemo(() => {
-    const ql = q.trim().toLowerCase();
-    if (!ql) return rows;
-    return rows.filter(r =>
-      r.home_team?.toLowerCase().includes(ql) ||
-      r.away_team?.toLowerCase().includes(ql)
-    );
-  }, [rows, q]);
+    if (!week) return [];
+    return rows.filter(r => String(r.week) === String(week));
+  }, [rows, week]);
 
   return (
     <section className="card">
       <div className="card-title">Predictions (Book-style)</div>
       <div className="controls">
-        <input className="search" placeholder="Search teams…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <label>Week
+          <select className="input" value={week} onChange={(e)=>setWeek(e.target.value)}>
+            {weeks.map(w => <option key={w} value={w}>{w}</option>)}
+          </select>
+        </label>
         <Badge>{filtered.length} rows</Badge>
       </div>
 
@@ -455,47 +490,14 @@ function LiveEdgeTab() {
   );
 }
 
-/* ------------------------- Recommended Bets tab ------------------------- */
+/* ------------------------- Recommended Bets (strong only, DQ via stdev) ------------------------- */
 type StakeMode = "flat" | "prop" | "kelly";
-function nextUpcomingWeek(rows: PredRow[]): number | null {
-  if (!rows.length) return null;
-  const today = new Date();
-  // prefer first future game date; else next unplayed week; else min week with market
-  const withDates = rows
-    .map(r => ({ r, d: r.date ? new Date(r.date + "T00:00:00Z") : null }))
-    .filter(x => x.d !== null) as {r: PredRow, d: Date}[];
-  const future = withDates.filter(x => x.d.getTime() >= today.getTime());
-  if (future.length) {
-    const wk = Math.min(...future.map(x => Number(x.r.week)));
-    return isFinite(wk) ? wk : null;
-  }
-  const unplayed = rows.filter(r => !playedBool(r.played));
-  if (unplayed.length) {
-    const wk = Math.min(...unplayed.map(r => Number(r.week)));
-    return isFinite(wk) ? wk : null;
-  }
-  const anyWk = Math.min(...rows.map(r => Number(r.week)));
-  return isFinite(anyWk) ? anyWk : null;
-}
-function probFromEdge(edgePts: number) {
-  // heuristic: convert spread edge magnitude into implied confidence
-  const x = Math.min(20, Math.max(0, Math.abs(edgePts)));
-  return 0.50 + (x / 20) * 0.25; // 50%..75%
-}
-function kellyFraction(p: number, oddsAmerican: number) {
-  // Convert American odds to decimal price
-  let b: number;
-  if (oddsAmerican > 0) b = oddsAmerican / 100;
-  else b = 100 / Math.abs(oddsAmerican);
-  const q = 1 - p;
-  const f = (b*p - q) / b;
-  return Math.max(0, Math.min(0.25, f)); // cap to 25% for sanity
-}
 function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [bankroll, setBankroll] = useState<string>("1000");
   const [mode, setMode] = useState<StakeMode>("prop");
-  const [odds, setOdds] = useState<string>("-110"); // default book odds
+  const [odds, setOdds] = useState<string>("-110");
+  const [topN, setTopN] = useState<string>("10");
 
   useEffect(()=>{(async()=>{
     try { setRows((await loadCsv("data/upa_predictions.csv")) as PredRow[]); } catch { setRows([]); }
@@ -503,16 +505,35 @@ function BetsTab() {
 
   const wk = useMemo(()=> nextUpcomingWeek(rows), [rows]);
 
-  const candidates = useMemo(()=>{
+  const candidatesRaw = useMemo(()=>{
     if (!wk) return [];
-    // filter current week with market and not yet played
-    const list = rows.filter(r =>
+    return rows.filter(r =>
       Number(r.week) === wk &&
       r.market_spread_book !== undefined && r.market_spread_book !== "" &&
       !playedBool(r.played)
     );
+  }, [rows, wk]);
 
-    // Rank: Qualified first, then |edge| desc, then |value| desc
+  // Compute week distribution of |edge|
+  const strongFiltered = useMemo(()=>{
+    if (!candidatesRaw.length) return [];
+
+    const edges = candidatesRaw.map(r => Math.abs(toNum(r.edge_points_book)));
+    const mean = edges.filter(Number.isFinite).reduce((a,b)=>a+b,0) / Math.max(1, edges.filter(Number.isFinite).length);
+    const variance = edges.filter(Number.isFinite).reduce((a,b)=>a + (b-mean)*(b-mean), 0) / Math.max(1, edges.filter(Number.isFinite).length);
+    const sd = Math.sqrt(variance);
+
+    const isDQ = (r: PredRow) => {
+      const e = Math.abs(toNum(r.edge_points_book));
+      const v = Math.abs(toNum(r.value_points_book));
+      if (!Number.isFinite(e) || !Number.isFinite(v)) return true;
+      if (e > mean + 2.5*sd) return true; // outlier edge
+      if (v > 40) return true; // absurd value -> likely bad market scrape
+      return false;
+    };
+
+    // Rank: Qualified ✓ first, then |edge| desc, then |value| desc; exclude DQ
+    const list = candidatesRaw.filter(r => !isDQ(r));
     const ranked = [...list].sort((a,b)=>{
       const qa = a.qualified_edge_flag === "1" ? 1 : 0;
       const qb = b.qualified_edge_flag === "1" ? 1 : 0;
@@ -524,34 +545,33 @@ function BetsTab() {
       const vb = Math.abs(toNum(b.value_points_book));
       return vb - va;
     });
-    return ranked;
-  }, [rows, wk]);
+
+    const limit = Math.max(1, Number(topN) || 10);
+    return ranked.slice(0, limit);
+  }, [candidatesRaw, topN]);
 
   const staked = useMemo(()=>{
     const bk = Math.max(0, Number(bankroll) || 0);
     const oddsAm = Number(odds) || -110;
 
-    if (!bk || !candidates.length) return [];
+    if (!bk || !strongFiltered.length) return [];
 
-    // base weights by |edge|
-    const edges = candidates.map(r => Math.abs(toNum(r.edge_points_book)));
+    const edges = strongFiltered.map(r => Math.abs(toNum(r.edge_points_book)));
     const maxEdge = Math.max(...edges.map(e => (Number.isFinite(e) ? e : 0)));
-    const weights = candidates.map((r, i) => {
+    const weights = strongFiltered.map((r, i) => {
       const e = edges[i];
       if (!Number.isFinite(e) || e <= 0) return 0;
       if (mode === "flat") return 1;
       if (mode === "prop") return e / (maxEdge || 1);
-      // Kelly-lite needs win prob
       const p = probFromEdge(toNum(r.edge_points_book));
       return kellyFraction(p, oddsAm);
     });
 
     const sumW = weights.reduce((a,b)=>a+b,0);
-    const alloc = candidates.map((r, i) => {
+    const alloc = strongFiltered.map((r, i) => {
       const w = weights[i];
       const stake = sumW ? (bk * (w / sumW)) : 0;
       const side = toNum(r.model_spread_book) < 0 ? `${r.home_team} (home)` : `${r.away_team} (away)`;
-      const line = toNum(r.model_spread_book) < 0 ? r.model_spread_book : `+${Math.abs(toNum(r.model_spread_book)).toFixed(1)}`;
       return {
         week: r.week,
         date: r.date,
@@ -567,13 +587,13 @@ function BetsTab() {
       };
     });
     return alloc;
-  }, [candidates, bankroll, mode, odds]);
+  }, [strongFiltered, bankroll, mode, odds]);
 
   const totalStake = useMemo(()=> staked.reduce((a,b)=>a + (b.stake||0), 0), [staked]);
 
   return (
     <section className="card">
-      <div className="card-title">Recommended Bets</div>
+      <div className="card-title">Recommended Bets (Strong Only)</div>
       <div className="controls" style={{ flexWrap: "wrap", gap: 8 }}>
         <Badge>{wk ? `Week ${wk}` : "No upcoming week detected"}</Badge>
         <label>Bankroll ($)
@@ -589,11 +609,14 @@ function BetsTab() {
         <label>Odds (American)
           <input className="input" type="number" step="5" value={odds} onChange={(e)=>setOdds(e.target.value)} />
         </label>
+        <label>Show Top N
+          <input className="input" type="number" min="1" step="1" value={topN} onChange={(e)=>setTopN(e.target.value)} />
+        </label>
         <Badge tone="muted">Total Staked: ${fmtNum(totalStake)}</Badge>
         <button className="btn" disabled={!staked.length} onClick={()=>downloadCsv(`week_${wk}_bets.csv`, staked)}>Download betslip CSV</button>
       </div>
 
-      {!candidates.length ? <div className="note">No candidate games found for the upcoming week (missing markets or schedule).</div> : (
+      {!strongFiltered.length ? <div className="note">No strong, data-quality-safe candidates found for the upcoming week.</div> : (
         <div className="table-wrap">
           <table className="tbl wide">
             <thead>
@@ -604,7 +627,7 @@ function BetsTab() {
               </tr>
             </thead>
             <tbody>
-              {candidates.map((r,i)=>{
+              {strongFiltered.map((r,i)=>{
                 const neutral = r.neutral_site === "1" || r.neutral_site === "true";
                 const model = toNum(r.model_spread_book);
                 const market = toNum(r.market_spread_book);
@@ -637,7 +660,7 @@ function BetsTab() {
         </div>
       )}
       <div className="note" style={{marginTop:8}}>
-        <b>Stake modes:</b> Flat = equal stakes; Proportional = stake ∝ |edge|; Kelly-Lite = converts edge to a win-prob heuristic and applies capped Kelly (≤25%).
+        We exclude data-quality outliers (|edge| z-score &gt; 2.5, or extreme value) and rank Qualified ✓ first, then by |Edge| then Value.
       </div>
     </section>
   );

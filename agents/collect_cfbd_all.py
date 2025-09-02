@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-UPA-F Collector (market-aware + advanced metrics)
+UPA-F Collector (market-aware + advanced metrics, stricter market parsing, HFA recentering)
 
 Writes repo-level data files:
   - data/upa_team_inputs_datadriven_v0.csv
@@ -47,6 +47,7 @@ ROLL_WEEKS = 3
 RATING_Z_CLIP = 1.8
 RATING_Z_SCALE = 10.0
 RIDGE_L2 = 2.0  # for feature model vs market
+MODEL_CAP_ABS = 35.0  # safety cap on predicted spreads (home-positive)
 
 # ---- CFBD clients ----
 cfg = cfbd.Configuration(access_token=BEARER)
@@ -97,6 +98,17 @@ def _linreg(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     if mask.sum() < 5: return (1.0, 0.0)
     a, b = np.polyfit(x[mask], y[mask], 1)
     return float(a), float(b)
+
+def _slope_through_origin(x: np.ndarray, y: np.ndarray) -> float:
+    """Slope fit with intercept=0: argmin ||y - a*x||^2."""
+    mask = np.isfinite(x) & np.isfinite(y)
+    if mask.sum() < 5:
+        return 1.0
+    xx = np.sum(x[mask]*x[mask])
+    if xx <= 0:
+        return 1.0
+    a = float(np.sum(x[mask]*y[mask]) / xx)
+    return a
 
 def _ridge(X: np.ndarray, y: np.ndarray, l2: float) -> np.ndarray:
     """Solve (X'X + l2 I) b = X'y."""
@@ -284,13 +296,13 @@ def df_team_adv_stats(year: int) -> pd.DataFrame:
         # field position: average starting field position
         fp_off = _to_float(safe(off, "field_position", "average_start"))
         fp_def = _to_float(safe(de, "field_position", "average_start"))
-        # havoc: use total havoc rate if present (or passes/tfl sum)
-        havoc_off = _to_float(safe(off, "havoc", "total"))  # offense -> allowed
+        # havoc: use total if available, else sum parts
+        havoc_off = _to_float(safe(off, "havoc", "total"))
         if not math.isfinite(havoc_off):
-            havoc_off = _to_float(safe(off, "havoc", "front_seven")) + _to_float(safe(off, "havoc", "db"))  # may yield NaN + NaN
+            havoc_off = (_to_float(safe(off, "havoc", "front_seven")) or 0.0) + (_to_float(safe(off, "havoc", "db")) or 0.0)
         havoc_def = _to_float(safe(de, "havoc", "total"))
         if not math.isfinite(havoc_def):
-            havoc_def = _to_float(safe(de, "havoc", "front_seven")) + _to_float(safe(de, "havoc", "db"))
+            havoc_def = (_to_float(safe(de, "havoc", "front_seven")) or 0.0) + (_to_float(safe(de, "havoc", "db")) or 0.0)
 
         rows.append({
             "team": t,
@@ -305,7 +317,6 @@ def df_team_adv_stats(year: int) -> pd.DataFrame:
 def df_pregame_wp(year: int) -> pd.DataFrame:
     """Team-level pregame win prob anchor (average over games)."""
     try:
-        # This returns game-level entries with home/away and pregame wp; we average by team.
         wps = metrics_api.get_pregame_win_probabilities(year=year)
     except Exception as e:
         print(f"[warn] pregame WP fetch failed: {e}", file=sys.stderr)
@@ -315,7 +326,6 @@ def df_pregame_wp(year: int) -> pd.DataFrame:
     for it in wps or []:
         ht = getattr(it, "home_team", None)
         at = getattr(it, "away_team", None)
-        # home/away pregame WP may appear as home_win_prob/away_win_prob
         home_wp = _to_float(getattr(it, "home_win_prob", None))
         away_wp = _to_float(getattr(it, "away_win_prob", None))
         if ht is not None and math.isfinite(home_wp): rows.append({"team": ht, "wp": home_wp})
@@ -324,7 +334,6 @@ def df_pregame_wp(year: int) -> pd.DataFrame:
         return pd.DataFrame({"team": [], "pregame_wp_avg": []})
     df = pd.DataFrame(rows)
     out = df.groupby("team", as_index=False)["wp"].mean().rename(columns={"wp": "pregame_wp_avg"})
-    # convert 0..1 to 0..100
     out["pregame_wp_avg"] = (out["pregame_wp_avg"]*100.0).round(1)
     return out
 
@@ -361,12 +370,9 @@ def df_team_features(prior_year: int) -> pd.DataFrame:
     if "havoc_def_created" in df.columns:
         df["havoc_def_created"] = _scale_minmax(df["havoc_def_created"])
     if "pregame_wp_avg" in df.columns:
-        # Already 0..100; keep as is but fillNA
         df["pregame_wp_avg"] = df["pregame_wp_avg"].fillna(50.0)
 
-    # Composite prior strength for debugging (not used directly if model fits features)
-    num_cols = [c for c in df.columns if c!="team"]
-    df["adv_prior_strength_0_100"] = pd.to_numeric(df[num_cols].mean(axis=1), errors="coerce")
+    df["adv_prior_strength_0_100"] = pd.to_numeric(df[[c for c in df.columns if c!="team"]].mean(axis=1), errors="coerce")
     return df
 
 # ---- Build team inputs (with prior features merged) ----
@@ -411,14 +417,16 @@ def build_team_inputs() -> Tuple[pd.DataFrame, pd.DataFrame]:
     print(f"Wrote data/upa_team_inputs_datadriven_v0.csv with {df.shape[0]} rows.")
     return df, prior_feats
 
-# ---- Robust market lines fetcher ----
+# ---- Robust market lines fetcher (strict spreads) ----
 def fetch_market_lines(year: int, weeks: List[int]) -> pd.DataFrame:
     """
     Extract consensus spread per game, HOME-POSITIVE convention.
-    Tries: top-level .spread, nested .lines[*].spread, and formatted strings.
-    Returns columns: game_id (int), market_spread_home (float)
+    Only accept true spread markets (skip totals/moneylines).
+    Returns: columns [game_id, market_spread_home]
     """
     rows: List[Dict[str, float]] = []
+    kept_by_provider = 0
+
     for wk in weeks:
         try:
             lines = bet_api.get_lines(year=year, week=int(wk), season_type="regular")
@@ -431,26 +439,42 @@ def fetch_market_lines(year: int, weeks: List[int]) -> pd.DataFrame:
             if gid is None:
                 continue
 
-            # Case A: top-level numeric
-            top_spread = getattr(gl, "spread", None)
-            if isinstance(top_spread, (int, float)) and math.isfinite(float(top_spread)):
-                rows.append({"game_id": int(gid), "spread_home": -float(top_spread)})
-
-            # Case B/C: nested providers
+            # Nested providers are preferred; only use top-level if nested are absent and type looks like spread.
+            nested = False
             for ln in getattr(gl, "lines", []) or []:
+                bt = (getattr(ln, "bet_type", None) or getattr(ln, "market", None) or "").lower()
+                if bt and "spread" not in bt:
+                    continue  # totals/moneylines out
                 sp = getattr(ln, "spread", None)
                 if isinstance(sp, (int, float)) and math.isfinite(float(sp)):
                     rows.append({"game_id": int(gid), "spread_home": -float(sp)})
+                    kept_by_provider += 1
+                    nested = True
                     continue
-                # Formatted strings like "-7.5" or "Team -7.5"
                 fmt = getattr(ln, "formatted_spread", None) or getattr(ln, "formattedSpread", None) or getattr(ln, "spread_display", None)
                 if isinstance(fmt, str):
-                    try:
-                        m = re.findall(r"[-+]?\d+(?:\.\d+)?", fmt)
-                        if m:
+                    lower = fmt.lower()
+                    if any(k in lower for k in ["total", "o/u", "moneyline", "ml"]):
+                        continue
+                    # require explicit +/- number
+                    m = re.findall(r"[+-]\d+(?:\.\d+)?", fmt)
+                    if m:
+                        try:
                             rows.append({"game_id": int(gid), "spread_home": -float(m[-1])})
-                    except Exception:
-                        pass
+                            kept_by_provider += 1
+                            nested = True
+                        except Exception:
+                            pass
+
+            if nested:
+                continue
+
+            # Very conservative top-level fallback
+            top_spread = getattr(gl, "spread", None)
+            top_type = (getattr(gl, "bet_type", None) or getattr(gl, "market", None) or "").lower()
+            if isinstance(top_spread, (int, float)) and math.isfinite(float(top_spread)) and ("spread" in top_type if top_type else True):
+                rows.append({"game_id": int(gid), "spread_home": -float(top_spread)})
+                kept_by_provider += 1
 
     if not rows:
         print("[warn] betting: no spreads parsed; market features will be empty", file=sys.stderr)
@@ -460,7 +484,7 @@ def fetch_market_lines(year: int, weeks: List[int]) -> pd.DataFrame:
     # provider consensus: median per game
     df = df.groupby("game_id", as_index=False)["spread_home"].median()
     df.rename(columns={"spread_home": "market_spread_home"}, inplace=True)
-    print(f"INFO betting: parsed market spreads for {df.shape[0]} games")
+    print(f"INFO betting: parsed market spreads for {df.shape[0]} games (kept {kept_by_provider} provider lines)")
     return df
 
 # ---- Build schedule (FBS-only) + merge market ----
@@ -506,7 +530,7 @@ def build_schedule(team_inputs: pd.DataFrame) -> pd.DataFrame:
         print(f"[warn] no schedule rows; wrote empty {out}", file=sys.stderr)
         return sched
 
-    # market merge (robust + type-safe)
+    # market merge (strict)
     market_df = fetch_market_lines(YEAR, sorted(weeks_seen))
     sched["game_id"] = sched["game_id"].astype(int)
     if not market_df.empty:
@@ -567,9 +591,9 @@ def solve_market_ratings(sched: pd.DataFrame, team_list: List[str]) -> Tuple[Dic
             res.append(r.market_spread_home - (market_ratings.get(r.home_team,0)-market_ratings.get(r.away_team,0)))
         mean = float(np.nanmean(res)) if len(res) else HFA0
         w = min(1.0, len(sub)/30.0)
-        conf_hfa[conf] = float(np.clip(w*mean + (1.0-w)*HFA0, 0.5, 3.0))
+        conf_hfa[conf] = float(np.clip(w*mean + (1.0-w)*HFA0, 0.5, 3.5))
 
-    HFA0 = float(np.clip(HFA0, 0.5, 3.0))
+    HFA0 = float(np.clip(HFA0, 0.5, 3.5))
     return market_ratings, HFA0, conf_hfa
 
 # ---- Build feature model & predictions ----
@@ -578,7 +602,8 @@ def build_predictions(team_inputs: pd.DataFrame, prior_feats: pd.DataFrame, sche
     mrkt_ratings, HFA_global, conf_hfa = solve_market_ratings(sched, teams)
 
     now_week = _week_now_from_sched(sched)
-    w_market = float(np.clip(0.4 + 0.05*(max(1,now_week)-1), 0.4, 0.7))
+    # Earlier-season: start lower and ramp slower
+    w_market = float(np.clip(0.35 + 0.04*(max(1,now_week)-1), 0.35, 0.70))
 
     base = team_inputs[["team","team_rating","adv_score","conference"]].copy()
     base["market_rating"] = base["team"].map(mrkt_ratings).fillna(0.0)
@@ -596,26 +621,36 @@ def build_predictions(team_inputs: pd.DataFrame, prior_feats: pd.DataFrame, sche
              .merge(base.rename(columns={"team":"away_team","team_rating":"away_team_rating","adv_score":"away_adv_score","blend_rating":"away_blend","conference":"away_conf2"}),
                      on="away_team", how="left", suffixes=("_homefeat","_awayfeat"))
 
-    # Conference HFA: neutral→0
-    def hfa_for_row(r):
+    # --- HFA points using (temporary) HFA_global; neutral→0
+    def hfa_for_row(r, HFAg):
         if int(r.neutral_site)==1: return 0.0
         conf = r.home_conf
-        return float(conf_hfa.get(conf, HFA_global))
-    df["hfa_points"] = [hfa_for_row(r) for r in df.itertuples(index=False)]
+        return float(conf_hfa.get(conf, HFAg))
+    df["hfa_points"] = [hfa_for_row(r, HFA_global) for r in df.itertuples(index=False)]
 
-    # Rating-only raw spread (home-positive)
+    # Rating-only raw spread (home-positive), FIRST PASS
     df["rating_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
 
-    # Rolling linear calibration (home-positive)
+    # Linear calibration vs market to get intercept we can fold into HFA
     have_mkt = df["market_spread_home"].notna()
     if have_mkt.any():
         weeks = sorted(df.loc[have_mkt,"week"].unique())
         use_weeks = set(weeks[-ROLL_WEEKS:])
         mask = have_mkt & df["week"].isin(use_weeks)
-        a1,b1 = _linreg(df.loc[mask,"rating_spread_home_raw"].values, df.loc[mask,"market_spread_home"].values)
+        a1_tmp,b1_tmp = _linreg(df.loc[mask,"rating_spread_home_raw"].values, df.loc[mask,"market_spread_home"].values)
+        a1_tmp = float(np.clip(a1_tmp, 0.8, 2.0))
+        # Fold intercept into HFA_global, then recompute raw rating spreads
+        HFA_global = float(np.clip(HFA_global + b1_tmp, 0.5, 3.5))
+        df["hfa_points"] = [hfa_for_row(r, HFA_global) for r in df.itertuples(index=False)]
+        df["rating_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
+        # Refit slope through origin (intercept=0)
+        mask2 = have_mkt & df["week"].isin(use_weeks)
+        a1 = _slope_through_origin(df.loc[mask2,"rating_spread_home_raw"].values, df.loc[mask2,"market_spread_home"].values)
         a1 = float(np.clip(a1, 0.8, 2.0))
+        b1 = 0.0
     else:
-        a1,b1 = 1.0, 0.0
+        a1, b1 = 1.0, 0.0
+
     df["rating_spread_home"] = a1*df["rating_spread_home_raw"] + b1
 
     # ----- Feature model (ridge) predicting market_spread_home -----
@@ -630,49 +665,49 @@ def build_predictions(team_inputs: pd.DataFrame, prior_feats: pd.DataFrame, sche
         "sr_off","sr_def","expl_off","expl_def",
         "fp_off_start","fp_def_start","havoc_off_allowed","havoc_def_created"
     ]
-    # Create deltas with safe existence
-    X_parts = []
-    names = []
+    parts = []; names = []
     for c in feature_cols:
         if f"{c}_homefeat" in df.columns and f"{c}_awayfeat" in df.columns:
-            X_parts.append(delta(c).to_numpy(dtype=float))
+            parts.append(delta(c).to_numpy(dtype=float))
             names.append(f"d_{c}")
     # Base signals
-    X_parts.append((df["home_blend"] - df["away_blend"]).to_numpy(dtype=float)); names.append("d_blend")
-    X_parts.append(df["hfa_points"].to_numpy(dtype=float)); names.append("hfa")
-    # Bias term
-    if X_parts:
-        X = np.vstack(X_parts).T
-        X = np.column_stack([np.ones(X.shape[0]), X])  # bias
-        names = ["bias"] + names
-    else:
-        X = np.column_stack([np.ones(df.shape[0]), (df["home_blend"] - df["away_blend"]).to_numpy(dtype=float), df["hfa_points"].to_numpy(dtype=float)])
-        names = ["bias","d_blend","hfa"]
+    parts.append((df["home_blend"] - df["away_blend"]).to_numpy(dtype=float)); names.append("d_blend")
+    parts.append(df["hfa_points"].to_numpy(dtype=float)); names.append("hfa")
 
+    # Bias + median-impute per column (stabilize early weeks)
+    if parts:
+        Xdf = pd.DataFrame(np.vstack(parts).T, columns=names)
+    else:
+        Xdf = pd.DataFrame({"d_blend": (df["home_blend"] - df["away_blend"]).to_numpy(dtype=float),
+                            "hfa": df["hfa_points"].to_numpy(dtype=float)})
+    for c in Xdf.columns:
+        Xdf[c] = pd.to_numeric(Xdf[c], errors="coerce")
+        if Xdf[c].isna().any():
+            Xdf[c] = Xdf[c].fillna(Xdf[c].median())
+    X = np.column_stack([np.ones(Xdf.shape[0]), Xdf.to_numpy(dtype=float)])
     y = pd.to_numeric(df["market_spread_home"], errors="coerce").to_numpy()
 
-    # Fit only on rows with market (optionally last ROLL_WEEKS)
-    mask = np.isfinite(y)
-    if mask.any():
-        weeks = sorted(df.loc[mask,"week"].unique())
+    # Fit only last ROLL_WEEKS with market if available
+    mask_fit = np.isfinite(y)
+    if mask_fit.any():
+        weeks = sorted(df.loc[mask_fit,"week"].unique())
         use_weeks = set(weeks[-ROLL_WEEKS:])
-        mask = mask & df["week"].isin(use_weeks)
-    if mask.any():
-        b = _ridge(X[mask], y[mask], RIDGE_L2)
-    else:
-        b = np.zeros(X.shape[1])
+        mask_fit = mask_fit & df["week"].isin(use_weeks)
+    bcoef = _ridge(X[mask_fit], y[mask_fit], RIDGE_L2) if mask_fit.any() else np.zeros(X.shape[1])
 
-    df["feature_spread_home"] = (X @ b)
+    df["feature_spread_home"] = (X @ bcoef)
 
     # Blend feature-model and rating-calibrated model for final prediction
-    df["model_spread_home"] = (0.7*df["feature_spread_home"] + 0.3*df["rating_spread_home"]).round(2)
+    df["model_spread_home"] = (0.7*df["feature_spread_home"] + 0.3*df["rating_spread_home"])
+    # Cap to avoid explosions
+    df["model_spread_home"] = df["model_spread_home"].clip(-MODEL_CAP_ABS, MODEL_CAP_ABS).round(2)
 
     # Advantage alignment (home-positive) for "expected market"
     df["adv_gap"] = (df["home_adv_score"] - df["away_adv_score"] + df["hfa_points"]).astype(float)
     if have_mkt.any():
         weeks = sorted(df.loc[have_mkt,"week"].unique())
-        use_weeks = set(weeks[-ROLL_WEEKS:])
-        mask2 = have_mkt & df["week"].isin(use_weeks)
+        use_weeks2 = set(weeks[-ROLL_WEEKS:])
+        mask2 = have_mkt & df["week"].isin(use_weeks2)
         a2,b2 = _linreg(df.loc[mask2,"adv_gap"].values, df.loc[mask2,"market_spread_home"].values)
         a2 = float(np.clip(a2, 0.5, 3.0))
     else:
