@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-UPA-F Collector (market-aware, calibrated, gated edges)
+UPA-F Collector (market-aware + advanced metrics)
 
 Writes repo-level data files:
   - data/upa_team_inputs_datadriven_v0.csv
@@ -16,7 +16,7 @@ Writes repo-level data files:
 from __future__ import annotations
 import os, sys, json, math, argparse, re
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any
 
 import numpy as np
 import pandas as pd
@@ -46,6 +46,7 @@ VALUE_MIN = 1.0
 ROLL_WEEKS = 3
 RATING_Z_CLIP = 1.8
 RATING_Z_SCALE = 10.0
+RIDGE_L2 = 2.0  # for feature model vs market
 
 # ---- CFBD clients ----
 cfg = cfbd.Configuration(access_token=BEARER)
@@ -55,6 +56,8 @@ players_api = cfbd.PlayersApi(client)
 ratings_api = cfbd.RatingsApi(client)
 games_api = cfbd.GamesApi(client)
 bet_api = cfbd.BettingApi(client)
+metrics_api = cfbd.MetricsApi(client)
+stats_api = cfbd.StatsApi(client)
 
 # ---- Helpers ----
 def _to_float(x, default=np.nan):
@@ -94,6 +97,20 @@ def _linreg(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     if mask.sum() < 5: return (1.0, 0.0)
     a, b = np.polyfit(x[mask], y[mask], 1)
     return float(a), float(b)
+
+def _ridge(X: np.ndarray, y: np.ndarray, l2: float) -> np.ndarray:
+    """Solve (X'X + l2 I) b = X'y."""
+    mask = np.all(np.isfinite(X), axis=1) & np.isfinite(y)
+    X = X[mask]; y = y[mask]
+    if X.shape[0] < X.shape[1] + 5:
+        return np.zeros(X.shape[1])
+    XtX = X.T @ X + l2 * np.eye(X.shape[1])
+    XtY = X.T @ y
+    try:
+        b = np.linalg.solve(XtX, XtY)
+    except Exception:
+        b = np.zeros(X.shape[1])
+    return b
 
 def _week_now_from_sched(sched: pd.DataFrame) -> int:
     wk_scored = sched.loc[sched["home_points"].notna() & sched["away_points"].notna(), "week"]
@@ -204,29 +221,183 @@ def df_prev_sos(prior: int) -> pd.DataFrame:
     df["sos_0_100"] = ((133 - df["rank"] + 1)/133.0*100.0).round(1)
     return df[["team","sos_0_100"]]
 
-# ---- Build team inputs ----
-def build_team_inputs() -> pd.DataFrame:
+# ---- Advanced metrics (team season) ----
+def df_team_ppa(year: int) -> pd.DataFrame:
+    """Team Predicted Points Added (off/def; total + rush/pass splits if available)."""
+    cols = ["team","ppa_off","ppa_def","ppa_off_rush","ppa_off_pass","ppa_def_rush","ppa_def_pass"]
+    try:
+        items = metrics_api.get_predicted_points_added_by_team(year=year)
+    except Exception as e:
+        print(f"[warn] team PPA fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({c: [] for c in cols})
+    rows = []
+    for it in items or []:
+        t = getattr(it, "team", None) or getattr(it, "school", None)
+        off = getattr(it, "offense", None)
+        de = getattr(it, "defense", None)
+        rows.append({
+            "team": t,
+            "ppa_off": _to_float(getattr(off, "predicted_points_added", getattr(off, "ppa", None))),
+            "ppa_def": _to_float(getattr(de, "predicted_points_added", getattr(de, "ppa", None))),
+            "ppa_off_rush": _to_float(getattr(off, "rushing_ppa", None)),
+            "ppa_off_pass": _to_float(getattr(off, "passing_ppa", None)),
+            "ppa_def_rush": _to_float(getattr(de, "rushing_ppa", None)),
+            "ppa_def_pass": _to_float(getattr(de, "passing_ppa", None)),
+        })
+    df = pd.DataFrame(rows)
+    return df[cols] if not df.empty else pd.DataFrame({c: [] for c in cols})
+
+def df_team_adv_stats(year: int) -> pd.DataFrame:
+    """
+    Advanced season stats (success rate, explosiveness, field position, havoc).
+    """
+    cols = [
+        "team",
+        "sr_off","sr_def",
+        "expl_off","expl_def",
+        "fp_off_start","fp_def_start",
+        "havoc_off_allowed","havoc_def_created"
+    ]
+    try:
+        items = stats_api.get_advanced_season_stats(year=year)
+    except Exception as e:
+        print(f"[warn] advanced season stats fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({c: [] for c in cols})
+
+    def safe(obj, *attrs):
+        cur = obj
+        for a in attrs:
+            cur = getattr(cur, a, None)
+            if cur is None: return None
+        return cur
+
+    rows = []
+    for it in items or []:
+        t = getattr(it, "team", None)
+        off = getattr(it, "offense", None)
+        de = getattr(it, "defense", None)
+        # success rate & explosiveness
+        sr_off = _to_float(safe(off, "success_rate"))
+        sr_def = _to_float(safe(de, "success_rate"))
+        expl_off = _to_float(safe(off, "explosiveness"))
+        expl_def = _to_float(safe(de, "explosiveness"))
+        # field position: average starting field position
+        fp_off = _to_float(safe(off, "field_position", "average_start"))
+        fp_def = _to_float(safe(de, "field_position", "average_start"))
+        # havoc: use total havoc rate if present (or passes/tfl sum)
+        havoc_off = _to_float(safe(off, "havoc", "total"))  # offense -> allowed
+        if not math.isfinite(havoc_off):
+            havoc_off = _to_float(safe(off, "havoc", "front_seven")) + _to_float(safe(off, "havoc", "db"))  # may yield NaN + NaN
+        havoc_def = _to_float(safe(de, "havoc", "total"))
+        if not math.isfinite(havoc_def):
+            havoc_def = _to_float(safe(de, "havoc", "front_seven")) + _to_float(safe(de, "havoc", "db"))
+
+        rows.append({
+            "team": t,
+            "sr_off": sr_off, "sr_def": sr_def,
+            "expl_off": expl_off, "expl_def": expl_def,
+            "fp_off_start": fp_off, "fp_def_start": fp_def,
+            "havoc_off_allowed": havoc_off, "havoc_def_created": havoc_def
+        })
+    df = pd.DataFrame(rows)
+    return df[cols] if not df.empty else pd.DataFrame({c: [] for c in cols})
+
+def df_pregame_wp(year: int) -> pd.DataFrame:
+    """Team-level pregame win prob anchor (average over games)."""
+    try:
+        # This returns game-level entries with home/away and pregame wp; we average by team.
+        wps = metrics_api.get_pregame_win_probabilities(year=year)
+    except Exception as e:
+        print(f"[warn] pregame WP fetch failed: {e}", file=sys.stderr)
+        return pd.DataFrame({"team": [], "pregame_wp_avg": []})
+
+    rows = []
+    for it in wps or []:
+        ht = getattr(it, "home_team", None)
+        at = getattr(it, "away_team", None)
+        # home/away pregame WP may appear as home_win_prob/away_win_prob
+        home_wp = _to_float(getattr(it, "home_win_prob", None))
+        away_wp = _to_float(getattr(it, "away_win_prob", None))
+        if ht is not None and math.isfinite(home_wp): rows.append({"team": ht, "wp": home_wp})
+        if at is not None and math.isfinite(away_wp): rows.append({"team": at, "wp": away_wp})
+    if not rows:
+        return pd.DataFrame({"team": [], "pregame_wp_avg": []})
+    df = pd.DataFrame(rows)
+    out = df.groupby("team", as_index=False)["wp"].mean().rename(columns={"wp": "pregame_wp_avg"})
+    # convert 0..1 to 0..100
+    out["pregame_wp_avg"] = (out["pregame_wp_avg"]*100.0).round(1)
+    return out
+
+def df_team_features(prior_year: int) -> pd.DataFrame:
+    """
+    Build team feature table (PRIOR season anchor):
+    - PPA offense/defense (+ splits)
+    - Success rate, explosiveness
+    - Field position, Havoc
+    - Pregame win prob (avg)
+    Scaled to 0..100 for comparability.
+    """
+    ppa = df_team_ppa(prior_year)
+    adv = df_team_adv_stats(prior_year)
+    wp  = df_pregame_wp(prior_year)
+
+    df = ppa.merge(adv, on="team", how="outer").merge(wp, on="team", how="left")
+    for col in df.columns:
+        if col == "team": continue
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # scale each numeric to 0..100 (directional: offense higher better; defense lower better → invert)
+    def inv_scale(s):
+        s = pd.to_numeric(s, errors="coerce")
+        if s.notna().sum()==0: return pd.Series([50.0]*len(s))
+        mn, mx = s.min(), s.max()
+        if mx==mn: return pd.Series([50.0]*len(s))
+        return (mx - s) / (mx - mn) * 100.0
+
+    for c in ["ppa_off","ppa_off_rush","ppa_off_pass","sr_off","expl_off","fp_off_start"]:
+        if c in df.columns: df[c] = _scale_minmax(df[c])
+    for c in ["ppa_def","ppa_def_rush","ppa_def_pass","sr_def","expl_def","fp_def_start","havoc_off_allowed"]:
+        if c in df.columns: df[c] = inv_scale(df[c])
+    if "havoc_def_created" in df.columns:
+        df["havoc_def_created"] = _scale_minmax(df["havoc_def_created"])
+    if "pregame_wp_avg" in df.columns:
+        # Already 0..100; keep as is but fillNA
+        df["pregame_wp_avg"] = df["pregame_wp_avg"].fillna(50.0)
+
+    # Composite prior strength for debugging (not used directly if model fits features)
+    num_cols = [c for c in df.columns if c!="team"]
+    df["adv_prior_strength_0_100"] = pd.to_numeric(df[num_cols].mean(axis=1), errors="coerce")
+    return df
+
+# ---- Build team inputs (with prior features merged) ----
+def build_team_inputs() -> Tuple[pd.DataFrame, pd.DataFrame]:
     fbs_df, conf_map = df_fbs(YEAR)
     conferences = sorted(set(fbs_df["conference"].dropna()))
     rp = df_returning(YEAR, conferences, conf_map)
     talent = df_talent(YEAR)
     portal = df_portal(YEAR)
     sos = df_prev_sos(PRIOR)
+    prior_feats = df_team_features(PRIOR)  # new
 
-    df = fbs_df.merge(rp, on=["team","conference"], how="left") \
-               .merge(talent, on="team", how="left") \
-               .merge(portal, on="team", how="left") \
-               .merge(sos, on="team", how="left")
+    df = (
+        fbs_df.merge(rp, on=["team","conference"], how="left")
+              .merge(talent, on="team", how="left")
+              .merge(portal, on="team", how="left")
+              .merge(sos, on="team", how="left")
+              .merge(prior_feats, on="team", how="left")
+    )
 
-    for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100","talent_score_0_100","portal_net_0_100","sos_0_100"]:
+    for c in ["wrps_offense_percent","wrps_defense_percent","wrps_overall_percent","wrps_percent_0_100",
+              "talent_score_0_100","portal_net_0_100","sos_0_100","adv_prior_strength_0_100"]:
         if c not in df.columns: df[c]=50.0
         df[c] = pd.to_numeric(df[c], errors="coerce").fillna(50.0)
 
-    # Rebalanced weights (offense-heavy)
+    # Offense-heavy weighting for our base power
     df["team_power_0_100"] = (
-        0.55*df["wrps_offense_percent"] +
-        0.25*df["wrps_defense_percent"] +
+        0.50*df["wrps_offense_percent"] +
+        0.20*df["wrps_defense_percent"] +
         0.15*df["talent_score_0_100"] +
+        0.10*df["adv_prior_strength_0_100"] +
         0.03*df["portal_net_0_100"] +
         0.02*df["sos_0_100"]
     ).round(1)
@@ -238,7 +409,7 @@ def build_team_inputs() -> pd.DataFrame:
     df.sort_values(["conference","team"], inplace=True, ignore_index=True)
     df.to_csv(os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"), index=False)
     print(f"Wrote data/upa_team_inputs_datadriven_v0.csv with {df.shape[0]} rows.")
-    return df
+    return df, prior_feats
 
 # ---- Robust market lines fetcher ----
 def fetch_market_lines(year: int, weeks: List[int]) -> pd.DataFrame:
@@ -401,8 +572,8 @@ def solve_market_ratings(sched: pd.DataFrame, team_list: List[str]) -> Tuple[Dic
     HFA0 = float(np.clip(HFA0, 0.5, 3.0))
     return market_ratings, HFA0, conf_hfa
 
-# ---- Predictions ----
-def build_predictions(team_inputs: pd.DataFrame, sched: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+# ---- Build feature model & predictions ----
+def build_predictions(team_inputs: pd.DataFrame, prior_feats: pd.DataFrame, sched: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     teams = list(team_inputs["team"])
     mrkt_ratings, HFA_global, conf_hfa = solve_market_ratings(sched, teams)
 
@@ -413,37 +584,96 @@ def build_predictions(team_inputs: pd.DataFrame, sched: pd.DataFrame) -> Tuple[p
     base["market_rating"] = base["team"].map(mrkt_ratings).fillna(0.0)
     base["blend_rating"] = ( (1-w_market)*base["team_rating"].astype(float) + w_market*base["market_rating"].astype(float) ).round(3)
 
+    # Attach prior features
+    feats = prior_feats.copy()
+    for c in feats.columns:
+        if c!="team": feats[c] = pd.to_numeric(feats[c], errors="coerce")
+    base = base.merge(feats, on="team", how="left")
+
+    # Join to games
     df = sched.merge(base.rename(columns={"team":"home_team","team_rating":"home_team_rating","adv_score":"home_adv_score","blend_rating":"home_blend","conference":"home_conf2"}),
                      on="home_team", how="left") \
              .merge(base.rename(columns={"team":"away_team","team_rating":"away_team_rating","adv_score":"away_adv_score","blend_rating":"away_blend","conference":"away_conf2"}),
-                     on="away_team", how="left")
+                     on="away_team", how="left", suffixes=("_homefeat","_awayfeat"))
 
+    # Conference HFA: neutral→0
     def hfa_for_row(r):
         if int(r.neutral_site)==1: return 0.0
         conf = r.home_conf
         return float(conf_hfa.get(conf, HFA_global))
     df["hfa_points"] = [hfa_for_row(r) for r in df.itertuples(index=False)]
 
-    # model (home-positive) → rolling calibration vs market (also home-positive)
-    df["model_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
+    # Rating-only raw spread (home-positive)
+    df["rating_spread_home_raw"] = (df["home_blend"] + df["hfa_points"]) - df["away_blend"]
+
+    # Rolling linear calibration (home-positive)
     have_mkt = df["market_spread_home"].notna()
     if have_mkt.any():
         weeks = sorted(df.loc[have_mkt,"week"].unique())
         use_weeks = set(weeks[-ROLL_WEEKS:])
         mask = have_mkt & df["week"].isin(use_weeks)
-        a1,b1 = _linreg(df.loc[mask,"model_spread_home_raw"].values, df.loc[mask,"market_spread_home"].values)
+        a1,b1 = _linreg(df.loc[mask,"rating_spread_home_raw"].values, df.loc[mask,"market_spread_home"].values)
         a1 = float(np.clip(a1, 0.8, 2.0))
     else:
         a1,b1 = 1.0, 0.0
-    df["model_spread_home"] = a1*df["model_spread_home_raw"] + b1
+    df["rating_spread_home"] = a1*df["rating_spread_home_raw"] + b1
 
-    # advantage alignment (home-positive)
+    # ----- Feature model (ridge) predicting market_spread_home -----
+    # Build feature deltas (home - away) from prior features
+    def delta(col):
+        hc = f"{col}_homefeat"; ac = f"{col}_awayfeat"
+        return pd.to_numeric(df.get(hc), errors="coerce") - pd.to_numeric(df.get(ac), errors="coerce")
+
+    feature_cols = [
+        "adv_prior_strength_0_100",
+        "ppa_off","ppa_def","ppa_off_rush","ppa_off_pass","ppa_def_rush","ppa_def_pass",
+        "sr_off","sr_def","expl_off","expl_def",
+        "fp_off_start","fp_def_start","havoc_off_allowed","havoc_def_created"
+    ]
+    # Create deltas with safe existence
+    X_parts = []
+    names = []
+    for c in feature_cols:
+        if f"{c}_homefeat" in df.columns and f"{c}_awayfeat" in df.columns:
+            X_parts.append(delta(c).to_numpy(dtype=float))
+            names.append(f"d_{c}")
+    # Base signals
+    X_parts.append((df["home_blend"] - df["away_blend"]).to_numpy(dtype=float)); names.append("d_blend")
+    X_parts.append(df["hfa_points"].to_numpy(dtype=float)); names.append("hfa")
+    # Bias term
+    if X_parts:
+        X = np.vstack(X_parts).T
+        X = np.column_stack([np.ones(X.shape[0]), X])  # bias
+        names = ["bias"] + names
+    else:
+        X = np.column_stack([np.ones(df.shape[0]), (df["home_blend"] - df["away_blend"]).to_numpy(dtype=float), df["hfa_points"].to_numpy(dtype=float)])
+        names = ["bias","d_blend","hfa"]
+
+    y = pd.to_numeric(df["market_spread_home"], errors="coerce").to_numpy()
+
+    # Fit only on rows with market (optionally last ROLL_WEEKS)
+    mask = np.isfinite(y)
+    if mask.any():
+        weeks = sorted(df.loc[mask,"week"].unique())
+        use_weeks = set(weeks[-ROLL_WEEKS:])
+        mask = mask & df["week"].isin(use_weeks)
+    if mask.any():
+        b = _ridge(X[mask], y[mask], RIDGE_L2)
+    else:
+        b = np.zeros(X.shape[1])
+
+    df["feature_spread_home"] = (X @ b)
+
+    # Blend feature-model and rating-calibrated model for final prediction
+    df["model_spread_home"] = (0.7*df["feature_spread_home"] + 0.3*df["rating_spread_home"]).round(2)
+
+    # Advantage alignment (home-positive) for "expected market"
     df["adv_gap"] = (df["home_adv_score"] - df["away_adv_score"] + df["hfa_points"]).astype(float)
     if have_mkt.any():
         weeks = sorted(df.loc[have_mkt,"week"].unique())
         use_weeks = set(weeks[-ROLL_WEEKS:])
-        mask = have_mkt & df["week"].isin(use_weeks)
-        a2,b2 = _linreg(df.loc[mask,"adv_gap"].values, df.loc[mask,"market_spread_home"].values)
+        mask2 = have_mkt & df["week"].isin(use_weeks)
+        a2,b2 = _linreg(df.loc[mask2,"adv_gap"].values, df.loc[mask2,"market_spread_home"].values)
         a2 = float(np.clip(a2, 0.5, 3.0))
     else:
         a2,b2 = 1.0, 0.0
@@ -490,10 +720,10 @@ def build_predictions(team_inputs: pd.DataFrame, sched: pd.DataFrame) -> Tuple[p
     df["qualified_reason"] = np.where(df["qualified_edge_flag"]==1, "agree+edge+value", "—")
 
     # tidy numeric precision
-    num_cols = ["model_spread_home_raw","model_spread_home","market_spread_home","expected_market_spread",
-                "market_spread_book","model_spread_book","expected_market_spread_book",
-                "edge_points_book","value_points_book","hfa_points","home_blend","away_blend",
-                "home_team_rating","away_team_rating","home_adv_score","away_adv_score","adv_gap"]
+    num_cols = ["rating_spread_home_raw","rating_spread_home","feature_spread_home","model_spread_home",
+                "market_spread_home","expected_market_spread","market_spread_book","model_spread_book",
+                "expected_market_spread_book","edge_points_book","value_points_book","hfa_points",
+                "home_blend","away_blend","home_team_rating","away_team_rating","home_adv_score","away_adv_score","adv_gap"]
     for c in num_cols:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce").round(2)
@@ -512,6 +742,7 @@ def build_predictions(team_inputs: pd.DataFrame, sched: pd.DataFrame) -> Tuple[p
         "home_points","away_points","played","actual_home_margin","actual_winner",
         "home_team_rating","away_team_rating","home_blend","away_blend",
         "home_adv_score","away_adv_score","adv_gap","hfa_points",
+        "rating_spread_home","feature_spread_home",
         "market_spread_home","model_spread_home","expected_market_spread",
         "market_spread_book","model_spread_book","expected_market_spread_book",
         "edge_points_book","value_points_book",
@@ -551,9 +782,9 @@ def write_diagnostics(preds: pd.DataFrame):
 # ---- Main ----
 def main():
     start = datetime.now(timezone.utc)
-    teams_df = build_team_inputs()
+    teams_df, prior_feats = build_team_inputs()
     sched_df = build_schedule(teams_df)
-    preds_df, _ = build_predictions(teams_df, sched_df)
+    preds_df, _ = build_predictions(teams_df, prior_feats, sched_df)
     write_diagnostics(preds_df)
 
     status = {
