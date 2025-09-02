@@ -304,7 +304,11 @@ def build_schedule_and_market(team_inputs: pd.DataFrame) -> pd.DataFrame:
     try:
         # Pull lines for entire season (some APIs may require week loop)
         for wk in sorted(sched["week"].unique()):
-            lines = bet_api.get_lines(year=YEAR, week=wk, season_type="regular")
+            try:
+                lines = bet_api.get_lines(year=YEAR, week=int(wk), season_type="regular")
+            except Exception as e:
+                print(f"[warn] skipping market fetch for week {wk}: {e}", file=sys.stderr)
+                lines = []
             for ln in lines or []:
                 try:
                     gid = getattr(ln, "game_id", None)
@@ -323,8 +327,12 @@ def build_schedule_and_market(team_inputs: pd.DataFrame) -> pd.DataFrame:
     except Exception as e:
         print(f"[warn] market lines fetch failed: {e}", file=sys.stderr)
 
-    market_df = pd.DataFrame(market_rows).dropna().drop_duplicates(subset=["game_id"], keep="last")
-    sched = sched.merge(market_df, on="game_id", how="left")
+    market_df = pd.DataFrame(market_rows, columns=["game_id","market_spread_home"]).dropna()
+    
+    if "game_id" in market_df.columns:
+        sched = sched.merge(market_df, on="game_id", how="left")
+    else:
+        sched["market_spread_home"] = np.nan
 
     # Add conferences
     conf_map = {r.team: r.conference for r in team_inputs[["team","conference"]].itertuples(index=False)}
