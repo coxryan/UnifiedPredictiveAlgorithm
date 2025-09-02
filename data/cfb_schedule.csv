@@ -1,109 +1,109 @@
 game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,market_spread_home,home_conf,away_conf
-401756846,1,2025-08-23,Kansas State,Iowa State,21.0,24.0,1,,Big 12,Big 12
-401756847,1,2025-08-23,Kansas,Fresno State,31.0,7.0,0,,Big 12,Mountain West
-401757218,1,2025-08-23,Western Kentucky,Sam Houston,41.0,24.0,0,,Conference USA,Conference USA
-401754516,1,2025-08-23,Hawai'i,Stanford,23.0,20.0,0,,Mountain West,ACC
-401762522,1,2025-08-28,South Florida,Boise State,34.0,7.0,0,,American Athletic,Mountain West
-401752794,1,2025-08-28,Rutgers,Ohio,34.0,31.0,0,,Big Ten,Mid-American
-401754373,1,2025-08-28,NC State,East Carolina,24.0,17.0,0,,ACC,American Athletic
-401756848,1,2025-08-28,UCF,Jacksonville State,17.0,10.0,0,,Big 12,Conference USA
-401762789,1,2025-08-28,Akron,Wyoming,0.0,10.0,0,,Mid-American,Mountain West
-401752793,1,2025-08-29,Minnesota,Buffalo,23.0,10.0,0,,Big Ten,Mid-American
-401752796,1,2025-08-29,Cincinnati,Nebraska,17.0,20.0,1,,Big 12,Big Ten
-401762791,1,2025-08-29,Wisconsin,Miami (OH),17.0,0.0,0,,Big Ten,Mid-American
-401761589,1,2025-08-29,Charlotte,App State,11.0,34.0,1,,American Athletic,Sun Belt
-401752802,1,2025-08-29,Michigan State,Western Michigan,23.0,6.0,0,,Big Ten,Mid-American
-401754374,1,2025-08-29,Wake Forest,Kennesaw State,10.0,9.0,0,,ACC,Conference USA
-401754375,1,2025-08-30,Colorado,Georgia Tech,20.0,27.0,0,,Big 12,ACC
-401752667,1,2025-08-30,Baylor,Auburn,24.0,38.0,0,,Big 12,SEC
-401757224,1,2025-08-30,Sam Houston,UNLV,21.0,38.0,1,,Conference USA,Mountain West
-401760358,1,2025-08-30,San José State,Central Michigan,14.0,16.0,0,,Mountain West,Mid-American
-401752797,1,2025-08-30,Maryland,Florida Atlantic,39.0,7.0,0,,Big Ten,American Athletic
-401752677,1,2025-08-30,Ohio State,Texas,14.0,7.0,0,,Big Ten,SEC
-401752676,1,2025-08-30,Tennessee,Syracuse,45.0,26.0,1,,SEC,ACC
-401752803,1,2025-08-30,Tulane,Northwestern,23.0,3.0,0,,American Athletic,Big Ten
-401752801,1,2025-08-30,Purdue,Ball State,31.0,0.0,0,,Big Ten,Mid-American
-401752673,1,2025-08-30,Southern Miss,Mississippi State,17.0,34.0,0,,Sun Belt,SEC
-401752670,1,2025-08-30,Kentucky,Toledo,24.0,16.0,0,,SEC,Mid-American
-401752806,1,2025-08-30,Indiana,Old Dominion,27.0,14.0,0,,Big Ten,Sun Belt
-401752665,1,2025-08-30,Florida State,Alabama,31.0,17.0,0,,ACC,SEC
-401762456,1,2025-08-30,Massachusetts,Temple,10.0,42.0,0,,Mid-American,American Athletic
-401752669,1,2025-08-30,Georgia,Marshall,45.0,7.0,0,,SEC,Sun Belt
-401752807,1,2025-08-30,Penn State,Nevada,46.0,11.0,0,,Big Ten,Mountain West
-401754616,1,2025-08-30,Virginia,Coastal Carolina,48.0,7.0,0,,ACC,Sun Belt
-401752678,1,2025-08-30,Texas A&M,UTSA,42.0,24.0,0,,SEC,American Athletic
-401752798,1,2025-08-30,USC,Missouri State,73.0,13.0,0,,Big Ten,Conference USA
-401752808,1,2025-08-30,Michigan,New Mexico,34.0,17.0,0,,Big Ten,Mountain West
-401757225,1,2025-08-30,Utah State,UTEP,28.0,16.0,0,,Mountain West,Conference USA
-401752671,1,2025-08-30,Clemson,LSU,10.0,17.0,0,,ACC,SEC
-401752672,1,2025-08-30,Ole Miss,Georgia State,63.0,7.0,0,,SEC,Sun Belt
-401761592,1,2025-08-31,Louisiana,Rice,12.0,14.0,0,,Sun Belt,American Athletic
-401761594,1,2025-08-31,Texas State,Eastern Michigan,52.0,27.0,0,,Sun Belt,Mid-American
-401760361,1,2025-08-31,Fresno State,Georgia Southern,42.0,14.0,0,,Mountain West,Sun Belt
-401752936,1,2025-08-31,Oregon State,California,15.0,34.0,0,,Pac-12,ACC
-401756849,1,2025-08-31,Arizona,Hawai'i,40.0,6.0,0,,Big 12,Mountain West
-401752805,1,2025-08-31,Washington,Colorado State,38.0,21.0,0,,Big Ten,Mountain West
-401752800,1,2025-08-31,UCLA,Utah,10.0,43.0,0,,Big Ten,Big 12
-401752680,1,2025-08-31,South Carolina,Virginia Tech,24.0,11.0,1,,SEC,ACC
-401754522,1,2025-08-31,Miami,Notre Dame,27.0,24.0,0,,ACC,FBS Independents
-401754523,1,2025-09-02,North Carolina,TCU,,,0,,ACC,Big 12
-401754528,2,2025-09-05,Louisville,James Madison,,,0,,ACC,Sun Belt
-401752826,2,2025-09-05,Maryland,Northern Illinois,,,0,,Big Ten,Mid-American
-401752693,2,2025-09-06,Texas,San José State,,,0,,SEC,Mountain West
-401756885,2,2025-09-06,Texas Tech,Kent State,,,0,,Big 12,Mid-American
-401754529,2,2025-09-06,Pittsburgh,Central Michigan,,,0,,ACC,Mid-American
-401752811,2,2025-09-06,Penn State,Florida International,,,0,,Big Ten,Conference USA
-401752812,2,2025-09-06,Indiana,Kennesaw State,,,0,,Big Ten,Conference USA
-401752822,2,2025-09-06,Iowa State,Iowa,,,0,,Big 12,Big Ten
-401752825,2,2025-09-06,Duke,Illinois,,,0,,ACC,Big Ten
-401754524,2,2025-09-06,NC State,Virginia,,,0,,ACC,ACC
-401754618,2,2025-09-06,Syracuse,UConn,,,0,,ACC,FBS Independents
-401754525,2,2025-09-06,SMU,Baylor,,,0,,ACC,Big 12
-401757227,2,2025-09-06,Jacksonville State,Liberty,,,0,,Conference USA,Conference USA
-401752694,2,2025-09-06,Texas A&M,Utah State,,,0,,SEC,Mountain West
-401752686,2,2025-09-06,Kentucky,Ole Miss,,,0,,SEC,SEC
-401752818,2,2025-09-06,Rutgers,Miami (OH),,,0,,Big Ten,Mid-American
-401756880,2,2025-09-06,Cincinnati,Bowling Green,,,0,,Big 12,Mid-American
-401762458,2,2025-09-06,Navy,UAB,,,0,,American Athletic,American Athletic
-401762461,2,2025-09-06,Western Michigan,North Texas,,,0,,Mid-American,American Athletic
-401752689,2,2025-09-06,Missouri,Kansas,,,0,,SEC,Big 12
-401761603,2,2025-09-06,UTSA,Texas State,,,0,,American Athletic,Sun Belt
-401752824,2,2025-09-06,Oregon,Oklahoma State,,,0,,Big Ten,Big 12
-401754637,2,2025-09-06,Clemson,Troy,,,0,,ACC,Sun Belt
-401756881,2,2025-09-06,Colorado,Delaware,,,0,,Big 12,Conference USA
-401752937,2,2025-09-06,Oregon State,Fresno State,,,0,,Pac-12,Mountain West
-401756883,2,2025-09-06,Ohio,West Virginia,,,0,,Mid-American,Big 12
-401752820,2,2025-09-06,Wisconsin,Middle Tennessee,,,0,,Big Ten,Conference USA
-401752684,2,2025-09-06,Florida,South Florida,,,0,,SEC,American Athletic
-401752682,2,2025-09-06,Arkansas,Arkansas State,,,1,,SEC,Sun Belt
-401757228,2,2025-09-06,Marshall,Missouri State,,,0,,Sun Belt,Conference USA
-401756884,2,2025-09-06,Rice,Houston,,,0,,American Athletic,Big 12
-401756882,2,2025-09-06,Kansas State,Army,,,0,,Big 12,American Athletic
+401756846,1,2025-08-23,Kansas State,Iowa State,21.0,24.0,1,3.0,Big 12,Big 12
+401756847,1,2025-08-23,Kansas,Fresno State,31.0,7.0,0,14.0,Big 12,Mountain West
+401757218,1,2025-08-23,Western Kentucky,Sam Houston,41.0,24.0,0,9.5,Conference USA,Conference USA
+401754516,1,2025-08-23,Hawai'i,Stanford,23.0,20.0,0,1.5,Mountain West,ACC
+401762522,1,2025-08-28,South Florida,Boise State,34.0,7.0,0,-5.5,American Athletic,Mountain West
+401752794,1,2025-08-28,Rutgers,Ohio,34.0,31.0,0,15.5,Big Ten,Mid-American
+401754373,1,2025-08-28,NC State,East Carolina,24.0,17.0,0,13.5,ACC,American Athletic
+401756848,1,2025-08-28,UCF,Jacksonville State,17.0,10.0,0,20.5,Big 12,Conference USA
+401762789,1,2025-08-28,Akron,Wyoming,0.0,10.0,0,-5.0,Mid-American,Mountain West
+401752793,1,2025-08-29,Minnesota,Buffalo,23.0,10.0,0,16.5,Big Ten,Mid-American
+401752796,1,2025-08-29,Cincinnati,Nebraska,17.0,20.0,1,-6.0,Big 12,Big Ten
+401762791,1,2025-08-29,Wisconsin,Miami (OH),17.0,0.0,0,18.0,Big Ten,Mid-American
+401761589,1,2025-08-29,Charlotte,App State,11.0,34.0,1,-8.5,American Athletic,Sun Belt
+401752802,1,2025-08-29,Michigan State,Western Michigan,23.0,6.0,0,21.5,Big Ten,Mid-American
+401754374,1,2025-08-29,Wake Forest,Kennesaw State,10.0,9.0,0,18.5,ACC,Conference USA
+401754375,1,2025-08-30,Colorado,Georgia Tech,20.0,27.0,0,-3.5,Big 12,ACC
+401752667,1,2025-08-30,Baylor,Auburn,24.0,38.0,0,-1.0,Big 12,SEC
+401757224,1,2025-08-30,Sam Houston,UNLV,21.0,38.0,1,-9.0,Conference USA,Mountain West
+401760358,1,2025-08-30,San José State,Central Michigan,14.0,16.0,0,14.5,Mountain West,Mid-American
+401752797,1,2025-08-30,Maryland,Florida Atlantic,39.0,7.0,0,13.5,Big Ten,American Athletic
+401752677,1,2025-08-30,Ohio State,Texas,14.0,7.0,0,2.0,Big Ten,SEC
+401752676,1,2025-08-30,Tennessee,Syracuse,45.0,26.0,1,13.5,SEC,ACC
+401752803,1,2025-08-30,Tulane,Northwestern,23.0,3.0,0,6.5,American Athletic,Big Ten
+401752801,1,2025-08-30,Purdue,Ball State,31.0,0.0,0,16.5,Big Ten,Mid-American
+401752673,1,2025-08-30,Southern Miss,Mississippi State,17.0,34.0,0,-14.5,Sun Belt,SEC
+401752670,1,2025-08-30,Kentucky,Toledo,24.0,16.0,0,10.0,SEC,Mid-American
+401752806,1,2025-08-30,Indiana,Old Dominion,27.0,14.0,0,23.5,Big Ten,Sun Belt
+401752665,1,2025-08-30,Florida State,Alabama,31.0,17.0,0,-13.5,ACC,SEC
+401762456,1,2025-08-30,Massachusetts,Temple,10.0,42.0,0,-2.5,Mid-American,American Athletic
+401752669,1,2025-08-30,Georgia,Marshall,45.0,7.0,0,38.5,SEC,Sun Belt
+401752807,1,2025-08-30,Penn State,Nevada,46.0,11.0,0,43.5,Big Ten,Mountain West
+401754616,1,2025-08-30,Virginia,Coastal Carolina,48.0,7.0,0,13.5,ACC,Sun Belt
+401752678,1,2025-08-30,Texas A&M,UTSA,42.0,24.0,0,23.5,SEC,American Athletic
+401752798,1,2025-08-30,USC,Missouri State,73.0,13.0,0,36.5,Big Ten,Conference USA
+401752808,1,2025-08-30,Michigan,New Mexico,34.0,17.0,0,34.5,Big Ten,Mountain West
+401757225,1,2025-08-30,Utah State,UTEP,28.0,16.0,0,4.5,Mountain West,Conference USA
+401752671,1,2025-08-30,Clemson,LSU,10.0,17.0,0,5.5,ACC,SEC
+401752672,1,2025-08-30,Ole Miss,Georgia State,63.0,7.0,0,33.5,SEC,Sun Belt
+401761592,1,2025-08-31,Louisiana,Rice,12.0,14.0,0,9.5,Sun Belt,American Athletic
+401761594,1,2025-08-31,Texas State,Eastern Michigan,52.0,27.0,0,14.0,Sun Belt,Mid-American
+401760361,1,2025-08-31,Fresno State,Georgia Southern,42.0,14.0,0,2.0,Mountain West,Sun Belt
+401752936,1,2025-08-31,Oregon State,California,15.0,34.0,0,-2.5,Pac-12,ACC
+401756849,1,2025-08-31,Arizona,Hawai'i,40.0,6.0,0,15.5,Big 12,Mountain West
+401752805,1,2025-08-31,Washington,Colorado State,38.0,21.0,0,22.5,Big Ten,Mountain West
+401752800,1,2025-08-31,UCLA,Utah,10.0,43.0,0,-6.5,Big Ten,Big 12
+401752680,1,2025-08-31,South Carolina,Virginia Tech,24.0,11.0,1,7.5,SEC,ACC
+401754522,1,2025-08-31,Miami,Notre Dame,27.0,24.0,0,-2.5,ACC,FBS Independents
+401754523,1,2025-09-02,North Carolina,TCU,,,0,-3.5,ACC,Big 12
+401754528,2,2025-09-05,Louisville,James Madison,,,0,14.25,ACC,Sun Belt
+401752826,2,2025-09-05,Maryland,Northern Illinois,,,0,18.25,Big Ten,Mid-American
+401752693,2,2025-09-06,Texas,San José State,,,0,36.75,SEC,Mountain West
+401756885,2,2025-09-06,Texas Tech,Kent State,,,0,48.25,Big 12,Mid-American
+401754529,2,2025-09-06,Pittsburgh,Central Michigan,,,0,21.5,ACC,Mid-American
+401752811,2,2025-09-06,Penn State,Florida International,,,0,42.5,Big Ten,Conference USA
+401752812,2,2025-09-06,Indiana,Kennesaw State,,,0,36.0,Big Ten,Conference USA
+401752822,2,2025-09-06,Iowa State,Iowa,,,0,3.0,Big 12,Big Ten
+401752825,2,2025-09-06,Duke,Illinois,,,0,-2.75,ACC,Big Ten
+401754524,2,2025-09-06,NC State,Virginia,,,0,2.75,ACC,ACC
+401754618,2,2025-09-06,Syracuse,UConn,,,0,6.75,ACC,FBS Independents
+401754525,2,2025-09-06,SMU,Baylor,,,0,3.0,ACC,Big 12
+401757227,2,2025-09-06,Jacksonville State,Liberty,,,0,-6.5,Conference USA,Conference USA
+401752694,2,2025-09-06,Texas A&M,Utah State,,,0,29.0,SEC,Mountain West
+401752686,2,2025-09-06,Kentucky,Ole Miss,,,0,-10.25,SEC,SEC
+401752818,2,2025-09-06,Rutgers,Miami (OH),,,0,14.25,Big Ten,Mid-American
+401756880,2,2025-09-06,Cincinnati,Bowling Green,,,0,21.25,Big 12,Mid-American
+401762458,2,2025-09-06,Navy,UAB,,,0,21.5,American Athletic,American Athletic
+401762461,2,2025-09-06,Western Michigan,North Texas,,,0,-9.75,Mid-American,American Athletic
+401752689,2,2025-09-06,Missouri,Kansas,,,0,6.5,SEC,Big 12
+401761603,2,2025-09-06,UTSA,Texas State,,,0,4.5,American Athletic,Sun Belt
+401752824,2,2025-09-06,Oregon,Oklahoma State,,,0,28.25,Big Ten,Big 12
+401754637,2,2025-09-06,Clemson,Troy,,,0,33.5,ACC,Sun Belt
+401756881,2,2025-09-06,Colorado,Delaware,,,0,23.75,Big 12,Conference USA
+401752937,2,2025-09-06,Oregon State,Fresno State,,,0,3.25,Pac-12,Mountain West
+401756883,2,2025-09-06,Ohio,West Virginia,,,0,-2.75,Mid-American,Big 12
+401752820,2,2025-09-06,Wisconsin,Middle Tennessee,,,0,28.5,Big Ten,Conference USA
+401752684,2,2025-09-06,Florida,South Florida,,,0,17.25,SEC,American Athletic
+401752682,2,2025-09-06,Arkansas,Arkansas State,,,1,23.25,SEC,Sun Belt
+401757228,2,2025-09-06,Marshall,Missouri State,,,0,9.75,Sun Belt,Conference USA
+401756884,2,2025-09-06,Rice,Houston,,,0,-12.5,American Athletic,Big 12
+401756882,2,2025-09-06,Kansas State,Army,,,0,17.25,Big 12,American Athletic
 401754527,2,2025-09-06,Charlotte,North Carolina,,,0,,American Athletic,ACC
-401757232,2,2025-09-06,Toledo,Western Kentucky,,,0,,Mid-American,Conference USA
-401761601,2,2025-09-06,South Alabama,Tulane,,,0,,Sun Belt,American Athletic
-401761598,2,2025-09-06,Georgia State,Memphis,,,0,,Sun Belt,American Athletic
-401752814,2,2025-09-06,USC,Georgia Southern,,,0,,Big Ten,Sun Belt
-401752695,2,2025-09-06,Virginia Tech,Vanderbilt,,,0,,ACC,SEC
-401752816,2,2025-09-06,Michigan State,Boston College,,,0,,Big Ten,ACC
-401752683,2,2025-09-06,Auburn,Ball State,,,0,,SEC,Mid-American
-401752810,2,2025-09-06,Nebraska,Akron,,,0,,Big Ten,Mid-American
-401752688,2,2025-09-06,Mississippi State,Arizona State,,,0,,SEC,Big 12
-401752690,2,2025-09-06,Oklahoma,Michigan,,,0,,SEC,Big Ten
-401752687,2,2025-09-06,LSU,Louisiana Tech,,,0,,SEC,Conference USA
-401752681,2,2025-09-06,Alabama,UL Monroe,,,0,,SEC,Sun Belt
-401752823,2,2025-09-07,UNLV,UCLA,,,0,,Mountain West,Big Ten
-401757229,2,2025-09-07,New Mexico State,Tulsa,,,0,,Conference USA,American Athletic
-401754526,2,2025-09-07,BYU,Stanford,,,0,,Big 12,ACC
-401752948,2,2025-09-07,Washington State,San Diego State,,,0,,Pac-12,Mountain West
-401757230,2,2025-09-07,Hawai'i,Sam Houston,,,0,,Mountain West,Conference USA
+401757232,2,2025-09-06,Toledo,Western Kentucky,,,0,6.75,Mid-American,Conference USA
+401761601,2,2025-09-06,South Alabama,Tulane,,,0,-10.5,Sun Belt,American Athletic
+401761598,2,2025-09-06,Georgia State,Memphis,,,0,-13.5,Sun Belt,American Athletic
+401752814,2,2025-09-06,USC,Georgia Southern,,,0,28.25,Big Ten,Sun Belt
+401752695,2,2025-09-06,Virginia Tech,Vanderbilt,,,0,1.25,ACC,SEC
+401752816,2,2025-09-06,Michigan State,Boston College,,,0,4.0,Big Ten,ACC
+401752683,2,2025-09-06,Auburn,Ball State,,,0,42.75,SEC,Mid-American
+401752810,2,2025-09-06,Nebraska,Akron,,,0,34.25,Big Ten,Mid-American
+401752688,2,2025-09-06,Mississippi State,Arizona State,,,0,-6.75,SEC,Big 12
+401752690,2,2025-09-06,Oklahoma,Michigan,,,0,5.5,SEC,Big Ten
+401752687,2,2025-09-06,LSU,Louisiana Tech,,,0,37.75,SEC,Conference USA
+401752681,2,2025-09-06,Alabama,UL Monroe,,,0,37.5,SEC,Sun Belt
+401752823,2,2025-09-07,UNLV,UCLA,,,0,-2.5,Mountain West,Big Ten
+401757229,2,2025-09-07,New Mexico State,Tulsa,,,0,-3.5,Conference USA,American Athletic
+401754526,2,2025-09-07,BYU,Stanford,,,0,18.0,Big 12,ACC
+401752948,2,2025-09-07,Washington State,San Diego State,,,0,-0.25,Pac-12,Mountain West
+401757230,2,2025-09-07,Hawai'i,Sam Houston,,,0,7.5,Mountain West,Conference USA
 401754531,3,2025-09-11,Wake Forest,NC State,,,0,,ACC,ACC
 401756893,3,2025-09-12,Houston,Colorado,,,0,,Big 12,Big 12
 401756888,3,2025-09-13,Arizona,Kansas State,,,0,,Big 12,Big 12
 401752837,3,2025-09-13,UCLA,New Mexico,,,0,,Big Ten,Mountain West
 401752700,3,2025-09-13,Ole Miss,Arkansas,,,0,,SEC,SEC
 401752704,3,2025-09-13,South Carolina,Vanderbilt,,,0,,SEC,SEC
-401754623,3,2025-09-13,Georgia Tech,Clemson,,,0,,ACC,ACC
+401754623,3,2025-09-13,Georgia Tech,Clemson,,,0,-9.0,ACC,ACC
 401752831,3,2025-09-13,Northwestern,Oregon,,,0,,Big Ten,Big Ten
 401752696,3,2025-09-13,Alabama,Wisconsin,,,0,,SEC,Big Ten
 401752839,3,2025-09-13,Michigan,Central Michigan,,,0,,Big Ten,Mid-American
@@ -112,11 +112,11 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762817,3,2025-09-13,Kent State,Buffalo,,,0,,Mid-American,Mid-American
 401752697,3,2025-09-13,Auburn,South Alabama,,,0,,SEC,Sun Belt
 401757168,3,2025-09-13,Delaware,UConn,,,0,,Conference USA,FBS Independents
-401754638,3,2025-09-13,West Virginia,Pittsburgh,,,0,,Big 12,ACC
+401754638,3,2025-09-13,West Virginia,Pittsburgh,,,0,-2.25,Big 12,ACC
 401754615,3,2025-09-13,Missouri State,SMU,,,0,,Conference USA,ACC
 401752949,3,2025-09-13,North Texas,Washington State,,,0,,American Athletic,Pac-12
 401752938,3,2025-09-13,Texas Tech,Oregon State,,,0,,Big 12,Pac-12
-401752705,3,2025-09-13,Tennessee,Georgia,,,0,,SEC,SEC
+401752705,3,2025-09-13,Tennessee,Georgia,,,0,-7.25,SEC,SEC
 401752832,3,2025-09-13,Purdue,USC,,,0,,Big Ten,Big Ten
 401756890,3,2025-09-13,Arkansas State,Iowa State,,,0,,Sun Belt,Big 12
 401752702,3,2025-09-13,Missouri,Louisiana,,,0,,SEC,Sun Belt
@@ -130,8 +130,8 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401754536,3,2025-09-13,Virginia Tech,Old Dominion,,,0,,ACC,Sun Belt
 401752829,3,2025-09-13,Illinois,Western Michigan,,,0,,Big Ten,Mid-American
 401752827,3,2025-09-13,Ohio State,Ohio,,,0,,Big Ten,Mid-American
-401752699,3,2025-09-13,LSU,Florida,,,0,,SEC,SEC
-401752707,3,2025-09-13,Notre Dame,Texas A&M,,,0,,FBS Independents,SEC
+401752699,3,2025-09-13,LSU,Florida,,,0,6.0,SEC,SEC
+401752707,3,2025-09-13,Notre Dame,Texas A&M,,,0,6.75,FBS Independents,SEC
 401752830,3,2025-09-13,Iowa,Massachusetts,,,0,,Big Ten,Mid-American
 401757257,3,2025-09-13,Louisiana Tech,New Mexico State,,,0,,Conference USA,Conference USA
 401761604,3,2025-09-13,Coastal Carolina,East Carolina,,,0,,Sun Belt,American Athletic
@@ -148,12 +148,12 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401756900,4,2025-09-19,Oklahoma State,Tulsa,,,0,,Big 12,American Athletic
 401752844,4,2025-09-20,Rutgers,Iowa,,,0,,Big Ten,Big Ten
 401752711,4,2025-09-20,Ole Miss,Tulane,,,0,,SEC,American Athletic
-401752709,4,2025-09-20,Miami,Florida,,,0,,ACC,SEC
+401752709,4,2025-09-20,Miami,Florida,,,0,3.25,ACC,SEC
 401752847,4,2025-09-20,USC,Michigan State,,,0,,Big Ten,Big Ten
 401754537,4,2025-09-20,Clemson,Syracuse,,,0,,ACC,ACC
 401752845,4,2025-09-20,Wisconsin,Maryland,,,0,,Big Ten,Big Ten
-401752843,4,2025-09-20,Indiana,Illinois,,,0,,Big Ten,Big Ten
-401752841,4,2025-09-20,Oregon,Oregon State,,,0,,Big Ten,Pac-12
+401752843,4,2025-09-20,Indiana,Illinois,,,0,2.5,Big Ten,Big Ten
+401752841,4,2025-09-20,Oregon,Oregon State,,,0,26.5,Big Ten,Pac-12
 401752708,4,2025-09-20,Memphis,Arkansas,,,0,,American Athletic,SEC
 401756899,4,2025-09-20,Kansas,West Virginia,,,0,,Big 12,Big 12
 401756898,4,2025-09-20,East Carolina,BYU,,,0,,American Athletic,Big 12
@@ -171,13 +171,13 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752713,4,2025-09-20,Missouri,South Carolina,,,0,,SEC,SEC
 401754539,4,2025-09-20,Virginia,Stanford,,,0,,ACC,ACC
 401754538,4,2025-09-20,Duke,NC State,,,0,,ACC,ACC
-401756901,4,2025-09-20,Utah,Texas Tech,,,0,,Big 12,Big 12
+401756901,4,2025-09-20,Utah,Texas Tech,,,0,3.5,Big 12,Big 12
 401754636,4,2025-09-20,TCU,SMU,,,0,,Big 12,ACC
 401756896,4,2025-09-20,Baylor,Arizona State,,,0,,Big 12,Big 12
 401762469,4,2025-09-20,Army,North Texas,,,0,,American Athletic,American Athletic
 401752715,4,2025-09-20,Tennessee,UAB,,,0,,SEC,American Athletic
 401752848,4,2025-09-20,Notre Dame,Purdue,,,0,,FBS Independents,Big Ten
-401752846,4,2025-09-20,Nebraska,Michigan,,,0,,Big Ten,Big Ten
+401752846,4,2025-09-20,Nebraska,Michigan,,,0,-3.25,Big Ten,Big Ten
 401761610,4,2025-09-20,Eastern Michigan,Louisiana,,,0,,Mid-American,Sun Belt
 401757169,4,2025-09-20,UConn,Ball State,,,0,,FBS Independents,Mid-American
 401752712,4,2025-09-20,Mississippi State,Northern Illinois,,,0,,SEC,Mid-American
@@ -188,7 +188,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401757268,4,2025-09-20,Western Kentucky,Nevada,,,0,,Conference USA,Mountain West
 401757264,4,2025-09-20,Middle Tennessee,Marshall,,,0,,Conference USA,Sun Belt
 401752716,4,2025-09-20,Vanderbilt,Georgia State,,,0,,SEC,Sun Belt
-401752842,4,2025-09-20,Washington State,Washington,,,0,,Pac-12,Big Ten
+401752842,4,2025-09-20,Washington State,Washington,,,0,-12.5,Pac-12,Big Ten
 401757263,4,2025-09-20,Louisiana Tech,Southern Miss,,,0,,Conference USA,Sun Belt
 401752723,4,2025-09-21,Texas,Sam Houston,,,0,,SEC,Conference USA
 401757267,4,2025-09-21,UTEP,UL Monroe,,,0,,Conference USA,Sun Belt
@@ -212,7 +212,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401754545,5,2025-09-27,Syracuse,Duke,,,0,,ACC,ACC
 401754544,5,2025-09-27,Boston College,California,,,0,,ACC,ACC
 401752853,5,2025-09-27,Iowa,Indiana,,,0,,Big Ten,Big Ten
-401752852,5,2025-09-27,Washington,Ohio State,,,0,,Big Ten,Big Ten
+401752852,5,2025-09-27,Washington,Ohio State,,,0,-13.5,Big Ten,Big Ten
 401752851,5,2025-09-27,Northwestern,UCLA,,,0,,Big Ten,Big Ten
 401752850,5,2025-09-27,Illinois,USC,,,0,,Big Ten,Big Ten
 401752849,5,2025-09-27,Minnesota,Rutgers,,,0,,Big Ten,Big Ten
@@ -220,7 +220,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752722,5,2025-09-27,South Carolina,Kentucky,,,0,,SEC,SEC
 401752720,5,2025-09-27,Mississippi State,Tennessee,,,0,,SEC,SEC
 401752721,5,2025-09-27,Missouri,Massachusetts,,,0,,SEC,Mid-American
-401752719,5,2025-09-27,Ole Miss,LSU,,,0,,SEC,SEC
+401752719,5,2025-09-27,Ole Miss,LSU,,,0,-2.25,SEC,SEC
 401760378,5,2025-09-27,Air Force,Hawai'i,,,0,,Mountain West,Mountain West
 401757170,5,2025-09-27,Buffalo,UConn,,,0,,Mid-American,FBS Independents
 401757269,5,2025-09-27,Southern Miss,Jacksonville State,,,0,,Sun Belt,Conference USA
@@ -233,16 +233,16 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401761614,5,2025-09-27,James Madison,Georgia Southern,,,0,,Sun Belt,Sun Belt
 401760380,5,2025-09-27,Northern Illinois,San Diego State,,,0,,Mid-American,Mountain West
 401760379,5,2025-09-27,Boise State,App State,,,0,,Mountain West,Sun Belt
-401752717,5,2025-09-27,Arkansas,Notre Dame,,,0,,SEC,FBS Independents
+401752717,5,2025-09-27,Arkansas,Notre Dame,,,0,-10.5,SEC,FBS Independents
 401752725,5,2025-09-27,Vanderbilt,Utah State,,,0,,SEC,Mountain West
 401762473,5,2025-09-27,Navy,Rice,,,0,,American Athletic,American Athletic
 401762824,5,2025-09-27,Toledo,Akron,,,0,,Mid-American,Mid-American
 401757274,5,2025-09-27,New Mexico,New Mexico State,,,0,,Mountain West,Conference USA
 401757270,5,2025-09-27,Kennesaw State,Middle Tennessee,,,0,,Conference USA,Conference USA
 401757273,5,2025-09-27,Missouri State,Western Kentucky,,,0,,Conference USA,Conference USA
-401752718,5,2025-09-27,Georgia,Alabama,,,0,,SEC,SEC
+401752718,5,2025-09-27,Georgia,Alabama,,,0,4.0,SEC,SEC
 401752950,5,2025-09-27,Colorado State,Washington State,,,0,,Mountain West,Pac-12
-401752854,5,2025-09-27,Penn State,Oregon,,,0,,Big Ten,Big Ten
+401752854,5,2025-09-27,Penn State,Oregon,,,0,6.0,Big Ten,Big Ten
 401757272,5,2025-09-28,UTEP,Louisiana Tech,,,0,,Conference USA,Conference USA
 401756903,5,2025-09-28,Colorado,BYU,,,0,,Big 12,Big 12
 401757275,6,2025-10-03,New Mexico State,Sam Houston,,,0,,Conference USA,Conference USA
@@ -262,8 +262,8 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401754556,6,2025-10-04,Virginia Tech,Wake Forest,,,0,,ACC,ACC
 401754555,6,2025-10-04,SMU,Syracuse,,,0,,ACC,ACC
 401754554,6,2025-10-04,Louisville,Virginia,,,0,,ACC,ACC
-401754553,6,2025-10-04,Florida State,Miami,,,0,,ACC,ACC
-401754552,6,2025-10-04,North Carolina,Clemson,,,0,,ACC,ACC
+401754553,6,2025-10-04,Florida State,Miami,,,0,-5.75,ACC,ACC
+401754552,6,2025-10-04,North Carolina,Clemson,,,0,-13.5,ACC,ACC
 401754551,6,2025-10-04,California,Duke,,,0,,ACC,ACC
 401754550,6,2025-10-04,Pittsburgh,Boston College,,,0,,ACC,ACC
 401752940,6,2025-10-04,App State,Oregon State,,,0,,Sun Belt,Pac-12
@@ -275,8 +275,8 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752856,6,2025-10-04,Michigan,Wisconsin,,,0,,Big Ten,Big Ten
 401752855,6,2025-10-04,UCLA,Penn State,,,0,,Big Ten,Big Ten
 401752730,6,2025-10-04,Texas A&M,Mississippi State,,,0,,SEC,SEC
-401752727,6,2025-10-04,Florida,Texas,,,0,,SEC,SEC
-401752726,6,2025-10-04,Alabama,Vanderbilt,,,0,,SEC,SEC
+401752727,6,2025-10-04,Florida,Texas,,,0,-6.5,SEC,SEC
+401752726,6,2025-10-04,Alabama,Vanderbilt,,,0,24.0,SEC,SEC
 401762832,6,2025-10-04,Massachusetts,Western Michigan,,,0,,Mid-American,Mid-American
 401762873,6,2025-10-04,Northern Illinois,Miami (OH),,,0,,Mid-American,Mid-American
 401762479,6,2025-10-04,Temple,UTSA,,,0,,American Athletic,American Athletic
@@ -287,7 +287,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752728,6,2025-10-04,Georgia,Kentucky,,,0,,SEC,SEC
 401760381,6,2025-10-04,Navy,Air Force,,,0,,American Athletic,Mountain West
 401762830,6,2025-10-04,Ball State,Ohio,,,0,,Mid-American,Mid-American
-401757165,6,2025-10-04,Notre Dame,Boise State,,,0,,FBS Independents,Mountain West
+401757165,6,2025-10-04,Notre Dame,Boise State,,,0,16.25,FBS Independents,Mountain West
 401762831,6,2025-10-04,Buffalo,Eastern Michigan,,,0,,Mid-American,Mid-American
 401762829,6,2025-10-04,Akron,Central Michigan,,,0,,Mid-American,Mid-American
 401757171,6,2025-10-04,UConn,Florida International,,,0,,FBS Independents,Conference USA
@@ -308,13 +308,13 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752735,7,2025-10-11,Tennessee,Arkansas,,,0,,SEC,SEC
 401756921,7,2025-10-11,Texas Tech,Kansas,,,0,,Big 12,Big 12
 401752737,7,2025-10-11,Texas A&M,Florida,,,0,,SEC,SEC
-401752868,7,2025-10-11,USC,Michigan,,,0,,Big Ten,Big Ten
-401756922,7,2025-10-11,Utah,Arizona State,,,0,,Big 12,Big 12
+401752868,7,2025-10-11,USC,Michigan,,,0,-1.5,Big Ten,Big Ten
+401756922,7,2025-10-11,Utah,Arizona State,,,0,2.5,Big 12,Big 12
 401752732,7,2025-10-11,LSU,South Carolina,,,0,,SEC,SEC
-401752870,7,2025-10-11,Oregon,Indiana,,,0,,Big Ten,Big Ten
-401752731,7,2025-10-11,Auburn,Georgia,,,0,,SEC,SEC
+401752870,7,2025-10-11,Oregon,Indiana,,,0,14.0,Big Ten,Big Ten
+401752731,7,2025-10-11,Auburn,Georgia,,,0,-6.5,SEC,SEC
 401754558,7,2025-10-11,Boston College,Clemson,,,0,,ACC,ACC
-401752865,7,2025-10-11,Illinois,Ohio State,,,0,,Big Ten,Big Ten
+401752865,7,2025-10-11,Illinois,Ohio State,,,0,-13.5,Big Ten,Big Ten
 401752866,7,2025-10-11,Penn State,Northwestern,,,0,,Big Ten,Big Ten
 401754560,7,2025-10-11,Georgia Tech,Virginia Tech,,,0,,ACC,ACC
 401762836,7,2025-10-11,Eastern Michigan,Northern Illinois,,,0,,Mid-American,Mid-American
@@ -346,7 +346,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401754563,7,2025-10-11,Oregon State,Wake Forest,,,0,,Pac-12,ACC
 401762834,7,2025-10-11,Western Michigan,Ball State,,,0,,Mid-American,Mid-American
 401760386,7,2025-10-11,UNLV,Air Force,,,0,,Mountain West,Mountain West
-401752736,7,2025-10-11,Texas,Oklahoma,,,1,,SEC,SEC
+401752736,7,2025-10-11,Texas,Oklahoma,,,1,9.5,SEC,SEC
 401754562,7,2025-10-11,Notre Dame,NC State,,,0,,FBS Independents,ACC
 401760391,7,2025-10-11,Wyoming,San José State,,,0,,Mountain West,Mountain West
 401760390,7,2025-10-12,Nevada,San Diego State,,,0,,Mountain West,Mountain West
@@ -357,7 +357,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401757284,8,2025-10-15,Sam Houston,UTEP,,,1,,Conference USA,Conference USA
 401757283,8,2025-10-15,Jacksonville State,Delaware,,,0,,Conference USA,Conference USA
 401762486,8,2025-10-16,East Carolina,Tulsa,,,0,,American Athletic,American Athletic
-401754564,8,2025-10-17,Miami,Louisville,,,0,,ACC,ACC
+401754564,8,2025-10-17,Miami,Louisville,,,0,6.5,ACC,ACC
 401752872,8,2025-10-18,Minnesota,Nebraska,,,0,,Big Ten,Big Ten
 401760396,8,2025-10-18,Utah State,San José State,,,0,,Mountain West,Mountain West
 401754371,8,2025-10-18,California,North Carolina,,,0,,ACC,ACC
@@ -379,7 +379,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762839,8,2025-10-18,Bowling Green,Central Michigan,,,0,,Mid-American,Mid-American
 401762840,8,2025-10-18,Massachusetts,Buffalo,,,0,,Mid-American,Mid-American
 401762841,8,2025-10-18,Miami (OH),Eastern Michigan,,,0,,Mid-American,Mid-American
-401752873,8,2025-10-18,Michigan,Washington,,,0,,Big Ten,Big Ten
+401752873,8,2025-10-18,Michigan,Washington,,,0,10.5,Big Ten,Big Ten
 401762487,8,2025-10-18,UAB,Memphis,,,0,,American Athletic,American Athletic
 401761629,8,2025-10-18,App State,Coastal Carolina,,,0,,Sun Belt,Sun Belt
 401752741,8,2025-10-18,Florida,Mississippi State,,,0,,SEC,SEC
@@ -390,14 +390,14 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401761668,8,2025-10-18,Louisiana,Southern Miss,,,0,,Sun Belt,Sun Belt
 401752739,8,2025-10-18,Arkansas,Texas A&M,,,0,,SEC,SEC
 401752744,8,2025-10-18,South Carolina,Oklahoma,,,0,,SEC,SEC
-401756923,8,2025-10-18,Arizona State,Texas Tech,,,0,,Big 12,Big 12
+401756923,8,2025-10-18,Arizona State,Texas Tech,,,0,4.0,Big 12,Big 12
 401752745,8,2025-10-18,Vanderbilt,LSU,,,0,,SEC,SEC
-401752738,8,2025-10-18,Alabama,Tennessee,,,0,,SEC,SEC
+401752738,8,2025-10-18,Alabama,Tennessee,,,0,12.0,SEC,SEC
 401752876,8,2025-10-18,Rutgers,Oregon,,,0,,Big Ten,Big Ten
-401752742,8,2025-10-18,Georgia,Ole Miss,,,0,,SEC,SEC
-401754565,8,2025-10-18,Clemson,SMU,,,0,,ACC,ACC
+401752742,8,2025-10-18,Georgia,Ole Miss,,,0,10.5,SEC,SEC
+401754565,8,2025-10-18,Clemson,SMU,,,0,11.5,ACC,ACC
 401752877,8,2025-10-18,Wisconsin,Ohio State,,,0,,Big Ten,Big Ten
-401752875,8,2025-10-18,Iowa,Penn State,,,0,,Big Ten,Big Ten
+401752875,8,2025-10-18,Iowa,Penn State,,,0,-10.5,Big Ten,Big Ten
 401752743,8,2025-10-18,Kentucky,Texas,,,0,,SEC,SEC
 401762488,8,2025-10-18,Tulane,Army,,,0,,American Athletic,American Athletic
 401762489,8,2025-10-18,Charlotte,Temple,,,0,,American Athletic,American Athletic
@@ -408,7 +408,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762838,8,2025-10-18,Ball State,Akron,,,0,,Mid-American,Mid-American
 401752951,8,2025-10-18,Virginia,Washington State,,,0,,ACC,Pac-12
 401760394,8,2025-10-18,Colorado State,Hawai'i,,,0,,Mountain West,Mountain West
-401752871,8,2025-10-18,Notre Dame,USC,,,0,,FBS Independents,Big Ten
+401752871,8,2025-10-18,Notre Dame,USC,,,0,10.5,FBS Independents,Big Ten
 401754567,8,2025-10-19,Stanford,Florida State,,,0,,ACC,ACC
 401757285,9,2025-10-21,Florida International,Kennesaw State,,,0,,Conference USA,Conference USA
 401757286,9,2025-10-21,Louisiana Tech,Western Kentucky,,,0,,Conference USA,Conference USA
@@ -418,7 +418,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762492,9,2025-10-24,Charlotte,North Texas,,,0,,American Athletic,American Athletic
 401754372,9,2025-10-24,Virginia Tech,California,,,0,,ACC,ACC
 401760397,9,2025-10-25,Nevada,Boise State,,,0,,Mountain West,Mountain West
-401756932,9,2025-10-25,Kansas,Kansas State,,,0,,Big 12,Big 12
+401756932,9,2025-10-25,Kansas,Kansas State,,,0,-4.0,Big 12,Big 12
 401752885,9,2025-10-25,Indiana,UCLA,,,0,,Big Ten,Big Ten
 401756931,9,2025-10-25,Iowa State,BYU,,,0,,Big 12,Big 12
 401756933,9,2025-10-25,Texas Tech,Oklahoma State,,,0,,Big 12,Big 12
@@ -437,7 +437,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762495,9,2025-10-25,Tulsa,Temple,,,0,,American Athletic,American Athletic
 401762494,9,2025-10-25,Memphis,South Florida,,,0,,American Athletic,American Athletic
 401756935,9,2025-10-25,West Virginia,TCU,,,0,,Big 12,Big 12
-401756934,9,2025-10-25,Utah,Colorado,,,0,,Big 12,Big 12
+401756934,9,2025-10-25,Utah,Colorado,,,0,8.5,Big 12,Big 12
 401756930,9,2025-10-25,Cincinnati,Baylor,,,0,,Big 12,Big 12
 401754574,9,2025-10-25,Pittsburgh,NC State,,,0,,ACC,ACC
 401761638,9,2025-10-25,Troy,Louisiana,,,0,,Sun Belt,Sun Belt
@@ -451,12 +451,12 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752747,9,2025-10-25,Kentucky,Tennessee,,,0,,SEC,SEC
 401752749,9,2025-10-25,Mississippi State,Texas,,,0,,SEC,SEC
 401752886,9,2025-10-25,Oregon,Wisconsin,,,0,,Big Ten,Big Ten
-401752751,9,2025-10-25,South Carolina,Alabama,,,0,,SEC,SEC
-401752748,9,2025-10-25,LSU,Texas A&M,,,0,,SEC,SEC
+401752751,9,2025-10-25,South Carolina,Alabama,,,0,-7.5,SEC,SEC
+401752748,9,2025-10-25,LSU,Texas A&M,,,0,5.5,SEC,SEC
 401754572,9,2025-10-25,Miami,Stanford,,,0,,ACC,ACC
 401756929,9,2025-10-25,Arizona State,Houston,,,0,,Big 12,Big 12
 401752880,9,2025-10-25,Washington,Illinois,,,0,,Big Ten,Big Ten
-401752881,9,2025-10-25,Michigan State,Michigan,,,0,,Big Ten,Big Ten
+401752881,9,2025-10-25,Michigan State,Michigan,,,0,-8.25,Big Ten,Big Ten
 401752942,9,2025-10-25,Wake Forest,SMU,,,0,,ACC,ACC
 401762874,9,2025-10-25,Miami (OH),Western Michigan,,,0,,Mid-American,Mid-American
 401762493,9,2025-10-25,Navy,Florida Atlantic,,,0,,American Athletic,American Athletic
@@ -478,11 +478,11 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752756,10,2025-11-01,Ole Miss,South Carolina,,,0,,SEC,SEC
 401752891,10,2025-11-01,Illinois,Rutgers,,,0,,Big Ten,Big Ten
 401756939,10,2025-11-01,Iowa State,Arizona State,,,0,,Big 12,Big 12
-401754581,10,2025-11-01,SMU,Miami,,,0,,ACC,ACC
+401754581,10,2025-11-01,SMU,Miami,,,0,-1.5,ACC,ACC
 401754583,10,2025-11-01,Boston College,Notre Dame,,,0,,ACC,FBS Independents
 401754577,10,2025-11-01,Clemson,Duke,,,0,,ACC,ACC
-401752889,10,2025-11-01,Ohio State,Penn State,,,0,,Big Ten,Big Ten
-401756941,10,2025-11-01,Kansas State,Texas Tech,,,0,,Big 12,Big 12
+401752889,10,2025-11-01,Ohio State,Penn State,,,0,4.0,Big Ten,Big Ten
+401756941,10,2025-11-01,Kansas State,Texas Tech,,,0,4.25,Big 12,Big 12
 401756942,10,2025-11-01,Utah,Cincinnati,,,0,,Big 12,Big 12
 401761641,10,2025-11-01,UL Monroe,Old Dominion,,,0,,Sun Belt,Sun Belt
 401762850,10,2025-11-01,Western Michigan,Central Michigan,,,0,,Mid-American,Mid-American
@@ -510,7 +510,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401760401,10,2025-11-01,Air Force,Army,,,0,,Mountain West,American Athletic
 401760404,10,2025-11-01,UNLV,New Mexico,,,0,,Mountain West,Mountain West
 401757294,10,2025-11-01,Western Kentucky,New Mexico State,,,0,,Conference USA,Conference USA
-401752755,10,2025-11-01,Florida,Georgia,,,1,,SEC,SEC
+401752755,10,2025-11-01,Florida,Georgia,,,1,-7.25,SEC,SEC
 401757293,10,2025-11-01,Liberty,Delaware,,,0,,Conference USA,Conference USA
 401760405,10,2025-11-01,San Diego State,Wyoming,,,0,,Mountain West,Mountain West
 401752943,10,2025-11-01,Oregon State,Washington State,,,0,,Pac-12,Pac-12
@@ -539,7 +539,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752894,11,2025-11-08,Rutgers,Maryland,,,0,,Big Ten,Big Ten
 401756945,11,2025-11-08,Texas Tech,BYU,,,0,,Big 12,Big 12
 401762505,11,2025-11-08,Florida Atlantic,Tulsa,,,0,,American Athletic,American Athletic
-401752893,11,2025-11-08,Penn State,Indiana,,,0,,Big Ten,Big Ten
+401752893,11,2025-11-08,Penn State,Indiana,,,0,16.0,Big Ten,Big Ten
 401756947,11,2025-11-08,West Virginia,Colorado,,,0,,Big 12,Big 12
 401754584,11,2025-11-08,Boston College,SMU,,,0,,ACC,ACC
 401761646,11,2025-11-08,Marshall,James Madison,,,0,,Sun Belt,Sun Belt
@@ -548,11 +548,11 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762504,11,2025-11-08,East Carolina,Charlotte,,,0,,American Athletic,American Athletic
 401752763,11,2025-11-08,Missouri,Texas A&M,,,0,,SEC,SEC
 401761647,11,2025-11-08,Arkansas State,Southern Miss,,,0,,Sun Belt,Sun Belt
-401752759,11,2025-11-08,Alabama,LSU,,,0,,SEC,SEC
+401752759,11,2025-11-08,Alabama,LSU,,,0,5.75,SEC,SEC
 401754587,11,2025-11-08,Miami,Syracuse,,,0,,ACC,ACC
 401754588,11,2025-11-08,North Carolina,Stanford,,,0,,ACC,ACC
 401754589,11,2025-11-08,Virginia,Wake Forest,,,0,,ACC,ACC
-401754586,11,2025-11-08,Clemson,Florida State,,,0,,ACC,ACC
+401754586,11,2025-11-08,Clemson,Florida State,,,0,16.75,ACC,ACC
 401754585,11,2025-11-08,Louisville,California,,,0,,ACC,ACC
 401752762,11,2025-11-08,Mississippi State,Georgia,,,0,,SEC,SEC
 401762503,11,2025-11-08,Army,Temple,,,0,,American Athletic,American Athletic
@@ -572,7 +572,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762860,12,2025-11-13,Miami (OH),Toledo,,,0,,Mid-American,Mid-American
 401762859,12,2025-11-13,Massachusetts,Northern Illinois,,,0,,Mid-American,Mid-American
 401761649,12,2025-11-14,Old Dominion,Troy,,,0,,Sun Belt,Sun Belt
-401754591,12,2025-11-15,Louisville,Clemson,,,0,,ACC,ACC
+401754591,12,2025-11-15,Louisville,Clemson,,,0,-6.25,ACC,ACC
 401752904,12,2025-11-15,Oregon,Minnesota,,,0,,Big Ten,Big Ten
 401754594,12,2025-11-15,Florida State,Virginia Tech,,,0,,ACC,ACC
 401756950,12,2025-11-15,BYU,TCU,,,0,,Big 12,Big 12
@@ -597,9 +597,9 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401754597,12,2025-11-15,Pittsburgh,Notre Dame,,,0,,ACC,FBS Independents
 401752770,12,2025-11-15,Missouri,Mississippi State,,,0,,SEC,SEC
 401756953,12,2025-11-15,Texas Tech,UCF,,,0,,Big 12,Big 12
-401752766,12,2025-11-15,Georgia,Texas,,,0,,SEC,SEC
+401752766,12,2025-11-15,Georgia,Texas,,,0,2.5,SEC,SEC
 401752903,12,2025-11-15,Michigan State,Penn State,,,0,,Big Ten,Big Ten
-401752765,12,2025-11-15,Alabama,Oklahoma,,,0,,SEC,SEC
+401752765,12,2025-11-15,Alabama,Oklahoma,,,0,12.5,SEC,SEC
 401762508,12,2025-11-15,East Carolina,Memphis,,,0,,American Athletic,American Athletic
 401752905,12,2025-11-15,Northwestern,Michigan,,,1,,Big Ten,Big Ten
 401762509,12,2025-11-15,Tulane,Florida Atlantic,,,0,,American Athletic,American Athletic
@@ -632,7 +632,7 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401761655,13,2025-11-21,Arkansas State,Louisiana,,,0,,Sun Belt,Sun Belt
 401754598,13,2025-11-22,NC State,Florida State,,,0,,ACC,ACC
 401760418,13,2025-11-22,UNLV,Hawai'i,,,0,,Mountain West,Mountain West
-401752775,13,2025-11-22,Florida,Tennessee,,,0,,SEC,SEC
+401752775,13,2025-11-22,Florida,Tennessee,,,0,4.0,SEC,SEC
 401752777,13,2025-11-22,LSU,Western Kentucky,,,0,,SEC,Conference USA
 401752779,13,2025-11-22,South Carolina,Coastal Carolina,,,0,,SEC,Sun Belt
 401752780,13,2025-11-22,Texas,Arkansas,,,0,,SEC,SEC
@@ -640,16 +640,16 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401762515,13,2025-11-22,Temple,Tulane,,,0,,American Athletic,American Athletic
 401752908,13,2025-11-22,Penn State,Nebraska,,,0,,Big Ten,Big Ten
 401752912,13,2025-11-22,Ohio State,Rutgers,,,0,,Big Ten,Big Ten
-401752911,13,2025-11-22,Oregon,USC,,,0,,Big Ten,Big Ten
+401752911,13,2025-11-22,Oregon,USC,,,0,12.75,Big Ten,Big Ten
 401754603,13,2025-11-22,Virginia Tech,Miami,,,0,,ACC,ACC
-401756956,13,2025-11-22,Colorado,Arizona State,,,0,,Big 12,Big 12
+401756956,13,2025-11-22,Colorado,Arizona State,,,0,-4.5,Big 12,Big 12
 401752915,13,2025-11-22,Wisconsin,Illinois,,,0,,Big Ten,Big Ten
 401752914,13,2025-11-22,Maryland,Michigan,,,0,,Big Ten,Big Ten
 401752910,13,2025-11-22,UCLA,Washington,,,0,,Big Ten,Big Ten
 401752913,13,2025-11-22,Iowa,Michigan State,,,0,,Big Ten,Big Ten
 401752954,13,2025-11-22,James Madison,Washington State,,,0,,Sun Belt,Pac-12
 401754599,13,2025-11-22,Stanford,California,,,0,,ACC,ACC
-401754600,13,2025-11-22,North Carolina,Duke,,,0,,ACC,ACC
+401754600,13,2025-11-22,North Carolina,Duke,,,0,0.0,ACC,ACC
 401754601,13,2025-11-22,Georgia Tech,Pittsburgh,,,0,,ACC,ACC
 401761656,13,2025-11-22,App State,Marshall,,,0,,Sun Belt,Sun Belt
 401761657,13,2025-11-22,Georgia Southern,Old Dominion,,,0,,Sun Belt,Sun Belt
@@ -667,13 +667,13 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401757175,13,2025-11-22,Florida Atlantic,UConn,,,0,,American Athletic,FBS Independents
 401760420,13,2025-11-22,San Diego State,San José State,,,0,,Mountain West,Mountain West
 401754602,13,2025-11-22,SMU,Louisville,,,0,,ACC,ACC
-401756960,13,2025-11-22,Utah,Kansas State,,,0,,Big 12,Big 12
+401756960,13,2025-11-22,Utah,Kansas State,,,0,1.5,Big 12,Big 12
 401756958,13,2025-11-22,Iowa State,Kansas,,,0,,Big 12,Big 12
 401760416,13,2025-11-22,Boise State,Colorado State,,,0,,Mountain West,Mountain West
 401752782,13,2025-11-22,Vanderbilt,Kentucky,,,0,,SEC,SEC
 401752909,13,2025-11-22,Northwestern,Minnesota,,,1,,Big Ten,Big Ten
 401762512,13,2025-11-22,Army,Tulsa,,,0,,American Athletic,American Athletic
-401752778,13,2025-11-22,Oklahoma,Missouri,,,0,,SEC,SEC
+401752778,13,2025-11-22,Oklahoma,Missouri,,,0,7.5,SEC,SEC
 401752776,13,2025-11-22,Georgia,Charlotte,,,0,,SEC,American Athletic
 401757306,13,2025-11-22,Kennesaw State,Missouri State,,,0,,Conference USA,Conference USA
 401760419,13,2025-11-22,Wyoming,Nevada,,,0,,Mountain West,Mountain West
@@ -692,14 +692,14 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401756961,14,2025-11-28,Arizona State,Arizona,,,0,,Big 12,Big 12
 401762870,14,2025-11-28,Buffalo,Ohio,,,0,,Mid-American,Mid-American
 401756964,14,2025-11-28,Kansas,Utah,,,0,,Big 12,Big 12
-401752916,14,2025-11-28,Nebraska,Iowa,,,0,,Big Ten,Big Ten
-401752788,14,2025-11-28,Mississippi State,Ole Miss,,,0,,SEC,SEC
+401752916,14,2025-11-28,Nebraska,Iowa,,,0,2.5,Big Ten,Big Ten
+401752788,14,2025-11-28,Mississippi State,Ole Miss,,,0,-11.5,SEC,SEC
 401762871,14,2025-11-28,Northern Illinois,Kent State,,,0,,Mid-American,Mid-American
-401752786,14,2025-11-28,Georgia Tech,Georgia,,,1,,ACC,SEC
+401752786,14,2025-11-28,Georgia Tech,Georgia,,,1,-13.5,ACC,SEC
 401760426,14,2025-11-28,New Mexico,San Diego State,,,0,,Mountain West,Mountain West
 401760422,14,2025-11-28,Utah State,Boise State,,,0,,Mountain West,Mountain West
 401752924,14,2025-11-29,Purdue,Indiana,,,0,,Big Ten,Big Ten
-401752792,14,2025-11-29,Texas,Texas A&M,,,0,,SEC,SEC
+401752792,14,2025-11-29,Texas,Texas A&M,,,0,10.5,SEC,SEC
 401762875,14,2025-11-29,Miami (OH),Ball State,,,0,,Mid-American,Mid-American
 401752787,14,2025-11-29,Louisville,Kentucky,,,0,,ACC,SEC
 401756963,14,2025-11-29,BYU,UCF,,,0,,Big 12,Big 12
@@ -728,20 +728,20 @@ game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,marke
 401752923,14,2025-11-29,Michigan State,Maryland,,,1,,Big Ten,Big Ten
 401754608,14,2025-11-29,Syracuse,Boston College,,,0,,ACC,ACC
 401754610,14,2025-11-29,Duke,Wake Forest,,,0,,ACC,ACC
-401754612,14,2025-11-29,NC State,North Carolina,,,0,,ACC,ACC
+401754612,14,2025-11-29,NC State,North Carolina,,,0,2.5,ACC,ACC
 401754613,14,2025-11-29,Virginia,Virginia Tech,,,0,,ACC,ACC
 401752920,14,2025-11-29,Rutgers,Penn State,,,0,,Big Ten,Big Ten
 401754614,14,2025-11-29,Stanford,Notre Dame,,,0,,ACC,FBS Independents
-401752917,14,2025-11-29,Washington,Oregon,,,0,,Big Ten,Big Ten
-401752784,14,2025-11-29,Auburn,Alabama,,,0,,SEC,SEC
+401752917,14,2025-11-29,Washington,Oregon,,,0,-11.5,Big Ten,Big Ten
+401752784,14,2025-11-29,Auburn,Alabama,,,0,-5.5,SEC,SEC
 401752789,14,2025-11-29,Oklahoma,LSU,,,0,,SEC,SEC
 401754611,14,2025-11-29,Pittsburgh,Miami,,,0,,ACC,ACC
 401752922,14,2025-11-29,Illinois,Northwestern,,,0,,Big Ten,Big Ten
 401752785,14,2025-11-29,Florida,Florida State,,,0,,SEC,ACC
 401754609,14,2025-11-29,California,SMU,,,0,,ACC,ACC
 401756965,14,2025-11-29,Kansas State,Colorado,,,0,,Big 12,Big 12
-401752921,14,2025-11-29,Michigan,Ohio State,,,0,,Big Ten,Big Ten
-401752790,14,2025-11-29,South Carolina,Clemson,,,0,,SEC,ACC
+401752921,14,2025-11-29,Michigan,Ohio State,,,0,-5.5,Big Ten,Big Ten
+401752790,14,2025-11-29,South Carolina,Clemson,,,0,-4.5,SEC,ACC
 401757311,14,2025-11-29,Sam Houston,Florida International,,,1,,Conference USA,Conference USA
 401757310,14,2025-11-29,Delaware,UTEP,,,0,,Conference USA,Conference USA
 401757314,14,2025-11-29,Missouri State,Louisiana Tech,,,0,,Conference USA,Conference USA
