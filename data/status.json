@@ -1,19 +1,8 @@
 {
-  "generated_at_utc": "2025-09-02T00:07:41Z",
+  "generated_at_utc": "2025-09-02T01:04:47Z",
   "year": 2025,
-  "teams": 134,
-  "fields": [
-    "team",
-    "conference",
-    "wrps_offense_percent",
-    "wrps_defense_percent",
-    "wrps_overall_percent",
-    "wrps_percent_0_100",
-    "talent_score_0_100",
-    "prev_season_sos_rank_1_133",
-    "portal_net_0_100",
-    "portal_net_count",
-    "portal_net_value"
-  ],
-  "next_run_eta_utc": "2025-09-02T00:37:41Z"
+  "teams": 136,
+  "games": 752,
+  "pred_rows": 752,
+  "next_run_eta_utc": "2025-09-02T01:34:47Z"
 }

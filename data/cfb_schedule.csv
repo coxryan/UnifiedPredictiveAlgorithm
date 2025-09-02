@@ -1,1507 +1,753 @@
-game_id,week,date,home_team,away_team,neutral_site,market_spread
-401756846,1,2025-08-23,Kansas State,Iowa State,1,3.0
-401756847,1,2025-08-23,Kansas,Fresno State,0,14.0
-401757218,1,2025-08-23,Western Kentucky,Sam Houston,0,9.5
-401754516,1,2025-08-23,Hawai'i,Stanford,0,1.5
-401762522,1,2025-08-28,South Florida,Boise State,0,-5.5
-401752794,1,2025-08-28,Rutgers,Ohio,0,15.5
-401756848,1,2025-08-28,UCF,Jacksonville State,0,20.5
-401762789,1,2025-08-28,Akron,Wyoming,0,-5.0
-401754373,1,2025-08-28,NC State,East Carolina,0,13.5
-401752793,1,2025-08-29,Minnesota,Buffalo,0,16.5
-401762791,1,2025-08-29,Wisconsin,Miami (OH),0,18.0
-401752796,1,2025-08-29,Cincinnati,Nebraska,1,-6.0
-401754374,1,2025-08-29,Wake Forest,Kennesaw State,0,18.5
-401761589,1,2025-08-29,Charlotte,App State,1,-8.5
-401752802,1,2025-08-29,Michigan State,Western Michigan,0,21.5
-401752667,1,2025-08-30,Baylor,Auburn,0,-1.0
-401754375,1,2025-08-30,Colorado,Georgia Tech,0,-3.5
-401757224,1,2025-08-30,Sam Houston,UNLV,1,-9.0
-401760358,1,2025-08-30,San José State,Central Michigan,0,14.5
-401752673,1,2025-08-30,Southern Miss,Mississippi State,0,-14.5
-401752801,1,2025-08-30,Purdue,Ball State,0,16.5
-401752677,1,2025-08-30,Ohio State,Texas,0,2.0
-401752676,1,2025-08-30,Tennessee,Syracuse,1,13.5
-401752797,1,2025-08-30,Maryland,Florida Atlantic,0,13.5
-401752803,1,2025-08-30,Tulane,Northwestern,0,6.5
-401752670,1,2025-08-30,Kentucky,Toledo,0,10.0
-401752806,1,2025-08-30,Indiana,Old Dominion,0,23.5
-401762456,1,2025-08-30,Massachusetts,Temple,0,-2.5
-401752807,1,2025-08-30,Penn State,Nevada,0,43.5
-401752665,1,2025-08-30,Florida State,Alabama,0,-13.5
-401752669,1,2025-08-30,Georgia,Marshall,0,38.5
-401754616,1,2025-08-30,Virginia,Coastal Carolina,0,13.5
-401752678,1,2025-08-30,Texas A&M,UTSA,0,23.5
-401752798,1,2025-08-30,USC,Missouri State,0,36.5
-401752808,1,2025-08-30,Michigan,New Mexico,0,34.5
-401752671,1,2025-08-30,Clemson,LSU,0,5.5
-401757225,1,2025-08-30,Utah State,UTEP,0,4.5
-401752672,1,2025-08-30,Ole Miss,Georgia State,0,33.5
-401761594,1,2025-08-31,Texas State,Eastern Michigan,0,14.0
-401761592,1,2025-08-31,Louisiana,Rice,0,9.5
-401760361,1,2025-08-31,Fresno State,Georgia Southern,0,2.0
-401752936,1,2025-08-31,Oregon State,California,0,-2.5
-401756849,1,2025-08-31,Arizona,Hawai'i,0,15.5
-401752805,1,2025-08-31,Washington,Colorado State,0,22.5
-401752800,1,2025-08-31,UCLA,Utah,0,-6.5
-401752680,1,2025-08-31,South Carolina,Virginia Tech,1,7.5
-401754522,1,2025-08-31,Miami,Notre Dame,0,-2.5
-401754523,1,2025-09-02,North Carolina,TCU,0,-3.5
-401754528,2,2025-09-05,Louisville,James Madison,0,14.25
-401752826,2,2025-09-05,Maryland,Northern Illinois,0,18.25
-401757227,2,2025-09-06,Jacksonville State,Liberty,0,-6.5
-401756885,2,2025-09-06,Texas Tech,Kent State,0,48.25
-401754618,2,2025-09-06,Syracuse,UConn,0,6.75
-401754525,2,2025-09-06,SMU,Baylor,0,3.0
-401754524,2,2025-09-06,NC State,Virginia,0,2.75
-401752825,2,2025-09-06,Duke,Illinois,0,-2.75
-401752822,2,2025-09-06,Iowa State,Iowa,0,3.0
-401752811,2,2025-09-06,Penn State,Florida International,0,42.5
-401752693,2,2025-09-06,Texas,San José State,0,36.75
-401754529,2,2025-09-06,Pittsburgh,Central Michigan,0,21.5
-401752812,2,2025-09-06,Indiana,Kennesaw State,0,36.0
-401752694,2,2025-09-06,Texas A&M,Utah State,0,29.0
-401762461,2,2025-09-06,Western Michigan,North Texas,0,-9.75
-401761603,2,2025-09-06,UTSA,Texas State,0,4.5
-401752824,2,2025-09-06,Oregon,Oklahoma State,0,28.25
-401762458,2,2025-09-06,Navy,UAB,0,21.5
-401756881,2,2025-09-06,Colorado,Delaware,0,23.75
-401756880,2,2025-09-06,Cincinnati,Bowling Green,0,21.0
-401754637,2,2025-09-06,Clemson,Troy,0,33.5
-401752689,2,2025-09-06,Missouri,Kansas,0,6.5
-401752937,2,2025-09-06,Oregon State,Fresno State,0,3.25
-401752818,2,2025-09-06,Rutgers,Miami (OH),0,14.25
-401752686,2,2025-09-06,Kentucky,Ole Miss,0,-10.25
-401756883,2,2025-09-06,Ohio,West Virginia,0,-2.75
-401752820,2,2025-09-06,Wisconsin,Middle Tennessee,0,28.5
-401752684,2,2025-09-06,Florida,South Florida,0,17.25
-401752682,2,2025-09-06,Arkansas,Arkansas State,1,23.25
-401757228,2,2025-09-06,Marshall,Missouri State,0,9.75
-401756882,2,2025-09-06,Kansas State,Army,0,17.0
-401757232,2,2025-09-06,Toledo,Western Kentucky,0,6.75
-401754527,2,2025-09-06,Charlotte,North Carolina,0,
-401756884,2,2025-09-06,Rice,Houston,0,-12.5
-401761598,2,2025-09-06,Georgia State,Memphis,0,-13.5
-401761601,2,2025-09-06,South Alabama,Tulane,0,-10.5
-401752810,2,2025-09-06,Nebraska,Akron,0,34.25
-401752814,2,2025-09-06,USC,Georgia Southern,0,28.25
-401752816,2,2025-09-06,Michigan State,Boston College,0,4.0
-401752690,2,2025-09-06,Oklahoma,Michigan,0,5.5
-401752683,2,2025-09-06,Auburn,Ball State,0,42.75
-401752695,2,2025-09-06,Virginia Tech,Vanderbilt,0,1.25
-401752687,2,2025-09-06,LSU,Louisiana Tech,0,37.75
-401752688,2,2025-09-06,Mississippi State,Arizona State,0,-6.75
-401752681,2,2025-09-06,Alabama,UL Monroe,0,37.5
-401752823,2,2025-09-07,UNLV,UCLA,0,-2.5
-401757229,2,2025-09-07,New Mexico State,Tulsa,0,-3.5
-401754526,2,2025-09-07,BYU,Stanford,0,18.0
-401752948,2,2025-09-07,Washington State,San Diego State,0,-0.25
-401757230,2,2025-09-07,Hawai'i,Sam Houston,0,7.5
-401754531,3,2025-09-11,Wake Forest,NC State,0,
-401756893,3,2025-09-12,Houston,Colorado,0,
-401756888,3,2025-09-13,Arizona,Kansas State,0,
-401752837,3,2025-09-13,UCLA,New Mexico,0,
-401752700,3,2025-09-13,Ole Miss,Arkansas,0,
-401752704,3,2025-09-13,South Carolina,Vanderbilt,0,
-401752696,3,2025-09-13,Alabama,Wisconsin,0,
-401762817,3,2025-09-13,Kent State,Buffalo,0,
-401761608,3,2025-09-13,Troy,Memphis,0,
-401754623,3,2025-09-13,Georgia Tech,Clemson,0,-9.0
-401752839,3,2025-09-13,Michigan,Central Michigan,0,
-401752831,3,2025-09-13,Northwestern,Oregon,0,
-401752703,3,2025-09-13,Temple,Oklahoma,0,
-401752697,3,2025-09-13,Auburn,South Alabama,0,
-401757168,3,2025-09-13,Delaware,UConn,0,
-401752832,3,2025-09-13,Purdue,USC,0,
-401754638,3,2025-09-13,West Virginia,Pittsburgh,0,-2.25
-401752705,3,2025-09-13,Tennessee,Georgia,0,-7.25
-401752938,3,2025-09-13,Texas Tech,Oregon State,0,
-401752949,3,2025-09-13,North Texas,Washington State,0,
-401754615,3,2025-09-13,Missouri State,SMU,0,
-401756890,3,2025-09-13,Arkansas State,Iowa State,0,
-401752702,3,2025-09-13,Missouri,Louisiana,0,
-401752706,3,2025-09-13,Texas,UTEP,0,
-401754535,3,2025-09-13,Miami,South Florida,0,
-401757258,3,2025-09-13,Nevada,Middle Tennessee,0,
-401757256,3,2025-09-13,Bowling Green,Liberty,0,
-401757233,3,2025-09-13,Florida International,Florida Atlantic,0,
-401761607,3,2025-09-13,Southern Miss,App State,0,
-401752829,3,2025-09-13,Illinois,Western Michigan,0,
-401754536,3,2025-09-13,Virginia Tech,Old Dominion,0,
-401757234,3,2025-09-13,Georgia Southern,Jacksonville State,0,
-401752827,3,2025-09-13,Ohio State,Ohio,0,
-401757257,3,2025-09-13,Louisiana Tech,New Mexico State,0,
-401752830,3,2025-09-13,Iowa,Massachusetts,0,
-401752698,3,2025-09-13,Kentucky,Eastern Michigan,0,
-401752699,3,2025-09-13,LSU,Florida,0,6.0
-401761604,3,2025-09-13,Coastal Carolina,East Carolina,0,
-401752707,3,2025-09-13,Notre Dame,Texas A&M,0,6.75
-401762465,3,2025-09-14,Tulsa,Navy,0,
-401756895,3,2025-09-14,Wyoming,Utah,0,
-401754534,3,2025-09-14,Tulane,Duke,0,
-401762463,3,2025-09-14,UAB,Akron,0,
-401760368,3,2025-09-14,Utah State,Air Force,0,
-401752840,3,2025-09-14,California,Minnesota,0,
-401754533,3,2025-09-14,Stanford,Boston College,0,
-401756889,3,2025-09-14,Arizona State,Texas State,0,
-401762468,4,2025-09-18,Charlotte,Rice,0,
-401756900,4,2025-09-19,Oklahoma State,Tulsa,0,
-401752844,4,2025-09-20,Rutgers,Iowa,0,
-401754538,4,2025-09-20,Duke,NC State,0,
-401756898,4,2025-09-20,East Carolina,BYU,0,
-401756896,4,2025-09-20,Baylor,Arizona State,0,
-401754642,4,2025-09-20,Louisville,Bowling Green,0,
-401754636,4,2025-09-20,TCU,SMU,0,
-401754541,4,2025-09-20,Florida State,Kent State,0,
-401752843,4,2025-09-20,Indiana,Illinois,0,2.5
-401752841,4,2025-09-20,Oregon,Oregon State,0,26.5
-401752714,4,2025-09-20,Oklahoma,Auburn,0,
-401752713,4,2025-09-20,Missouri,South Carolina,0,
-401752711,4,2025-09-20,Ole Miss,Tulane,0,
-401752708,4,2025-09-20,Memphis,Arkansas,0,
-401756897,4,2025-09-20,Colorado,Wyoming,0,
-401754537,4,2025-09-20,Clemson,Syracuse,0,
-401754542,4,2025-09-20,Georgia Tech,Temple,0,
-401762820,4,2025-09-20,Western Michigan,Toledo,0,
-401754539,4,2025-09-20,Virginia,Stanford,0,
-401761613,4,2025-09-20,Buffalo,Troy,0,
-401761611,4,2025-09-20,South Alabama,Coastal Carolina,0,
-401760376,4,2025-09-20,Miami (OH),UNLV,0,
-401756901,4,2025-09-20,Utah,Texas Tech,0,3.5
-401756899,4,2025-09-20,Kansas,West Virginia,0,
-401752847,4,2025-09-20,USC,Michigan State,0,
-401760373,4,2025-09-20,Colorado State,UTSA,0,
-401754640,4,2025-09-20,UCF,North Carolina,0,
-401752709,4,2025-09-20,Miami,Florida,0,3.25
-401752845,4,2025-09-20,Wisconsin,Maryland,0,
-401762469,4,2025-09-20,Army,North Texas,0,
-401752715,4,2025-09-20,Tennessee,UAB,0,
-401752848,4,2025-09-20,Notre Dame,Purdue,0,
-401752846,4,2025-09-20,Nebraska,Michigan,0,-3.25
-401757169,4,2025-09-20,UConn,Ball State,0,
-401761610,4,2025-09-20,Eastern Michigan,Louisiana,0,
-401752712,4,2025-09-20,Mississippi State,Northern Illinois,0,
-401757259,4,2025-09-20,Florida International,Delaware,0,
-401757261,4,2025-09-20,Kennesaw State,Arkansas State,0,
-401757262,4,2025-09-20,Liberty,James Madison,0,
-401757268,4,2025-09-20,Western Kentucky,Nevada,0,
-401757264,4,2025-09-20,Middle Tennessee,Marshall,0,
-401760372,4,2025-09-20,Air Force,Boise State,0,
-401752716,4,2025-09-20,Vanderbilt,Georgia State,0,
-401757263,4,2025-09-20,Louisiana Tech,Southern Miss,0,
-401752842,4,2025-09-20,Washington State,Washington,0,-12.5
-401752723,4,2025-09-21,Texas,Sam Houston,0,
-401757267,4,2025-09-21,UTEP,UL Monroe,0,
-401754540,4,2025-09-21,San Diego State,California,0,
-401760374,4,2025-09-21,Hawai'i,Fresno State,0,
-401762471,5,2025-09-25,East Carolina,Army,0,
-401754543,5,2025-09-26,Virginia,Florida State,0,
-401756902,5,2025-09-27,Arizona State,TCU,0,
-401752939,5,2025-09-27,Oregon State,Houston,0,
-401752849,5,2025-09-27,Minnesota,Rutgers,0,
-401756908,5,2025-09-27,West Virginia,Utah,0,
-401752721,5,2025-09-27,Missouri,Massachusetts,0,
-401752852,5,2025-09-27,Washington,Ohio State,0,-13.5
-401756907,5,2025-09-27,Oklahoma State,Baylor,0,
-401757170,5,2025-09-27,Buffalo,UConn,0,
-401757269,5,2025-09-27,Southern Miss,Jacksonville State,0,
-401752724,5,2025-09-27,Texas A&M,Auburn,0,
-401752720,5,2025-09-27,Mississippi State,Tennessee,0,
-401752722,5,2025-09-27,South Carolina,Kentucky,0,
-401754546,5,2025-09-27,Wake Forest,Georgia Tech,0,
-401754547,5,2025-09-27,Pittsburgh,Louisville,0,
-401754548,5,2025-09-27,NC State,Virginia Tech,0,
-401754549,5,2025-09-27,Stanford,San José State,0,
-401756904,5,2025-09-27,Iowa State,Arizona,0,
-401756905,5,2025-09-27,Kansas,Cincinnati,0,
-401756906,5,2025-09-27,Kansas State,UCF,0,
-401752850,5,2025-09-27,Illinois,USC,0,
-401752851,5,2025-09-27,Northwestern,UCLA,0,
-401752853,5,2025-09-27,Iowa,Indiana,0,
-401757271,5,2025-09-27,Old Dominion,Liberty,0,
-401760379,5,2025-09-27,Boise State,App State,0,
-401760380,5,2025-09-27,Northern Illinois,San Diego State,0,
-401761614,5,2025-09-27,James Madison,Georgia Southern,0,
-401761615,5,2025-09-27,Louisiana,Marshall,0,
-401754544,5,2025-09-27,Boston College,California,0,
-401762472,5,2025-09-27,Florida Atlantic,Memphis,0,
-401762474,5,2025-09-27,Tulsa,Tulane,0,
-401752719,5,2025-09-27,Ole Miss,LSU,0,-2.25
-401761617,5,2025-09-27,North Texas,South Alabama,0,
-401754545,5,2025-09-27,Syracuse,Duke,0,
-401760378,5,2025-09-27,Air Force,Hawai'i,0,
-401761616,5,2025-09-27,UL Monroe,Arkansas State,0,
-401762826,5,2025-09-27,Central Michigan,Eastern Michigan,0,
-401762825,5,2025-09-27,Ohio,Bowling Green,0,
-401752717,5,2025-09-27,Arkansas,Notre Dame,0,-10.5
-401752725,5,2025-09-27,Vanderbilt,Utah State,0,
-401762824,5,2025-09-27,Toledo,Akron,0,
-401762473,5,2025-09-27,Navy,Rice,0,
-401757274,5,2025-09-27,New Mexico,New Mexico State,0,
-401757270,5,2025-09-27,Kennesaw State,Middle Tennessee,0,
-401757273,5,2025-09-27,Missouri State,Western Kentucky,0,
-401752854,5,2025-09-27,Penn State,Oregon,0,6.0
-401752950,5,2025-09-27,Colorado State,Washington State,0,
-401752718,5,2025-09-27,Georgia,Alabama,0,4.0
-401757272,5,2025-09-28,UTEP,Louisiana Tech,0,
-401756903,5,2025-09-28,Colorado,BYU,0,
-401757275,6,2025-10-03,New Mexico State,Sam Houston,0,
-401762475,6,2025-10-03,South Florida,Charlotte,0,
-401757276,6,2025-10-03,Delaware,Western Kentucky,0,
-401760384,6,2025-10-04,San José State,New Mexico,0,
-401756909,6,2025-10-04,BYU,West Virginia,0,
-401760382,6,2025-10-04,San Diego State,Colorado State,0,
-401756914,6,2025-10-04,TCU,Colorado,0,
-401762873,6,2025-10-04,Northern Illinois,Miami (OH),0,
-401752856,6,2025-10-04,Michigan,Wisconsin,0,
-401754552,6,2025-10-04,North Carolina,Clemson,0,-13.5
-401752727,6,2025-10-04,Florida,Texas,0,-6.5
-401752730,6,2025-10-04,Texas A&M,Mississippi State,0,
-401762478,6,2025-10-04,Memphis,Tulsa,0,
-401752858,6,2025-10-04,Northwestern,UL Monroe,0,
-401752857,6,2025-10-04,Maryland,Washington,0,
-401756912,6,2025-10-04,Cincinnati,Iowa State,0,
-401762832,6,2025-10-04,Massachusetts,Western Michigan,0,
-401762477,6,2025-10-04,Rice,Florida Atlantic,0,
-401762476,6,2025-10-04,UAB,Army,0,
-401761621,6,2025-10-04,Troy,South Alabama,0,
-401761619,6,2025-10-04,Old Dominion,Coastal Carolina,0,
-401756915,6,2025-10-04,UCF,Kansas,0,
-401756913,6,2025-10-04,Houston,Texas Tech,0,
-401756911,6,2025-10-04,Baylor,Kansas State,0,
-401756910,6,2025-10-04,Arizona,Oklahoma State,0,
-401754556,6,2025-10-04,Virginia Tech,Wake Forest,0,
-401754555,6,2025-10-04,SMU,Syracuse,0,
-401754554,6,2025-10-04,Louisville,Virginia,0,
-401754553,6,2025-10-04,Florida State,Miami,0,-5.75
-401754551,6,2025-10-04,California,Duke,0,
-401754550,6,2025-10-04,Pittsburgh,Boston College,0,
-401752940,6,2025-10-04,App State,Oregon State,0,
-401752861,6,2025-10-04,Purdue,Illinois,0,
-401752860,6,2025-10-04,Nebraska,Michigan State,0,
-401752859,6,2025-10-04,Ohio State,Minnesota,0,
-401752726,6,2025-10-04,Alabama,Vanderbilt,0,24.0
-401752855,6,2025-10-04,UCLA,Penn State,0,
-401761618,6,2025-10-04,Georgia State,James Madison,0,
-401762479,6,2025-10-04,Temple,UTSA,0,
-401752728,6,2025-10-04,Georgia,Kentucky,0,
-401762830,6,2025-10-04,Ball State,Ohio,0,
-401760381,6,2025-10-04,Navy,Air Force,0,
-401762831,6,2025-10-04,Buffalo,Eastern Michigan,0,
-401762829,6,2025-10-04,Akron,Central Michigan,0,
-401757165,6,2025-10-04,Notre Dame,Boise State,0,16.25
-401757171,6,2025-10-04,UConn,Florida International,0,
-401752729,6,2025-10-04,Oklahoma,Kent State,0,
-401760385,6,2025-10-04,Wyoming,UNLV,0,
-401761620,6,2025-10-04,Arkansas State,Texas State,0,
-401760383,6,2025-10-05,Fresno State,Nevada,0,
-401757278,7,2025-10-08,Middle Tennessee,Missouri State,0,
-401757277,7,2025-10-09,UTEP,Liberty,0,
-401761622,7,2025-10-09,Georgia Southern,Southern Miss,0,
-401762480,7,2025-10-09,Tulane,East Carolina,0,
-401757280,7,2025-10-09,Kennesaw State,Louisiana Tech,0,
-401757279,7,2025-10-10,Sam Houston,Jacksonville State,1,
-401762481,7,2025-10-10,North Texas,South Florida,0,
-401752862,7,2025-10-11,Washington,Rutgers,0,
-401760388,7,2025-10-11,Colorado State,Fresno State,0,
-401762485,7,2025-10-11,UTSA,Rice,0,
-401762833,7,2025-10-11,Akron,Miami (OH),0,
-401762836,7,2025-10-11,Eastern Michigan,Northern Illinois,0,
-401762835,7,2025-10-11,Bowling Green,Toledo,0,
-401752868,7,2025-10-11,USC,Michigan,0,-1.5
-401756918,7,2025-10-11,Colorado,Iowa State,0,
-401762837,7,2025-10-11,Kent State,Massachusetts,0,
-401761626,7,2025-10-11,Marshall,Old Dominion,0,
-401761627,7,2025-10-11,Texas State,Troy,0,
-401762482,7,2025-10-11,Florida Atlantic,UAB,0,
-401756922,7,2025-10-11,Utah,Arizona State,0,2.5
-401760387,7,2025-10-11,Boise State,New Mexico,0,
-401761623,7,2025-10-11,Coastal Carolina,UL Monroe,0,
-401762484,7,2025-10-11,Temple,Navy,0,
-401761624,7,2025-10-11,Georgia State,App State,0,
-401752866,7,2025-10-11,Penn State,Northwestern,0,
-401761625,7,2025-10-11,James Madison,Louisiana,0,
-401752731,7,2025-10-11,Auburn,Georgia,0,-6.5
-401752732,7,2025-10-11,LSU,South Carolina,0,
-401752735,7,2025-10-11,Tennessee,Arkansas,0,
-401752737,7,2025-10-11,Texas A&M,Florida,0,
-401752864,7,2025-10-11,Minnesota,Purdue,0,
-401752865,7,2025-10-11,Illinois,Ohio State,0,-13.5
-401752869,7,2025-10-11,Wisconsin,Iowa,0,
-401752870,7,2025-10-11,Oregon,Indiana,0,14.0
-401754558,7,2025-10-11,Boston College,Clemson,0,
-401754559,7,2025-10-11,Florida State,Pittsburgh,0,
-401754560,7,2025-10-11,Georgia Tech,Virginia Tech,0,
-401754561,7,2025-10-11,SMU,Stanford,0,
-401756916,7,2025-10-11,Arizona,BYU,0,
-401756917,7,2025-10-11,Cincinnati,UCF,0,
-401756919,7,2025-10-11,Kansas State,TCU,0,
-401756920,7,2025-10-11,Oklahoma State,Houston,0,
-401756921,7,2025-10-11,Texas Tech,Kansas,0,
-401752867,7,2025-10-11,Maryland,Nebraska,0,
-401752863,7,2025-10-11,Michigan State,UCLA,0,
-401762483,7,2025-10-11,Army,Charlotte,0,
-401752734,7,2025-10-11,Missouri,Alabama,0,
-401752733,7,2025-10-11,Ole Miss,Washington State,0,
-401754563,7,2025-10-11,Oregon State,Wake Forest,0,
-401752736,7,2025-10-11,Texas,Oklahoma,1,9.5
-401754562,7,2025-10-11,Notre Dame,NC State,0,
-401760386,7,2025-10-11,UNLV,Air Force,0,
-401762834,7,2025-10-11,Western Michigan,Ball State,0,
-401760391,7,2025-10-11,Wyoming,San José State,0,
-401760390,7,2025-10-12,Nevada,San Diego State,0,
-401760389,7,2025-10-12,Hawai'i,Utah State,0,
-401757282,8,2025-10-14,Liberty,New Mexico State,0,
-401761628,8,2025-10-14,South Alabama,Arkansas State,0,
-401757281,8,2025-10-15,Western Kentucky,Florida International,0,
-401757284,8,2025-10-15,Sam Houston,UTEP,1,
-401757283,8,2025-10-15,Jacksonville State,Delaware,0,
-401762486,8,2025-10-16,East Carolina,Tulsa,0,
-401754564,8,2025-10-17,Miami,Louisville,0,6.5
-401752872,8,2025-10-18,Minnesota,Nebraska,0,
-401760396,8,2025-10-18,Utah State,San José State,0,
-401754371,8,2025-10-18,California,North Carolina,0,
-401756926,8,2025-10-18,Oklahoma State,Cincinnati,0,
-401761632,8,2025-10-18,Marshall,Texas State,0,
-401762840,8,2025-10-18,Massachusetts,Buffalo,0,
-401762490,8,2025-10-18,South Florida,Florida Atlantic,0,
-401752875,8,2025-10-18,Iowa,Penn State,0,-10.5
-401752879,8,2025-10-18,UCLA,Maryland,0,
-401762843,8,2025-10-18,Ohio,Northern Illinois,0,
-401762842,8,2025-10-18,Toledo,Kent State,0,
-401762841,8,2025-10-18,Miami (OH),Eastern Michigan,0,
-401762839,8,2025-10-18,Bowling Green,Central Michigan,0,
-401762491,8,2025-10-18,North Texas,UTSA,0,
-401762489,8,2025-10-18,Charlotte,Temple,0,
-401762488,8,2025-10-18,Tulane,Army,0,
-401762487,8,2025-10-18,UAB,Memphis,0,
-401761668,8,2025-10-18,Louisiana,Southern Miss,0,
-401761633,8,2025-10-18,UL Monroe,Troy,0,
-401761631,8,2025-10-18,James Madison,Old Dominion,0,
-401761630,8,2025-10-18,Georgia Southern,Georgia State,0,
-401761629,8,2025-10-18,App State,Coastal Carolina,0,
-401760395,8,2025-10-18,New Mexico,Nevada,0,
-401760393,8,2025-10-18,Boise State,UNLV,0,
-401756928,8,2025-10-18,UCF,West Virginia,0,
-401756927,8,2025-10-18,TCU,Baylor,0,
-401756925,8,2025-10-18,Houston,Arizona,0,
-401756924,8,2025-10-18,BYU,Utah,0,
-401756923,8,2025-10-18,Arizona State,Texas Tech,0,4.0
-401754569,8,2025-10-18,Boston College,UConn,0,
-401754568,8,2025-10-18,Syracuse,Pittsburgh,0,
-401754565,8,2025-10-18,Clemson,SMU,0,11.5
-401752878,8,2025-10-18,Indiana,Michigan State,0,
-401752877,8,2025-10-18,Wisconsin,Ohio State,0,
-401752876,8,2025-10-18,Rutgers,Oregon,0,
-401752874,8,2025-10-18,Northwestern,Purdue,0,
-401752873,8,2025-10-18,Michigan,Washington,0,10.5
-401752745,8,2025-10-18,Vanderbilt,LSU,0,
-401752744,8,2025-10-18,South Carolina,Oklahoma,0,
-401752743,8,2025-10-18,Kentucky,Texas,0,
-401752742,8,2025-10-18,Georgia,Ole Miss,0,10.5
-401752741,8,2025-10-18,Florida,Mississippi State,0,
-401752740,8,2025-10-18,Auburn,Missouri,0,
-401752739,8,2025-10-18,Arkansas,Texas A&M,0,
-401752738,8,2025-10-18,Alabama,Tennessee,0,12.0
-401754566,8,2025-10-18,Duke,Georgia Tech,0,
-401762838,8,2025-10-18,Ball State,Akron,0,
-401760392,8,2025-10-18,Air Force,Wyoming,0,
-401752951,8,2025-10-18,Virginia,Washington State,0,
-401760394,8,2025-10-18,Colorado State,Hawai'i,0,
-401752871,8,2025-10-18,Notre Dame,USC,0,10.5
-401754567,8,2025-10-19,Stanford,Florida State,0,
-401757285,9,2025-10-21,Florida International,Kennesaw State,0,
-401757286,9,2025-10-21,Louisiana Tech,Western Kentucky,0,
-401757287,9,2025-10-22,Delaware,Middle Tennessee,0,
-401757288,9,2025-10-23,New Mexico State,Missouri State,0,
-401761634,9,2025-10-23,Georgia State,South Alabama,0,
-401762492,9,2025-10-24,Charlotte,North Texas,0,
-401754372,9,2025-10-24,Virginia Tech,California,0,
-401760397,9,2025-10-25,Nevada,Boise State,0,
-401762844,9,2025-10-25,Buffalo,Akron,0,
-401752886,9,2025-10-25,Oregon,Wisconsin,0,
-401752882,9,2025-10-25,Iowa,Minnesota,0,
-401754571,9,2025-10-25,Georgia Tech,Syracuse,0,
-401756934,9,2025-10-25,Utah,Colorado,0,8.5
-401754574,9,2025-10-25,Pittsburgh,NC State,0,
-401752880,9,2025-10-25,Washington,Illinois,0,
-401761635,9,2025-10-25,Old Dominion,App State,0,
-401762845,9,2025-10-25,Northern Illinois,Ball State,0,
-401762848,9,2025-10-25,Eastern Michigan,Ohio,0,
-401752884,9,2025-10-25,Purdue,Rutgers,0,
-401762494,9,2025-10-25,Memphis,South Florida,0,
-401757172,9,2025-10-25,Rice,UConn,0,
-401756935,9,2025-10-25,West Virginia,TCU,0,
-401756933,9,2025-10-25,Texas Tech,Oklahoma State,0,
-401756932,9,2025-10-25,Kansas,Kansas State,0,-4.0
-401756931,9,2025-10-25,Iowa State,BYU,0,
-401756930,9,2025-10-25,Cincinnati,Baylor,0,
-401756929,9,2025-10-25,Arizona State,Houston,0,
-401754573,9,2025-10-25,North Carolina,Virginia,0,
-401754570,9,2025-10-25,Louisville,Boston College,0,
-401752942,9,2025-10-25,Wake Forest,SMU,0,
-401752885,9,2025-10-25,Indiana,UCLA,0,
-401752883,9,2025-10-25,Nebraska,Northwestern,0,
-401752752,9,2025-10-25,Vanderbilt,Missouri,0,
-401752751,9,2025-10-25,South Carolina,Alabama,0,-7.5
-401752750,9,2025-10-25,Oklahoma,Ole Miss,0,
-401752749,9,2025-10-25,Mississippi State,Texas,0,
-401752748,9,2025-10-25,LSU,Texas A&M,0,5.5
-401752747,9,2025-10-25,Kentucky,Tennessee,0,
-401752746,9,2025-10-25,Arkansas,Auburn,0,
-401752881,9,2025-10-25,Michigan State,Michigan,0,-8.25
-401754572,9,2025-10-25,Miami,Stanford,0,
-401762847,9,2025-10-25,Central Michigan,Massachusetts,0,
-401762846,9,2025-10-25,Kent State,Bowling Green,0,
-401762495,9,2025-10-25,Tulsa,Temple,0,
-401761638,9,2025-10-25,Troy,Louisiana,0,
-401761637,9,2025-10-25,Southern Miss,UL Monroe,0,
-401760400,9,2025-10-25,New Mexico,Utah State,0,
-401760399,9,2025-10-25,Fresno State,San Diego State,0,
-401762493,9,2025-10-25,Navy,Florida Atlantic,0,
-401752952,9,2025-10-25,Washington State,Toledo,0,
-401762874,9,2025-10-25,Miami (OH),Western Michigan,0,
-401761636,9,2025-10-25,Arkansas State,Georgia Southern,0,
-401760398,9,2025-10-25,Wyoming,Colorado State,0,
-401761639,10,2025-10-29,Texas State,James Madison,0,
-401757289,10,2025-10-29,Kennesaw State,UTEP,0,
-401757292,10,2025-10-29,Middle Tennessee,Jacksonville State,0,
-401757291,10,2025-10-30,Missouri State,Florida International,0,
-401762443,10,2025-10-30,UTSA,Tulane,0,
-401761640,10,2025-10-30,Coastal Carolina,Marshall,0,
-401762497,10,2025-10-31,Rice,Memphis,0,
-401754575,10,2025-10-31,Syracuse,North Carolina,0,
-401757290,10,2025-11-01,Louisiana Tech,Sam Houston,0,
-401752892,10,2025-11-01,Nebraska,USC,0,
-401762849,10,2025-11-01,Bowling Green,Buffalo,0,
-401762499,10,2025-11-01,North Texas,Navy,0,
-401762498,10,2025-11-01,Temple,East Carolina,0,
-401761643,10,2025-11-01,Troy,Arkansas State,0,
-401761642,10,2025-11-01,South Alabama,Louisiana,0,
-401761641,10,2025-11-01,UL Monroe,Old Dominion,0,
-401756942,10,2025-11-01,Utah,Cincinnati,0,
-401756941,10,2025-11-01,Kansas State,Texas Tech,0,4.25
-401754582,10,2025-11-01,Stanford,Pittsburgh,0,
-401754581,10,2025-11-01,SMU,Miami,0,-1.5
-401754580,10,2025-11-01,Virginia Tech,Louisville,0,
-401754578,10,2025-11-01,Florida State,Wake Forest,0,
-401754577,10,2025-11-01,Clemson,Duke,0,
-401754576,10,2025-11-01,California,Virginia,0,
-401752888,10,2025-11-01,Minnesota,Michigan State,0,
-401752757,10,2025-11-01,Tennessee,Oklahoma,0,
-401752756,10,2025-11-01,Ole Miss,South Carolina,0,
-401752754,10,2025-11-01,Auburn,Kentucky,0,
-401752753,10,2025-11-01,Arkansas,Mississippi State,0,
-401754583,10,2025-11-01,Boston College,Notre Dame,0,
-401752889,10,2025-11-01,Ohio State,Penn State,0,4.0
-401762850,10,2025-11-01,Western Michigan,Central Michigan,0,
-401752891,10,2025-11-01,Illinois,Rutgers,0,
-401752890,10,2025-11-01,Michigan,Purdue,0,
-401752887,10,2025-11-01,Maryland,Indiana,0,
-401754579,10,2025-11-01,NC State,Georgia Tech,0,
-401756936,10,2025-11-01,Baylor,UCF,0,
-401756937,10,2025-11-01,Colorado,Arizona,0,
-401756938,10,2025-11-01,Houston,West Virginia,0,
-401756939,10,2025-11-01,Iowa State,Arizona State,0,
-401756940,10,2025-11-01,Kansas,Oklahoma State,0,
-401760402,10,2025-11-01,Boise State,Fresno State,0,
-401752758,10,2025-11-01,Texas,Vanderbilt,0,
-401757173,10,2025-11-01,UConn,UAB,0,
-401760401,10,2025-11-01,Air Force,Army,0,
-401760404,10,2025-11-01,UNLV,New Mexico,0,
-401752755,10,2025-11-01,Florida,Georgia,1,-7.25
-401757294,10,2025-11-01,Western Kentucky,New Mexico State,0,
-401757293,10,2025-11-01,Liberty,Delaware,0,
-401760405,10,2025-11-01,San Diego State,Wyoming,0,
-401752943,10,2025-11-01,Oregon State,Washington State,0,
-401760403,10,2025-11-02,San José State,Hawai'i,0,
-401762852,11,2025-11-05,Ohio,Miami (OH),0,
-401762851,11,2025-11-05,Akron,Massachusetts,0,
-401762854,11,2025-11-05,Toledo,Northern Illinois,0,
-401762853,11,2025-11-05,Ball State,Kent State,0,
-401762500,11,2025-11-07,South Florida,UTSA,0,
-401761644,11,2025-11-07,App State,Georgia Southern,0,
-401756946,11,2025-11-07,UCF,Houston,0,
-401762501,11,2025-11-08,Memphis,Tulane,0,
-401752896,11,2025-11-08,USC,Northwestern,0,
-401756943,11,2025-11-08,Arizona,Kansas,0,
-401754588,11,2025-11-08,North Carolina,Stanford,0,
-401756947,11,2025-11-08,West Virginia,Colorado,0,
-401752898,11,2025-11-08,Iowa,Oregon,0,
-401752760,11,2025-11-08,Kentucky,Florida,0,
-401752759,11,2025-11-08,Alabama,LSU,0,5.75
-401756944,11,2025-11-08,TCU,Iowa State,0,
-401760407,11,2025-11-08,Colorado State,UNLV,0,
-401752763,11,2025-11-08,Missouri,Texas A&M,0,
-401756945,11,2025-11-08,Texas Tech,BYU,0,
-401752764,11,2025-11-08,Vanderbilt,Auburn,0,
-401760406,11,2025-11-08,San José State,Air Force,0,
-401752894,11,2025-11-08,Rutgers,Maryland,0,
-401752893,11,2025-11-08,Penn State,Indiana,0,16.0
-401752895,11,2025-11-08,UCLA,Nebraska,0,
-401752897,11,2025-11-08,Purdue,Ohio State,0,
-401761645,11,2025-11-08,Coastal Carolina,Georgia State,0,
-401761646,11,2025-11-08,Marshall,James Madison,0,
-401761647,11,2025-11-08,Arkansas State,Southern Miss,0,
-401761648,11,2025-11-08,Louisiana,Texas State,0,
-401762502,11,2025-11-08,Rice,UAB,0,
-401762504,11,2025-11-08,East Carolina,Charlotte,0,
-401762505,11,2025-11-08,Florida Atlantic,Tulsa,0,
-401762855,11,2025-11-08,Eastern Michigan,Bowling Green,0,
-401754585,11,2025-11-08,Louisville,California,0,
-401754589,11,2025-11-08,Virginia,Wake Forest,0,
-401754587,11,2025-11-08,Miami,Syracuse,0,
-401754586,11,2025-11-08,Clemson,Florida State,0,16.75
-401754584,11,2025-11-08,Boston College,SMU,0,
-401752899,11,2025-11-08,Wisconsin,Washington,0,
-401762503,11,2025-11-08,Army,Temple,0,
-401752762,11,2025-11-08,Mississippi State,Georgia,0,
-401757299,11,2025-11-08,Liberty,Missouri State,0,
-401757295,11,2025-11-08,Delaware,Louisiana Tech,0,
-401757296,11,2025-11-08,Middle Tennessee,Florida International,0,
-401757297,11,2025-11-08,UTEP,Jacksonville State,0,
-401754590,11,2025-11-08,UConn,Duke,0,
-401757298,11,2025-11-08,New Mexico State,Kennesaw State,0,
-401757166,11,2025-11-09,Notre Dame,Navy,0,
-401760409,11,2025-11-09,Utah State,Nevada,0,
-401752944,11,2025-11-09,Oregon State,Sam Houston,0,
-401760408,11,2025-11-09,Hawai'i,San Diego State,0,
-401762856,12,2025-11-12,Akron,Kent State,0,
-401762857,12,2025-11-12,Western Michigan,Ohio,0,
-401762859,12,2025-11-13,Massachusetts,Northern Illinois,0,
-401762860,12,2025-11-13,Miami (OH),Toledo,0,
-401762858,12,2025-11-13,Central Michigan,Buffalo,0,
-401761649,12,2025-11-14,Old Dominion,Troy,0,
-401754591,12,2025-11-15,Louisville,Clemson,0,-6.25
-401752904,12,2025-11-15,Oregon,Minnesota,0,
-401756950,12,2025-11-15,BYU,TCU,0,
-401760412,12,2025-11-15,Fresno State,Wyoming,0,
-401761652,12,2025-11-15,James Madison,App State,0,
-401761650,12,2025-11-15,Georgia Southern,Coastal Carolina,0,
-401762509,12,2025-11-15,Tulane,Florida Atlantic,0,
-401762507,12,2025-11-15,Charlotte,UTSA,0,
-401752903,12,2025-11-15,Michigan State,Penn State,0,
-401762506,12,2025-11-15,UAB,North Texas,0,
-401761654,12,2025-11-15,Southern Miss,Texas State,0,
-401754597,12,2025-11-15,Pittsburgh,Notre Dame,0,
-401761651,12,2025-11-15,Georgia State,Marshall,0,
-401761653,12,2025-11-15,UL Monroe,South Alabama,0,
-401752765,12,2025-11-15,Alabama,Oklahoma,0,12.5
-401752766,12,2025-11-15,Georgia,Texas,0,2.5
-401752768,12,2025-11-15,LSU,Arkansas,0,
-401752902,12,2025-11-15,Washington,Purdue,0,
-401752906,12,2025-11-15,Illinois,Maryland,0,
-401752907,12,2025-11-15,USC,Iowa,0,
-401752945,12,2025-11-15,Tulsa,Oregon State,0,
-401754593,12,2025-11-15,Duke,Virginia,0,
-401754594,12,2025-11-15,Florida State,Virginia Tech,0,
-401754595,12,2025-11-15,Miami,NC State,0,
-401754596,12,2025-11-15,Wake Forest,North Carolina,0,
-401756948,12,2025-11-15,Arizona State,West Virginia,0,
-401756949,12,2025-11-15,Baylor,Utah,0,
-401756951,12,2025-11-15,Cincinnati,Arizona,0,
-401756952,12,2025-11-15,Oklahoma State,Kansas State,0,
-401756953,12,2025-11-15,Texas Tech,UCF,0,
-401760411,12,2025-11-15,New Mexico,Colorado State,0,
-401762861,12,2025-11-15,Ball State,Eastern Michigan,0,
-401762508,12,2025-11-15,East Carolina,Memphis,0,
-401752769,12,2025-11-15,Ole Miss,Florida,0,
-401754592,12,2025-11-15,Boston College,Georgia Tech,0,
-401752901,12,2025-11-15,Indiana,Wisconsin,0,
-401752905,12,2025-11-15,Northwestern,Michigan,1,
-401752772,12,2025-11-15,Texas A&M,South Carolina,0,
-401752770,12,2025-11-15,Missouri,Mississippi State,0,
-401752900,12,2025-11-15,Ohio State,UCLA,0,
-401762510,12,2025-11-15,Navy,South Florida,0,
-401757174,12,2025-11-15,UConn,Air Force,0,
-401757300,12,2025-11-15,Sam Houston,Delaware,1,
-401757302,12,2025-11-15,Jacksonville State,Kennesaw State,0,
-401757304,12,2025-11-15,Missouri State,UTEP,0,
-401760413,12,2025-11-15,Nevada,San José State,0,
-401757303,12,2025-11-15,Western Kentucky,Middle Tennessee,0,
-401752771,12,2025-11-15,Tennessee,New Mexico State,0,
-401757301,12,2025-11-15,Florida International,Liberty,0,
-401760414,12,2025-11-16,UNLV,Utah State,0,
-401752953,12,2025-11-16,Washington State,Louisiana Tech,0,
-401760410,12,2025-11-16,San Diego State,Boise State,0,
-401762862,13,2025-11-19,Bowling Green,Akron,0,
-401762863,13,2025-11-19,Ohio,Massachusetts,0,
-401762864,13,2025-11-19,Northern Illinois,Western Michigan,0,
-401762865,13,2025-11-20,Buffalo,Miami (OH),0,
-401762866,13,2025-11-20,Kent State,Central Michigan,0,
-401761655,13,2025-11-21,Arkansas State,Louisiana,0,
-401754598,13,2025-11-22,NC State,Florida State,0,
-401760418,13,2025-11-22,UNLV,Hawai'i,0,
-401762513,13,2025-11-22,UTSA,East Carolina,0,
-401762511,13,2025-11-22,UAB,South Florida,0,
-401761656,13,2025-11-22,App State,Marshall,0,
-401752779,13,2025-11-22,South Carolina,Coastal Carolina,0,
-401752780,13,2025-11-22,Texas,Arkansas,0,
-401752782,13,2025-11-22,Vanderbilt,Kentucky,0,
-401752909,13,2025-11-22,Northwestern,Minnesota,1,
-401752910,13,2025-11-22,UCLA,Washington,0,
-401752911,13,2025-11-22,Oregon,USC,0,12.75
-401752954,13,2025-11-22,James Madison,Washington State,0,
-401754599,13,2025-11-22,Stanford,California,0,
-401754600,13,2025-11-22,North Carolina,Duke,0,0.0
-401754601,13,2025-11-22,Georgia Tech,Pittsburgh,0,
-401754602,13,2025-11-22,SMU,Louisville,0,
-401754603,13,2025-11-22,Virginia Tech,Miami,0,
-401756959,13,2025-11-22,UCF,Oklahoma State,0,
-401756960,13,2025-11-22,Utah,Kansas State,0,1.5
-401757175,13,2025-11-22,Florida Atlantic,UConn,0,
-401760416,13,2025-11-22,Boise State,Colorado State,0,
-401760420,13,2025-11-22,San Diego State,San José State,0,
-401761657,13,2025-11-22,Georgia Southern,Old Dominion,0,
-401761658,13,2025-11-22,South Alabama,Southern Miss,0,
-401761659,13,2025-11-22,Texas State,UL Monroe,0,
-401761660,13,2025-11-22,Troy,Georgia State,0,
-401762514,13,2025-11-22,Rice,North Texas,0,
-401762515,13,2025-11-22,Temple,Tulane,0,
-401762867,13,2025-11-22,Toledo,Ball State,0,
-401752912,13,2025-11-22,Ohio State,Rutgers,0,
-401752908,13,2025-11-22,Penn State,Nebraska,0,
-401752775,13,2025-11-22,Florida,Tennessee,0,4.0
-401752913,13,2025-11-22,Iowa,Michigan State,0,
-401752915,13,2025-11-22,Wisconsin,Illinois,0,
-401756958,13,2025-11-22,Iowa State,Kansas,0,
-401756956,13,2025-11-22,Colorado,Arizona State,0,-4.5
-401756955,13,2025-11-22,Cincinnati,BYU,0,
-401756954,13,2025-11-22,Arizona,Baylor,0,
-401754606,13,2025-11-22,Wake Forest,Delaware,0,
-401752777,13,2025-11-22,LSU,Western Kentucky,0,
-401756957,13,2025-11-22,Houston,TCU,0,
-401752914,13,2025-11-22,Maryland,Michigan,0,
-401752778,13,2025-11-22,Oklahoma,Missouri,0,7.5
-401762512,13,2025-11-22,Army,Tulsa,0,
-401752776,13,2025-11-22,Georgia,Charlotte,0,
-401757306,13,2025-11-22,Kennesaw State,Missouri State,0,
-401760419,13,2025-11-22,Wyoming,Nevada,0,
-401757308,13,2025-11-22,Middle Tennessee,Sam Houston,0,
-401757309,13,2025-11-22,UTEP,New Mexico State,0,
-401757307,13,2025-11-22,Louisiana Tech,Liberty,0,
-401757305,13,2025-11-22,Florida International,Jacksonville State,0,
-401754604,13,2025-11-22,Notre Dame,Syracuse,0,
-401760415,13,2025-11-23,Air Force,New Mexico,0,
-401760417,13,2025-11-23,Fresno State,Utah State,0,
-401762869,14,2025-11-25,Eastern Michigan,Western Michigan,0,
-401762868,14,2025-11-25,Massachusetts,Bowling Green,0,
-401762516,14,2025-11-28,Memphis,Navy,0,
-401760421,14,2025-11-28,Colorado State,Air Force,0,
-401762441,14,2025-11-28,UTSA,Army,0,
-401756961,14,2025-11-28,Arizona State,Arizona,0,
-401756964,14,2025-11-28,Kansas,Utah,0,
-401752788,14,2025-11-28,Mississippi State,Ole Miss,0,-11.5
-401752916,14,2025-11-28,Nebraska,Iowa,0,2.5
-401762871,14,2025-11-28,Northern Illinois,Kent State,0,
-401762870,14,2025-11-28,Buffalo,Ohio,0,
-401760426,14,2025-11-28,New Mexico,San Diego State,0,
-401752786,14,2025-11-28,Georgia Tech,Georgia,1,-13.5
-401760422,14,2025-11-28,Utah State,Boise State,0,
-401752924,14,2025-11-29,Purdue,Indiana,0,
-401752792,14,2025-11-29,Texas,Texas A&M,0,10.5
-401752785,14,2025-11-29,Florida,Florida State,0,
-401752783,14,2025-11-29,Arkansas,Missouri,0,
-401756966,14,2025-11-29,Oklahoma State,Iowa State,0,
-401756965,14,2025-11-29,Kansas State,Colorado,0,
-401754613,14,2025-11-29,Virginia,Virginia Tech,0,
-401752787,14,2025-11-29,Louisville,Kentucky,0,
-401752789,14,2025-11-29,Oklahoma,LSU,0,
-401752791,14,2025-11-29,Tennessee,Vanderbilt,0,
-401752917,14,2025-11-29,Washington,Oregon,0,-11.5
-401752919,14,2025-11-29,USC,UCLA,0,
-401752922,14,2025-11-29,Illinois,Northwestern,0,
-401752923,14,2025-11-29,Michigan State,Maryland,1,
-401752920,14,2025-11-29,Rutgers,Penn State,0,
-401756963,14,2025-11-29,BYU,UCF,0,
-401756962,14,2025-11-29,Baylor,Houston,0,
-401754614,14,2025-11-29,Stanford,Notre Dame,0,
-401754608,14,2025-11-29,Syracuse,Boston College,0,
-401754609,14,2025-11-29,California,SMU,0,
-401754611,14,2025-11-29,Pittsburgh,Miami,0,
-401754612,14,2025-11-29,NC State,North Carolina,0,2.5
-401752784,14,2025-11-29,Auburn,Alabama,0,-5.5
-401752918,14,2025-11-29,Minnesota,Wisconsin,0,
-401762875,14,2025-11-29,Miami (OH),Ball State,0,
-401762872,14,2025-11-29,Central Michigan,Toledo,0,
-401762520,14,2025-11-29,South Florida,Rice,0,
-401762519,14,2025-11-29,Florida Atlantic,East Carolina,0,
-401762518,14,2025-11-29,Tulane,Charlotte,0,
-401762517,14,2025-11-29,Tulsa,UAB,0,
-401762442,14,2025-11-29,North Texas,Temple,0,
-401761667,14,2025-11-29,Texas State,South Alabama,0,
-401761666,14,2025-11-29,Southern Miss,Troy,0,
-401761665,14,2025-11-29,Louisiana,UL Monroe,0,
-401761664,14,2025-11-29,Old Dominion,Georgia State,0,
-401761663,14,2025-11-29,Marshall,Georgia Southern,0,
-401761662,14,2025-11-29,Coastal Carolina,James Madison,0,
-401761661,14,2025-11-29,App State,Arkansas State,0,
-401756968,14,2025-11-29,West Virginia,Texas Tech,0,
-401760423,14,2025-11-29,San José State,Fresno State,0,
-401756967,14,2025-11-29,TCU,Cincinnati,0,
-401754610,14,2025-11-29,Duke,Wake Forest,0,
-401752921,14,2025-11-29,Michigan,Ohio State,0,-5.5
-401752790,14,2025-11-29,South Carolina,Clemson,0,-4.5
-401757311,14,2025-11-29,Sam Houston,Florida International,1,
-401757310,14,2025-11-29,Delaware,UTEP,0,
-401757312,14,2025-11-29,Jacksonville State,Western Kentucky,0,
-401757314,14,2025-11-29,Missouri State,Louisiana Tech,0,
-401757315,14,2025-11-29,New Mexico State,Middle Tennessee,0,
-401757313,14,2025-11-29,Liberty,Kennesaw State,0,
-401752946,14,2025-11-29,Washington State,Oregon State,0,
-401760425,14,2025-11-30,Nevada,UNLV,0,
-401760424,14,2025-11-30,Hawai'i,Wyoming,0,
-401762521,16,2025-12-13,Navy,Army,1,3.5
-401756846,1,2025-08-23,Kansas State,Iowa State,1,3.0
-401756847,1,2025-08-23,Kansas,Fresno State,0,14.0
-401757218,1,2025-08-23,Western Kentucky,Sam Houston,0,9.5
-401754516,1,2025-08-23,Hawai'i,Stanford,0,1.5
-401762522,1,2025-08-28,South Florida,Boise State,0,-5.5
-401752794,1,2025-08-28,Rutgers,Ohio,0,15.5
-401754373,1,2025-08-28,NC State,East Carolina,0,13.5
-401756848,1,2025-08-28,UCF,Jacksonville State,0,20.5
-401762789,1,2025-08-28,Akron,Wyoming,0,-5.0
-401752793,1,2025-08-29,Minnesota,Buffalo,0,16.5
-401752796,1,2025-08-29,Cincinnati,Nebraska,1,-6.0
-401762791,1,2025-08-29,Wisconsin,Miami (OH),0,18.0
-401761589,1,2025-08-29,Charlotte,App State,1,-8.5
-401752802,1,2025-08-29,Michigan State,Western Michigan,0,21.5
-401754374,1,2025-08-29,Wake Forest,Kennesaw State,0,18.5
-401754375,1,2025-08-30,Colorado,Georgia Tech,0,-3.5
-401752667,1,2025-08-30,Baylor,Auburn,0,-1.0
-401757224,1,2025-08-30,Sam Houston,UNLV,1,-9.0
-401760358,1,2025-08-30,San José State,Central Michigan,0,14.5
-401752797,1,2025-08-30,Maryland,Florida Atlantic,0,13.5
-401752677,1,2025-08-30,Ohio State,Texas,0,2.0
-401752676,1,2025-08-30,Tennessee,Syracuse,1,13.5
-401752803,1,2025-08-30,Tulane,Northwestern,0,6.5
-401752801,1,2025-08-30,Purdue,Ball State,0,16.5
-401752673,1,2025-08-30,Southern Miss,Mississippi State,0,-14.5
-401752670,1,2025-08-30,Kentucky,Toledo,0,10.0
-401752806,1,2025-08-30,Indiana,Old Dominion,0,23.5
-401752665,1,2025-08-30,Florida State,Alabama,0,-13.5
-401762456,1,2025-08-30,Massachusetts,Temple,0,-2.5
-401752669,1,2025-08-30,Georgia,Marshall,0,38.5
-401752807,1,2025-08-30,Penn State,Nevada,0,43.5
-401754616,1,2025-08-30,Virginia,Coastal Carolina,0,13.5
-401752678,1,2025-08-30,Texas A&M,UTSA,0,23.5
-401752798,1,2025-08-30,USC,Missouri State,0,36.5
-401752808,1,2025-08-30,Michigan,New Mexico,0,34.5
-401757225,1,2025-08-30,Utah State,UTEP,0,4.5
-401752671,1,2025-08-30,Clemson,LSU,0,5.5
-401752672,1,2025-08-30,Ole Miss,Georgia State,0,33.5
-401761592,1,2025-08-31,Louisiana,Rice,0,9.5
-401761594,1,2025-08-31,Texas State,Eastern Michigan,0,14.0
-401760361,1,2025-08-31,Fresno State,Georgia Southern,0,2.0
-401752936,1,2025-08-31,Oregon State,California,0,-2.5
-401756849,1,2025-08-31,Arizona,Hawai'i,0,15.5
-401752805,1,2025-08-31,Washington,Colorado State,0,22.5
-401752800,1,2025-08-31,UCLA,Utah,0,-6.5
-401752680,1,2025-08-31,South Carolina,Virginia Tech,1,7.5
-401754522,1,2025-08-31,Miami,Notre Dame,0,-2.5
-401754523,1,2025-09-02,North Carolina,TCU,0,-3.5
-401754528,2,2025-09-05,Louisville,James Madison,0,14.25
-401752826,2,2025-09-05,Maryland,Northern Illinois,0,18.25
-401752693,2,2025-09-06,Texas,San José State,0,36.75
-401756885,2,2025-09-06,Texas Tech,Kent State,0,48.25
-401754529,2,2025-09-06,Pittsburgh,Central Michigan,0,21.5
-401752811,2,2025-09-06,Penn State,Florida International,0,42.5
-401752812,2,2025-09-06,Indiana,Kennesaw State,0,36.0
-401752822,2,2025-09-06,Iowa State,Iowa,0,3.0
-401752825,2,2025-09-06,Duke,Illinois,0,-2.75
-401754524,2,2025-09-06,NC State,Virginia,0,2.75
-401754618,2,2025-09-06,Syracuse,UConn,0,6.75
-401754525,2,2025-09-06,SMU,Baylor,0,3.0
-401757227,2,2025-09-06,Jacksonville State,Liberty,0,-6.5
-401752694,2,2025-09-06,Texas A&M,Utah State,0,29.0
-401752686,2,2025-09-06,Kentucky,Ole Miss,0,-10.25
-401752818,2,2025-09-06,Rutgers,Miami (OH),0,14.25
-401756880,2,2025-09-06,Cincinnati,Bowling Green,0,21.0
-401762458,2,2025-09-06,Navy,UAB,0,21.5
-401762461,2,2025-09-06,Western Michigan,North Texas,0,-9.75
-401752689,2,2025-09-06,Missouri,Kansas,0,6.5
-401761603,2,2025-09-06,UTSA,Texas State,0,4.5
-401752824,2,2025-09-06,Oregon,Oklahoma State,0,28.25
-401754637,2,2025-09-06,Clemson,Troy,0,33.5
-401756881,2,2025-09-06,Colorado,Delaware,0,23.75
-401752937,2,2025-09-06,Oregon State,Fresno State,0,3.25
-401756883,2,2025-09-06,Ohio,West Virginia,0,-2.75
-401752820,2,2025-09-06,Wisconsin,Middle Tennessee,0,28.5
-401752684,2,2025-09-06,Florida,South Florida,0,17.25
-401752682,2,2025-09-06,Arkansas,Arkansas State,1,23.25
-401757228,2,2025-09-06,Marshall,Missouri State,0,9.75
-401756884,2,2025-09-06,Rice,Houston,0,-12.5
-401756882,2,2025-09-06,Kansas State,Army,0,17.0
-401754527,2,2025-09-06,Charlotte,North Carolina,0,
-401757232,2,2025-09-06,Toledo,Western Kentucky,0,6.75
-401761601,2,2025-09-06,South Alabama,Tulane,0,-10.5
-401761598,2,2025-09-06,Georgia State,Memphis,0,-13.5
-401752814,2,2025-09-06,USC,Georgia Southern,0,28.25
-401752695,2,2025-09-06,Virginia Tech,Vanderbilt,0,1.25
-401752816,2,2025-09-06,Michigan State,Boston College,0,4.0
-401752683,2,2025-09-06,Auburn,Ball State,0,42.75
-401752810,2,2025-09-06,Nebraska,Akron,0,34.25
-401752688,2,2025-09-06,Mississippi State,Arizona State,0,-6.75
-401752690,2,2025-09-06,Oklahoma,Michigan,0,5.5
-401752687,2,2025-09-06,LSU,Louisiana Tech,0,37.75
-401752681,2,2025-09-06,Alabama,UL Monroe,0,37.5
-401752823,2,2025-09-07,UNLV,UCLA,0,-2.5
-401757229,2,2025-09-07,New Mexico State,Tulsa,0,-3.5
-401754526,2,2025-09-07,BYU,Stanford,0,18.0
-401752948,2,2025-09-07,Washington State,San Diego State,0,-0.25
-401757230,2,2025-09-07,Hawai'i,Sam Houston,0,7.5
-401754531,3,2025-09-11,Wake Forest,NC State,0,
-401756893,3,2025-09-12,Houston,Colorado,0,
-401756888,3,2025-09-13,Arizona,Kansas State,0,
-401752837,3,2025-09-13,UCLA,New Mexico,0,
-401752700,3,2025-09-13,Ole Miss,Arkansas,0,
-401752704,3,2025-09-13,South Carolina,Vanderbilt,0,
-401754623,3,2025-09-13,Georgia Tech,Clemson,0,-9.0
-401752831,3,2025-09-13,Northwestern,Oregon,0,
-401752696,3,2025-09-13,Alabama,Wisconsin,0,
-401752839,3,2025-09-13,Michigan,Central Michigan,0,
-401752703,3,2025-09-13,Temple,Oklahoma,0,
-401761608,3,2025-09-13,Troy,Memphis,0,
-401762817,3,2025-09-13,Kent State,Buffalo,0,
-401752697,3,2025-09-13,Auburn,South Alabama,0,
-401757168,3,2025-09-13,Delaware,UConn,0,
-401754638,3,2025-09-13,West Virginia,Pittsburgh,0,-2.25
-401754615,3,2025-09-13,Missouri State,SMU,0,
-401752949,3,2025-09-13,North Texas,Washington State,0,
-401752938,3,2025-09-13,Texas Tech,Oregon State,0,
-401752705,3,2025-09-13,Tennessee,Georgia,0,-7.25
-401752832,3,2025-09-13,Purdue,USC,0,
-401756890,3,2025-09-13,Arkansas State,Iowa State,0,
-401752702,3,2025-09-13,Missouri,Louisiana,0,
-401752706,3,2025-09-13,Texas,UTEP,0,
-401754535,3,2025-09-13,Miami,South Florida,0,
-401757256,3,2025-09-13,Bowling Green,Liberty,0,
-401757258,3,2025-09-13,Nevada,Middle Tennessee,0,
-401757233,3,2025-09-13,Florida International,Florida Atlantic,0,
-401761607,3,2025-09-13,Southern Miss,App State,0,
-401757234,3,2025-09-13,Georgia Southern,Jacksonville State,0,
-401754536,3,2025-09-13,Virginia Tech,Old Dominion,0,
-401752829,3,2025-09-13,Illinois,Western Michigan,0,
-401752827,3,2025-09-13,Ohio State,Ohio,0,
-401752699,3,2025-09-13,LSU,Florida,0,6.0
-401752707,3,2025-09-13,Notre Dame,Texas A&M,0,6.75
-401752830,3,2025-09-13,Iowa,Massachusetts,0,
-401757257,3,2025-09-13,Louisiana Tech,New Mexico State,0,
-401761604,3,2025-09-13,Coastal Carolina,East Carolina,0,
-401752698,3,2025-09-13,Kentucky,Eastern Michigan,0,
-401756895,3,2025-09-14,Wyoming,Utah,0,
-401754534,3,2025-09-14,Tulane,Duke,0,
-401762465,3,2025-09-14,Tulsa,Navy,0,
-401762463,3,2025-09-14,UAB,Akron,0,
-401760368,3,2025-09-14,Utah State,Air Force,0,
-401752840,3,2025-09-14,California,Minnesota,0,
-401756889,3,2025-09-14,Arizona State,Texas State,0,
-401754533,3,2025-09-14,Stanford,Boston College,0,
-401762468,4,2025-09-18,Charlotte,Rice,0,
-401756900,4,2025-09-19,Oklahoma State,Tulsa,0,
-401752844,4,2025-09-20,Rutgers,Iowa,0,
-401752711,4,2025-09-20,Ole Miss,Tulane,0,
-401752709,4,2025-09-20,Miami,Florida,0,3.25
-401752847,4,2025-09-20,USC,Michigan State,0,
-401754537,4,2025-09-20,Clemson,Syracuse,0,
-401752845,4,2025-09-20,Wisconsin,Maryland,0,
-401752843,4,2025-09-20,Indiana,Illinois,0,2.5
-401752841,4,2025-09-20,Oregon,Oregon State,0,26.5
-401752708,4,2025-09-20,Memphis,Arkansas,0,
-401756899,4,2025-09-20,Kansas,West Virginia,0,
-401756898,4,2025-09-20,East Carolina,BYU,0,
-401756897,4,2025-09-20,Colorado,Wyoming,0,
-401754642,4,2025-09-20,Louisville,Bowling Green,0,
-401754640,4,2025-09-20,UCF,North Carolina,0,
-401760373,4,2025-09-20,Colorado State,UTSA,0,
-401754542,4,2025-09-20,Georgia Tech,Temple,0,
-401760376,4,2025-09-20,Miami (OH),UNLV,0,
-401754541,4,2025-09-20,Florida State,Kent State,0,
-401761611,4,2025-09-20,South Alabama,Coastal Carolina,0,
-401761613,4,2025-09-20,Buffalo,Troy,0,
-401762820,4,2025-09-20,Western Michigan,Toledo,0,
-401752714,4,2025-09-20,Oklahoma,Auburn,0,
-401752713,4,2025-09-20,Missouri,South Carolina,0,
-401754539,4,2025-09-20,Virginia,Stanford,0,
-401754538,4,2025-09-20,Duke,NC State,0,
-401756901,4,2025-09-20,Utah,Texas Tech,0,3.5
-401754636,4,2025-09-20,TCU,SMU,0,
-401756896,4,2025-09-20,Baylor,Arizona State,0,
-401762469,4,2025-09-20,Army,North Texas,0,
-401752715,4,2025-09-20,Tennessee,UAB,0,
-401752848,4,2025-09-20,Notre Dame,Purdue,0,
-401752846,4,2025-09-20,Nebraska,Michigan,0,-3.25
-401761610,4,2025-09-20,Eastern Michigan,Louisiana,0,
-401757169,4,2025-09-20,UConn,Ball State,0,
-401752712,4,2025-09-20,Mississippi State,Northern Illinois,0,
-401757259,4,2025-09-20,Florida International,Delaware,0,
-401757261,4,2025-09-20,Kennesaw State,Arkansas State,0,
-401757262,4,2025-09-20,Liberty,James Madison,0,
-401760372,4,2025-09-20,Air Force,Boise State,0,
-401757268,4,2025-09-20,Western Kentucky,Nevada,0,
-401757264,4,2025-09-20,Middle Tennessee,Marshall,0,
-401752716,4,2025-09-20,Vanderbilt,Georgia State,0,
-401752842,4,2025-09-20,Washington State,Washington,0,-12.5
-401757263,4,2025-09-20,Louisiana Tech,Southern Miss,0,
-401752723,4,2025-09-21,Texas,Sam Houston,0,
-401757267,4,2025-09-21,UTEP,UL Monroe,0,
-401754540,4,2025-09-21,San Diego State,California,0,
-401760374,4,2025-09-21,Hawai'i,Fresno State,0,
-401762471,5,2025-09-25,East Carolina,Army,0,
-401754543,5,2025-09-26,Virginia,Florida State,0,
-401756902,5,2025-09-27,Arizona State,TCU,0,
-401752939,5,2025-09-27,Oregon State,Houston,0,
-401757271,5,2025-09-27,Old Dominion,Liberty,0,
-401762825,5,2025-09-27,Ohio,Bowling Green,0,
-401762474,5,2025-09-27,Tulsa,Tulane,0,
-401756907,5,2025-09-27,Oklahoma State,Baylor,0,
-401756906,5,2025-09-27,Kansas State,UCF,0,
-401756905,5,2025-09-27,Kansas,Cincinnati,0,
-401756904,5,2025-09-27,Iowa State,Arizona,0,
-401754549,5,2025-09-27,Stanford,San José State,0,
-401754548,5,2025-09-27,NC State,Virginia Tech,0,
-401754547,5,2025-09-27,Pittsburgh,Louisville,0,
-401754546,5,2025-09-27,Wake Forest,Georgia Tech,0,
-401754545,5,2025-09-27,Syracuse,Duke,0,
-401754544,5,2025-09-27,Boston College,California,0,
-401752853,5,2025-09-27,Iowa,Indiana,0,
-401752852,5,2025-09-27,Washington,Ohio State,0,-13.5
-401752851,5,2025-09-27,Northwestern,UCLA,0,
-401752850,5,2025-09-27,Illinois,USC,0,
-401752849,5,2025-09-27,Minnesota,Rutgers,0,
-401752724,5,2025-09-27,Texas A&M,Auburn,0,
-401752722,5,2025-09-27,South Carolina,Kentucky,0,
-401752720,5,2025-09-27,Mississippi State,Tennessee,0,
-401752721,5,2025-09-27,Missouri,Massachusetts,0,
-401752719,5,2025-09-27,Ole Miss,LSU,0,-2.25
-401760378,5,2025-09-27,Air Force,Hawai'i,0,
-401757170,5,2025-09-27,Buffalo,UConn,0,
-401757269,5,2025-09-27,Southern Miss,Jacksonville State,0,
-401756908,5,2025-09-27,West Virginia,Utah,0,
-401762826,5,2025-09-27,Central Michigan,Eastern Michigan,0,
-401762472,5,2025-09-27,Florida Atlantic,Memphis,0,
-401761617,5,2025-09-27,North Texas,South Alabama,0,
-401761616,5,2025-09-27,UL Monroe,Arkansas State,0,
-401761615,5,2025-09-27,Louisiana,Marshall,0,
-401761614,5,2025-09-27,James Madison,Georgia Southern,0,
-401760380,5,2025-09-27,Northern Illinois,San Diego State,0,
-401760379,5,2025-09-27,Boise State,App State,0,
-401752717,5,2025-09-27,Arkansas,Notre Dame,0,-10.5
-401752725,5,2025-09-27,Vanderbilt,Utah State,0,
-401762473,5,2025-09-27,Navy,Rice,0,
-401762824,5,2025-09-27,Toledo,Akron,0,
-401757274,5,2025-09-27,New Mexico,New Mexico State,0,
-401757270,5,2025-09-27,Kennesaw State,Middle Tennessee,0,
-401757273,5,2025-09-27,Missouri State,Western Kentucky,0,
-401752718,5,2025-09-27,Georgia,Alabama,0,4.0
-401752950,5,2025-09-27,Colorado State,Washington State,0,
-401752854,5,2025-09-27,Penn State,Oregon,0,6.0
-401757272,5,2025-09-28,UTEP,Louisiana Tech,0,
-401756903,5,2025-09-28,Colorado,BYU,0,
-401757275,6,2025-10-03,New Mexico State,Sam Houston,0,
-401762475,6,2025-10-03,South Florida,Charlotte,0,
-401757276,6,2025-10-03,Delaware,Western Kentucky,0,
-401760384,6,2025-10-04,San José State,New Mexico,0,
-401760382,6,2025-10-04,San Diego State,Colorado State,0,
-401756909,6,2025-10-04,BYU,West Virginia,0,
-401761619,6,2025-10-04,Old Dominion,Coastal Carolina,0,
-401761618,6,2025-10-04,Georgia State,James Madison,0,
-401756915,6,2025-10-04,UCF,Kansas,0,
-401756914,6,2025-10-04,TCU,Colorado,0,
-401756913,6,2025-10-04,Houston,Texas Tech,0,
-401756912,6,2025-10-04,Cincinnati,Iowa State,0,
-401756911,6,2025-10-04,Baylor,Kansas State,0,
-401756910,6,2025-10-04,Arizona,Oklahoma State,0,
-401754556,6,2025-10-04,Virginia Tech,Wake Forest,0,
-401754555,6,2025-10-04,SMU,Syracuse,0,
-401754554,6,2025-10-04,Louisville,Virginia,0,
-401754553,6,2025-10-04,Florida State,Miami,0,-5.75
-401754552,6,2025-10-04,North Carolina,Clemson,0,-13.5
-401754551,6,2025-10-04,California,Duke,0,
-401754550,6,2025-10-04,Pittsburgh,Boston College,0,
-401752940,6,2025-10-04,App State,Oregon State,0,
-401752861,6,2025-10-04,Purdue,Illinois,0,
-401752860,6,2025-10-04,Nebraska,Michigan State,0,
-401752859,6,2025-10-04,Ohio State,Minnesota,0,
-401752858,6,2025-10-04,Northwestern,UL Monroe,0,
-401752857,6,2025-10-04,Maryland,Washington,0,
-401752856,6,2025-10-04,Michigan,Wisconsin,0,
-401752855,6,2025-10-04,UCLA,Penn State,0,
-401752730,6,2025-10-04,Texas A&M,Mississippi State,0,
-401752727,6,2025-10-04,Florida,Texas,0,-6.5
-401752726,6,2025-10-04,Alabama,Vanderbilt,0,24.0
-401762832,6,2025-10-04,Massachusetts,Western Michigan,0,
-401762873,6,2025-10-04,Northern Illinois,Miami (OH),0,
-401762479,6,2025-10-04,Temple,UTSA,0,
-401762478,6,2025-10-04,Memphis,Tulsa,0,
-401762477,6,2025-10-04,Rice,Florida Atlantic,0,
-401762476,6,2025-10-04,UAB,Army,0,
-401761621,6,2025-10-04,Troy,South Alabama,0,
-401752728,6,2025-10-04,Georgia,Kentucky,0,
-401760381,6,2025-10-04,Navy,Air Force,0,
-401762830,6,2025-10-04,Ball State,Ohio,0,
-401757165,6,2025-10-04,Notre Dame,Boise State,0,16.25
-401762831,6,2025-10-04,Buffalo,Eastern Michigan,0,
-401762829,6,2025-10-04,Akron,Central Michigan,0,
-401757171,6,2025-10-04,UConn,Florida International,0,
-401752729,6,2025-10-04,Oklahoma,Kent State,0,
-401761620,6,2025-10-04,Arkansas State,Texas State,0,
-401760385,6,2025-10-04,Wyoming,UNLV,0,
-401760383,6,2025-10-05,Fresno State,Nevada,0,
-401757278,7,2025-10-08,Middle Tennessee,Missouri State,0,
-401757277,7,2025-10-09,UTEP,Liberty,0,
-401761622,7,2025-10-09,Georgia Southern,Southern Miss,0,
-401762480,7,2025-10-09,Tulane,East Carolina,0,
-401757280,7,2025-10-09,Kennesaw State,Louisiana Tech,0,
-401757279,7,2025-10-10,Sam Houston,Jacksonville State,1,
-401762481,7,2025-10-10,North Texas,South Florida,0,
-401760388,7,2025-10-11,Colorado State,Fresno State,0,
-401752862,7,2025-10-11,Washington,Rutgers,0,
-401760387,7,2025-10-11,Boise State,New Mexico,0,
-401752735,7,2025-10-11,Tennessee,Arkansas,0,
-401756921,7,2025-10-11,Texas Tech,Kansas,0,
-401752737,7,2025-10-11,Texas A&M,Florida,0,
-401752868,7,2025-10-11,USC,Michigan,0,-1.5
-401756922,7,2025-10-11,Utah,Arizona State,0,2.5
-401752732,7,2025-10-11,LSU,South Carolina,0,
-401752870,7,2025-10-11,Oregon,Indiana,0,14.0
-401752731,7,2025-10-11,Auburn,Georgia,0,-6.5
-401754558,7,2025-10-11,Boston College,Clemson,0,
-401752865,7,2025-10-11,Illinois,Ohio State,0,-13.5
-401752866,7,2025-10-11,Penn State,Northwestern,0,
-401754560,7,2025-10-11,Georgia Tech,Virginia Tech,0,
-401762836,7,2025-10-11,Eastern Michigan,Northern Illinois,0,
-401762835,7,2025-10-11,Bowling Green,Toledo,0,
-401762833,7,2025-10-11,Akron,Miami (OH),0,
-401762485,7,2025-10-11,UTSA,Rice,0,
-401762482,7,2025-10-11,Florida Atlantic,UAB,0,
-401761627,7,2025-10-11,Texas State,Troy,0,
-401761626,7,2025-10-11,Marshall,Old Dominion,0,
-401761625,7,2025-10-11,James Madison,Louisiana,0,
-401761624,7,2025-10-11,Georgia State,App State,0,
-401761623,7,2025-10-11,Coastal Carolina,UL Monroe,0,
-401762484,7,2025-10-11,Temple,Navy,0,
-401756920,7,2025-10-11,Oklahoma State,Houston,0,
-401754561,7,2025-10-11,SMU,Stanford,0,
-401756919,7,2025-10-11,Kansas State,TCU,0,
-401756918,7,2025-10-11,Colorado,Iowa State,0,
-401762837,7,2025-10-11,Kent State,Massachusetts,0,
-401756917,7,2025-10-11,Cincinnati,UCF,0,
-401756916,7,2025-10-11,Arizona,BYU,0,
-401754559,7,2025-10-11,Florida State,Pittsburgh,0,
-401752869,7,2025-10-11,Wisconsin,Iowa,0,
-401752867,7,2025-10-11,Maryland,Nebraska,0,
-401752864,7,2025-10-11,Minnesota,Purdue,0,
-401762483,7,2025-10-11,Army,Charlotte,0,
-401752863,7,2025-10-11,Michigan State,UCLA,0,
-401752734,7,2025-10-11,Missouri,Alabama,0,
-401752733,7,2025-10-11,Ole Miss,Washington State,0,
-401754563,7,2025-10-11,Oregon State,Wake Forest,0,
-401762834,7,2025-10-11,Western Michigan,Ball State,0,
-401760386,7,2025-10-11,UNLV,Air Force,0,
-401752736,7,2025-10-11,Texas,Oklahoma,1,9.5
-401754562,7,2025-10-11,Notre Dame,NC State,0,
-401760391,7,2025-10-11,Wyoming,San José State,0,
-401760390,7,2025-10-12,Nevada,San Diego State,0,
-401760389,7,2025-10-12,Hawai'i,Utah State,0,
-401757282,8,2025-10-14,Liberty,New Mexico State,0,
-401761628,8,2025-10-14,South Alabama,Arkansas State,0,
-401757281,8,2025-10-15,Western Kentucky,Florida International,0,
-401757284,8,2025-10-15,Sam Houston,UTEP,1,
-401757283,8,2025-10-15,Jacksonville State,Delaware,0,
-401762486,8,2025-10-16,East Carolina,Tulsa,0,
-401754564,8,2025-10-17,Miami,Louisville,0,6.5
-401752872,8,2025-10-18,Minnesota,Nebraska,0,
-401760396,8,2025-10-18,Utah State,San José State,0,
-401754371,8,2025-10-18,California,North Carolina,0,
-401760395,8,2025-10-18,New Mexico,Nevada,0,
-401756928,8,2025-10-18,UCF,West Virginia,0,
-401756927,8,2025-10-18,TCU,Baylor,0,
-401756925,8,2025-10-18,Houston,Arizona,0,
-401756924,8,2025-10-18,BYU,Utah,0,
-401754569,8,2025-10-18,Boston College,UConn,0,
-401754568,8,2025-10-18,Syracuse,Pittsburgh,0,
-401754566,8,2025-10-18,Duke,Georgia Tech,0,
-401762842,8,2025-10-18,Toledo,Kent State,0,
-401762843,8,2025-10-18,Ohio,Northern Illinois,0,
-401752879,8,2025-10-18,UCLA,Maryland,0,
-401752874,8,2025-10-18,Northwestern,Purdue,0,
-401752740,8,2025-10-18,Auburn,Missouri,0,
-401760393,8,2025-10-18,Boise State,UNLV,0,
-401752878,8,2025-10-18,Indiana,Michigan State,0,
-401762839,8,2025-10-18,Bowling Green,Central Michigan,0,
-401762840,8,2025-10-18,Massachusetts,Buffalo,0,
-401762841,8,2025-10-18,Miami (OH),Eastern Michigan,0,
-401752873,8,2025-10-18,Michigan,Washington,0,10.5
-401762487,8,2025-10-18,UAB,Memphis,0,
-401761629,8,2025-10-18,App State,Coastal Carolina,0,
-401752741,8,2025-10-18,Florida,Mississippi State,0,
-401762491,8,2025-10-18,North Texas,UTSA,0,
-401761630,8,2025-10-18,Georgia Southern,Georgia State,0,
-401761632,8,2025-10-18,Marshall,Texas State,0,
-401761633,8,2025-10-18,UL Monroe,Troy,0,
-401761668,8,2025-10-18,Louisiana,Southern Miss,0,
-401752739,8,2025-10-18,Arkansas,Texas A&M,0,
-401752744,8,2025-10-18,South Carolina,Oklahoma,0,
-401756923,8,2025-10-18,Arizona State,Texas Tech,0,4.0
-401752745,8,2025-10-18,Vanderbilt,LSU,0,
-401752738,8,2025-10-18,Alabama,Tennessee,0,12.0
-401752876,8,2025-10-18,Rutgers,Oregon,0,
-401752742,8,2025-10-18,Georgia,Ole Miss,0,10.5
-401754565,8,2025-10-18,Clemson,SMU,0,11.5
-401752877,8,2025-10-18,Wisconsin,Ohio State,0,
-401752875,8,2025-10-18,Iowa,Penn State,0,-10.5
-401752743,8,2025-10-18,Kentucky,Texas,0,
-401762488,8,2025-10-18,Tulane,Army,0,
-401762489,8,2025-10-18,Charlotte,Temple,0,
-401756926,8,2025-10-18,Oklahoma State,Cincinnati,0,
-401762490,8,2025-10-18,South Florida,Florida Atlantic,0,
-401761631,8,2025-10-18,James Madison,Old Dominion,0,
-401760392,8,2025-10-18,Air Force,Wyoming,0,
-401762838,8,2025-10-18,Ball State,Akron,0,
-401752951,8,2025-10-18,Virginia,Washington State,0,
-401760394,8,2025-10-18,Colorado State,Hawai'i,0,
-401752871,8,2025-10-18,Notre Dame,USC,0,10.5
-401754567,8,2025-10-19,Stanford,Florida State,0,
-401757285,9,2025-10-21,Florida International,Kennesaw State,0,
-401757286,9,2025-10-21,Louisiana Tech,Western Kentucky,0,
-401757287,9,2025-10-22,Delaware,Middle Tennessee,0,
-401757288,9,2025-10-23,New Mexico State,Missouri State,0,
-401761634,9,2025-10-23,Georgia State,South Alabama,0,
-401762492,9,2025-10-24,Charlotte,North Texas,0,
-401754372,9,2025-10-24,Virginia Tech,California,0,
-401760397,9,2025-10-25,Nevada,Boise State,0,
-401756932,9,2025-10-25,Kansas,Kansas State,0,-4.0
-401752885,9,2025-10-25,Indiana,UCLA,0,
-401756931,9,2025-10-25,Iowa State,BYU,0,
-401756933,9,2025-10-25,Texas Tech,Oklahoma State,0,
-401752750,9,2025-10-25,Oklahoma,Ole Miss,0,
-401760400,9,2025-10-25,New Mexico,Utah State,0,
-401760399,9,2025-10-25,Fresno State,San Diego State,0,
-401757172,9,2025-10-25,Rice,UConn,0,
-401752746,9,2025-10-25,Arkansas,Auburn,0,
-401761637,9,2025-10-25,Southern Miss,UL Monroe,0,
-401761635,9,2025-10-25,Old Dominion,App State,0,
-401762848,9,2025-10-25,Eastern Michigan,Ohio,0,
-401762847,9,2025-10-25,Central Michigan,Massachusetts,0,
-401762846,9,2025-10-25,Kent State,Bowling Green,0,
-401762845,9,2025-10-25,Northern Illinois,Ball State,0,
-401762844,9,2025-10-25,Buffalo,Akron,0,
-401762495,9,2025-10-25,Tulsa,Temple,0,
-401762494,9,2025-10-25,Memphis,South Florida,0,
-401756935,9,2025-10-25,West Virginia,TCU,0,
-401756934,9,2025-10-25,Utah,Colorado,0,8.5
-401756930,9,2025-10-25,Cincinnati,Baylor,0,
-401754574,9,2025-10-25,Pittsburgh,NC State,0,
-401761638,9,2025-10-25,Troy,Louisiana,0,
-401754573,9,2025-10-25,North Carolina,Virginia,0,
-401754571,9,2025-10-25,Georgia Tech,Syracuse,0,
-401754570,9,2025-10-25,Louisville,Boston College,0,
-401752884,9,2025-10-25,Purdue,Rutgers,0,
-401752883,9,2025-10-25,Nebraska,Northwestern,0,
-401752882,9,2025-10-25,Iowa,Minnesota,0,
-401752752,9,2025-10-25,Vanderbilt,Missouri,0,
-401752747,9,2025-10-25,Kentucky,Tennessee,0,
-401752749,9,2025-10-25,Mississippi State,Texas,0,
-401752886,9,2025-10-25,Oregon,Wisconsin,0,
-401752751,9,2025-10-25,South Carolina,Alabama,0,-7.5
-401752748,9,2025-10-25,LSU,Texas A&M,0,5.5
-401754572,9,2025-10-25,Miami,Stanford,0,
-401756929,9,2025-10-25,Arizona State,Houston,0,
-401752880,9,2025-10-25,Washington,Illinois,0,
-401752881,9,2025-10-25,Michigan State,Michigan,0,-8.25
-401752942,9,2025-10-25,Wake Forest,SMU,0,
-401762874,9,2025-10-25,Miami (OH),Western Michigan,0,
-401762493,9,2025-10-25,Navy,Florida Atlantic,0,
-401752952,9,2025-10-25,Washington State,Toledo,0,
-401761636,9,2025-10-25,Arkansas State,Georgia Southern,0,
-401760398,9,2025-10-25,Wyoming,Colorado State,0,
-401761639,10,2025-10-29,Texas State,James Madison,0,
-401757289,10,2025-10-29,Kennesaw State,UTEP,0,
-401757292,10,2025-10-29,Middle Tennessee,Jacksonville State,0,
-401757291,10,2025-10-30,Missouri State,Florida International,0,
-401762443,10,2025-10-30,UTSA,Tulane,0,
-401761640,10,2025-10-30,Coastal Carolina,Marshall,0,
-401762497,10,2025-10-31,Rice,Memphis,0,
-401754575,10,2025-10-31,Syracuse,North Carolina,0,
-401757290,10,2025-11-01,Louisiana Tech,Sam Houston,0,
-401752887,10,2025-11-01,Maryland,Indiana,0,
-401752757,10,2025-11-01,Tennessee,Oklahoma,0,
-401752890,10,2025-11-01,Michigan,Purdue,0,
-401752756,10,2025-11-01,Ole Miss,South Carolina,0,
-401752891,10,2025-11-01,Illinois,Rutgers,0,
-401756939,10,2025-11-01,Iowa State,Arizona State,0,
-401754581,10,2025-11-01,SMU,Miami,0,-1.5
-401754583,10,2025-11-01,Boston College,Notre Dame,0,
-401754577,10,2025-11-01,Clemson,Duke,0,
-401752889,10,2025-11-01,Ohio State,Penn State,0,4.0
-401756941,10,2025-11-01,Kansas State,Texas Tech,0,4.25
-401756942,10,2025-11-01,Utah,Cincinnati,0,
-401761641,10,2025-11-01,UL Monroe,Old Dominion,0,
-401762850,10,2025-11-01,Western Michigan,Central Michigan,0,
-401762849,10,2025-11-01,Bowling Green,Buffalo,0,
-401762499,10,2025-11-01,North Texas,Navy,0,
-401762498,10,2025-11-01,Temple,East Carolina,0,
-401761643,10,2025-11-01,Troy,Arkansas State,0,
-401761642,10,2025-11-01,South Alabama,Louisiana,0,
-401756940,10,2025-11-01,Kansas,Oklahoma State,0,
-401756937,10,2025-11-01,Colorado,Arizona,0,
-401756938,10,2025-11-01,Houston,West Virginia,0,
-401756936,10,2025-11-01,Baylor,UCF,0,
-401754582,10,2025-11-01,Stanford,Pittsburgh,0,
-401754580,10,2025-11-01,Virginia Tech,Louisville,0,
-401754579,10,2025-11-01,NC State,Georgia Tech,0,
-401754578,10,2025-11-01,Florida State,Wake Forest,0,
-401754576,10,2025-11-01,California,Virginia,0,
-401752892,10,2025-11-01,Nebraska,USC,0,
-401752888,10,2025-11-01,Minnesota,Michigan State,0,
-401752754,10,2025-11-01,Auburn,Kentucky,0,
-401752753,10,2025-11-01,Arkansas,Mississippi State,0,
-401760402,10,2025-11-01,Boise State,Fresno State,0,
-401752758,10,2025-11-01,Texas,Vanderbilt,0,
-401757173,10,2025-11-01,UConn,UAB,0,
-401760401,10,2025-11-01,Air Force,Army,0,
-401760404,10,2025-11-01,UNLV,New Mexico,0,
-401757294,10,2025-11-01,Western Kentucky,New Mexico State,0,
-401752755,10,2025-11-01,Florida,Georgia,1,-7.25
-401757293,10,2025-11-01,Liberty,Delaware,0,
-401760405,10,2025-11-01,San Diego State,Wyoming,0,
-401752943,10,2025-11-01,Oregon State,Washington State,0,
-401760403,10,2025-11-02,San José State,Hawai'i,0,
-401762852,11,2025-11-05,Ohio,Miami (OH),0,
-401762851,11,2025-11-05,Akron,Massachusetts,0,
-401762854,11,2025-11-05,Toledo,Northern Illinois,0,
-401762853,11,2025-11-05,Ball State,Kent State,0,
-401761644,11,2025-11-07,App State,Georgia Southern,0,
-401762500,11,2025-11-07,South Florida,UTSA,0,
-401756946,11,2025-11-07,UCF,Houston,0,
-401762501,11,2025-11-08,Memphis,Tulane,0,
-401752896,11,2025-11-08,USC,Northwestern,0,
-401752760,11,2025-11-08,Kentucky,Florida,0,
-401752764,11,2025-11-08,Vanderbilt,Auburn,0,
-401760407,11,2025-11-08,Colorado State,UNLV,0,
-401760406,11,2025-11-08,San José State,Air Force,0,
-401756944,11,2025-11-08,TCU,Iowa State,0,
-401756943,11,2025-11-08,Arizona,Kansas,0,
-401762502,11,2025-11-08,Rice,UAB,0,
-401762855,11,2025-11-08,Eastern Michigan,Bowling Green,0,
-401752898,11,2025-11-08,Iowa,Oregon,0,
-401752899,11,2025-11-08,Wisconsin,Washington,0,
-401752897,11,2025-11-08,Purdue,Ohio State,0,
-401752895,11,2025-11-08,UCLA,Nebraska,0,
-401752894,11,2025-11-08,Rutgers,Maryland,0,
-401756945,11,2025-11-08,Texas Tech,BYU,0,
-401762505,11,2025-11-08,Florida Atlantic,Tulsa,0,
-401752893,11,2025-11-08,Penn State,Indiana,0,16.0
-401756947,11,2025-11-08,West Virginia,Colorado,0,
-401754584,11,2025-11-08,Boston College,SMU,0,
-401761646,11,2025-11-08,Marshall,James Madison,0,
-401761645,11,2025-11-08,Coastal Carolina,Georgia State,0,
-401761648,11,2025-11-08,Louisiana,Texas State,0,
-401762504,11,2025-11-08,East Carolina,Charlotte,0,
-401752763,11,2025-11-08,Missouri,Texas A&M,0,
-401761647,11,2025-11-08,Arkansas State,Southern Miss,0,
-401752759,11,2025-11-08,Alabama,LSU,0,5.75
-401754587,11,2025-11-08,Miami,Syracuse,0,
-401754588,11,2025-11-08,North Carolina,Stanford,0,
-401754589,11,2025-11-08,Virginia,Wake Forest,0,
-401754586,11,2025-11-08,Clemson,Florida State,0,16.75
-401754585,11,2025-11-08,Louisville,California,0,
-401752762,11,2025-11-08,Mississippi State,Georgia,0,
-401762503,11,2025-11-08,Army,Temple,0,
-401757299,11,2025-11-08,Liberty,Missouri State,0,
-401757295,11,2025-11-08,Delaware,Louisiana Tech,0,
-401757296,11,2025-11-08,Middle Tennessee,Florida International,0,
-401757297,11,2025-11-08,UTEP,Jacksonville State,0,
-401754590,11,2025-11-08,UConn,Duke,0,
-401757298,11,2025-11-08,New Mexico State,Kennesaw State,0,
-401760409,11,2025-11-09,Utah State,Nevada,0,
-401757166,11,2025-11-09,Notre Dame,Navy,0,
-401752944,11,2025-11-09,Oregon State,Sam Houston,0,
-401760408,11,2025-11-09,Hawai'i,San Diego State,0,
-401762856,12,2025-11-12,Akron,Kent State,0,
-401762857,12,2025-11-12,Western Michigan,Ohio,0,
-401762858,12,2025-11-13,Central Michigan,Buffalo,0,
-401762860,12,2025-11-13,Miami (OH),Toledo,0,
-401762859,12,2025-11-13,Massachusetts,Northern Illinois,0,
-401761649,12,2025-11-14,Old Dominion,Troy,0,
-401754591,12,2025-11-15,Louisville,Clemson,0,-6.25
-401752904,12,2025-11-15,Oregon,Minnesota,0,
-401754594,12,2025-11-15,Florida State,Virginia Tech,0,
-401756950,12,2025-11-15,BYU,TCU,0,
-401756948,12,2025-11-15,Arizona State,West Virginia,0,
-401752772,12,2025-11-15,Texas A&M,South Carolina,0,
-401752907,12,2025-11-15,USC,Iowa,0,
-401754593,12,2025-11-15,Duke,Virginia,0,
-401752901,12,2025-11-15,Indiana,Wisconsin,0,
-401752769,12,2025-11-15,Ole Miss,Florida,0,
-401752768,12,2025-11-15,LSU,Arkansas,0,
-401760412,12,2025-11-15,Fresno State,Wyoming,0,
-401752945,12,2025-11-15,Tulsa,Oregon State,0,
-401761651,12,2025-11-15,Georgia State,Marshall,0,
-401761650,12,2025-11-15,Georgia Southern,Coastal Carolina,0,
-401761652,12,2025-11-15,James Madison,App State,0,
-401760411,12,2025-11-15,New Mexico,Colorado State,0,
-401754596,12,2025-11-15,Wake Forest,North Carolina,0,
-401761653,12,2025-11-15,UL Monroe,South Alabama,0,
-401754595,12,2025-11-15,Miami,NC State,0,
-401754592,12,2025-11-15,Boston College,Georgia Tech,0,
-401761654,12,2025-11-15,Southern Miss,Texas State,0,
-401754597,12,2025-11-15,Pittsburgh,Notre Dame,0,
-401752770,12,2025-11-15,Missouri,Mississippi State,0,
-401756953,12,2025-11-15,Texas Tech,UCF,0,
-401752766,12,2025-11-15,Georgia,Texas,0,2.5
-401752903,12,2025-11-15,Michigan State,Penn State,0,
-401752765,12,2025-11-15,Alabama,Oklahoma,0,12.5
-401762508,12,2025-11-15,East Carolina,Memphis,0,
-401752905,12,2025-11-15,Northwestern,Michigan,1,
-401762509,12,2025-11-15,Tulane,Florida Atlantic,0,
-401752906,12,2025-11-15,Illinois,Maryland,0,
-401752900,12,2025-11-15,Ohio State,UCLA,0,
-401756949,12,2025-11-15,Baylor,Utah,0,
-401762506,12,2025-11-15,UAB,North Texas,0,
-401762507,12,2025-11-15,Charlotte,UTSA,0,
-401756951,12,2025-11-15,Cincinnati,Arizona,0,
-401762861,12,2025-11-15,Ball State,Eastern Michigan,0,
-401756952,12,2025-11-15,Oklahoma State,Kansas State,0,
-401752902,12,2025-11-15,Washington,Purdue,0,
-401762510,12,2025-11-15,Navy,South Florida,0,
-401757174,12,2025-11-15,UConn,Air Force,0,
-401757300,12,2025-11-15,Sam Houston,Delaware,1,
-401757302,12,2025-11-15,Jacksonville State,Kennesaw State,0,
-401757304,12,2025-11-15,Missouri State,UTEP,0,
-401757303,12,2025-11-15,Western Kentucky,Middle Tennessee,0,
-401760413,12,2025-11-15,Nevada,San José State,0,
-401752771,12,2025-11-15,Tennessee,New Mexico State,0,
-401757301,12,2025-11-15,Florida International,Liberty,0,
-401760414,12,2025-11-16,UNLV,Utah State,0,
-401752953,12,2025-11-16,Washington State,Louisiana Tech,0,
-401760410,12,2025-11-16,San Diego State,Boise State,0,
-401762863,13,2025-11-19,Ohio,Massachusetts,0,
-401762862,13,2025-11-19,Bowling Green,Akron,0,
-401762864,13,2025-11-19,Northern Illinois,Western Michigan,0,
-401762865,13,2025-11-20,Buffalo,Miami (OH),0,
-401762866,13,2025-11-20,Kent State,Central Michigan,0,
-401761655,13,2025-11-21,Arkansas State,Louisiana,0,
-401754598,13,2025-11-22,NC State,Florida State,0,
-401760418,13,2025-11-22,UNLV,Hawai'i,0,
-401752775,13,2025-11-22,Florida,Tennessee,0,4.0
-401752777,13,2025-11-22,LSU,Western Kentucky,0,
-401752779,13,2025-11-22,South Carolina,Coastal Carolina,0,
-401752780,13,2025-11-22,Texas,Arkansas,0,
-401762514,13,2025-11-22,Rice,North Texas,0,
-401762515,13,2025-11-22,Temple,Tulane,0,
-401752908,13,2025-11-22,Penn State,Nebraska,0,
-401752912,13,2025-11-22,Ohio State,Rutgers,0,
-401752911,13,2025-11-22,Oregon,USC,0,12.75
-401754603,13,2025-11-22,Virginia Tech,Miami,0,
-401756956,13,2025-11-22,Colorado,Arizona State,0,-4.5
-401752915,13,2025-11-22,Wisconsin,Illinois,0,
-401752914,13,2025-11-22,Maryland,Michigan,0,
-401752910,13,2025-11-22,UCLA,Washington,0,
-401752913,13,2025-11-22,Iowa,Michigan State,0,
-401752954,13,2025-11-22,James Madison,Washington State,0,
-401754599,13,2025-11-22,Stanford,California,0,
-401754600,13,2025-11-22,North Carolina,Duke,0,0.0
-401754601,13,2025-11-22,Georgia Tech,Pittsburgh,0,
-401761656,13,2025-11-22,App State,Marshall,0,
-401761657,13,2025-11-22,Georgia Southern,Old Dominion,0,
-401761658,13,2025-11-22,South Alabama,Southern Miss,0,
-401761659,13,2025-11-22,Texas State,UL Monroe,0,
-401761660,13,2025-11-22,Troy,Georgia State,0,
-401762511,13,2025-11-22,UAB,South Florida,0,
-401762513,13,2025-11-22,UTSA,East Carolina,0,
-401762867,13,2025-11-22,Toledo,Ball State,0,
-401754606,13,2025-11-22,Wake Forest,Delaware,0,
-401756954,13,2025-11-22,Arizona,Baylor,0,
-401756955,13,2025-11-22,Cincinnati,BYU,0,
-401756957,13,2025-11-22,Houston,TCU,0,
-401756959,13,2025-11-22,UCF,Oklahoma State,0,
-401757175,13,2025-11-22,Florida Atlantic,UConn,0,
-401760420,13,2025-11-22,San Diego State,San José State,0,
-401754602,13,2025-11-22,SMU,Louisville,0,
-401756960,13,2025-11-22,Utah,Kansas State,0,1.5
-401756958,13,2025-11-22,Iowa State,Kansas,0,
-401760416,13,2025-11-22,Boise State,Colorado State,0,
-401752782,13,2025-11-22,Vanderbilt,Kentucky,0,
-401752909,13,2025-11-22,Northwestern,Minnesota,1,
-401762512,13,2025-11-22,Army,Tulsa,0,
-401752778,13,2025-11-22,Oklahoma,Missouri,0,7.5
-401752776,13,2025-11-22,Georgia,Charlotte,0,
-401757306,13,2025-11-22,Kennesaw State,Missouri State,0,
-401760419,13,2025-11-22,Wyoming,Nevada,0,
-401757309,13,2025-11-22,UTEP,New Mexico State,0,
-401757307,13,2025-11-22,Louisiana Tech,Liberty,0,
-401757308,13,2025-11-22,Middle Tennessee,Sam Houston,0,
-401757305,13,2025-11-22,Florida International,Jacksonville State,0,
-401754604,13,2025-11-22,Notre Dame,Syracuse,0,
-401760415,13,2025-11-23,Air Force,New Mexico,0,
-401760417,13,2025-11-23,Fresno State,Utah State,0,
-401762868,14,2025-11-25,Massachusetts,Bowling Green,0,
-401762869,14,2025-11-25,Eastern Michigan,Western Michigan,0,
-401762516,14,2025-11-28,Memphis,Navy,0,
-401760421,14,2025-11-28,Colorado State,Air Force,0,
-401762441,14,2025-11-28,UTSA,Army,0,
-401756961,14,2025-11-28,Arizona State,Arizona,0,
-401762870,14,2025-11-28,Buffalo,Ohio,0,
-401756964,14,2025-11-28,Kansas,Utah,0,
-401752916,14,2025-11-28,Nebraska,Iowa,0,2.5
-401752788,14,2025-11-28,Mississippi State,Ole Miss,0,-11.5
-401762871,14,2025-11-28,Northern Illinois,Kent State,0,
-401752786,14,2025-11-28,Georgia Tech,Georgia,1,-13.5
-401760426,14,2025-11-28,New Mexico,San Diego State,0,
-401760422,14,2025-11-28,Utah State,Boise State,0,
-401752924,14,2025-11-29,Purdue,Indiana,0,
-401752792,14,2025-11-29,Texas,Texas A&M,0,10.5
-401762875,14,2025-11-29,Miami (OH),Ball State,0,
-401752787,14,2025-11-29,Louisville,Kentucky,0,
-401756963,14,2025-11-29,BYU,UCF,0,
-401756967,14,2025-11-29,TCU,Cincinnati,0,
-401760423,14,2025-11-29,San José State,Fresno State,0,
-401761661,14,2025-11-29,App State,Arkansas State,0,
-401761662,14,2025-11-29,Coastal Carolina,James Madison,0,
-401761663,14,2025-11-29,Marshall,Georgia Southern,0,
-401761664,14,2025-11-29,Old Dominion,Georgia State,0,
-401761665,14,2025-11-29,Louisiana,UL Monroe,0,
-401761666,14,2025-11-29,Southern Miss,Troy,0,
-401761667,14,2025-11-29,Texas State,South Alabama,0,
-401762442,14,2025-11-29,North Texas,Temple,0,
-401762517,14,2025-11-29,Tulsa,UAB,0,
-401762518,14,2025-11-29,Tulane,Charlotte,0,
-401762519,14,2025-11-29,Florida Atlantic,East Carolina,0,
-401762520,14,2025-11-29,South Florida,Rice,0,
-401762872,14,2025-11-29,Central Michigan,Toledo,0,
-401756966,14,2025-11-29,Oklahoma State,Iowa State,0,
-401756968,14,2025-11-29,West Virginia,Texas Tech,0,
-401752791,14,2025-11-29,Tennessee,Vanderbilt,0,
-401752783,14,2025-11-29,Arkansas,Missouri,0,
-401756962,14,2025-11-29,Baylor,Houston,0,
-401752918,14,2025-11-29,Minnesota,Wisconsin,0,
-401752919,14,2025-11-29,USC,UCLA,0,
-401752923,14,2025-11-29,Michigan State,Maryland,1,
-401754608,14,2025-11-29,Syracuse,Boston College,0,
-401754610,14,2025-11-29,Duke,Wake Forest,0,
-401754612,14,2025-11-29,NC State,North Carolina,0,2.5
-401754613,14,2025-11-29,Virginia,Virginia Tech,0,
-401752920,14,2025-11-29,Rutgers,Penn State,0,
-401754614,14,2025-11-29,Stanford,Notre Dame,0,
-401752917,14,2025-11-29,Washington,Oregon,0,-11.5
-401752784,14,2025-11-29,Auburn,Alabama,0,-5.5
-401752789,14,2025-11-29,Oklahoma,LSU,0,
-401754611,14,2025-11-29,Pittsburgh,Miami,0,
-401752922,14,2025-11-29,Illinois,Northwestern,0,
-401752785,14,2025-11-29,Florida,Florida State,0,
-401754609,14,2025-11-29,California,SMU,0,
-401756965,14,2025-11-29,Kansas State,Colorado,0,
-401752921,14,2025-11-29,Michigan,Ohio State,0,-5.5
-401752790,14,2025-11-29,South Carolina,Clemson,0,-4.5
-401757311,14,2025-11-29,Sam Houston,Florida International,1,
-401757310,14,2025-11-29,Delaware,UTEP,0,
-401757314,14,2025-11-29,Missouri State,Louisiana Tech,0,
-401757312,14,2025-11-29,Jacksonville State,Western Kentucky,0,
-401757315,14,2025-11-29,New Mexico State,Middle Tennessee,0,
-401757313,14,2025-11-29,Liberty,Kennesaw State,0,
-401752946,14,2025-11-29,Washington State,Oregon State,0,
-401760425,14,2025-11-30,Nevada,UNLV,0,
-401760424,14,2025-11-30,Hawai'i,Wyoming,0,
-401762521,16,2025-12-13,Navy,Army,1,3.5
+game_id,week,date,home_team,away_team,home_points,away_points,neutral_site,market_spread_home,home_conf,away_conf
+401756846,1,2025-08-23,Kansas State,Iowa State,21.0,24.0,1,,Big 12,Big 12
+401756847,1,2025-08-23,Kansas,Fresno State,31.0,7.0,0,,Big 12,Mountain West
+401757218,1,2025-08-23,Western Kentucky,Sam Houston,41.0,24.0,0,,Conference USA,Conference USA
+401754516,1,2025-08-23,Hawai'i,Stanford,23.0,20.0,0,,Mountain West,ACC
+401762522,1,2025-08-28,South Florida,Boise State,34.0,7.0,0,,American Athletic,Mountain West
+401752794,1,2025-08-28,Rutgers,Ohio,34.0,31.0,0,,Big Ten,Mid-American
+401754373,1,2025-08-28,NC State,East Carolina,24.0,17.0,0,,ACC,American Athletic
+401756848,1,2025-08-28,UCF,Jacksonville State,17.0,10.0,0,,Big 12,Conference USA
+401762789,1,2025-08-28,Akron,Wyoming,0.0,10.0,0,,Mid-American,Mountain West
+401752793,1,2025-08-29,Minnesota,Buffalo,23.0,10.0,0,,Big Ten,Mid-American
+401752796,1,2025-08-29,Cincinnati,Nebraska,17.0,20.0,1,,Big 12,Big Ten
+401762791,1,2025-08-29,Wisconsin,Miami (OH),17.0,0.0,0,,Big Ten,Mid-American
+401761589,1,2025-08-29,Charlotte,App State,11.0,34.0,1,,American Athletic,Sun Belt
+401752802,1,2025-08-29,Michigan State,Western Michigan,23.0,6.0,0,,Big Ten,Mid-American
+401754374,1,2025-08-29,Wake Forest,Kennesaw State,10.0,9.0,0,,ACC,Conference USA
+401754375,1,2025-08-30,Colorado,Georgia Tech,20.0,27.0,0,,Big 12,ACC
+401752667,1,2025-08-30,Baylor,Auburn,24.0,38.0,0,,Big 12,SEC
+401757224,1,2025-08-30,Sam Houston,UNLV,21.0,38.0,1,,Conference USA,Mountain West
+401760358,1,2025-08-30,San José State,Central Michigan,14.0,16.0,0,,Mountain West,Mid-American
+401752797,1,2025-08-30,Maryland,Florida Atlantic,39.0,7.0,0,,Big Ten,American Athletic
+401752677,1,2025-08-30,Ohio State,Texas,14.0,7.0,0,,Big Ten,SEC
+401752676,1,2025-08-30,Tennessee,Syracuse,45.0,26.0,1,,SEC,ACC
+401752803,1,2025-08-30,Tulane,Northwestern,23.0,3.0,0,,American Athletic,Big Ten
+401752801,1,2025-08-30,Purdue,Ball State,31.0,0.0,0,,Big Ten,Mid-American
+401752673,1,2025-08-30,Southern Miss,Mississippi State,17.0,34.0,0,,Sun Belt,SEC
+401752670,1,2025-08-30,Kentucky,Toledo,24.0,16.0,0,,SEC,Mid-American
+401752806,1,2025-08-30,Indiana,Old Dominion,27.0,14.0,0,,Big Ten,Sun Belt
+401752665,1,2025-08-30,Florida State,Alabama,31.0,17.0,0,,ACC,SEC
+401762456,1,2025-08-30,Massachusetts,Temple,10.0,42.0,0,,Mid-American,American Athletic
+401752669,1,2025-08-30,Georgia,Marshall,45.0,7.0,0,,SEC,Sun Belt
+401752807,1,2025-08-30,Penn State,Nevada,46.0,11.0,0,,Big Ten,Mountain West
+401754616,1,2025-08-30,Virginia,Coastal Carolina,48.0,7.0,0,,ACC,Sun Belt
+401752678,1,2025-08-30,Texas A&M,UTSA,42.0,24.0,0,,SEC,American Athletic
+401752798,1,2025-08-30,USC,Missouri State,73.0,13.0,0,,Big Ten,Conference USA
+401752808,1,2025-08-30,Michigan,New Mexico,34.0,17.0,0,,Big Ten,Mountain West
+401757225,1,2025-08-30,Utah State,UTEP,28.0,16.0,0,,Mountain West,Conference USA
+401752671,1,2025-08-30,Clemson,LSU,10.0,17.0,0,,ACC,SEC
+401752672,1,2025-08-30,Ole Miss,Georgia State,63.0,7.0,0,,SEC,Sun Belt
+401761592,1,2025-08-31,Louisiana,Rice,12.0,14.0,0,,Sun Belt,American Athletic
+401761594,1,2025-08-31,Texas State,Eastern Michigan,52.0,27.0,0,,Sun Belt,Mid-American
+401760361,1,2025-08-31,Fresno State,Georgia Southern,42.0,14.0,0,,Mountain West,Sun Belt
+401752936,1,2025-08-31,Oregon State,California,15.0,34.0,0,,Pac-12,ACC
+401756849,1,2025-08-31,Arizona,Hawai'i,40.0,6.0,0,,Big 12,Mountain West
+401752805,1,2025-08-31,Washington,Colorado State,38.0,21.0,0,,Big Ten,Mountain West
+401752800,1,2025-08-31,UCLA,Utah,10.0,43.0,0,,Big Ten,Big 12
+401752680,1,2025-08-31,South Carolina,Virginia Tech,24.0,11.0,1,,SEC,ACC
+401754522,1,2025-08-31,Miami,Notre Dame,27.0,24.0,0,,ACC,FBS Independents
+401754523,1,2025-09-02,North Carolina,TCU,,,0,,ACC,Big 12
+401754528,2,2025-09-05,Louisville,James Madison,,,0,,ACC,Sun Belt
+401752826,2,2025-09-05,Maryland,Northern Illinois,,,0,,Big Ten,Mid-American
+401752693,2,2025-09-06,Texas,San José State,,,0,,SEC,Mountain West
+401756885,2,2025-09-06,Texas Tech,Kent State,,,0,,Big 12,Mid-American
+401754529,2,2025-09-06,Pittsburgh,Central Michigan,,,0,,ACC,Mid-American
+401752811,2,2025-09-06,Penn State,Florida International,,,0,,Big Ten,Conference USA
+401752812,2,2025-09-06,Indiana,Kennesaw State,,,0,,Big Ten,Conference USA
+401752822,2,2025-09-06,Iowa State,Iowa,,,0,,Big 12,Big Ten
+401752825,2,2025-09-06,Duke,Illinois,,,0,,ACC,Big Ten
+401754524,2,2025-09-06,NC State,Virginia,,,0,,ACC,ACC
+401754618,2,2025-09-06,Syracuse,UConn,,,0,,ACC,FBS Independents
+401754525,2,2025-09-06,SMU,Baylor,,,0,,ACC,Big 12
+401757227,2,2025-09-06,Jacksonville State,Liberty,,,0,,Conference USA,Conference USA
+401752694,2,2025-09-06,Texas A&M,Utah State,,,0,,SEC,Mountain West
+401752686,2,2025-09-06,Kentucky,Ole Miss,,,0,,SEC,SEC
+401752818,2,2025-09-06,Rutgers,Miami (OH),,,0,,Big Ten,Mid-American
+401756880,2,2025-09-06,Cincinnati,Bowling Green,,,0,,Big 12,Mid-American
+401762458,2,2025-09-06,Navy,UAB,,,0,,American Athletic,American Athletic
+401762461,2,2025-09-06,Western Michigan,North Texas,,,0,,Mid-American,American Athletic
+401752689,2,2025-09-06,Missouri,Kansas,,,0,,SEC,Big 12
+401761603,2,2025-09-06,UTSA,Texas State,,,0,,American Athletic,Sun Belt
+401752824,2,2025-09-06,Oregon,Oklahoma State,,,0,,Big Ten,Big 12
+401754637,2,2025-09-06,Clemson,Troy,,,0,,ACC,Sun Belt
+401756881,2,2025-09-06,Colorado,Delaware,,,0,,Big 12,Conference USA
+401752937,2,2025-09-06,Oregon State,Fresno State,,,0,,Pac-12,Mountain West
+401756883,2,2025-09-06,Ohio,West Virginia,,,0,,Mid-American,Big 12
+401752820,2,2025-09-06,Wisconsin,Middle Tennessee,,,0,,Big Ten,Conference USA
+401752684,2,2025-09-06,Florida,South Florida,,,0,,SEC,American Athletic
+401752682,2,2025-09-06,Arkansas,Arkansas State,,,1,,SEC,Sun Belt
+401757228,2,2025-09-06,Marshall,Missouri State,,,0,,Sun Belt,Conference USA
+401756884,2,2025-09-06,Rice,Houston,,,0,,American Athletic,Big 12
+401756882,2,2025-09-06,Kansas State,Army,,,0,,Big 12,American Athletic
+401754527,2,2025-09-06,Charlotte,North Carolina,,,0,,American Athletic,ACC
+401757232,2,2025-09-06,Toledo,Western Kentucky,,,0,,Mid-American,Conference USA
+401761601,2,2025-09-06,South Alabama,Tulane,,,0,,Sun Belt,American Athletic
+401761598,2,2025-09-06,Georgia State,Memphis,,,0,,Sun Belt,American Athletic
+401752814,2,2025-09-06,USC,Georgia Southern,,,0,,Big Ten,Sun Belt
+401752695,2,2025-09-06,Virginia Tech,Vanderbilt,,,0,,ACC,SEC
+401752816,2,2025-09-06,Michigan State,Boston College,,,0,,Big Ten,ACC
+401752683,2,2025-09-06,Auburn,Ball State,,,0,,SEC,Mid-American
+401752810,2,2025-09-06,Nebraska,Akron,,,0,,Big Ten,Mid-American
+401752688,2,2025-09-06,Mississippi State,Arizona State,,,0,,SEC,Big 12
+401752690,2,2025-09-06,Oklahoma,Michigan,,,0,,SEC,Big Ten
+401752687,2,2025-09-06,LSU,Louisiana Tech,,,0,,SEC,Conference USA
+401752681,2,2025-09-06,Alabama,UL Monroe,,,0,,SEC,Sun Belt
+401752823,2,2025-09-07,UNLV,UCLA,,,0,,Mountain West,Big Ten
+401757229,2,2025-09-07,New Mexico State,Tulsa,,,0,,Conference USA,American Athletic
+401754526,2,2025-09-07,BYU,Stanford,,,0,,Big 12,ACC
+401752948,2,2025-09-07,Washington State,San Diego State,,,0,,Pac-12,Mountain West
+401757230,2,2025-09-07,Hawai'i,Sam Houston,,,0,,Mountain West,Conference USA
+401754531,3,2025-09-11,Wake Forest,NC State,,,0,,ACC,ACC
+401756893,3,2025-09-12,Houston,Colorado,,,0,,Big 12,Big 12
+401756888,3,2025-09-13,Arizona,Kansas State,,,0,,Big 12,Big 12
+401752837,3,2025-09-13,UCLA,New Mexico,,,0,,Big Ten,Mountain West
+401752700,3,2025-09-13,Ole Miss,Arkansas,,,0,,SEC,SEC
+401752704,3,2025-09-13,South Carolina,Vanderbilt,,,0,,SEC,SEC
+401754623,3,2025-09-13,Georgia Tech,Clemson,,,0,,ACC,ACC
+401752831,3,2025-09-13,Northwestern,Oregon,,,0,,Big Ten,Big Ten
+401752696,3,2025-09-13,Alabama,Wisconsin,,,0,,SEC,Big Ten
+401752839,3,2025-09-13,Michigan,Central Michigan,,,0,,Big Ten,Mid-American
+401752703,3,2025-09-13,Temple,Oklahoma,,,0,,American Athletic,SEC
+401761608,3,2025-09-13,Troy,Memphis,,,0,,Sun Belt,American Athletic
+401762817,3,2025-09-13,Kent State,Buffalo,,,0,,Mid-American,Mid-American
+401752697,3,2025-09-13,Auburn,South Alabama,,,0,,SEC,Sun Belt
+401757168,3,2025-09-13,Delaware,UConn,,,0,,Conference USA,FBS Independents
+401754638,3,2025-09-13,West Virginia,Pittsburgh,,,0,,Big 12,ACC
+401754615,3,2025-09-13,Missouri State,SMU,,,0,,Conference USA,ACC
+401752949,3,2025-09-13,North Texas,Washington State,,,0,,American Athletic,Pac-12
+401752938,3,2025-09-13,Texas Tech,Oregon State,,,0,,Big 12,Pac-12
+401752705,3,2025-09-13,Tennessee,Georgia,,,0,,SEC,SEC
+401752832,3,2025-09-13,Purdue,USC,,,0,,Big Ten,Big Ten
+401756890,3,2025-09-13,Arkansas State,Iowa State,,,0,,Sun Belt,Big 12
+401752702,3,2025-09-13,Missouri,Louisiana,,,0,,SEC,Sun Belt
+401752706,3,2025-09-13,Texas,UTEP,,,0,,SEC,Conference USA
+401754535,3,2025-09-13,Miami,South Florida,,,0,,ACC,American Athletic
+401757256,3,2025-09-13,Bowling Green,Liberty,,,0,,Mid-American,Conference USA
+401757258,3,2025-09-13,Nevada,Middle Tennessee,,,0,,Mountain West,Conference USA
+401757233,3,2025-09-13,Florida International,Florida Atlantic,,,0,,Conference USA,American Athletic
+401761607,3,2025-09-13,Southern Miss,App State,,,0,,Sun Belt,Sun Belt
+401757234,3,2025-09-13,Georgia Southern,Jacksonville State,,,0,,Sun Belt,Conference USA
+401754536,3,2025-09-13,Virginia Tech,Old Dominion,,,0,,ACC,Sun Belt
+401752829,3,2025-09-13,Illinois,Western Michigan,,,0,,Big Ten,Mid-American
+401752827,3,2025-09-13,Ohio State,Ohio,,,0,,Big Ten,Mid-American
+401752699,3,2025-09-13,LSU,Florida,,,0,,SEC,SEC
+401752707,3,2025-09-13,Notre Dame,Texas A&M,,,0,,FBS Independents,SEC
+401752830,3,2025-09-13,Iowa,Massachusetts,,,0,,Big Ten,Mid-American
+401757257,3,2025-09-13,Louisiana Tech,New Mexico State,,,0,,Conference USA,Conference USA
+401761604,3,2025-09-13,Coastal Carolina,East Carolina,,,0,,Sun Belt,American Athletic
+401752698,3,2025-09-13,Kentucky,Eastern Michigan,,,0,,SEC,Mid-American
+401756895,3,2025-09-14,Wyoming,Utah,,,0,,Mountain West,Big 12
+401754534,3,2025-09-14,Tulane,Duke,,,0,,American Athletic,ACC
+401762465,3,2025-09-14,Tulsa,Navy,,,0,,American Athletic,American Athletic
+401762463,3,2025-09-14,UAB,Akron,,,0,,American Athletic,Mid-American
+401760368,3,2025-09-14,Utah State,Air Force,,,0,,Mountain West,Mountain West
+401752840,3,2025-09-14,California,Minnesota,,,0,,ACC,Big Ten
+401756889,3,2025-09-14,Arizona State,Texas State,,,0,,Big 12,Sun Belt
+401754533,3,2025-09-14,Stanford,Boston College,,,0,,ACC,ACC
+401762468,4,2025-09-18,Charlotte,Rice,,,0,,American Athletic,American Athletic
+401756900,4,2025-09-19,Oklahoma State,Tulsa,,,0,,Big 12,American Athletic
+401752844,4,2025-09-20,Rutgers,Iowa,,,0,,Big Ten,Big Ten
+401752711,4,2025-09-20,Ole Miss,Tulane,,,0,,SEC,American Athletic
+401752709,4,2025-09-20,Miami,Florida,,,0,,ACC,SEC
+401752847,4,2025-09-20,USC,Michigan State,,,0,,Big Ten,Big Ten
+401754537,4,2025-09-20,Clemson,Syracuse,,,0,,ACC,ACC
+401752845,4,2025-09-20,Wisconsin,Maryland,,,0,,Big Ten,Big Ten
+401752843,4,2025-09-20,Indiana,Illinois,,,0,,Big Ten,Big Ten
+401752841,4,2025-09-20,Oregon,Oregon State,,,0,,Big Ten,Pac-12
+401752708,4,2025-09-20,Memphis,Arkansas,,,0,,American Athletic,SEC
+401756899,4,2025-09-20,Kansas,West Virginia,,,0,,Big 12,Big 12
+401756898,4,2025-09-20,East Carolina,BYU,,,0,,American Athletic,Big 12
+401756897,4,2025-09-20,Colorado,Wyoming,,,0,,Big 12,Mountain West
+401754642,4,2025-09-20,Louisville,Bowling Green,,,0,,ACC,Mid-American
+401754640,4,2025-09-20,UCF,North Carolina,,,0,,Big 12,ACC
+401760373,4,2025-09-20,Colorado State,UTSA,,,0,,Mountain West,American Athletic
+401754542,4,2025-09-20,Georgia Tech,Temple,,,0,,ACC,American Athletic
+401760376,4,2025-09-20,Miami (OH),UNLV,,,0,,Mid-American,Mountain West
+401754541,4,2025-09-20,Florida State,Kent State,,,0,,ACC,Mid-American
+401761611,4,2025-09-20,South Alabama,Coastal Carolina,,,0,,Sun Belt,Sun Belt
+401761613,4,2025-09-20,Buffalo,Troy,,,0,,Mid-American,Sun Belt
+401762820,4,2025-09-20,Western Michigan,Toledo,,,0,,Mid-American,Mid-American
+401752714,4,2025-09-20,Oklahoma,Auburn,,,0,,SEC,SEC
+401752713,4,2025-09-20,Missouri,South Carolina,,,0,,SEC,SEC
+401754539,4,2025-09-20,Virginia,Stanford,,,0,,ACC,ACC
+401754538,4,2025-09-20,Duke,NC State,,,0,,ACC,ACC
+401756901,4,2025-09-20,Utah,Texas Tech,,,0,,Big 12,Big 12
+401754636,4,2025-09-20,TCU,SMU,,,0,,Big 12,ACC
+401756896,4,2025-09-20,Baylor,Arizona State,,,0,,Big 12,Big 12
+401762469,4,2025-09-20,Army,North Texas,,,0,,American Athletic,American Athletic
+401752715,4,2025-09-20,Tennessee,UAB,,,0,,SEC,American Athletic
+401752848,4,2025-09-20,Notre Dame,Purdue,,,0,,FBS Independents,Big Ten
+401752846,4,2025-09-20,Nebraska,Michigan,,,0,,Big Ten,Big Ten
+401761610,4,2025-09-20,Eastern Michigan,Louisiana,,,0,,Mid-American,Sun Belt
+401757169,4,2025-09-20,UConn,Ball State,,,0,,FBS Independents,Mid-American
+401752712,4,2025-09-20,Mississippi State,Northern Illinois,,,0,,SEC,Mid-American
+401757259,4,2025-09-20,Florida International,Delaware,,,0,,Conference USA,Conference USA
+401757261,4,2025-09-20,Kennesaw State,Arkansas State,,,0,,Conference USA,Sun Belt
+401757262,4,2025-09-20,Liberty,James Madison,,,0,,Conference USA,Sun Belt
+401760372,4,2025-09-20,Air Force,Boise State,,,0,,Mountain West,Mountain West
+401757268,4,2025-09-20,Western Kentucky,Nevada,,,0,,Conference USA,Mountain West
+401757264,4,2025-09-20,Middle Tennessee,Marshall,,,0,,Conference USA,Sun Belt
+401752716,4,2025-09-20,Vanderbilt,Georgia State,,,0,,SEC,Sun Belt
+401752842,4,2025-09-20,Washington State,Washington,,,0,,Pac-12,Big Ten
+401757263,4,2025-09-20,Louisiana Tech,Southern Miss,,,0,,Conference USA,Sun Belt
+401752723,4,2025-09-21,Texas,Sam Houston,,,0,,SEC,Conference USA
+401757267,4,2025-09-21,UTEP,UL Monroe,,,0,,Conference USA,Sun Belt
+401754540,4,2025-09-21,San Diego State,California,,,0,,Mountain West,ACC
+401760374,4,2025-09-21,Hawai'i,Fresno State,,,0,,Mountain West,Mountain West
+401762471,5,2025-09-25,East Carolina,Army,,,0,,American Athletic,American Athletic
+401754543,5,2025-09-26,Virginia,Florida State,,,0,,ACC,ACC
+401756902,5,2025-09-27,Arizona State,TCU,,,0,,Big 12,Big 12
+401752939,5,2025-09-27,Oregon State,Houston,,,0,,Pac-12,Big 12
+401757271,5,2025-09-27,Old Dominion,Liberty,,,0,,Sun Belt,Conference USA
+401762825,5,2025-09-27,Ohio,Bowling Green,,,0,,Mid-American,Mid-American
+401762474,5,2025-09-27,Tulsa,Tulane,,,0,,American Athletic,American Athletic
+401756907,5,2025-09-27,Oklahoma State,Baylor,,,0,,Big 12,Big 12
+401756906,5,2025-09-27,Kansas State,UCF,,,0,,Big 12,Big 12
+401756905,5,2025-09-27,Kansas,Cincinnati,,,0,,Big 12,Big 12
+401756904,5,2025-09-27,Iowa State,Arizona,,,0,,Big 12,Big 12
+401754549,5,2025-09-27,Stanford,San José State,,,0,,ACC,Mountain West
+401754548,5,2025-09-27,NC State,Virginia Tech,,,0,,ACC,ACC
+401754547,5,2025-09-27,Pittsburgh,Louisville,,,0,,ACC,ACC
+401754546,5,2025-09-27,Wake Forest,Georgia Tech,,,0,,ACC,ACC
+401754545,5,2025-09-27,Syracuse,Duke,,,0,,ACC,ACC
+401754544,5,2025-09-27,Boston College,California,,,0,,ACC,ACC
+401752853,5,2025-09-27,Iowa,Indiana,,,0,,Big Ten,Big Ten
+401752852,5,2025-09-27,Washington,Ohio State,,,0,,Big Ten,Big Ten
+401752851,5,2025-09-27,Northwestern,UCLA,,,0,,Big Ten,Big Ten
+401752850,5,2025-09-27,Illinois,USC,,,0,,Big Ten,Big Ten
+401752849,5,2025-09-27,Minnesota,Rutgers,,,0,,Big Ten,Big Ten
+401752724,5,2025-09-27,Texas A&M,Auburn,,,0,,SEC,SEC
+401752722,5,2025-09-27,South Carolina,Kentucky,,,0,,SEC,SEC
+401752720,5,2025-09-27,Mississippi State,Tennessee,,,0,,SEC,SEC
+401752721,5,2025-09-27,Missouri,Massachusetts,,,0,,SEC,Mid-American
+401752719,5,2025-09-27,Ole Miss,LSU,,,0,,SEC,SEC
+401760378,5,2025-09-27,Air Force,Hawai'i,,,0,,Mountain West,Mountain West
+401757170,5,2025-09-27,Buffalo,UConn,,,0,,Mid-American,FBS Independents
+401757269,5,2025-09-27,Southern Miss,Jacksonville State,,,0,,Sun Belt,Conference USA
+401756908,5,2025-09-27,West Virginia,Utah,,,0,,Big 12,Big 12
+401762826,5,2025-09-27,Central Michigan,Eastern Michigan,,,0,,Mid-American,Mid-American
+401762472,5,2025-09-27,Florida Atlantic,Memphis,,,0,,American Athletic,American Athletic
+401761617,5,2025-09-27,North Texas,South Alabama,,,0,,American Athletic,Sun Belt
+401761616,5,2025-09-27,UL Monroe,Arkansas State,,,0,,Sun Belt,Sun Belt
+401761615,5,2025-09-27,Louisiana,Marshall,,,0,,Sun Belt,Sun Belt
+401761614,5,2025-09-27,James Madison,Georgia Southern,,,0,,Sun Belt,Sun Belt
+401760380,5,2025-09-27,Northern Illinois,San Diego State,,,0,,Mid-American,Mountain West
+401760379,5,2025-09-27,Boise State,App State,,,0,,Mountain West,Sun Belt
+401752717,5,2025-09-27,Arkansas,Notre Dame,,,0,,SEC,FBS Independents
+401752725,5,2025-09-27,Vanderbilt,Utah State,,,0,,SEC,Mountain West
+401762473,5,2025-09-27,Navy,Rice,,,0,,American Athletic,American Athletic
+401762824,5,2025-09-27,Toledo,Akron,,,0,,Mid-American,Mid-American
+401757274,5,2025-09-27,New Mexico,New Mexico State,,,0,,Mountain West,Conference USA
+401757270,5,2025-09-27,Kennesaw State,Middle Tennessee,,,0,,Conference USA,Conference USA
+401757273,5,2025-09-27,Missouri State,Western Kentucky,,,0,,Conference USA,Conference USA
+401752718,5,2025-09-27,Georgia,Alabama,,,0,,SEC,SEC
+401752950,5,2025-09-27,Colorado State,Washington State,,,0,,Mountain West,Pac-12
+401752854,5,2025-09-27,Penn State,Oregon,,,0,,Big Ten,Big Ten
+401757272,5,2025-09-28,UTEP,Louisiana Tech,,,0,,Conference USA,Conference USA
+401756903,5,2025-09-28,Colorado,BYU,,,0,,Big 12,Big 12
+401757275,6,2025-10-03,New Mexico State,Sam Houston,,,0,,Conference USA,Conference USA
+401762475,6,2025-10-03,South Florida,Charlotte,,,0,,American Athletic,American Athletic
+401757276,6,2025-10-03,Delaware,Western Kentucky,,,0,,Conference USA,Conference USA
+401760384,6,2025-10-04,San José State,New Mexico,,,0,,Mountain West,Mountain West
+401760382,6,2025-10-04,San Diego State,Colorado State,,,0,,Mountain West,Mountain West
+401756909,6,2025-10-04,BYU,West Virginia,,,0,,Big 12,Big 12
+401761619,6,2025-10-04,Old Dominion,Coastal Carolina,,,0,,Sun Belt,Sun Belt
+401761618,6,2025-10-04,Georgia State,James Madison,,,0,,Sun Belt,Sun Belt
+401756915,6,2025-10-04,UCF,Kansas,,,0,,Big 12,Big 12
+401756914,6,2025-10-04,TCU,Colorado,,,0,,Big 12,Big 12
+401756913,6,2025-10-04,Houston,Texas Tech,,,0,,Big 12,Big 12
+401756912,6,2025-10-04,Cincinnati,Iowa State,,,0,,Big 12,Big 12
+401756911,6,2025-10-04,Baylor,Kansas State,,,0,,Big 12,Big 12
+401756910,6,2025-10-04,Arizona,Oklahoma State,,,0,,Big 12,Big 12
+401754556,6,2025-10-04,Virginia Tech,Wake Forest,,,0,,ACC,ACC
+401754555,6,2025-10-04,SMU,Syracuse,,,0,,ACC,ACC
+401754554,6,2025-10-04,Louisville,Virginia,,,0,,ACC,ACC
+401754553,6,2025-10-04,Florida State,Miami,,,0,,ACC,ACC
+401754552,6,2025-10-04,North Carolina,Clemson,,,0,,ACC,ACC
+401754551,6,2025-10-04,California,Duke,,,0,,ACC,ACC
+401754550,6,2025-10-04,Pittsburgh,Boston College,,,0,,ACC,ACC
+401752940,6,2025-10-04,App State,Oregon State,,,0,,Sun Belt,Pac-12
+401752861,6,2025-10-04,Purdue,Illinois,,,0,,Big Ten,Big Ten
+401752860,6,2025-10-04,Nebraska,Michigan State,,,0,,Big Ten,Big Ten
+401752859,6,2025-10-04,Ohio State,Minnesota,,,0,,Big Ten,Big Ten
+401752858,6,2025-10-04,Northwestern,UL Monroe,,,0,,Big Ten,Sun Belt
+401752857,6,2025-10-04,Maryland,Washington,,,0,,Big Ten,Big Ten
+401752856,6,2025-10-04,Michigan,Wisconsin,,,0,,Big Ten,Big Ten
+401752855,6,2025-10-04,UCLA,Penn State,,,0,,Big Ten,Big Ten
+401752730,6,2025-10-04,Texas A&M,Mississippi State,,,0,,SEC,SEC
+401752727,6,2025-10-04,Florida,Texas,,,0,,SEC,SEC
+401752726,6,2025-10-04,Alabama,Vanderbilt,,,0,,SEC,SEC
+401762832,6,2025-10-04,Massachusetts,Western Michigan,,,0,,Mid-American,Mid-American
+401762873,6,2025-10-04,Northern Illinois,Miami (OH),,,0,,Mid-American,Mid-American
+401762479,6,2025-10-04,Temple,UTSA,,,0,,American Athletic,American Athletic
+401762478,6,2025-10-04,Memphis,Tulsa,,,0,,American Athletic,American Athletic
+401762477,6,2025-10-04,Rice,Florida Atlantic,,,0,,American Athletic,American Athletic
+401762476,6,2025-10-04,UAB,Army,,,0,,American Athletic,American Athletic
+401761621,6,2025-10-04,Troy,South Alabama,,,0,,Sun Belt,Sun Belt
+401752728,6,2025-10-04,Georgia,Kentucky,,,0,,SEC,SEC
+401760381,6,2025-10-04,Navy,Air Force,,,0,,American Athletic,Mountain West
+401762830,6,2025-10-04,Ball State,Ohio,,,0,,Mid-American,Mid-American
+401757165,6,2025-10-04,Notre Dame,Boise State,,,0,,FBS Independents,Mountain West
+401762831,6,2025-10-04,Buffalo,Eastern Michigan,,,0,,Mid-American,Mid-American
+401762829,6,2025-10-04,Akron,Central Michigan,,,0,,Mid-American,Mid-American
+401757171,6,2025-10-04,UConn,Florida International,,,0,,FBS Independents,Conference USA
+401752729,6,2025-10-04,Oklahoma,Kent State,,,0,,SEC,Mid-American
+401761620,6,2025-10-04,Arkansas State,Texas State,,,0,,Sun Belt,Sun Belt
+401760385,6,2025-10-04,Wyoming,UNLV,,,0,,Mountain West,Mountain West
+401760383,6,2025-10-05,Fresno State,Nevada,,,0,,Mountain West,Mountain West
+401757278,7,2025-10-08,Middle Tennessee,Missouri State,,,0,,Conference USA,Conference USA
+401757277,7,2025-10-09,UTEP,Liberty,,,0,,Conference USA,Conference USA
+401761622,7,2025-10-09,Georgia Southern,Southern Miss,,,0,,Sun Belt,Sun Belt
+401762480,7,2025-10-09,Tulane,East Carolina,,,0,,American Athletic,American Athletic
+401757280,7,2025-10-09,Kennesaw State,Louisiana Tech,,,0,,Conference USA,Conference USA
+401757279,7,2025-10-10,Sam Houston,Jacksonville State,,,1,,Conference USA,Conference USA
+401762481,7,2025-10-10,North Texas,South Florida,,,0,,American Athletic,American Athletic
+401760388,7,2025-10-11,Colorado State,Fresno State,,,0,,Mountain West,Mountain West
+401752862,7,2025-10-11,Washington,Rutgers,,,0,,Big Ten,Big Ten
+401760387,7,2025-10-11,Boise State,New Mexico,,,0,,Mountain West,Mountain West
+401752735,7,2025-10-11,Tennessee,Arkansas,,,0,,SEC,SEC
+401756921,7,2025-10-11,Texas Tech,Kansas,,,0,,Big 12,Big 12
+401752737,7,2025-10-11,Texas A&M,Florida,,,0,,SEC,SEC
+401752868,7,2025-10-11,USC,Michigan,,,0,,Big Ten,Big Ten
+401756922,7,2025-10-11,Utah,Arizona State,,,0,,Big 12,Big 12
+401752732,7,2025-10-11,LSU,South Carolina,,,0,,SEC,SEC
+401752870,7,2025-10-11,Oregon,Indiana,,,0,,Big Ten,Big Ten
+401752731,7,2025-10-11,Auburn,Georgia,,,0,,SEC,SEC
+401754558,7,2025-10-11,Boston College,Clemson,,,0,,ACC,ACC
+401752865,7,2025-10-11,Illinois,Ohio State,,,0,,Big Ten,Big Ten
+401752866,7,2025-10-11,Penn State,Northwestern,,,0,,Big Ten,Big Ten
+401754560,7,2025-10-11,Georgia Tech,Virginia Tech,,,0,,ACC,ACC
+401762836,7,2025-10-11,Eastern Michigan,Northern Illinois,,,0,,Mid-American,Mid-American
+401762835,7,2025-10-11,Bowling Green,Toledo,,,0,,Mid-American,Mid-American
+401762833,7,2025-10-11,Akron,Miami (OH),,,0,,Mid-American,Mid-American
+401762485,7,2025-10-11,UTSA,Rice,,,0,,American Athletic,American Athletic
+401762482,7,2025-10-11,Florida Atlantic,UAB,,,0,,American Athletic,American Athletic
+401761627,7,2025-10-11,Texas State,Troy,,,0,,Sun Belt,Sun Belt
+401761626,7,2025-10-11,Marshall,Old Dominion,,,0,,Sun Belt,Sun Belt
+401761625,7,2025-10-11,James Madison,Louisiana,,,0,,Sun Belt,Sun Belt
+401761624,7,2025-10-11,Georgia State,App State,,,0,,Sun Belt,Sun Belt
+401761623,7,2025-10-11,Coastal Carolina,UL Monroe,,,0,,Sun Belt,Sun Belt
+401762484,7,2025-10-11,Temple,Navy,,,0,,American Athletic,American Athletic
+401756920,7,2025-10-11,Oklahoma State,Houston,,,0,,Big 12,Big 12
+401754561,7,2025-10-11,SMU,Stanford,,,0,,ACC,ACC
+401756919,7,2025-10-11,Kansas State,TCU,,,0,,Big 12,Big 12
+401756918,7,2025-10-11,Colorado,Iowa State,,,0,,Big 12,Big 12
+401762837,7,2025-10-11,Kent State,Massachusetts,,,0,,Mid-American,Mid-American
+401756917,7,2025-10-11,Cincinnati,UCF,,,0,,Big 12,Big 12
+401756916,7,2025-10-11,Arizona,BYU,,,0,,Big 12,Big 12
+401754559,7,2025-10-11,Florida State,Pittsburgh,,,0,,ACC,ACC
+401752869,7,2025-10-11,Wisconsin,Iowa,,,0,,Big Ten,Big Ten
+401752867,7,2025-10-11,Maryland,Nebraska,,,0,,Big Ten,Big Ten
+401752864,7,2025-10-11,Minnesota,Purdue,,,0,,Big Ten,Big Ten
+401762483,7,2025-10-11,Army,Charlotte,,,0,,American Athletic,American Athletic
+401752863,7,2025-10-11,Michigan State,UCLA,,,0,,Big Ten,Big Ten
+401752734,7,2025-10-11,Missouri,Alabama,,,0,,SEC,SEC
+401752733,7,2025-10-11,Ole Miss,Washington State,,,0,,SEC,Pac-12
+401754563,7,2025-10-11,Oregon State,Wake Forest,,,0,,Pac-12,ACC
+401762834,7,2025-10-11,Western Michigan,Ball State,,,0,,Mid-American,Mid-American
+401760386,7,2025-10-11,UNLV,Air Force,,,0,,Mountain West,Mountain West
+401752736,7,2025-10-11,Texas,Oklahoma,,,1,,SEC,SEC
+401754562,7,2025-10-11,Notre Dame,NC State,,,0,,FBS Independents,ACC
+401760391,7,2025-10-11,Wyoming,San José State,,,0,,Mountain West,Mountain West
+401760390,7,2025-10-12,Nevada,San Diego State,,,0,,Mountain West,Mountain West
+401760389,7,2025-10-12,Hawai'i,Utah State,,,0,,Mountain West,Mountain West
+401757282,8,2025-10-14,Liberty,New Mexico State,,,0,,Conference USA,Conference USA
+401761628,8,2025-10-14,South Alabama,Arkansas State,,,0,,Sun Belt,Sun Belt
+401757281,8,2025-10-15,Western Kentucky,Florida International,,,0,,Conference USA,Conference USA
+401757284,8,2025-10-15,Sam Houston,UTEP,,,1,,Conference USA,Conference USA
+401757283,8,2025-10-15,Jacksonville State,Delaware,,,0,,Conference USA,Conference USA
+401762486,8,2025-10-16,East Carolina,Tulsa,,,0,,American Athletic,American Athletic
+401754564,8,2025-10-17,Miami,Louisville,,,0,,ACC,ACC
+401752872,8,2025-10-18,Minnesota,Nebraska,,,0,,Big Ten,Big Ten
+401760396,8,2025-10-18,Utah State,San José State,,,0,,Mountain West,Mountain West
+401754371,8,2025-10-18,California,North Carolina,,,0,,ACC,ACC
+401760395,8,2025-10-18,New Mexico,Nevada,,,0,,Mountain West,Mountain West
+401756928,8,2025-10-18,UCF,West Virginia,,,0,,Big 12,Big 12
+401756927,8,2025-10-18,TCU,Baylor,,,0,,Big 12,Big 12
+401756925,8,2025-10-18,Houston,Arizona,,,0,,Big 12,Big 12
+401756924,8,2025-10-18,BYU,Utah,,,0,,Big 12,Big 12
+401754569,8,2025-10-18,Boston College,UConn,,,0,,ACC,FBS Independents
+401754568,8,2025-10-18,Syracuse,Pittsburgh,,,0,,ACC,ACC
+401754566,8,2025-10-18,Duke,Georgia Tech,,,0,,ACC,ACC
+401762842,8,2025-10-18,Toledo,Kent State,,,0,,Mid-American,Mid-American
+401762843,8,2025-10-18,Ohio,Northern Illinois,,,0,,Mid-American,Mid-American
+401752879,8,2025-10-18,UCLA,Maryland,,,0,,Big Ten,Big Ten
+401752874,8,2025-10-18,Northwestern,Purdue,,,0,,Big Ten,Big Ten
+401752740,8,2025-10-18,Auburn,Missouri,,,0,,SEC,SEC
+401760393,8,2025-10-18,Boise State,UNLV,,,0,,Mountain West,Mountain West
+401752878,8,2025-10-18,Indiana,Michigan State,,,0,,Big Ten,Big Ten
+401762839,8,2025-10-18,Bowling Green,Central Michigan,,,0,,Mid-American,Mid-American
+401762840,8,2025-10-18,Massachusetts,Buffalo,,,0,,Mid-American,Mid-American
+401762841,8,2025-10-18,Miami (OH),Eastern Michigan,,,0,,Mid-American,Mid-American
+401752873,8,2025-10-18,Michigan,Washington,,,0,,Big Ten,Big Ten
+401762487,8,2025-10-18,UAB,Memphis,,,0,,American Athletic,American Athletic
+401761629,8,2025-10-18,App State,Coastal Carolina,,,0,,Sun Belt,Sun Belt
+401752741,8,2025-10-18,Florida,Mississippi State,,,0,,SEC,SEC
+401762491,8,2025-10-18,North Texas,UTSA,,,0,,American Athletic,American Athletic
+401761630,8,2025-10-18,Georgia Southern,Georgia State,,,0,,Sun Belt,Sun Belt
+401761632,8,2025-10-18,Marshall,Texas State,,,0,,Sun Belt,Sun Belt
+401761633,8,2025-10-18,UL Monroe,Troy,,,0,,Sun Belt,Sun Belt
+401761668,8,2025-10-18,Louisiana,Southern Miss,,,0,,Sun Belt,Sun Belt
+401752739,8,2025-10-18,Arkansas,Texas A&M,,,0,,SEC,SEC
+401752744,8,2025-10-18,South Carolina,Oklahoma,,,0,,SEC,SEC
+401756923,8,2025-10-18,Arizona State,Texas Tech,,,0,,Big 12,Big 12
+401752745,8,2025-10-18,Vanderbilt,LSU,,,0,,SEC,SEC
+401752738,8,2025-10-18,Alabama,Tennessee,,,0,,SEC,SEC
+401752876,8,2025-10-18,Rutgers,Oregon,,,0,,Big Ten,Big Ten
+401752742,8,2025-10-18,Georgia,Ole Miss,,,0,,SEC,SEC
+401754565,8,2025-10-18,Clemson,SMU,,,0,,ACC,ACC
+401752877,8,2025-10-18,Wisconsin,Ohio State,,,0,,Big Ten,Big Ten
+401752875,8,2025-10-18,Iowa,Penn State,,,0,,Big Ten,Big Ten
+401752743,8,2025-10-18,Kentucky,Texas,,,0,,SEC,SEC
+401762488,8,2025-10-18,Tulane,Army,,,0,,American Athletic,American Athletic
+401762489,8,2025-10-18,Charlotte,Temple,,,0,,American Athletic,American Athletic
+401756926,8,2025-10-18,Oklahoma State,Cincinnati,,,0,,Big 12,Big 12
+401762490,8,2025-10-18,South Florida,Florida Atlantic,,,0,,American Athletic,American Athletic
+401761631,8,2025-10-18,James Madison,Old Dominion,,,0,,Sun Belt,Sun Belt
+401760392,8,2025-10-18,Air Force,Wyoming,,,0,,Mountain West,Mountain West
+401762838,8,2025-10-18,Ball State,Akron,,,0,,Mid-American,Mid-American
+401752951,8,2025-10-18,Virginia,Washington State,,,0,,ACC,Pac-12
+401760394,8,2025-10-18,Colorado State,Hawai'i,,,0,,Mountain West,Mountain West
+401752871,8,2025-10-18,Notre Dame,USC,,,0,,FBS Independents,Big Ten
+401754567,8,2025-10-19,Stanford,Florida State,,,0,,ACC,ACC
+401757285,9,2025-10-21,Florida International,Kennesaw State,,,0,,Conference USA,Conference USA
+401757286,9,2025-10-21,Louisiana Tech,Western Kentucky,,,0,,Conference USA,Conference USA
+401757287,9,2025-10-22,Delaware,Middle Tennessee,,,0,,Conference USA,Conference USA
+401757288,9,2025-10-23,New Mexico State,Missouri State,,,0,,Conference USA,Conference USA
+401761634,9,2025-10-23,Georgia State,South Alabama,,,0,,Sun Belt,Sun Belt
+401762492,9,2025-10-24,Charlotte,North Texas,,,0,,American Athletic,American Athletic
+401754372,9,2025-10-24,Virginia Tech,California,,,0,,ACC,ACC
+401760397,9,2025-10-25,Nevada,Boise State,,,0,,Mountain West,Mountain West
+401756932,9,2025-10-25,Kansas,Kansas State,,,0,,Big 12,Big 12
+401752885,9,2025-10-25,Indiana,UCLA,,,0,,Big Ten,Big Ten
+401756931,9,2025-10-25,Iowa State,BYU,,,0,,Big 12,Big 12
+401756933,9,2025-10-25,Texas Tech,Oklahoma State,,,0,,Big 12,Big 12
+401752750,9,2025-10-25,Oklahoma,Ole Miss,,,0,,SEC,SEC
+401760400,9,2025-10-25,New Mexico,Utah State,,,0,,Mountain West,Mountain West
+401760399,9,2025-10-25,Fresno State,San Diego State,,,0,,Mountain West,Mountain West
+401757172,9,2025-10-25,Rice,UConn,,,0,,American Athletic,FBS Independents
+401752746,9,2025-10-25,Arkansas,Auburn,,,0,,SEC,SEC
+401761637,9,2025-10-25,Southern Miss,UL Monroe,,,0,,Sun Belt,Sun Belt
+401761635,9,2025-10-25,Old Dominion,App State,,,0,,Sun Belt,Sun Belt
+401762848,9,2025-10-25,Eastern Michigan,Ohio,,,0,,Mid-American,Mid-American
+401762847,9,2025-10-25,Central Michigan,Massachusetts,,,0,,Mid-American,Mid-American
+401762846,9,2025-10-25,Kent State,Bowling Green,,,0,,Mid-American,Mid-American
+401762845,9,2025-10-25,Northern Illinois,Ball State,,,0,,Mid-American,Mid-American
+401762844,9,2025-10-25,Buffalo,Akron,,,0,,Mid-American,Mid-American
+401762495,9,2025-10-25,Tulsa,Temple,,,0,,American Athletic,American Athletic
+401762494,9,2025-10-25,Memphis,South Florida,,,0,,American Athletic,American Athletic
+401756935,9,2025-10-25,West Virginia,TCU,,,0,,Big 12,Big 12
+401756934,9,2025-10-25,Utah,Colorado,,,0,,Big 12,Big 12
+401756930,9,2025-10-25,Cincinnati,Baylor,,,0,,Big 12,Big 12
+401754574,9,2025-10-25,Pittsburgh,NC State,,,0,,ACC,ACC
+401761638,9,2025-10-25,Troy,Louisiana,,,0,,Sun Belt,Sun Belt
+401754573,9,2025-10-25,North Carolina,Virginia,,,0,,ACC,ACC
+401754571,9,2025-10-25,Georgia Tech,Syracuse,,,0,,ACC,ACC
+401754570,9,2025-10-25,Louisville,Boston College,,,0,,ACC,ACC
+401752884,9,2025-10-25,Purdue,Rutgers,,,0,,Big Ten,Big Ten
+401752883,9,2025-10-25,Nebraska,Northwestern,,,0,,Big Ten,Big Ten
+401752882,9,2025-10-25,Iowa,Minnesota,,,0,,Big Ten,Big Ten
+401752752,9,2025-10-25,Vanderbilt,Missouri,,,0,,SEC,SEC
+401752747,9,2025-10-25,Kentucky,Tennessee,,,0,,SEC,SEC
+401752749,9,2025-10-25,Mississippi State,Texas,,,0,,SEC,SEC
+401752886,9,2025-10-25,Oregon,Wisconsin,,,0,,Big Ten,Big Ten
+401752751,9,2025-10-25,South Carolina,Alabama,,,0,,SEC,SEC
+401752748,9,2025-10-25,LSU,Texas A&M,,,0,,SEC,SEC
+401754572,9,2025-10-25,Miami,Stanford,,,0,,ACC,ACC
+401756929,9,2025-10-25,Arizona State,Houston,,,0,,Big 12,Big 12
+401752880,9,2025-10-25,Washington,Illinois,,,0,,Big Ten,Big Ten
+401752881,9,2025-10-25,Michigan State,Michigan,,,0,,Big Ten,Big Ten
+401752942,9,2025-10-25,Wake Forest,SMU,,,0,,ACC,ACC
+401762874,9,2025-10-25,Miami (OH),Western Michigan,,,0,,Mid-American,Mid-American
+401762493,9,2025-10-25,Navy,Florida Atlantic,,,0,,American Athletic,American Athletic
+401752952,9,2025-10-25,Washington State,Toledo,,,0,,Pac-12,Mid-American
+401761636,9,2025-10-25,Arkansas State,Georgia Southern,,,0,,Sun Belt,Sun Belt
+401760398,9,2025-10-25,Wyoming,Colorado State,,,0,,Mountain West,Mountain West
+401761639,10,2025-10-29,Texas State,James Madison,,,0,,Sun Belt,Sun Belt
+401757289,10,2025-10-29,Kennesaw State,UTEP,,,0,,Conference USA,Conference USA
+401757292,10,2025-10-29,Middle Tennessee,Jacksonville State,,,0,,Conference USA,Conference USA
+401757291,10,2025-10-30,Missouri State,Florida International,,,0,,Conference USA,Conference USA
+401762443,10,2025-10-30,UTSA,Tulane,,,0,,American Athletic,American Athletic
+401761640,10,2025-10-30,Coastal Carolina,Marshall,,,0,,Sun Belt,Sun Belt
+401762497,10,2025-10-31,Rice,Memphis,,,0,,American Athletic,American Athletic
+401754575,10,2025-10-31,Syracuse,North Carolina,,,0,,ACC,ACC
+401757290,10,2025-11-01,Louisiana Tech,Sam Houston,,,0,,Conference USA,Conference USA
+401752887,10,2025-11-01,Maryland,Indiana,,,0,,Big Ten,Big Ten
+401752757,10,2025-11-01,Tennessee,Oklahoma,,,0,,SEC,SEC
+401752890,10,2025-11-01,Michigan,Purdue,,,0,,Big Ten,Big Ten
+401752756,10,2025-11-01,Ole Miss,South Carolina,,,0,,SEC,SEC
+401752891,10,2025-11-01,Illinois,Rutgers,,,0,,Big Ten,Big Ten
+401756939,10,2025-11-01,Iowa State,Arizona State,,,0,,Big 12,Big 12
+401754581,10,2025-11-01,SMU,Miami,,,0,,ACC,ACC
+401754583,10,2025-11-01,Boston College,Notre Dame,,,0,,ACC,FBS Independents
+401754577,10,2025-11-01,Clemson,Duke,,,0,,ACC,ACC
+401752889,10,2025-11-01,Ohio State,Penn State,,,0,,Big Ten,Big Ten
+401756941,10,2025-11-01,Kansas State,Texas Tech,,,0,,Big 12,Big 12
+401756942,10,2025-11-01,Utah,Cincinnati,,,0,,Big 12,Big 12
+401761641,10,2025-11-01,UL Monroe,Old Dominion,,,0,,Sun Belt,Sun Belt
+401762850,10,2025-11-01,Western Michigan,Central Michigan,,,0,,Mid-American,Mid-American
+401762849,10,2025-11-01,Bowling Green,Buffalo,,,0,,Mid-American,Mid-American
+401762499,10,2025-11-01,North Texas,Navy,,,0,,American Athletic,American Athletic
+401762498,10,2025-11-01,Temple,East Carolina,,,0,,American Athletic,American Athletic
+401761643,10,2025-11-01,Troy,Arkansas State,,,0,,Sun Belt,Sun Belt
+401761642,10,2025-11-01,South Alabama,Louisiana,,,0,,Sun Belt,Sun Belt
+401756940,10,2025-11-01,Kansas,Oklahoma State,,,0,,Big 12,Big 12
+401756937,10,2025-11-01,Colorado,Arizona,,,0,,Big 12,Big 12
+401756938,10,2025-11-01,Houston,West Virginia,,,0,,Big 12,Big 12
+401756936,10,2025-11-01,Baylor,UCF,,,0,,Big 12,Big 12
+401754582,10,2025-11-01,Stanford,Pittsburgh,,,0,,ACC,ACC
+401754580,10,2025-11-01,Virginia Tech,Louisville,,,0,,ACC,ACC
+401754579,10,2025-11-01,NC State,Georgia Tech,,,0,,ACC,ACC
+401754578,10,2025-11-01,Florida State,Wake Forest,,,0,,ACC,ACC
+401754576,10,2025-11-01,California,Virginia,,,0,,ACC,ACC
+401752892,10,2025-11-01,Nebraska,USC,,,0,,Big Ten,Big Ten
+401752888,10,2025-11-01,Minnesota,Michigan State,,,0,,Big Ten,Big Ten
+401752754,10,2025-11-01,Auburn,Kentucky,,,0,,SEC,SEC
+401752753,10,2025-11-01,Arkansas,Mississippi State,,,0,,SEC,SEC
+401760402,10,2025-11-01,Boise State,Fresno State,,,0,,Mountain West,Mountain West
+401752758,10,2025-11-01,Texas,Vanderbilt,,,0,,SEC,SEC
+401757173,10,2025-11-01,UConn,UAB,,,0,,FBS Independents,American Athletic
+401760401,10,2025-11-01,Air Force,Army,,,0,,Mountain West,American Athletic
+401760404,10,2025-11-01,UNLV,New Mexico,,,0,,Mountain West,Mountain West
+401757294,10,2025-11-01,Western Kentucky,New Mexico State,,,0,,Conference USA,Conference USA
+401752755,10,2025-11-01,Florida,Georgia,,,1,,SEC,SEC
+401757293,10,2025-11-01,Liberty,Delaware,,,0,,Conference USA,Conference USA
+401760405,10,2025-11-01,San Diego State,Wyoming,,,0,,Mountain West,Mountain West
+401752943,10,2025-11-01,Oregon State,Washington State,,,0,,Pac-12,Pac-12
+401760403,10,2025-11-02,San José State,Hawai'i,,,0,,Mountain West,Mountain West
+401762852,11,2025-11-05,Ohio,Miami (OH),,,0,,Mid-American,Mid-American
+401762851,11,2025-11-05,Akron,Massachusetts,,,0,,Mid-American,Mid-American
+401762854,11,2025-11-05,Toledo,Northern Illinois,,,0,,Mid-American,Mid-American
+401762853,11,2025-11-05,Ball State,Kent State,,,0,,Mid-American,Mid-American
+401761644,11,2025-11-07,App State,Georgia Southern,,,0,,Sun Belt,Sun Belt
+401762500,11,2025-11-07,South Florida,UTSA,,,0,,American Athletic,American Athletic
+401756946,11,2025-11-07,UCF,Houston,,,0,,Big 12,Big 12
+401762501,11,2025-11-08,Memphis,Tulane,,,0,,American Athletic,American Athletic
+401752896,11,2025-11-08,USC,Northwestern,,,0,,Big Ten,Big Ten
+401752760,11,2025-11-08,Kentucky,Florida,,,0,,SEC,SEC
+401752764,11,2025-11-08,Vanderbilt,Auburn,,,0,,SEC,SEC
+401760407,11,2025-11-08,Colorado State,UNLV,,,0,,Mountain West,Mountain West
+401760406,11,2025-11-08,San José State,Air Force,,,0,,Mountain West,Mountain West
+401756944,11,2025-11-08,TCU,Iowa State,,,0,,Big 12,Big 12
+401756943,11,2025-11-08,Arizona,Kansas,,,0,,Big 12,Big 12
+401762502,11,2025-11-08,Rice,UAB,,,0,,American Athletic,American Athletic
+401762855,11,2025-11-08,Eastern Michigan,Bowling Green,,,0,,Mid-American,Mid-American
+401752898,11,2025-11-08,Iowa,Oregon,,,0,,Big Ten,Big Ten
+401752899,11,2025-11-08,Wisconsin,Washington,,,0,,Big Ten,Big Ten
+401752897,11,2025-11-08,Purdue,Ohio State,,,0,,Big Ten,Big Ten
+401752895,11,2025-11-08,UCLA,Nebraska,,,0,,Big Ten,Big Ten
+401752894,11,2025-11-08,Rutgers,Maryland,,,0,,Big Ten,Big Ten
+401756945,11,2025-11-08,Texas Tech,BYU,,,0,,Big 12,Big 12
+401762505,11,2025-11-08,Florida Atlantic,Tulsa,,,0,,American Athletic,American Athletic
+401752893,11,2025-11-08,Penn State,Indiana,,,0,,Big Ten,Big Ten
+401756947,11,2025-11-08,West Virginia,Colorado,,,0,,Big 12,Big 12
+401754584,11,2025-11-08,Boston College,SMU,,,0,,ACC,ACC
+401761646,11,2025-11-08,Marshall,James Madison,,,0,,Sun Belt,Sun Belt
+401761645,11,2025-11-08,Coastal Carolina,Georgia State,,,0,,Sun Belt,Sun Belt
+401761648,11,2025-11-08,Louisiana,Texas State,,,0,,Sun Belt,Sun Belt
+401762504,11,2025-11-08,East Carolina,Charlotte,,,0,,American Athletic,American Athletic
+401752763,11,2025-11-08,Missouri,Texas A&M,,,0,,SEC,SEC
+401761647,11,2025-11-08,Arkansas State,Southern Miss,,,0,,Sun Belt,Sun Belt
+401752759,11,2025-11-08,Alabama,LSU,,,0,,SEC,SEC
+401754587,11,2025-11-08,Miami,Syracuse,,,0,,ACC,ACC
+401754588,11,2025-11-08,North Carolina,Stanford,,,0,,ACC,ACC
+401754589,11,2025-11-08,Virginia,Wake Forest,,,0,,ACC,ACC
+401754586,11,2025-11-08,Clemson,Florida State,,,0,,ACC,ACC
+401754585,11,2025-11-08,Louisville,California,,,0,,ACC,ACC
+401752762,11,2025-11-08,Mississippi State,Georgia,,,0,,SEC,SEC
+401762503,11,2025-11-08,Army,Temple,,,0,,American Athletic,American Athletic
+401757299,11,2025-11-08,Liberty,Missouri State,,,0,,Conference USA,Conference USA
+401757295,11,2025-11-08,Delaware,Louisiana Tech,,,0,,Conference USA,Conference USA
+401757296,11,2025-11-08,Middle Tennessee,Florida International,,,0,,Conference USA,Conference USA
+401757297,11,2025-11-08,UTEP,Jacksonville State,,,0,,Conference USA,Conference USA
+401754590,11,2025-11-08,UConn,Duke,,,0,,FBS Independents,ACC
+401757298,11,2025-11-08,New Mexico State,Kennesaw State,,,0,,Conference USA,Conference USA
+401760409,11,2025-11-09,Utah State,Nevada,,,0,,Mountain West,Mountain West
+401757166,11,2025-11-09,Notre Dame,Navy,,,0,,FBS Independents,American Athletic
+401752944,11,2025-11-09,Oregon State,Sam Houston,,,0,,Pac-12,Conference USA
+401760408,11,2025-11-09,Hawai'i,San Diego State,,,0,,Mountain West,Mountain West
+401762856,12,2025-11-12,Akron,Kent State,,,0,,Mid-American,Mid-American
+401762857,12,2025-11-12,Western Michigan,Ohio,,,0,,Mid-American,Mid-American
+401762858,12,2025-11-13,Central Michigan,Buffalo,,,0,,Mid-American,Mid-American
+401762860,12,2025-11-13,Miami (OH),Toledo,,,0,,Mid-American,Mid-American
+401762859,12,2025-11-13,Massachusetts,Northern Illinois,,,0,,Mid-American,Mid-American
+401761649,12,2025-11-14,Old Dominion,Troy,,,0,,Sun Belt,Sun Belt
+401754591,12,2025-11-15,Louisville,Clemson,,,0,,ACC,ACC
+401752904,12,2025-11-15,Oregon,Minnesota,,,0,,Big Ten,Big Ten
+401754594,12,2025-11-15,Florida State,Virginia Tech,,,0,,ACC,ACC
+401756950,12,2025-11-15,BYU,TCU,,,0,,Big 12,Big 12
+401756948,12,2025-11-15,Arizona State,West Virginia,,,0,,Big 12,Big 12
+401752772,12,2025-11-15,Texas A&M,South Carolina,,,0,,SEC,SEC
+401752907,12,2025-11-15,USC,Iowa,,,0,,Big Ten,Big Ten
+401754593,12,2025-11-15,Duke,Virginia,,,0,,ACC,ACC
+401752901,12,2025-11-15,Indiana,Wisconsin,,,0,,Big Ten,Big Ten
+401752769,12,2025-11-15,Ole Miss,Florida,,,0,,SEC,SEC
+401752768,12,2025-11-15,LSU,Arkansas,,,0,,SEC,SEC
+401760412,12,2025-11-15,Fresno State,Wyoming,,,0,,Mountain West,Mountain West
+401752945,12,2025-11-15,Tulsa,Oregon State,,,0,,American Athletic,Pac-12
+401761651,12,2025-11-15,Georgia State,Marshall,,,0,,Sun Belt,Sun Belt
+401761650,12,2025-11-15,Georgia Southern,Coastal Carolina,,,0,,Sun Belt,Sun Belt
+401761652,12,2025-11-15,James Madison,App State,,,0,,Sun Belt,Sun Belt
+401760411,12,2025-11-15,New Mexico,Colorado State,,,0,,Mountain West,Mountain West
+401754596,12,2025-11-15,Wake Forest,North Carolina,,,0,,ACC,ACC
+401761653,12,2025-11-15,UL Monroe,South Alabama,,,0,,Sun Belt,Sun Belt
+401754595,12,2025-11-15,Miami,NC State,,,0,,ACC,ACC
+401754592,12,2025-11-15,Boston College,Georgia Tech,,,0,,ACC,ACC
+401761654,12,2025-11-15,Southern Miss,Texas State,,,0,,Sun Belt,Sun Belt
+401754597,12,2025-11-15,Pittsburgh,Notre Dame,,,0,,ACC,FBS Independents
+401752770,12,2025-11-15,Missouri,Mississippi State,,,0,,SEC,SEC
+401756953,12,2025-11-15,Texas Tech,UCF,,,0,,Big 12,Big 12
+401752766,12,2025-11-15,Georgia,Texas,,,0,,SEC,SEC
+401752903,12,2025-11-15,Michigan State,Penn State,,,0,,Big Ten,Big Ten
+401752765,12,2025-11-15,Alabama,Oklahoma,,,0,,SEC,SEC
+401762508,12,2025-11-15,East Carolina,Memphis,,,0,,American Athletic,American Athletic
+401752905,12,2025-11-15,Northwestern,Michigan,,,1,,Big Ten,Big Ten
+401762509,12,2025-11-15,Tulane,Florida Atlantic,,,0,,American Athletic,American Athletic
+401752906,12,2025-11-15,Illinois,Maryland,,,0,,Big Ten,Big Ten
+401752900,12,2025-11-15,Ohio State,UCLA,,,0,,Big Ten,Big Ten
+401756949,12,2025-11-15,Baylor,Utah,,,0,,Big 12,Big 12
+401762506,12,2025-11-15,UAB,North Texas,,,0,,American Athletic,American Athletic
+401762507,12,2025-11-15,Charlotte,UTSA,,,0,,American Athletic,American Athletic
+401756951,12,2025-11-15,Cincinnati,Arizona,,,0,,Big 12,Big 12
+401762861,12,2025-11-15,Ball State,Eastern Michigan,,,0,,Mid-American,Mid-American
+401756952,12,2025-11-15,Oklahoma State,Kansas State,,,0,,Big 12,Big 12
+401752902,12,2025-11-15,Washington,Purdue,,,0,,Big Ten,Big Ten
+401762510,12,2025-11-15,Navy,South Florida,,,0,,American Athletic,American Athletic
+401757174,12,2025-11-15,UConn,Air Force,,,0,,FBS Independents,Mountain West
+401757300,12,2025-11-15,Sam Houston,Delaware,,,1,,Conference USA,Conference USA
+401757302,12,2025-11-15,Jacksonville State,Kennesaw State,,,0,,Conference USA,Conference USA
+401757304,12,2025-11-15,Missouri State,UTEP,,,0,,Conference USA,Conference USA
+401757303,12,2025-11-15,Western Kentucky,Middle Tennessee,,,0,,Conference USA,Conference USA
+401760413,12,2025-11-15,Nevada,San José State,,,0,,Mountain West,Mountain West
+401752771,12,2025-11-15,Tennessee,New Mexico State,,,0,,SEC,Conference USA
+401757301,12,2025-11-15,Florida International,Liberty,,,0,,Conference USA,Conference USA
+401760414,12,2025-11-16,UNLV,Utah State,,,0,,Mountain West,Mountain West
+401752953,12,2025-11-16,Washington State,Louisiana Tech,,,0,,Pac-12,Conference USA
+401760410,12,2025-11-16,San Diego State,Boise State,,,0,,Mountain West,Mountain West
+401762863,13,2025-11-19,Ohio,Massachusetts,,,0,,Mid-American,Mid-American
+401762862,13,2025-11-19,Bowling Green,Akron,,,0,,Mid-American,Mid-American
+401762864,13,2025-11-19,Northern Illinois,Western Michigan,,,0,,Mid-American,Mid-American
+401762865,13,2025-11-20,Buffalo,Miami (OH),,,0,,Mid-American,Mid-American
+401762866,13,2025-11-20,Kent State,Central Michigan,,,0,,Mid-American,Mid-American
+401761655,13,2025-11-21,Arkansas State,Louisiana,,,0,,Sun Belt,Sun Belt
+401754598,13,2025-11-22,NC State,Florida State,,,0,,ACC,ACC
+401760418,13,2025-11-22,UNLV,Hawai'i,,,0,,Mountain West,Mountain West
+401752775,13,2025-11-22,Florida,Tennessee,,,0,,SEC,SEC
+401752777,13,2025-11-22,LSU,Western Kentucky,,,0,,SEC,Conference USA
+401752779,13,2025-11-22,South Carolina,Coastal Carolina,,,0,,SEC,Sun Belt
+401752780,13,2025-11-22,Texas,Arkansas,,,0,,SEC,SEC
+401762514,13,2025-11-22,Rice,North Texas,,,0,,American Athletic,American Athletic
+401762515,13,2025-11-22,Temple,Tulane,,,0,,American Athletic,American Athletic
+401752908,13,2025-11-22,Penn State,Nebraska,,,0,,Big Ten,Big Ten
+401752912,13,2025-11-22,Ohio State,Rutgers,,,0,,Big Ten,Big Ten
+401752911,13,2025-11-22,Oregon,USC,,,0,,Big Ten,Big Ten
+401754603,13,2025-11-22,Virginia Tech,Miami,,,0,,ACC,ACC
+401756956,13,2025-11-22,Colorado,Arizona State,,,0,,Big 12,Big 12
+401752915,13,2025-11-22,Wisconsin,Illinois,,,0,,Big Ten,Big Ten
+401752914,13,2025-11-22,Maryland,Michigan,,,0,,Big Ten,Big Ten
+401752910,13,2025-11-22,UCLA,Washington,,,0,,Big Ten,Big Ten
+401752913,13,2025-11-22,Iowa,Michigan State,,,0,,Big Ten,Big Ten
+401752954,13,2025-11-22,James Madison,Washington State,,,0,,Sun Belt,Pac-12
+401754599,13,2025-11-22,Stanford,California,,,0,,ACC,ACC
+401754600,13,2025-11-22,North Carolina,Duke,,,0,,ACC,ACC
+401754601,13,2025-11-22,Georgia Tech,Pittsburgh,,,0,,ACC,ACC
+401761656,13,2025-11-22,App State,Marshall,,,0,,Sun Belt,Sun Belt
+401761657,13,2025-11-22,Georgia Southern,Old Dominion,,,0,,Sun Belt,Sun Belt
+401761658,13,2025-11-22,South Alabama,Southern Miss,,,0,,Sun Belt,Sun Belt
+401761659,13,2025-11-22,Texas State,UL Monroe,,,0,,Sun Belt,Sun Belt
+401761660,13,2025-11-22,Troy,Georgia State,,,0,,Sun Belt,Sun Belt
+401762511,13,2025-11-22,UAB,South Florida,,,0,,American Athletic,American Athletic
+401762513,13,2025-11-22,UTSA,East Carolina,,,0,,American Athletic,American Athletic
+401762867,13,2025-11-22,Toledo,Ball State,,,0,,Mid-American,Mid-American
+401754606,13,2025-11-22,Wake Forest,Delaware,,,0,,ACC,Conference USA
+401756954,13,2025-11-22,Arizona,Baylor,,,0,,Big 12,Big 12
+401756955,13,2025-11-22,Cincinnati,BYU,,,0,,Big 12,Big 12
+401756957,13,2025-11-22,Houston,TCU,,,0,,Big 12,Big 12
+401756959,13,2025-11-22,UCF,Oklahoma State,,,0,,Big 12,Big 12
+401757175,13,2025-11-22,Florida Atlantic,UConn,,,0,,American Athletic,FBS Independents
+401760420,13,2025-11-22,San Diego State,San José State,,,0,,Mountain West,Mountain West
+401754602,13,2025-11-22,SMU,Louisville,,,0,,ACC,ACC
+401756960,13,2025-11-22,Utah,Kansas State,,,0,,Big 12,Big 12
+401756958,13,2025-11-22,Iowa State,Kansas,,,0,,Big 12,Big 12
+401760416,13,2025-11-22,Boise State,Colorado State,,,0,,Mountain West,Mountain West
+401752782,13,2025-11-22,Vanderbilt,Kentucky,,,0,,SEC,SEC
+401752909,13,2025-11-22,Northwestern,Minnesota,,,1,,Big Ten,Big Ten
+401762512,13,2025-11-22,Army,Tulsa,,,0,,American Athletic,American Athletic
+401752778,13,2025-11-22,Oklahoma,Missouri,,,0,,SEC,SEC
+401752776,13,2025-11-22,Georgia,Charlotte,,,0,,SEC,American Athletic
+401757306,13,2025-11-22,Kennesaw State,Missouri State,,,0,,Conference USA,Conference USA
+401760419,13,2025-11-22,Wyoming,Nevada,,,0,,Mountain West,Mountain West
+401757309,13,2025-11-22,UTEP,New Mexico State,,,0,,Conference USA,Conference USA
+401757307,13,2025-11-22,Louisiana Tech,Liberty,,,0,,Conference USA,Conference USA
+401757308,13,2025-11-22,Middle Tennessee,Sam Houston,,,0,,Conference USA,Conference USA
+401757305,13,2025-11-22,Florida International,Jacksonville State,,,0,,Conference USA,Conference USA
+401754604,13,2025-11-22,Notre Dame,Syracuse,,,0,,FBS Independents,ACC
+401760415,13,2025-11-23,Air Force,New Mexico,,,0,,Mountain West,Mountain West
+401760417,13,2025-11-23,Fresno State,Utah State,,,0,,Mountain West,Mountain West
+401762868,14,2025-11-25,Massachusetts,Bowling Green,,,0,,Mid-American,Mid-American
+401762869,14,2025-11-25,Eastern Michigan,Western Michigan,,,0,,Mid-American,Mid-American
+401762516,14,2025-11-28,Memphis,Navy,,,0,,American Athletic,American Athletic
+401760421,14,2025-11-28,Colorado State,Air Force,,,0,,Mountain West,Mountain West
+401762441,14,2025-11-28,UTSA,Army,,,0,,American Athletic,American Athletic
+401756961,14,2025-11-28,Arizona State,Arizona,,,0,,Big 12,Big 12
+401762870,14,2025-11-28,Buffalo,Ohio,,,0,,Mid-American,Mid-American
+401756964,14,2025-11-28,Kansas,Utah,,,0,,Big 12,Big 12
+401752916,14,2025-11-28,Nebraska,Iowa,,,0,,Big Ten,Big Ten
+401752788,14,2025-11-28,Mississippi State,Ole Miss,,,0,,SEC,SEC
+401762871,14,2025-11-28,Northern Illinois,Kent State,,,0,,Mid-American,Mid-American
+401752786,14,2025-11-28,Georgia Tech,Georgia,,,1,,ACC,SEC
+401760426,14,2025-11-28,New Mexico,San Diego State,,,0,,Mountain West,Mountain West
+401760422,14,2025-11-28,Utah State,Boise State,,,0,,Mountain West,Mountain West
+401752924,14,2025-11-29,Purdue,Indiana,,,0,,Big Ten,Big Ten
+401752792,14,2025-11-29,Texas,Texas A&M,,,0,,SEC,SEC
+401762875,14,2025-11-29,Miami (OH),Ball State,,,0,,Mid-American,Mid-American
+401752787,14,2025-11-29,Louisville,Kentucky,,,0,,ACC,SEC
+401756963,14,2025-11-29,BYU,UCF,,,0,,Big 12,Big 12
+401756967,14,2025-11-29,TCU,Cincinnati,,,0,,Big 12,Big 12
+401760423,14,2025-11-29,San José State,Fresno State,,,0,,Mountain West,Mountain West
+401761661,14,2025-11-29,App State,Arkansas State,,,0,,Sun Belt,Sun Belt
+401761662,14,2025-11-29,Coastal Carolina,James Madison,,,0,,Sun Belt,Sun Belt
+401761663,14,2025-11-29,Marshall,Georgia Southern,,,0,,Sun Belt,Sun Belt
+401761664,14,2025-11-29,Old Dominion,Georgia State,,,0,,Sun Belt,Sun Belt
+401761665,14,2025-11-29,Louisiana,UL Monroe,,,0,,Sun Belt,Sun Belt
+401761666,14,2025-11-29,Southern Miss,Troy,,,0,,Sun Belt,Sun Belt
+401761667,14,2025-11-29,Texas State,South Alabama,,,0,,Sun Belt,Sun Belt
+401762442,14,2025-11-29,North Texas,Temple,,,0,,American Athletic,American Athletic
+401762517,14,2025-11-29,Tulsa,UAB,,,0,,American Athletic,American Athletic
+401762518,14,2025-11-29,Tulane,Charlotte,,,0,,American Athletic,American Athletic
+401762519,14,2025-11-29,Florida Atlantic,East Carolina,,,0,,American Athletic,American Athletic
+401762520,14,2025-11-29,South Florida,Rice,,,0,,American Athletic,American Athletic
+401762872,14,2025-11-29,Central Michigan,Toledo,,,0,,Mid-American,Mid-American
+401756966,14,2025-11-29,Oklahoma State,Iowa State,,,0,,Big 12,Big 12
+401756968,14,2025-11-29,West Virginia,Texas Tech,,,0,,Big 12,Big 12
+401752791,14,2025-11-29,Tennessee,Vanderbilt,,,0,,SEC,SEC
+401752783,14,2025-11-29,Arkansas,Missouri,,,0,,SEC,SEC
+401756962,14,2025-11-29,Baylor,Houston,,,0,,Big 12,Big 12
+401752918,14,2025-11-29,Minnesota,Wisconsin,,,0,,Big Ten,Big Ten
+401752919,14,2025-11-29,USC,UCLA,,,0,,Big Ten,Big Ten
+401752923,14,2025-11-29,Michigan State,Maryland,,,1,,Big Ten,Big Ten
+401754608,14,2025-11-29,Syracuse,Boston College,,,0,,ACC,ACC
+401754610,14,2025-11-29,Duke,Wake Forest,,,0,,ACC,ACC
+401754612,14,2025-11-29,NC State,North Carolina,,,0,,ACC,ACC
+401754613,14,2025-11-29,Virginia,Virginia Tech,,,0,,ACC,ACC
+401752920,14,2025-11-29,Rutgers,Penn State,,,0,,Big Ten,Big Ten
+401754614,14,2025-11-29,Stanford,Notre Dame,,,0,,ACC,FBS Independents
+401752917,14,2025-11-29,Washington,Oregon,,,0,,Big Ten,Big Ten
+401752784,14,2025-11-29,Auburn,Alabama,,,0,,SEC,SEC
+401752789,14,2025-11-29,Oklahoma,LSU,,,0,,SEC,SEC
+401754611,14,2025-11-29,Pittsburgh,Miami,,,0,,ACC,ACC
+401752922,14,2025-11-29,Illinois,Northwestern,,,0,,Big Ten,Big Ten
+401752785,14,2025-11-29,Florida,Florida State,,,0,,SEC,ACC
+401754609,14,2025-11-29,California,SMU,,,0,,ACC,ACC
+401756965,14,2025-11-29,Kansas State,Colorado,,,0,,Big 12,Big 12
+401752921,14,2025-11-29,Michigan,Ohio State,,,0,,Big Ten,Big Ten
+401752790,14,2025-11-29,South Carolina,Clemson,,,0,,SEC,ACC
+401757311,14,2025-11-29,Sam Houston,Florida International,,,1,,Conference USA,Conference USA
+401757310,14,2025-11-29,Delaware,UTEP,,,0,,Conference USA,Conference USA
+401757314,14,2025-11-29,Missouri State,Louisiana Tech,,,0,,Conference USA,Conference USA
+401757312,14,2025-11-29,Jacksonville State,Western Kentucky,,,0,,Conference USA,Conference USA
+401757315,14,2025-11-29,New Mexico State,Middle Tennessee,,,0,,Conference USA,Conference USA
+401757313,14,2025-11-29,Liberty,Kennesaw State,,,0,,Conference USA,Conference USA
+401752946,14,2025-11-29,Washington State,Oregon State,,,0,,Pac-12,Pac-12
+401760425,14,2025-11-30,Nevada,UNLV,,,0,,Mountain West,Mountain West
+401760424,14,2025-11-30,Hawai'i,Wyoming,,,0,,Mountain West,Mountain West
