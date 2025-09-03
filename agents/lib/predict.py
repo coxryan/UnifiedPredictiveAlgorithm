@@ -2,9 +2,11 @@
 import math
 import pandas as pd
 
-def _safe_float(x):
-    try: return float(x)
-    except: return float("nan")
+def _safe_float(x) -> float:
+    try:
+        return float(x)
+    except Exception:
+        return float("nan")
 
 def team_advantage_score(row: pd.Series) -> float:
     w = _safe_float(row.get("wrps_percent_0_100"))
@@ -13,10 +15,15 @@ def team_advantage_score(row: pd.Series) -> float:
     w = 0.0 if not math.isfinite(w) else w
     t = 0.0 if not math.isfinite(t) else t
     p = 0.0 if not math.isfinite(p) else p
-    return 0.5*w + 0.35*t + 0.15*p
+    return 0.50 * w + 0.35 * t + 0.15 * p
 
-def home_field(neutral_flag: str) -> float:
-    return 0.0 if str(neutral_flag)=="1" else 2.2
+def home_field_advantage(neutral_flag: str) -> float:
+    return 0.0 if str(neutral_flag) == "1" else 2.2
+
+def model_spread_home(away_rating: float, home_rating: float, neutral_flag: str) -> float:
+    base_diff_pts = (home_rating - away_rating) * 0.15
+    hfa = home_field_advantage(neutral_flag)
+    return round(base_diff_pts - hfa, 1)
 
 def expected_market_from_model(model_home: float, market_home: float) -> float:
     if not math.isfinite(model_home) or not math.isfinite(market_home):
@@ -25,44 +32,65 @@ def expected_market_from_model(model_home: float, market_home: float) -> float:
     correction = max(-3.0, min(3.0, delta))
     return model_home - correction
 
-def value_side_from_edge(edge: float, home_team: str, away_team: str) -> str:
-    if not math.isfinite(edge) or abs(edge) < 1e-9: return ""
-    return f"{away_team} (away)" if edge > 0 else f"{home_team} (home)"
+def value_points(market_home: float, expected_home: float) -> float:
+    if not (math.isfinite(market_home) and math.isfinite(expected_home)):
+        return float("nan")
+    return market_home - expected_home
 
-def build_predictions_for_year(year: int, team_inputs: pd.DataFrame, schedule: pd.DataFrame,
-                               edge_min=2.0, value_min=1.0) -> pd.DataFrame:
+def build_predictions_for_year(
+    year: int,
+    team_inputs: pd.DataFrame,
+    schedule: pd.DataFrame,
+    edge_min: float = 2.0,
+    value_min: float = 1.0,
+) -> pd.DataFrame:
     tmap = team_inputs.set_index("team", drop=False)
 
-    def team_rating(name: str) -> float:
-        if name not in tmap.index: return 50.0
-        return float(team_advantage_score(tmap.loc[name]))
+    def rating(team: str) -> float:
+        return float(team_advantage_score(tmap.loc[team])) if team in tmap.index else 50.0
 
-    out=[]
-    for _, r in schedule.iterrows():
-        home = r["home_team"]; away = r["away_team"]
-        home_rt = team_rating(home); away_rt = team_rating(away)
-        base_diff_pts = (home_rt - away_rt) * 0.15
-        hfa = home_field(r["neutral_site"])
-        model_home = round(base_diff_pts - hfa, 1)  # negative => home favorite (book-style)
+    rows = []
+    for _, g in schedule.iterrows():
+        home, away = str(g.get("home_team","")), str(g.get("away_team",""))
+        neutral = g.get("neutral_site","0")
 
-        market_home = _safe_float(r.get("market_spread_book"))
-        exp_home = expected_market_from_model(model_home, market_home) if math.isfinite(market_home) else float("nan")
-        edge = model_home - market_home if math.isfinite(market_home) else float("nan")
-        value = market_home - exp_home if (math.isfinite(market_home) and math.isfinite(exp_home)) else float("nan")
+        model_home = model_spread_home(rating(away), rating(home), neutral)
+        market_home = _safe_float(g.get("market_spread_book"))
 
-        qual = ""
-        if math.isfinite(edge) and math.isfinite(value):
-            if abs(edge) >= edge_min and abs(value) >= value_min:
-                if math.copysign(1, model_home) == math.copysign(1, (exp_home if math.isfinite(exp_home) else model_home)):
-                    qual = "1"
+        rec = g.to_dict()
+        rec["model_spread_book"] = model_home
 
-        rec = {**r.to_dict(),
-               "model_spread_book": round(model_home,1),
-               "expected_market_spread_book": round(exp_home,1) if math.isfinite(exp_home) else "",
-               "edge_points_book": round(edge,1) if math.isfinite(edge) else "",
-               "value_points_book": round(value,1) if math.isfinite(value) else "",
-               "qualified_edge_flag": qual}
-        out.append(rec)
+        if math.isfinite(market_home):
+            exp = expected_market_from_model(model_home, market_home)
+            edge = model_home - market_home
+            val  = value_points(market_home, exp)
+            qual = ""
+            if math.isfinite(edge) and math.isfinite(val):
+                if abs(edge) >= edge_min and abs(val) >= value_min:
+                    if math.copysign(1, model_home or 0.0) == math.copysign(1, exp or 0.0):
+                        qual = "1"
+            rec.update({
+                "market_spread_book": round(market_home,1),
+                "expected_market_spread_book": round(exp,1),
+                "edge_points_book": round(edge,1),
+                "value_points_book": round(val,1),
+                "qualified_edge_flag": qual,
+            })
+        else:
+            rec.update({
+                "expected_market_spread_book": "",
+                "edge_points_book": "",
+                "value_points_book": "",
+                "qualified_edge_flag": "",
+            })
 
-    df = pd.DataFrame(out).sort_values(["week","date","away_team","home_team"], ignore_index=True)
-    return df
+        rows.append(rec)
+
+    df = pd.DataFrame(rows)
+    order = [
+        "week","date","away_team","home_team","neutral_site",
+        "model_spread_book","market_spread_book","expected_market_spread_book",
+        "edge_points_book","value_points_book","qualified_edge_flag"
+    ]
+    df = df[[c for c in order if c in df.columns] + [c for c in df.columns if c not in order]]
+    return df.sort_values(["week","date","away_team","home_team"], ignore_index=True)

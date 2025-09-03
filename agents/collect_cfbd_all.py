@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # agents/collect_cfbd_all.py
-# Thin orchestrator — keeps ALL weeks in predictions; lines only for current week.
+# Orchestrator — runs live collection and optional backtest.
 
-# --- path shim so "lib.*" works no matter how this file is invoked
+# --- import path shim so "lib.*" works no matter how invoked
 import os, sys
 _CURR = os.path.dirname(os.path.abspath(__file__))          # .../agents
 if _CURR not in sys.path:
@@ -20,8 +20,8 @@ from lib.cache import ApiCache
 from lib.cfbd_clients import build_clients
 from lib.team_inputs import build_team_inputs
 from lib.market import build_schedule_with_market_current_week_only
-from lib.predict import build_predictions_for_year  # your existing prediction builder
-from lib.backtest import run_backtest               # unchanged behavior
+from lib.predict import build_predictions_for_year
+from lib.backtest import run_backtest
 
 def write_csv(path, df):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -82,7 +82,7 @@ def main():
     preds = build_predictions_for_year(YEAR, inputs, sched, edge_min=EDGE_MIN, value_min=VALUE_MIN)
     write_csv(os.path.join("data", "upa_predictions.csv"), preds)
 
-    # Live edge
+    # Live edge report
     live_cols = [
         "week","date","away_team","home_team","neutral_site",
         "model_spread_book","market_spread_book","expected_market_spread_book",
@@ -99,7 +99,13 @@ def main():
     if BACKTEST_YEAR:
         print(f"[backtest] running for {BACKTEST_YEAR} …")
         inputs_bt = build_team_inputs(BACKTEST_YEAR, apis, cache)
-        run_backtest(BACKTEST_YEAR, inputs_bt, apis, cache, data_dir="data")
+        run_backtest(
+            year=BACKTEST_YEAR,
+            team_inputs=inputs_bt,
+            apis=apis,
+            cache=cache,
+            data_dir="data",
+        )
 
 if __name__ == "__main__":
     main()
