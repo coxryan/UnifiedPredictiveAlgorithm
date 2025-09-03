@@ -5,7 +5,8 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * *"   # optional nightly refresh
+    # Optional nightly refresh (UTC 09:00). Adjust to your preference.
+    - cron: "0 9 * * *"
 
 permissions:
   contents: read
@@ -17,8 +18,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  # Live & backtest seasons
   UPA_YEAR: "2025"
   UPA_BACKTEST_YEAR: "2024"
+
+  # Thresholds (keep in sync with UI)
   UPA_EDGE_MIN: "2"
   UPA_VALUE_MIN: "1"
 
@@ -38,7 +42,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/.api_cache
-          key: api-cache-${{ github.ref_name }}-${{ hashFiles('agents/*.py') }}-${{ env.CACHE_DAY }}
+          key: api-cache-${{ github.ref_name }}-${{ hashFiles('agents/**/*.py') }}-${{ env.CACHE_DAY }}
           restore-keys: |
             api-cache-${{ github.ref_name }}-
             api-cache-
@@ -55,14 +59,15 @@ jobs:
           if [ -f "agents/requirements.txt" ]; then
             pip install -r agents/requirements.txt
           else
+            # minimal deps for the collector
             pip install cfbd pandas numpy
           fi
 
-      # NOTE: no cache field here (it requires a lockfile)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          # NOTE: do not set "cache: npm" unless you have a lockfile at repo root
 
       # ---------- Data collection (live + backtest) ----------
       - name: Run collector (live + backtest)
@@ -70,6 +75,8 @@ jobs:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           UPA_YEAR: ${{ env.UPA_YEAR }}
           UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
+          # Optional: tune TTLs here if desired
+          # UPA_TTL_LINES: "3600"
         run: |
           python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
           echo "Data files written:"
