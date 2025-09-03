@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+# --- make local agents/lib importable when running via "python agents/collect_cfbd_all.py"
 import os, sys, json, argparse
+CURR_DIR = os.path.dirname(__file__)
+if CURR_DIR not in sys.path:
+    sys.path.insert(0, CURR_DIR)
+
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
