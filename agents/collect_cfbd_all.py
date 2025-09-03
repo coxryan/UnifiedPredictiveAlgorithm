@@ -1,43 +1,43 @@
 #!/usr/bin/env python3
-# ---- import path shim: make agents/lib importable no matter how this file is run
+# agents/collect_cfbd_all.py
+# Thin orchestrator — keeps ALL weeks in predictions; lines only for current week.
+
+# --- path shim so "lib.*" works no matter how this file is invoked
 import os, sys
 _CURR = os.path.dirname(os.path.abspath(__file__))          # .../agents
 if _CURR not in sys.path:
-    sys.path.insert(0, _CURR)                               # so "lib" resolves to .../agents/lib
-# (optional but safe) also add repo root so relative helpers elsewhere work:
+    sys.path.insert(0, _CURR)
 _ROOT = os.path.dirname(_CURR)                              # repo root
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-
-import os, sys, json, argparse
-
-
+import json
+import argparse
 from datetime import datetime, timedelta, timezone
-
 import pandas as pd
 
 from lib.cache import ApiCache
 from lib.cfbd_clients import build_clients
 from lib.team_inputs import build_team_inputs
 from lib.market import build_schedule_with_market_current_week_only
-from lib.predict import build_predictions_for_year
-from lib.backtest import run_backtest
+from lib.predict import build_predictions_for_year  # your existing prediction builder
+from lib.backtest import run_backtest               # unchanged behavior
 
 def write_csv(path, df):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, index=False)
     print(f"Wrote {path} ({df.shape[0]} rows)")
 
-def write_status(path, year, teams, games, preds):
-    start = datetime.now(timezone.utc)
+def write_status(path, year, teams, games, preds, current_week):
+    now = datetime.now(timezone.utc)
     status = {
-        "generated_at_utc": start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at_utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "year": year,
+        "current_week": current_week,
         "teams": int(teams),
         "games": int(games),
         "predictions": int(preds),
-        "next_run_eta_utc": (start + timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        "next_run_eta_utc": (now + timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
     }
     with open(path, "w") as f:
         json.dump(status, f, indent=2)
@@ -45,81 +45,61 @@ def write_status(path, year, teams, games, preds):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--year", type=int, default=int(os.environ.get("UPA_YEAR","2025")))
-    parser.add_argument("--backtest", type=int, default=int(os.environ.get("UPA_BACKTEST_YEAR","0")))
+    parser.add_argument("--year", type=int, default=int(os.environ.get("UPA_YEAR", "2025")))
+    parser.add_argument("--backtest", type=int, default=int(os.environ.get("UPA_BACKTEST_YEAR", "0")))
     args = parser.parse_args()
 
     YEAR = int(args.year)
     BACKTEST_YEAR = int(args.backtest) if int(args.backtest) and int(args.backtest) != YEAR else 0
 
-    BEARER = os.environ.get("BEARER_TOKEN","").strip()
+    BEARER = os.environ.get("BEARER_TOKEN", "").strip()
     if not BEARER:
-        print("ERROR: Missing BEARER_TOKEN.", file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit("ERROR: Missing BEARER_TOKEN")
 
-    DATA_DIR = "data"
-    CACHE_DIR = os.environ.get("UPA_CACHE_DIR", os.path.join(DATA_DIR, ".api_cache"))
-    cache = ApiCache(CACHE_DIR)
+    EDGE_MIN  = float(os.environ.get("UPA_EDGE_MIN", "2"))
+    VALUE_MIN = float(os.environ.get("UPA_VALUE_MIN", "1"))
 
-    # TTLs
-    TTL = dict(
-        TEAMS_FBS       = int(os.environ.get("UPA_TTL_TEAMS_FBS","86400")),
-        RETURNING       = int(os.environ.get("UPA_TTL_RETURNING","604800")),
-        TALENT          = int(os.environ.get("UPA_TTL_TALENT","604800")),
-        PORTAL          = int(os.environ.get("UPA_TTL_PORTAL","86400")),
-        SRS             = int(os.environ.get("UPA_TTL_SRS","31536000")),
-        GAMES           = int(os.environ.get("UPA_TTL_GAMES","31536000")),
-        LINES           = int(os.environ.get("UPA_TTL_LINES","21600")),  # 6h
-        CALENDAR        = int(os.environ.get("UPA_TTL_CAL","86400"))
-    )
-
-    # Edge/value thresholds (keep parity with UI)
-    EDGE_MIN  = float(os.environ.get("UPA_EDGE_MIN","2"))
-    VALUE_MIN = float(os.environ.get("UPA_VALUE_MIN","1"))
-
+    cache = ApiCache(os.path.join("data", ".api_cache"))
     apis = build_clients(BEARER)
 
     # 1) Team inputs
-    print(f"[live] building team inputs for {YEAR} …")
-    inputs = build_team_inputs(YEAR, apis, cache,
-                               ttl_fbs=TTL["TEAMS_FBS"], ttl_return=TTL["RETURNING"],
-                               ttl_talent=TTL["TALENT"], ttl_portal=TTL["PORTAL"],
-                               ttl_srs=TTL["SRS"], ttl_games=TTL["GAMES"])
-    write_csv(os.path.join(DATA_DIR,"upa_team_inputs_datadriven_v0.csv"), inputs)
+    print(f"[live] team inputs for {YEAR} …")
+    inputs = build_team_inputs(YEAR, apis, cache)
+    write_csv(os.path.join("data", "upa_team_inputs_datadriven_v0.csv"), inputs)
 
-    # 2) Schedule (market for current week only)
+    # 2) Schedule + market (current week lines only)
     print(f"[live] schedule + market (current week only) for {YEAR} …")
-    schedule, current_week = build_schedule_with_market_current_week_only(YEAR, apis, cache,
-                                                                          ttl_games=TTL["GAMES"], ttl_lines=TTL["LINES"])
-    write_csv(os.path.join(DATA_DIR,"cfb_schedule.csv"), schedule)
-    print(f"[live] current_week identified as: {current_week}")
+    sched, current_week = build_schedule_with_market_current_week_only(
+        YEAR, apis, cache,
+        ttl_lines_nonempty=int(os.environ.get("UPA_TTL_LINES", "21600")),
+        ttl_lines_empty=int(os.environ.get("UPA_TTL_LINES_EMPTY", "1800"))
+    )
+    write_csv(os.path.join("data", "cfb_schedule.csv"), sched)
+    print(f"[live] current_week = {current_week}")
 
-    # 3) Predictions
+    # 3) Predictions for ALL weeks — DO NOT drop when market is missing
     print(f"[live] predictions for {YEAR} …")
-    preds = build_predictions_for_year(YEAR, inputs, schedule, edge_min=EDGE_MIN, value_min=VALUE_MIN)
-    write_csv(os.path.join(DATA_DIR,"upa_predictions.csv"), preds)
+    preds = build_predictions_for_year(YEAR, inputs, sched, edge_min=EDGE_MIN, value_min=VALUE_MIN)
+    write_csv(os.path.join("data", "upa_predictions.csv"), preds)
 
-    live_cols = ["week","date","away_team","home_team","neutral_site",
-                 "model_spread_book","market_spread_book","expected_market_spread_book",
-                 "edge_points_book","value_points_book","qualified_edge_flag"]
-    live_edge = preds[live_cols].copy()
-    write_csv(os.path.join(DATA_DIR,"live_edge_report.csv"), live_edge)
+    # Live edge
+    live_cols = [
+        "week","date","away_team","home_team","neutral_site",
+        "model_spread_book","market_spread_book","expected_market_spread_book",
+        "edge_points_book","value_points_book","qualified_edge_flag"
+    ]
+    live = preds[live_cols].copy()
+    write_csv(os.path.join("data", "live_edge_report.csv"), live)
 
-    # 4) Status
-    write_status(os.path.join(DATA_DIR,"status.json"), YEAR, inputs.shape[0], schedule.shape[0], preds.shape[0])
+    # Status
+    write_status(os.path.join("data", "status.json"),
+                 YEAR, inputs.shape[0], sched.shape[0], preds.shape[0], current_week)
 
-    # 5) Backtest (optional)
+    # 4) Optional backtest
     if BACKTEST_YEAR:
         print(f"[backtest] running for {BACKTEST_YEAR} …")
-        inputs_bt = build_team_inputs(BACKTEST_YEAR, apis, cache,
-                                      ttl_fbs=TTL["TEAMS_FBS"], ttl_return=TTL["RETURNING"],
-                                      ttl_talent=TTL["TALENT"], ttl_portal=TTL["PORTAL"],
-                                      ttl_srs=TTL["SRS"], ttl_games=TTL["GAMES"])
-        def build_preds_bt(year_bt, inputs_bt_local):
-            sched_bt, _ = build_schedule_with_market_current_week_only(year_bt, apis, cache,
-                                                                       ttl_games=TTL["GAMES"], ttl_lines=TTL["LINES"])
-            return build_predictions_for_year(year_bt, inputs_bt_local, sched_bt, edge_min=EDGE_MIN, value_min=VALUE_MIN)
-        run_backtest(BACKTEST_YEAR, inputs_bt, build_preds_bt, apis, cache, data_dir=DATA_DIR, ttl_games=TTL["GAMES"])
+        inputs_bt = build_team_inputs(BACKTEST_YEAR, apis, cache)
+        run_backtest(BACKTEST_YEAR, inputs_bt, apis, cache, data_dir="data")
 
 if __name__ == "__main__":
     main()
