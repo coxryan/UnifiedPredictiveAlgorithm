@@ -22,6 +22,7 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
 };
 
  type StakeMode = "flat" | "prop" | "kelly";
+ type Bucket = "morning" | "afternoon" | "night";
 
  // Probability of cover from edge (simple bounded mapping)
  function probFromEdge(edgePts: number) {
@@ -50,6 +51,28 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
   return b * p - (1 - p); // expected ROI per $1 staked
  }
 
+ // Extract kickoff hour from a date string; supports YYYY-MM-DD, YYYY-MM-DD HH:MM, or ISO
+ function kickoffHour(dateStr?: string): number | null {
+  if (!dateStr) return null;
+  // Try HH:MM first
+  const m = dateStr.match(/(?:T|\s)(\d{1,2}):(\d{2})/);
+  if (m) {
+    const h = Number(m[1]);
+    if (Number.isFinite(h)) return Math.max(0, Math.min(23, h));
+  }
+  // Fallback: Date parse (may be local midnight if only date provided)
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) return d.getHours();
+  return null;
+ }
+
+ function bucketOfHour(h: number | null): Bucket {
+  if (h === null || !Number.isFinite(h)) return "afternoon"; // default bucket if unknown
+  if (h < 12) return "morning";
+  if (h < 18) return "afternoon";
+  return "night";
+ }
+
  export default function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [wk, setWk] = useState<number | null>(null);
@@ -61,6 +84,7 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
   const [topN, setTopN] = useState<string>("10");
   const [requireQualified, setRequireQualified] = useState<boolean>(true);
   const [requirePositiveEV, setRequirePositiveEV] = useState<boolean>(true);
+  const [rollForward, setRollForward] = useState<boolean>(true);
 
   useEffect(() => {
    (async () => {
@@ -106,24 +130,11 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
       const ev = Number.isFinite(edge) ? evFromEdge(edge, Number(odds) || -110) : NaN;
-      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev } as any;
+      const hour = kickoffHour(r.date);
+      const bucket = bucketOfHour(hour);
+      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev, _hour: hour, _bucket: bucket } as any;
     });
   }, [rows, odds]);
-
-  // Helper to compute W/L/P for a row when scores are present
-  function resultForRow(r: any): "W" | "L" | "P" | "" {
-    const hp = toNum(r.home_points);
-    const ap = toNum(r.away_points);
-    if (!Number.isFinite(hp) || !Number.isFinite(ap) || !Number.isFinite(r._market)) return "";
-    // book-style: negative = home favorite. Home covers if (home - away + market) > 0
-    const adj = (hp - ap) + r._market;
-    const coverHome = adj > 0 ? 1 : adj < 0 ? -1 : 0; // 1 cover, -1 no cover, 0 push
-    const pickHome = typeof r._pick === "string" && r._pick.includes("(home)");
-    const pickAway = typeof r._pick === "string" && r._pick.includes("(away)");
-    if (!pickHome && !pickAway) return "";
-    if (coverHome === 0) return "P";
-    return pickHome ? (coverHome > 0 ? "W" : "L") : (coverHome < 0 ? "W" : "L");
-  }
 
   // Base candidate set for selected week
   const candidatesRaw = useMemo(() => {
@@ -183,6 +194,10 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       const va = Math.abs(a._value);
       const vb = Math.abs(b._value);
       if (va !== vb) return vb - va;
+      // earlier kickoff first (so morning, then afternoon, then night naturally if hours present)
+      const ha = (a._hour ?? 24);
+      const hb = (b._hour ?? 24);
+      if (ha !== hb) return ha - hb;
       return (a.date || "").localeCompare(b.date || "");
     });
 
@@ -190,16 +205,23 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
     return kept.slice(0, limit);
   }, [candidatesRaw, requireQualified, requirePositiveEV, topN]);
 
-  // Stakes
-  const staked = useMemo(() => {
-    const bk = Math.max(0, Number(bankroll) || 0);
-    const oddsAm = Number(odds) || -110;
-    if (!bk || !strongFiltered.length) return [] as any[];
+  // Split into buckets
+  const byBucket = useMemo(() => {
+    const m: any[] = [], a: any[] = [], n: any[] = [];
+    for (const r of strongFiltered) {
+      if (r._bucket === "morning") m.push(r);
+      else if (r._bucket === "afternoon") a.push(r);
+      else n.push(r);
+    }
+    return { morning: m, afternoon: a, night: n } as Record<Bucket, any[]>;
+  }, [strongFiltered]);
 
-    const edges = strongFiltered.map((r: any) => Math.abs(r._edge));
+  // Helper stake allocator for a group
+  function stakeGroup(list: any[], bankroll: number, oddsAm: number, mode: StakeMode) {
+    if (!list.length || bankroll <= 0) return list.map((r) => ({ ...r, _stake: 0, _result: resultForRow(r) }));
+    const edges = list.map((r: any) => Math.abs(r._edge));
     const maxEdge = Math.max(...edges.map((e: number) => (Number.isFinite(e) ? e : 0)));
-
-    const weights = strongFiltered.map((r: any, i: number) => {
+    const weights = list.map((r: any, i: number) => {
       const e = edges[i];
       if (!Number.isFinite(e) || e <= 0) return 0;
       if (mode === "flat") return 1;
@@ -207,28 +229,130 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       const p = probFromEdge(r._edge);
       return kellyFraction(p, oddsAm);
     });
-
-    const sumW = weights.reduce((a, b) => a + b, 0);
-    return strongFiltered.map((r: any, i: number) => {
-      const w = weights[i];
-      const stake = sumW ? bk * (w / sumW) : 0;
-      const res = resultForRow(r);
-      return { ...r, _stake: Math.round(stake * 100) / 100, _result: res };
+    const sumW = weights.reduce((a, b) => a + b, 0) || 1;
+    return list.map((r: any, i: number) => {
+      const stake = bankroll * (weights[i] / sumW);
+      return { ...r, _stake: Math.round(stake * 100) / 100, _result: resultForRow(r) };
     });
-  }, [strongFiltered, bankroll, mode, odds]);
+  }
 
-  const totalStake = useMemo(() => staked.reduce((a: number, b: any) => a + b._stake, 0), [staked]);
+  // Helper to compute W/L/P for a row when scores are present
+  function resultForRow(r: any): "W" | "L" | "P" | "" {
+    const hp = toNum(r.home_points);
+    const ap = toNum(r.away_points);
+    if (!Number.isFinite(hp) || !Number.isFinite(ap) || !Number.isFinite(r._market)) return "";
+    // book-style: negative = home favorite. Home covers if (home - away + market) > 0
+    const adj = (hp - ap) + r._market;
+    const coverHome = adj > 0 ? 1 : adj < 0 ? -1 : 0; // 1 cover, -1 no cover, 0 push
+    const pickHome = typeof r._pick === "string" && r._pick.includes("(home)");
+    const pickAway = typeof r._pick === "string" && r._pick.includes("(away)");
+    if (!pickHome && !pickAway) return "";
+    if (coverHome === 0) return "P";
+    return pickHome ? (coverHome > 0 ? "W" : "L") : (coverHome < 0 ? "W" : "L");
+  }
 
-  // Summary W-L-P for the visible (staked) rows of the selected week
-  const wlSummary = useMemo(() => {
-    let W = 0, L = 0, P = 0;
-    staked.forEach((r: any) => {
-      if (r._result === "W") W++; else if (r._result === "L") L++; else if (r._result === "P") P++;
-    });
-    const tot = W + L + P;
-    const pct = tot ? ((W + 0.5 * P) / tot) * 100 : 0;
-    return { W, L, P, pct };
-  }, [staked]);
+  // Stakes per bucket (with optional roll-forward)
+  const stakedBuckets = useMemo(() => {
+    const bk = Math.max(0, Number(bankroll) || 0);
+    const oddsAm = Number(odds) || -110;
+
+    if (!rollForward) {
+      // allocate on the union, then split by bucket for display
+      const union = [...byBucket.morning, ...byBucket.afternoon, ...byBucket.night];
+      const unionStaked = stakeGroup(union, bk, oddsAm, mode);
+      const pick = (arr: any[]) => arr.map((r) => unionStaked.find((u) => u === r) || r);
+      return {
+        morning: pick(byBucket.morning),
+        afternoon: pick(byBucket.afternoon),
+        night: pick(byBucket.night),
+      } as Record<Bucket, any[]>;
+    }
+
+    // Roll-forward: spend morning first; leftover moves to afternoon; leftover to night
+    let remaining = bk;
+    const m = stakeGroup(byBucket.morning, remaining, oddsAm, mode);
+    const spentM = m.reduce((s, r: any) => s + (r._stake || 0), 0);
+    remaining = Math.max(0, remaining - spentM);
+
+    const a = stakeGroup(byBucket.afternoon, remaining, oddsAm, mode);
+    const spentA = a.reduce((s, r: any) => s + (r._stake || 0), 0);
+    remaining = Math.max(0, remaining - spentA);
+
+    const n = stakeGroup(byBucket.night, remaining, oddsAm, mode);
+
+    return { morning: m, afternoon: a, night: n } as Record<Bucket, any[]>;
+  }, [byBucket, bankroll, mode, odds, rollForward]);
+
+  const totals = useMemo(() => {
+    const sum = (arr: any[]) => arr.reduce((s, r: any) => s + (r._stake || 0), 0);
+    return {
+      morning: sum(stakedBuckets.morning),
+      afternoon: sum(stakedBuckets.afternoon),
+      night: sum(stakedBuckets.night),
+      all: sum(stakedBuckets.morning) + sum(stakedBuckets.afternoon) + sum(stakedBuckets.night),
+    };
+  }, [stakedBuckets]);
+
+  function Section({ title, data }: { title: string; data: any[] }) {
+    return (
+      <section className="subcard">
+        <div className="subcard-title">{title} — {data.length} plays <Badge tone="muted">Stake: ${fmtNum(data.reduce((s, r:any)=> s + (r._stake||0), 0))}</Badge></div>
+        {!data.length ? (
+          <div className="note">No strong, data-quality-safe plays in this slate.</div>
+        ) : (
+          <div className="table-wrap">
+            <table className="tbl wide">
+              <thead>
+                <tr>
+                  <th>Wk</th>
+                  <th>Date</th>
+                  <th colSpan={2}>Matchup</th>
+                  <th>Model (H)</th>
+                  <th>Market (H)</th>
+                  <th>Edge</th>
+                  <th>Value</th>
+                  <th>EV</th>
+                  <th>Qualified</th>
+                  <th>Recommended Side</th>
+                  <th>Stake</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((r: any, i: number) => (
+                  <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i % 2 ? "alt" : undefined}>
+                    <td>{r.week}</td>
+                    <td>{r.date}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <TeamLabel home={false} team={r.away_team} neutral={false} />
+                    </td>
+                    <td style={{ textAlign: "left" }}>
+                      <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
+                    </td>
+                    <td>{fmtNum(r._model)}</td>
+                    <td>{fmtNum(r._market)}</td>
+                    <td className={Number.isFinite(r._edge) ? (r._edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._edge)}</td>
+                    <td className={Number.isFinite(r._value) ? (r._value > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._value)}</td>
+                    <td className={Number.isFinite(r._ev) ? (r._ev > 0 ? "pos" : "neg") : undefined}>{fmtNum((r._ev as number) * 100, { maximumFractionDigits: 1 })}%</td>
+                    <td>{r.qualified_edge_flag === "1" ? "✓" : "—"}</td>
+                    <td>{r._pick}</td>
+                    <td>${fmtNum(r._stake, { maximumFractionDigits: 0 })}</td>
+                    <td>{r._result || ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  const unionStaked = useMemo(() => [
+    ...stakedBuckets.morning,
+    ...stakedBuckets.afternoon,
+    ...stakedBuckets.night,
+  ], [stakedBuckets]);
 
   return (
     <section className="card">
@@ -282,20 +406,26 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
           Require positive EV (based on edge & odds)
         </label>
 
-        <Badge tone="muted">Total Staked: ${fmtNum(totalStake)}</Badge>
-        {wk && (
-          <Badge tone="info">W-L-P: {wlSummary.W}-{wlSummary.L}-{wlSummary.P} · Acc: {fmtNum(wlSummary.pct, {maximumFractionDigits:1})}%</Badge>
-        )}
+        <label className="chk">
+          <input type="checkbox" checked={rollForward} onChange={(e)=> setRollForward(e.target.checked)} />
+          Roll bankroll forward (Morning → Afternoon → Night)
+        </label>
+
+        <Badge tone="muted">Total Stake: ${fmtNum(totals.all)}</Badge>
+        <Badge tone="muted">Morning: ${fmtNum(totals.morning)}</Badge>
+        <Badge tone="muted">Afternoon: ${fmtNum(totals.afternoon)}</Badge>
+        <Badge tone="muted">Night: ${fmtNum(totals.night)}</Badge>
 
         <button
           className="btn"
-          disabled={!staked.length}
+          disabled={!unionStaked.length}
           onClick={() =>
             downloadCsv(
               `week_${wk ?? "NA"}_bets.csv`,
-              staked.map((r: any) => ({
+              unionStaked.map((r: any) => ({
                 week: r.week,
                 date: r.date,
+                slate: r._bucket,
                 matchup: `${r.away_team} @ ${r.home_team}`,
                 recommended_side: r._pick,
                 model_line_home: r._model,
@@ -315,85 +445,16 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
         </button>
       </div>
 
-      {!staked.length ? (
-        <div className="note">
-          No strong, data-quality-safe candidates for this week. If you want to
-          see more plays, uncheck “Require Qualified ✓” / “Require positive EV” or increase “Top N”.
-        </div>
-      ) : (
-        <div className="table-wrap">
-          <table className="tbl wide">
-            <thead>
-              <tr>
-                <th>Wk</th>
-                <th>Date</th>
-                <th colSpan={2}>Matchup</th>
-                <th>Model (H)</th>
-                <th>Market (H)</th>
-                <th>Edge</th>
-                <th>Value</th>
-                <th>EV</th>
-                <th>Qualified</th>
-                <th>Recommended Side (value)</th>
-                <th>Stake</th>
-                <th>Result</th>
-                <th>Odds</th>
-              </tr>
-            </thead>
-            <tbody>
-              {staked.map((r: any, i: number) => {
-                const edge = r._edge;
-                const value = r._value;
-                const qual = r.qualified_edge_flag === "1" ? "✓" : "—";
-                const res = r._result || "";
-                return (
-                  <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i % 2 ? "alt" : undefined}>
-                    <td>{r.week}</td>
-                    <td>{r.date}</td>
-                    <td style={{ textAlign: "right" }}>
-                      <TeamLabel home={false} team={r.away_team} neutral={false} />
-                      {Number.isFinite(Number(r.away_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
-                      ) : null}
-                      {Number.isFinite(Number(r.away_ap_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.away_ap_rank)})</span>
-                      ) : Number.isFinite(Number(r.away_coaches_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.away_coaches_rank)})</span>
-                      ) : null}
-                    </td>
-                    <td style={{ textAlign: "left" }}>
-                      <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
-                      {Number.isFinite(Number(r.home_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
-                      ) : null}
-                      {Number.isFinite(Number(r.home_ap_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.home_ap_rank)})</span>
-                      ) : Number.isFinite(Number(r.home_coaches_rank)) ? (
-                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
-                      ) : null}
-                    </td>
-                    <td>{fmtNum(r._model)}</td>
-                    <td>{fmtNum(r._market)}</td>
-                    <td className={Number.isFinite(edge) ? (edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(edge)}</td>
-                    <td className={Number.isFinite(value) ? (value > 0 ? "pos" : "neg") : undefined}>{fmtNum(value)}</td>
-                    <td className={Number.isFinite(r._ev) ? (r._ev > 0 ? "pos" : "neg") : undefined}>{fmtNum((r._ev as number) * 100, { maximumFractionDigits: 1 })}%</td>
-                    <td>{qual}</td>
-                    <td>{r._pick}</td>
-                    <td>${fmtNum(r._stake, { maximumFractionDigits: 0 })}</td>
-                    <td>{res}</td>
-                    <td>{odds}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Sections */}
+      <Section title="Morning Slate" data={stakedBuckets.morning} />
+      <Section title="Afternoon Slate" data={stakedBuckets.afternoon} />
+      <Section title="Night Slate" data={stakedBuckets.night} />
 
       <div className="note" style={{ marginTop: 8 }}>
         Book-style spreads shown (negative = home favorite). <b>Value side</b> is computed from
         edge = model − market (home perspective). Positive EV is calculated from a bounded probability
-        mapping of edge to cover-probability and the American odds.
+        mapping of edge to cover-probability and the American odds. Games without explicit kickoff
+        time default to the Afternoon slate for display.
       </div>
     </section>
   );
