@@ -101,7 +101,10 @@ def main():
 
     rows = fetch_scoreboard(args.day)
     df = pd.DataFrame(rows)
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    # Ensure output directory exists when a folder is provided.
+    out_dir = os.path.dirname(args.out)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     df.to_csv(args.out, index=False)
     print(f"Wrote {args.out} with {len(df)} rows")
 
