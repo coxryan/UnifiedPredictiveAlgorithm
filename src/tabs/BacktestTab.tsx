@@ -7,6 +7,7 @@ type PredRow = {
   model_spread_book?: string; market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string; played?: any; model_result?: string;
+  home_rank?: string; away_rank?: string;
 };
 
 async function loadFirst(paths: string[]) {
@@ -126,8 +127,18 @@ export default function BacktestTab() {
               <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i%2?"alt":undefined}>
                 <td>{r.week}</td>
                 <td>{r.date}</td>
-                <td style={{ textAlign: "right" }}><TeamLabel home={false} team={r.away_team} neutral={false} /></td>
-                <td style={{ textAlign: "left" }}><TeamLabel home={true} team={r.home_team} neutral={false} /></td>
+                <td style={{ textAlign: "right" }}>
+                  <TeamLabel home={false} team={r.away_team} neutral={false} />
+                  {Number.isFinite(Number(r.away_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
+                  ) : null}
+                </td>
+                <td style={{ textAlign: "left" }}>
+                  <TeamLabel home={true} team={r.home_team} neutral={false} />
+                  {Number.isFinite(Number(r.home_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
+                  ) : null}
+                </td>
                 <td>{fmtNum(r._model)}</td>
                 <td>{fmtNum(r._market)}</td>
                 <td>{r._pick}</td>

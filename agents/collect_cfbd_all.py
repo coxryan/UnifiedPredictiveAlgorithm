@@ -647,6 +647,19 @@ def build_predictions_book_style(
         on="away_team",
         how="left",
     )
+    # Attach SRS ranks and compute rank delta (away_rank - home_rank); lower rank number = better
+    sched = sched.merge(
+        teams[["team", "srs_rank_1_133"]].rename(columns={"team": "home_team", "srs_rank_1_133": "home_rank"}),
+        on="home_team",
+        how="left",
+    ).merge(
+        teams[["team", "srs_rank_1_133"]].rename(columns={"team": "away_team", "srs_rank_1_133": "away_rank"}),
+        on="away_team",
+        how="left",
+    )
+    sched["home_rank"] = pd.to_numeric(sched["home_rank"], errors="coerce").fillna(67).astype(float)
+    sched["away_rank"] = pd.to_numeric(sched["away_rank"], errors="coerce").fillna(67).astype(float)
+    sched["rank_delta"] = (sched["away_rank"] - sched["home_rank"]).astype(float)
 
     sched["home_rating"] = sched["home_rating"].fillna(50.0)
     sched["away_rating"] = sched["away_rating"].fillna(50.0)
@@ -673,13 +686,50 @@ def build_predictions_book_style(
     # Expected = market (hook for smoothing later)
     sched["expected_h"] = sched["market_h"]
 
-    # Edge & Value (internal)
-    sched["edge_h"] = sched["model_h"] - sched["market_h"]
-    same_side = np.sign(sched["model_h"]) == np.sign(sched["expected_h"])
+    # --- Calibrate model using market & rank delta (linear least squares) ---
+    sched["model_h_base"] = sched["model_h"].astype(float)
+    alpha, beta, gamma = 0.0, 1.0, 0.0
+    cal = sched.loc[
+        pd.notna(sched["market_h"]) & pd.notna(sched["model_h_base"]) & pd.notna(sched["rank_delta"])
+    , ["market_h", "model_h_base", "rank_delta"]].copy()
+    if cal.shape[0] >= 8:
+        try:
+            X = np.column_stack([
+                np.ones(len(cal)),
+                cal["model_h_base"].to_numpy(float),
+                cal["rank_delta"].to_numpy(float),
+            ])
+            y = cal["market_h"].to_numpy(float)
+            theta, *_ = np.linalg.lstsq(X, y, rcond=None)
+            alpha, beta, gamma = float(theta[0]), float(theta[1]), float(theta[2])
+        except Exception:
+            # Fallback: only adjust on rank_delta → residual regression
+            denom = float(np.maximum(1e-6, np.var(cal["rank_delta"].to_numpy(float))))
+            resid = (cal["market_h"].to_numpy(float) - cal["model_h_base"].to_numpy(float))
+            num = float(np.cov(cal["rank_delta"].to_numpy(float), resid, bias=True)[0, 1])
+            gamma = num / denom
+            alpha, beta = 0.0, 1.0
+    else:
+        # Default gentle rank influence when little data: ~1 point per 100 rank places
+        alpha, beta, gamma = 0.0, 1.0, 0.01
+
+    # Bound coefficients to keep adjustments reasonable
+    beta = float(np.clip(beta, 0.6, 1.4))
+    gamma = float(np.clip(gamma, -0.02, 0.02))  # ≤2 pts per 100-rank delta
+    alpha = float(np.clip(alpha, -3.0, 3.0))
+
+    # Adjusted model (home-positive)
+    sched["model_h_adj"] = alpha + beta * sched["model_h_base"].astype(float) + gamma * sched["rank_delta"].astype(float)
+    print(f"[live] rank-calibration: alpha={alpha:.3f} beta={beta:.3f} gamma={gamma:.3f} n={cal.shape[0]}", flush=True)
+
+    # Edge & Value using adjusted model
+    sched["edge_h"] = sched["model_h_adj"].astype(float) - sched["market_h"].astype(float)
+    same_side = np.sign(sched["model_h_adj"]) == np.sign(sched["expected_h"])
     sched["value_h"] = np.where(same_side, np.abs(sched["edge_h"]), 0.0)
 
-    # Convert to book-style for UI
-    sched["MODEL (H)"] = (-1.0 * sched["model_h"]).round(1)
+    # Convert to book-style for UI (also keep base for debugging)
+    sched["MODEL_BASE (H)"] = (-1.0 * sched["model_h_base"]).round(1)
+    sched["MODEL (H)"] = (-1.0 * sched["model_h_adj"]).round(1)
     sched["MARKET (H)"] = (-1.0 * sched["market_h"]).round(1)
     sched["EXPECTED (H)"] = (-1.0 * sched["expected_h"]).round(1)
     # book-style edge = (book_model - book_market) = -(model_h - market_h)
@@ -696,6 +746,9 @@ def build_predictions_book_style(
         }
     )
     out["NEUTRAL"] = np.where(out["NEUTRAL"].astype(int) == 1, "Y", "—")
+    # Carry ranks to output
+    out["HOME_RANK"] = pd.to_numeric(sched.get("home_rank"), errors="coerce")
+    out["AWAY_RANK"] = pd.to_numeric(sched.get("away_rank"), errors="coerce")
 
     cols = [
         "WEEK",
@@ -709,6 +762,8 @@ def build_predictions_book_style(
         "EDGE",
         "VALUE",
         "game_id",
+        "HOME_RANK",
+        "AWAY_RANK",
     ]
     for c in cols:
         if c not in out.columns:
@@ -720,8 +775,11 @@ def build_predictions_book_style(
     out["date"] = out["DATE"]
     out["home_team"] = out["HOME"]
     out["away_team"] = out["AWAY"]
+    out["home_rank"] = out["HOME_RANK"]
+    out["away_rank"] = out["AWAY_RANK"]
     out["neutral_site"] = np.where(out["NEUTRAL"].astype(str).str.upper().eq("Y"), "1", "0")
     out["model_spread_book"] = out["MODEL (H)"]
+    out["model_base_spread_book"] = out["MODEL_BASE (H)"]
     out["market_spread_book"] = out["MARKET (H)"]
     out["expected_market_spread_book"] = out["EXPECTED (H)"]
     out["edge_points_book"] = out["EDGE"]
@@ -741,8 +799,8 @@ def build_predictions_book_style(
         out["model_result"] = ""
 
     out = out[cols + [
-        "week","date","home_team","away_team","neutral_site",
-        "model_spread_book","market_spread_book","expected_market_spread_book",
+        "week","date","home_team","away_team","home_rank","away_rank","neutral_site",
+        "model_spread_book","model_base_spread_book","market_spread_book","expected_market_spread_book",
         "edge_points_book","value_points_book","qualified_edge_flag","played","model_result"
     ]].sort_values(["WEEK", "DATE", "AWAY", "HOME"], kind="stable").reset_index(drop=True)
     return out

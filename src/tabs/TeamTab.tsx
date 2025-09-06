@@ -8,6 +8,7 @@ type PredRow = {
   home_team: string; away_team: string; home_points?: string; away_points?: string; played?: any;
   market_spread_book?: string; model_spread_book?: string; expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string; qualified_edge_flag?: string; model_result?: string;
+  home_rank?: string; away_rank?: string;
 };
 
 export default function TeamTab() {
@@ -76,8 +77,18 @@ export default function TeamTab() {
                   <tr key={`${g.week}-${g.date}-${g.home_team}-${g.away_team}`} className={i%2?"alt":undefined}>
                     <td>{g.week}</td>
                     <td>{g.date}</td>
-                    <td style={{ textAlign: "right" }}><TeamLabel home={false} team={g.away_team} neutral={false} /></td>
-                    <td style={{ textAlign: "left" }}><TeamLabel home={true} team={g.home_team} neutral={!!neutral} /></td>
+                    <td style={{ textAlign: "right" }}>
+                      <TeamLabel home={false} team={g.away_team} neutral={false} />
+                      {Number.isFinite(Number(g.away_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(g.away_rank)}</span>
+                      ) : null}
+                    </td>
+                    <td style={{ textAlign: "left" }}>
+                      <TeamLabel home={true} team={g.home_team} neutral={!!neutral} />
+                      {Number.isFinite(Number(g.home_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(g.home_rank)}</span>
+                      ) : null}
+                    </td>
                     <td>{played ? scoreText(g.away_points, g.home_points) : "—"}</td>
                     <td className={Number.isFinite(model)?(model>0?"pos":"neg"):undefined}>{fmtNum(model)}</td>
                     <td className={Number.isFinite(mkt)?(mkt>0?"pos":"neg"):undefined}>{fmtNum(mkt)}</td>
