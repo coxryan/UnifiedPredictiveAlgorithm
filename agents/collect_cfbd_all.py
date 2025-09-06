@@ -74,6 +74,7 @@ class CfbdClients:
     ratings_api: Any = None
     games_api: Any = None
     lines_api: Any = None
+    rankings_api: Any = None
 
     def __post_init__(self):
         if cfbd and self.bearer_token:
@@ -84,6 +85,7 @@ class CfbdClients:
             self.ratings_api = cfbd.RatingsApi(cli)
             self.games_api = cfbd.GamesApi(cli)
             self.lines_api = cfbd.BettingApi(cli)
+            self.rankings_api = cfbd.RankingsApi(cli)
 
 
 # =========================
@@ -224,6 +226,8 @@ def load_schedule_for_year(
                     "away_team": getattr(g, "away_team", None),
                     "home_team": getattr(g, "home_team", None),
                     "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
+                    "home_points": getattr(g, "home_points", None),
+                    "away_points": getattr(g, "away_points", None),
                 }
             )
         df = pd.DataFrame(rows)
@@ -541,46 +545,129 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
 # =========================
 def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.DataFrame, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     """
-    Use CFBD Lines API; only the requested week is fetched.
+    Use CFBD Lines API; fetch ALL weeks up to and including `week`.
     Output columns: game_id, week, home_team, away_team, spread (book-style, negative = home favorite)
-    If unavailable, return empty df (collector will treat market=0 for all games).
+    If unavailable, return empty df (collector will treat market=0 for future games without lines).
     """
     if not apis.lines_api:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
 
-    key = f"lines:{year}:{week}"
-    ok, cached = cache.get(key)
-    if ok:
-        return pd.DataFrame(cached)
-
+    # Determine which weeks to fetch (≤ week)
     try:
-        lines = apis.lines_api.get_lines(year=year, week=int(week))
-    except Exception as e:
-        print(f"[warn] market lines fetch failed for {year} w{week}: {e}", file=sys.stderr)
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+        w = int(week)
+    except Exception:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
 
-    rows = []
-    for ln in lines or []:
-        gid = getattr(ln, "id", None)
-        w = getattr(ln, "week", None)
-        ht = getattr(ln, "home_team", None)
-        at = getattr(ln, "away_team", None)
-        spread = None
-        try:
-            if hasattr(ln, "lines") and ln.lines:
-                for l in ln.lines:
-                    if hasattr(l, "spread") and l.spread is not None:
-                        spread = float(l.spread)
-                        break
-        except Exception:
-            pass
-        if spread is None:
-            continue
-        rows.append({"game_id": gid, "week": w, "home_team": ht, "away_team": at, "spread": spread})
+    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w})
+    all_rows = []
+    for wk in weeks:
+        key = f"lines:{year}:{wk}"
+        ok, cached = cache.get(key)
+        if ok:
+            df = pd.DataFrame(cached)
+        else:
+            try:
+                lines = apis.lines_api.get_lines(year=year, week=int(wk))
+            except Exception as e:
+                print(f"[warn] market lines fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                lines = []
+            rows = []
+            for ln in lines or []:
+                gid = getattr(ln, "id", None)
+                wv = getattr(ln, "week", None)
+                ht = getattr(ln, "home_team", None)
+                at = getattr(ln, "away_team", None)
+                spread = None
+                try:
+                    if hasattr(ln, "lines") and ln.lines:
+                        for l in ln.lines:
+                            if hasattr(l, "spread") and l.spread is not None:
+                                spread = float(l.spread)
+                                break
+                except Exception:
+                    pass
+                if spread is None:
+                    continue
+                rows.append({"game_id": gid, "week": wv, "home_team": ht, "away_team": at, "spread": spread})
+            df = pd.DataFrame(rows)
+            cache.set(key, df.to_dict(orient="records"))
+        if not df.empty:
+            all_rows.append(df)
+    return pd.concat(all_rows, ignore_index=True) if all_rows else pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
 
-    df = pd.DataFrame(rows)
-    cache.set(key, df.to_dict(orient="records"))
-    return df
+
+# =========================
+# Weekly Elo ranks (ratings) + Poll ranks (AP/Coaches)
+# =========================
+
+def _elo_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+    """Fetch weekly Elo ratings and convert to per-week ranks and 0..100 score."""
+    if not apis.ratings_api:
+        return pd.DataFrame(columns=["week","team","elo_rank_1_133","elo_score_0_100"])
+    out: List[Dict[str, Any]] = []
+    for wk in sorted({int(w) for w in weeks if pd.notna(w)}):
+        key = f"elo:{year}:{wk}"
+        ok, data = cache.get(key)
+        if not ok:
+            try:
+                items = apis.ratings_api.get_elo(year=year, week=int(wk)) or []
+                data = [{"week": wk, "team": getattr(it, "team", None), "elo": float(getattr(it, "elo", 0) or 0)} for it in items]
+                cache.set(key, data)
+            except Exception as e:
+                print(f"[warn] elo fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                data = []
+        out.extend(data)
+    df = pd.DataFrame(out)
+    if df.empty:
+        return pd.DataFrame(columns=["week","team","elo_rank_1_133","elo_score_0_100"])
+    df["elo"] = pd.to_numeric(df["elo"], errors="coerce")
+    df["elo_rank_1_133"] = df.groupby("week")["elo"].rank(ascending=False, method="min").astype(int)
+    maxr = df.groupby("week")["elo_rank_1_133"].transform("max").astype(float)
+    df["elo_score_0_100"] = (1.0 - (df["elo_rank_1_133"] - 1) / maxr) * 100.0
+    return df[["week","team","elo_rank_1_133","elo_score_0_100"]]
+
+
+def _poll_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+    """Fetch weekly AP/Coaches poll ranks (Top 25). Returns NaN for unranked teams."""
+    if not apis.rankings_api:
+        return pd.DataFrame(columns=["week","team","ap_rank","coaches_rank"])
+    rows: List[Dict[str, Any]] = []
+    for wk in sorted({int(w) for w in weeks if pd.notna(w)}):
+        key = f"polls:{year}:{wk}"
+        ok, data = cache.get(key)
+        if not ok:
+            try:
+                items = apis.rankings_api.get_rankings(year=year, week=int(wk), season_type="regular") or []
+                serial: List[Dict[str, Any]] = []
+                for p in items:
+                    poll_name = (getattr(p, "poll", None) or getattr(p, "poll_name", None) or "").lower()
+                    ranks = getattr(p, "ranks", []) or []
+                    for r in ranks:
+                        school = getattr(r, "school", None) or getattr(r, "team", None)
+                        rank = getattr(r, "rank", None)
+                        if not school or rank is None:
+                            continue
+                        serial.append({"poll": poll_name, "team": school, "rank": int(rank), "week": int(wk)})
+                cache.set(key, serial)
+                data = serial
+            except Exception as e:
+                print(f"[warn] rankings fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                data = []
+        ap_map: Dict[str, int] = {}
+        co_map: Dict[str, int] = {}
+        for row in data:
+            poll = (row.get("poll") or "").lower()
+            team = row.get("team")
+            rk = row.get("rank")
+            if not team or rk is None:
+                continue
+            if "ap" in poll:
+                ap_map[team] = rk
+            elif "coaches" in poll:
+                co_map[team] = rk
+        for t in set(list(ap_map.keys()) + list(co_map.keys())):
+            rows.append({"week": int(wk), "team": t, "ap_rank": ap_map.get(t), "coaches_rank": co_map.get(t)})
+    return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["week","team","ap_rank","coaches_rank"])
 
 
 # =========================
@@ -647,19 +734,44 @@ def build_predictions_book_style(
         on="away_team",
         how="left",
     )
-    # Attach SRS ranks and compute rank delta (away_rank - home_rank); lower rank number = better
-    sched = sched.merge(
-        teams[["team", "srs_rank_1_133"]].rename(columns={"team": "home_team", "srs_rank_1_133": "home_rank"}),
-        on="home_team",
-        how="left",
-    ).merge(
-        teams[["team", "srs_rank_1_133"]].rename(columns={"team": "away_team", "srs_rank_1_133": "away_rank"}),
-        on="away_team",
-        how="left",
-    )
-    sched["home_rank"] = pd.to_numeric(sched["home_rank"], errors="coerce").fillna(67).astype(float)
-    sched["away_rank"] = pd.to_numeric(sched["away_rank"], errors="coerce").fillna(67).astype(float)
+    # --- Ranks: prefer weekly Elo; fallback to season SRS ---
+    weeks_list = pd.to_numeric(sched.get("week"), errors="coerce").dropna().astype(int).tolist()
+    elo = _elo_ranks(season, weeks_list, apis, cache)
+    if not elo.empty:
+        sched = sched.merge(
+            elo.rename(columns={"team": "home_team", "elo_rank_1_133": "home_rank"}),
+            on=["week", "home_team"], how="left",
+        ).merge(
+            elo.rename(columns={"team": "away_team", "elo_rank_1_133": "away_rank"}),
+            on=["week", "away_team"], how="left",
+        )
+    else:
+        # fallback to season SRS rank in team inputs
+        sched = sched.merge(
+            teams[["team", "srs_rank_1_133"]].rename(columns={"team": "home_team", "srs_rank_1_133": "home_rank"}),
+            on="home_team", how="left",
+        ).merge(
+            teams[["team", "srs_rank_1_133"]].rename(columns={"team": "away_team", "srs_rank_1_133": "away_rank"}),
+            on="away_team", how="left",
+        )
+
+    sched["home_rank"] = pd.to_numeric(sched["home_rank"], errors="coerce")
+    sched["away_rank"] = pd.to_numeric(sched["away_rank"], errors="coerce")
+    med_rank = 66 if sched[["home_rank","away_rank"]].stack().dropna().empty else int(sched[["home_rank","away_rank"]].stack().median())
+    sched["home_rank"] = sched["home_rank"].fillna(med_rank).astype(float)
+    sched["away_rank"] = sched["away_rank"].fillna(med_rank).astype(float)
     sched["rank_delta"] = (sched["away_rank"] - sched["home_rank"]).astype(float)
+
+    # (Optional) Poll ranks merged for completeness (not used by UI yet)
+    polls = _poll_ranks(season, weeks_list, apis, cache)
+    if not polls.empty:
+        sched = sched.merge(
+            polls.rename(columns={"team": "home_team", "ap_rank": "home_ap_rank", "coaches_rank": "home_coaches_rank"}),
+            on=["week", "home_team"], how="left",
+        ).merge(
+            polls.rename(columns={"team": "away_team", "ap_rank": "away_ap_rank", "coaches_rank": "away_coaches_rank"}),
+            on=["week", "away_team"], how="left",
+        )
 
     sched["home_rating"] = sched["home_rating"].fillna(50.0)
     sched["away_rating"] = sched["away_rating"].fillna(50.0)
@@ -736,6 +848,26 @@ def build_predictions_book_style(
     sched["EDGE"] = (-1.0 * sched["edge_h"]).round(1)
     sched["VALUE"] = (sched["value_h"]).round(1)
 
+    # --- Outcomes & correctness (for past weeks) ---
+    # played if we have both scores
+    sched["home_points"] = pd.to_numeric(sched.get("home_points"), errors="coerce")
+    sched["away_points"] = pd.to_numeric(sched.get("away_points"), errors="coerce")
+    sched["played_flag"] = np.where(pd.notna(sched["home_points"]) & pd.notna(sched["away_points"]), 1, 0)
+
+    # Actual ATS from home perspective using internal lines
+    # market_h (internal) already computed; margin_home = home_points - away_points
+    margin_home = (sched["home_points"] - sched["away_points"]).astype(float)
+    ats_score = margin_home - sched["market_h"].astype(float)
+    # model pick from adjusted model vs market: edge_h > 0 ⇒ value = AWAY, else HOME
+    model_pick = np.where((sched["model_h_adj"].astype(float) - sched["market_h"].astype(float)) > 0, "AWAY", "HOME")
+
+    result = np.where(sched["played_flag"].eq(1),
+                      np.where(ats_score > 0, "HOME",
+                               np.where(ats_score < 0, "AWAY", "PUSH")), "")
+    sched["model_result"] = np.where(sched["played_flag"].eq(1),
+                                      np.where(result == "PUSH", "PUSH",
+                                               np.where(result == model_pick, "CORRECT", "INCORRECT")), "")
+
     out = sched.rename(
         columns={
             "week": "WEEK",
@@ -749,6 +881,8 @@ def build_predictions_book_style(
     # Carry ranks to output
     out["HOME_RANK"] = pd.to_numeric(sched.get("home_rank"), errors="coerce")
     out["AWAY_RANK"] = pd.to_numeric(sched.get("away_rank"), errors="coerce")
+    out["HOME_POINTS"] = sched.get("home_points")
+    out["AWAY_POINTS"] = sched.get("away_points")
 
     cols = [
         "WEEK",
@@ -764,6 +898,8 @@ def build_predictions_book_style(
         "game_id",
         "HOME_RANK",
         "AWAY_RANK",
+        "HOME_POINTS",
+        "AWAY_POINTS",
     ]
     for c in cols:
         if c not in out.columns:
@@ -784,6 +920,9 @@ def build_predictions_book_style(
     out["expected_market_spread_book"] = out["EXPECTED (H)"]
     out["edge_points_book"] = out["EDGE"]
     out["value_points_book"] = out["VALUE"]
+    out["home_points"] = out["HOME_POINTS"]
+    out["away_points"] = out["AWAY_POINTS"]
+    out["played"] = np.where(sched["played_flag"].eq(1), "1", "")
 
     # Qualification flag to match UI thresholds (EDGE_MIN=2.0, VALUE_MIN=1.0)
     EDGE_MIN_T = 2.0
@@ -801,7 +940,8 @@ def build_predictions_book_style(
     out = out[cols + [
         "week","date","home_team","away_team","home_rank","away_rank","neutral_site",
         "model_spread_book","model_base_spread_book","market_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book","qualified_edge_flag","played","model_result"
+        "edge_points_book","value_points_book","qualified_edge_flag","played","model_result",
+        "home_points","away_points"
     ]].sort_values(["WEEK", "DATE", "AWAY", "HOME"], kind="stable").reset_index(drop=True)
     return out
 

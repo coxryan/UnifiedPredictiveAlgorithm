@@ -8,6 +8,10 @@ type PredRow = {
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string; played?: any; model_result?: string;
   home_rank?: string; away_rank?: string;
+  home_ap_rank?: string;
+  away_ap_rank?: string;
+  home_coaches_rank?: string;
+  away_coaches_rank?: string;
 };
 
 async function loadFirst(paths: string[]) {
@@ -31,6 +35,7 @@ export default function BacktestTab() {
   const [preds, setPreds] = useState<PredRow[]>([]);
   const [week, setWeek] = useState<string>("ALL");
   const [err, setErr] = useState<string>("");
+  const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
 
   useEffect(() => { (async () => {
     try {
@@ -68,7 +73,8 @@ export default function BacktestTab() {
   }, [summary, preds]);
 
   const counts = useMemo(() => {
-    const rows = week === "ALL" ? preds : preds.filter(r => String(r.week) === String(week));
+    const rowsBase = week === "ALL" ? preds : preds.filter(r => String(r.week) === String(week));
+    const rows = onlyQualified ? rowsBase.filter((r:any)=> r.qualified_edge_flag === "1") : rowsBase;
     let w=0,l=0,p=0;
     for (const r of rows) {
       if (!playedBool(r.played)) continue;
@@ -79,11 +85,14 @@ export default function BacktestTab() {
     }
     const tot = w + l; const hit = tot ? w/tot : NaN;
     return { w,l,p, hit, rows: rows.filter(r => playedBool(r.played)).length };
-  }, [preds, week]);
+  }, [preds, week, onlyQualified]);
 
   const tableRows = useMemo(
-    () => (week === "ALL" ? preds : preds.filter(r => String(r.week) === String(week))),
-    [preds, week]
+    () => {
+      const base = (week === "ALL" ? preds : preds.filter(r => String(r.week) === String(week)));
+      return onlyQualified ? base.filter((r:any)=> r.qualified_edge_flag === "1") : base;
+    },
+    [preds, week, onlyQualified]
   ).map((r:any) => {
     const model = toNum(r.model_spread_book);
     const market = toNum(r.market_spread_book);
@@ -99,6 +108,10 @@ export default function BacktestTab() {
           <select className="input" value={week} onChange={(e)=>setWeek(e.target.value)}>
             {weeks.map(w => <option key={w} value={w}>{w}</option>)}
           </select>
+        </label>
+        <label className="chk">
+          <input type="checkbox" checked={onlyQualified} onChange={(e)=>setOnlyQualified(e.target.checked)} />
+          Exclude non-qualified (show only ✓)
         </label>
         <Badge tone="muted">Games: {fmtNum(counts.rows)}</Badge>
         <Badge tone="pos">W: {counts.w}</Badge>
@@ -132,11 +145,21 @@ export default function BacktestTab() {
                   {Number.isFinite(Number(r.away_rank)) ? (
                     <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
                   ) : null}
+                  {Number.isFinite(Number(r.away_ap_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.away_ap_rank)})</span>
+                  ) : Number.isFinite(Number(r.away_coaches_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.away_coaches_rank)})</span>
+                  ) : null}
                 </td>
                 <td style={{ textAlign: "left" }}>
                   <TeamLabel home={true} team={r.home_team} neutral={false} />
                   {Number.isFinite(Number(r.home_rank)) ? (
                     <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
+                  ) : null}
+                  {Number.isFinite(Number(r.home_ap_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.home_ap_rank)})</span>
+                  ) : Number.isFinite(Number(r.home_coaches_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
                   ) : null}
                 </td>
                 <td>{fmtNum(r._model)}</td>

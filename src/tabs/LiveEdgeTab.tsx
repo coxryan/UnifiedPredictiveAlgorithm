@@ -9,6 +9,10 @@ type PredRow = {
   model_spread_book?: string; market_spread_book?: string; expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string; qualified_edge_flag?: string;
   home_rank?: string; away_rank?: string;
+  home_ap_rank?: string;
+  away_ap_rank?: string;
+  home_coaches_rank?: string;
+  away_coaches_rank?: string;
 };
 
 function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
@@ -20,6 +24,7 @@ function valueSide(modelHome: number, marketHome: number, home: string, away: st
 export default function LiveEdgeTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [limit, setLimit] = useState<number>(40);
+  const [onlyQualified, setOnlyQualified] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
@@ -49,7 +54,8 @@ export default function LiveEdgeTab() {
         const neutral = r.neutral_site === "1" || r.neutral_site === "true";
         return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral };
       })
-      .filter((r) => Number.isFinite(r._edge) && Number.isFinite(r._value));
+      .filter((r) => Number.isFinite(r._edge) && Number.isFinite(r._value))
+      .filter((r) => !onlyQualified || r.qualified_edge_flag === "1");
 
     // rank by |Edge| desc then |Value| desc
     mapped.sort((a, b) => {
@@ -61,7 +67,7 @@ export default function LiveEdgeTab() {
     });
 
     return mapped.slice(0, limit);
-  }, [rows, limit]);
+  }, [rows, limit, onlyQualified]);
 
   return (
     <section className="card">
@@ -71,6 +77,10 @@ export default function LiveEdgeTab() {
           <input className="input" type="number" min={5} step={5} value={limit} onChange={(e)=>setLimit(Math.max(5, Number(e.target.value)||40))} />
         </label>
         <Badge>Qualified rule: |Edge| ≥ {EDGE_MIN}, |Value| ≥ {VALUE_MIN}</Badge>
+        <label className="chk">
+          <input type="checkbox" checked={onlyQualified} onChange={(e)=>setOnlyQualified(e.target.checked)} />
+          Exclude non-qualified (show only ✓)
+        </label>
       </div>
 
       <div className="table-wrap">
@@ -98,11 +108,21 @@ export default function LiveEdgeTab() {
                   {Number.isFinite(Number(r.away_rank)) ? (
                     <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
                   ) : null}
+                  {Number.isFinite(Number(r.away_ap_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.away_ap_rank)})</span>
+                  ) : Number.isFinite(Number(r.away_coaches_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.away_coaches_rank)})</span>
+                  ) : null}
                 </td>
                 <td style={{ textAlign: "left" }}>
                   <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
                   {Number.isFinite(Number(r.home_rank)) ? (
                     <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
+                  ) : null}
+                  {Number.isFinite(Number(r.home_ap_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.home_ap_rank)})</span>
+                  ) : Number.isFinite(Number(r.home_coaches_rank)) ? (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
                   ) : null}
                 </td>
                 <td>{fmtNum(r._model)}</td>

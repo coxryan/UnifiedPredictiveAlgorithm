@@ -11,6 +11,10 @@ type PredRow = {
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string;
   home_rank?: string; away_rank?: string;
+  home_ap_rank?: string;
+  away_ap_rank?: string;
+  home_coaches_rank?: string;
+  away_coaches_rank?: string;
 };
 
 type StakeMode = "flat" | "prop" | "kelly";
@@ -263,11 +267,21 @@ export default function BetsTab() {
                       {Number.isFinite(Number(r.away_rank)) ? (
                         <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
                       ) : null}
+                      {Number.isFinite(Number(r.away_ap_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.away_ap_rank)})</span>
+                      ) : Number.isFinite(Number(r.away_coaches_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.away_coaches_rank)})</span>
+                      ) : null}
                     </td>
                     <td style={{ textAlign: "left" }}>
                       <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
                       {Number.isFinite(Number(r.home_rank)) ? (
                         <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
+                      ) : null}
+                      {Number.isFinite(Number(r.home_ap_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.home_ap_rank)})</span>
+                      ) : Number.isFinite(Number(r.home_coaches_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
                       ) : null}
                     </td>
                     <td>{fmtNum(r._model)}</td>

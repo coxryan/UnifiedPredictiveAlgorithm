@@ -9,6 +9,10 @@ type PredRow = {
   model_spread_book?: string; market_spread_book?: string; expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string; qualified_edge_flag?: string;
   home_rank?: string; away_rank?: string;
+  home_ap_rank?: string;
+  away_ap_rank?: string;
+  home_coaches_rank?: string;
+  away_coaches_rank?: string;
 };
 
 function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
@@ -21,6 +25,7 @@ export default function PredictionsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [week, setWeek] = useState<string>("ALL");
   const [conf, setConf] = useState<string>("All");
+  const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -62,8 +67,17 @@ export default function PredictionsTab() {
     if (conf !== "All") {
       // (Optional) if you add conference to the predictions CSV, filter here.
     }
+    if (onlyQualified) r = r.filter((x) => x.qualified_edge_flag === "1");
     return r;
-  }, [withComputed, week, conf]);
+  }, [withComputed, week, conf, onlyQualified]);
+
+  const wl = useMemo(() => {
+    const rows = filtered.filter((r:any)=> r.played && String(r.played) !== "" );
+    let w=0,l=0,p=0; for (const r of rows){
+      if (r.model_result === "CORRECT") w++; else if (r.model_result === "INCORRECT") l++; else p++;
+    }
+    const tot = w + l; const acc = tot ? w/tot : NaN; return {w,l,p,acc, n: rows.length};
+  }, [filtered]);
 
   return (
     <section className="card">
@@ -76,6 +90,14 @@ export default function PredictionsTab() {
         </label>
         <Badge tone="muted">Rows: {filtered.length}</Badge>
         <Badge>Qualified rule: |Edge| ≥ {EDGE_MIN}, |Value| ≥ {VALUE_MIN}, side agreement</Badge>
+        <label className="chk">
+          <input type="checkbox" checked={onlyQualified} onChange={(e)=>setOnlyQualified(e.target.checked)} />
+          Exclude non-qualified (show only ✓)
+        </label>
+        <Badge tone="pos">W: {wl.w}</Badge>
+        <Badge tone="neg">L: {wl.l}</Badge>
+        <Badge tone="muted">Push: {wl.p}</Badge>
+        <Badge>Acc: {isFinite(wl.acc)? (wl.acc*100).toFixed(1)+"%" : "—"}</Badge>
       </div>
 
       <div className="table-wrap">
@@ -106,11 +128,21 @@ export default function PredictionsTab() {
                     {Number.isFinite(Number(r.away_rank)) ? (
                       <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
                     ) : null}
+                    {Number.isFinite(Number(r.away_ap_rank)) ? (
+                      <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.away_ap_rank)})</span>
+                    ) : Number.isFinite(Number(r.away_coaches_rank)) ? (
+                      <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.away_coaches_rank)})</span>
+                    ) : null}
                   </td>
                   <td style={{ textAlign: "left" }}>
                     <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
                     {Number.isFinite(Number(r.home_rank)) ? (
                       <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
+                    ) : null}
+                    {Number.isFinite(Number(r.home_ap_rank)) ? (
+                      <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(r.home_ap_rank)})</span>
+                    ) : Number.isFinite(Number(r.home_coaches_rank)) ? (
+                      <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
                     ) : null}
                   </td>
                   <td>{fmtNum(r._model)}</td>

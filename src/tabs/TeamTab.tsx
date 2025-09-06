@@ -9,12 +9,17 @@ type PredRow = {
   market_spread_book?: string; model_spread_book?: string; expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string; qualified_edge_flag?: string; model_result?: string;
   home_rank?: string; away_rank?: string;
+  home_ap_rank?: string;
+  away_ap_rank?: string;
+  home_coaches_rank?: string;
+  away_coaches_rank?: string;
 };
 
 export default function TeamTab() {
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [rows, setRows] = useState<PredRow[]>([]);
   const [q, setQ] = useState("");
+  const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
 
   useEffect(() => { (async () => {
     try { setTeams(await loadCsv("data/upa_team_inputs_datadriven_v0.csv") as TeamRow[]); } catch { setTeams([]); }
@@ -39,13 +44,20 @@ export default function TeamTab() {
     return teams.find(t => t.team?.toLowerCase()===ql) || teams.find(t => t.team?.toLowerCase().includes(ql)) || null;
   }, [q, teams]);
 
-  const games = useMemo(()=> sel ? (gamesByTeam.get(sel.team) ?? []) : [], [sel, gamesByTeam]);
+  const games = useMemo(()=> {
+    const base = sel ? (gamesByTeam.get(sel.team) ?? []) : [];
+    return onlyQualified ? base.filter((g:any)=> g.qualified_edge_flag === "1") : base;
+  }, [sel, gamesByTeam, onlyQualified]);
 
   return (
     <section className="card">
       <div className="card-title">Team (Schedule) — 2025</div>
       <div className="controls">
         <input className="search" placeholder="Type a team name…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <label className="chk">
+          <input type="checkbox" checked={onlyQualified} onChange={(e)=>setOnlyQualified(e.target.checked)} />
+          Exclude non-qualified (show only ✓)
+        </label>
         {sel ? <Badge>{sel.team}</Badge> : <Badge>{teams.length} teams</Badge>}
       </div>
 
@@ -82,11 +94,21 @@ export default function TeamTab() {
                       {Number.isFinite(Number(g.away_rank)) ? (
                         <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(g.away_rank)}</span>
                       ) : null}
+                      {Number.isFinite(Number(g.away_ap_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(g.away_ap_rank)})</span>
+                      ) : Number.isFinite(Number(g.away_coaches_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(g.away_coaches_rank)})</span>
+                      ) : null}
                     </td>
                     <td style={{ textAlign: "left" }}>
                       <TeamLabel home={true} team={g.home_team} neutral={!!neutral} />
                       {Number.isFinite(Number(g.home_rank)) ? (
                         <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(g.home_rank)}</span>
+                      ) : null}
+                      {Number.isFinite(Number(g.home_ap_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(AP #{Number(g.home_ap_rank)})</span>
+                      ) : Number.isFinite(Number(g.home_coaches_rank)) ? (
+                        <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(g.home_coaches_rank)})</span>
                       ) : null}
                     </td>
                     <td>{played ? scoreText(g.away_points, g.home_points) : "—"}</td>
