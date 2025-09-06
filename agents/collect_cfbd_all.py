@@ -112,13 +112,18 @@ def _normalize_percent(x: Optional[float]) -> Optional[float]:
 
 
 def _scale_0_100(series: pd.Series) -> pd.Series:
-    s = pd.to_numeric(series, errors="coerce")
+    """Scale a numeric series into [0, 100].
+    Always returns float dtype (NaN for missing) so downstream .round() is safe.
+    """
+    s = pd.to_numeric(series, errors="coerce").astype("float64")
+    # If nothing numeric, return all-NaN float series to avoid object dtype
     if s.notna().sum() == 0:
-        return pd.Series([None] * len(s), index=s.index)
+        return pd.Series(np.nan, index=s.index, dtype="float64")
     mn, mx = float(s.min()), float(s.max())
     if mx == mn:
-        return pd.Series([50.0] * len(s), index=s.index)
-    return (s - mn) / (mx - mn) * 100.0
+        return pd.Series(50.0, index=s.index, dtype="float64")
+    out = (s - mn) / (mx - mn) * 100.0
+    return out.astype("float64")
 
 
 def discover_current_week(schedule: pd.DataFrame) -> Optional[int]:
@@ -248,6 +253,10 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                     }
                 )
     rp_df = pd.DataFrame(rp_rows).drop_duplicates(subset=["team"])
+# Ensure numeric for PPA/RP columns (prevents object dtype during scaling)
+    for _col in ["_overall", "_offense", "_defense", "_ppa_tot", "_ppa_off", "_ppa_def"]:
+        if _col in rp_df.columns:
+            rp_df[_col] = pd.to_numeric(rp_df[_col], errors="coerce").astype("float64")
     if not rp_df.empty:
         rp_df["wrps_offense_percent"] = rp_df["_offense"].map(_normalize_percent)
         rp_df["wrps_defense_percent"] = rp_df["_defense"].map(_normalize_percent)
@@ -260,7 +269,8 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         if rp_df["wrps_defense_percent"].isna().all():
             rp_df["wrps_defense_percent"] = _scale_0_100(rp_df["_ppa_def"]).round(1)
 
-        rp_df["wrps_percent_0_100"] = pd.to_numeric(rp_df["wrps_overall_percent"], errors="coerce").round(1)
+        rp_df["wrps_percent_0_100"] = pd.to_numeric(rp_df["wrps_overall_percent"], errors="coerce").astype("float64")
+        rp_df["wrps_percent_0_100"] = rp_df["wrps_percent_0_100"].round(1)
 
     # Team Talent
     talent_df = pd.DataFrame({"team": [], "talent_score_0_100": []})
