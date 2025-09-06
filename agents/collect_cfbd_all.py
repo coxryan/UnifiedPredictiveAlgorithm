@@ -155,6 +155,31 @@ def _dummy_schedule(year: int) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+# Robustly coerce CFBD start_date (str or datetime) to 'YYYY-MM-DD' or None
+def _date_only(x) -> Optional[str]:
+    if x is None:
+        return None
+    try:
+        # Common cases: string like '2025-08-28T19:00:00.000Z'
+        if isinstance(x, str):
+            return x[:10] if x else None
+        # datetime-like (has .date())
+        if hasattr(x, "date"):
+            try:
+                return x.date().isoformat()
+            except Exception:
+                pass
+        # Fallback via pandas parser
+        dt = pd.to_datetime(x, errors="coerce")
+        if pd.notna(dt):
+            try:
+                return dt.date().isoformat()
+            except Exception:
+                return None
+    except Exception:
+        return None
+    return None
+
 def load_schedule_for_year(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     key = f"sched:{year}"
     ok, data = cache.get(key)
@@ -174,7 +199,7 @@ def load_schedule_for_year(year: int, apis: CfbdClients, cache: ApiCache) -> pd.
                 {
                     "game_id": getattr(g, "id", None),
                     "week": getattr(g, "week", None),
-                    "date": (getattr(g, "start_date", None) or "")[:10] or None,
+                    "date": _date_only(getattr(g, "start_date", None)),
                     "away_team": getattr(g, "away_team", None),
                     "home_team": getattr(g, "home_team", None),
                     "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
