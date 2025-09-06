@@ -51,27 +51,40 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
   return b * p - (1 - p); // expected ROI per $1 staked
  }
 
- // Extract kickoff hour from a date string; supports YYYY-MM-DD, YYYY-MM-DD HH:MM, or ISO
- function kickoffHour(dateStr?: string): number | null {
+// Extract kickoff hour (Eastern Time) from a date string; supports various formats
+function kickoffHourET(dateStr?: string): number | null {
   if (!dateStr) return null;
-  // Try HH:MM first
-  const m = dateStr.match(/(?:T|\s)(\d{1,2}):(\d{2})/);
+  // Try to parse a clock directly if it exists in the string
+  const m = dateStr.match(/(\d{1,2}):(\d{2})/);
   if (m) {
     const h = Number(m[1]);
     if (Number.isFinite(h)) return Math.max(0, Math.min(23, h));
   }
-  // Fallback: Date parse (may be local midnight if only date provided)
+  // Parse as Date and then get the hour in America/New_York
   const d = new Date(dateStr);
-  if (!isNaN(d.getTime())) return d.getHours();
-  return null;
- }
+  if (isNaN(d.getTime())) return null;
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour: "2-digit",
+      hour12: false,
+    }).formatToParts(d);
+    const hh = parts.find((p) => p.type === "hour")?.value;
+    const h = Number(hh);
+    return Number.isFinite(h) ? h : null;
+  } catch {
+    // Fallback to UTC hour
+    const h = d.getUTCHours();
+    return Number.isFinite(h) ? h : null;
+  }
+}
 
- function bucketOfHour(h: number | null): Bucket {
+function bucketOfHour(h: number | null): Bucket {
   if (h === null || !Number.isFinite(h)) return "afternoon"; // default bucket if unknown
-  if (h < 12) return "morning";
-  if (h < 18) return "afternoon";
-  return "night";
- }
+  if (h < 13) return "morning";    // 0:00–12:59 → Morning slate
+  if (h < 18) return "afternoon";  // 13:00–17:59 → Afternoon slate
+  return "night";                  // 18:00+ → Night slate
+}
 
  export default function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
@@ -145,7 +158,7 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
       const ev = Number.isFinite(edge) ? evFromEdge(edge, Number(odds) || -110) : NaN;
       const schedDt = kickMap[keyOf(r.week, r.away_team, r.home_team)];
-      const hour = kickoffHour(schedDt || r.date);
+      const hour = kickoffHourET(schedDt || r.date);
       const bucket = bucketOfHour(hour);
       return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev, _hour: hour, _bucket: bucket } as any;
     });
