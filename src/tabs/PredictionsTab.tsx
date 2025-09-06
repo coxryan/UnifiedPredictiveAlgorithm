@@ -147,18 +147,40 @@ export default function PredictionsTab() {
   function kickoffLabelET(dateStr?: string): string {
     if (!dateStr) return '';
     const s = dateStr.toString().trim();
+
+    // If we only have a date (no time), do not fabricate a time (avoids 8:00 PM ET issue).
+    // Example: "2025-09-06" should show blank / TBA rather than 8:00 PM (UTC→ET artifact).
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+
+    // If an explicit clock is present, prefer that clock as ET even if no timezone is present.
+    const clock = s.match(/(\d{1,2}):(\d{2})/);
+
+    // If the string carries an explicit timezone (Z or ±HH:MM), format in ET.
+    const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
+    if (hasTZ) {
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        try {
+          const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+          return `${t} ET`;
+        } catch {}
+      }
+      // Fall back to clock if parse failed
+      return clock ? `${clock[1]}:${clock[2]} ET` : '';
+    }
+
+    // If we have a clock but no timezone, just echo the clock (assume ET for display).
+    if (clock) return `${clock[1]}:${clock[2]} ET`;
+
+    // Otherwise, try a last-resort parse (may succeed for full ISO without TZ on some platforms).
     const d = new Date(s);
-    if (isNaN(d.getTime())) {
-      // If we at least have a clock, show it
-      const m = s.match(/(\d{1,2}):(\d{2})/);
-      return m ? `${m[1]}:${m[2]} ET` : '';
+    if (!isNaN(d.getTime())) {
+      try {
+        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+        return `${t} ET`;
+      } catch {}
     }
-    try {
-      const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
-      return `${t} ET`;
-    } catch {
-      return '';
-    }
+    return '';
   }
 
   const toneStyleRow = (tone: 'win'|'loss'|'none') => (

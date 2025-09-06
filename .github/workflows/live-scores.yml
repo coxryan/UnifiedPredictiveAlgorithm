@@ -1,10 +1,12 @@
 name: live-scores
 
 on:
-  # runs every 5 minutes and can be triggered manually
+  workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["deploy"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -20,6 +22,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

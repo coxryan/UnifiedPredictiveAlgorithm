@@ -1,3 +1,19 @@
+name: live-scores
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_run:
+    workflows: ["deploy"]
+    types: [completed]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      # steps here...
 name: deploy
 
 on:
@@ -9,13 +25,14 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
 env:
   MARKET_SOURCE: fanduel
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
   ODDS_CACHE_DIR: .cache_odds
   ODDS_CACHE_TTL_DAYS: 2
 
-# Also serialize with the live workflow
+# Serialize with other Pages publishers to avoid races
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -66,7 +83,6 @@ jobs:
         with:
           path: dist
 
-      # 👇 this is what the live-scores workflow downloads
       - name: Upload portable site bundle (for live workflow)
         uses: actions/upload-artifact@v4
         with:
