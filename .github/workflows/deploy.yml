@@ -1,10 +1,15 @@
 # .github/workflows/deploy.yml  (or your main workflow)
-name: build
+name: Deploy
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 env:
   UPA_YEAR: '2025'
@@ -23,6 +28,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install Python deps
         run: |
@@ -33,20 +39,39 @@ jobs:
         env:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           CACHE_TTL_DAYS: ${{ env.CACHE_TTL_DAYS }}
+          UPA_YEAR: ${{ env.UPA_YEAR }}
+          UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
         run: |
           set -euo pipefail
-          python agents/collect_cfbd_all.py --year "${{ env.UPA_YEAR }}" ${UPA_BACKTEST_YEAR:+--backtest "${{ env.UPA_BACKTEST_YEAR }}"}
+          if [ -n "${UPA_BACKTEST_YEAR}" ]; then
+            python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
+          else
+            python agents/collect_cfbd_all.py --year "${UPA_YEAR}"
+          fi
+          echo "Collector finished; listing data/"
+          ls -lah data || true
+
+      - name: Upload data artifact (raw)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upa-data-${{ github.run_number }}
+          path: data/**
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Mirror data to public
         run: |
           mkdir -p public/data
-          cp -R data/* public/data/
+          cp -R data/* public/data/ || true
+          ls -lah public/data || true
 
       # --- Node / UI --------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install UI deps
         run: |
@@ -55,7 +80,11 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # Choose your deploy method (GitHub Pages example):
+      - name: Copy data into built site
+        run: |
+          mkdir -p dist/data
+          cp -R public/data/* dist/data/ || true
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -63,13 +92,10 @@ jobs:
 
   deploy:
     needs: build
-    permissions:
-      pages: write
-      id-token: write
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

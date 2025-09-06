@@ -585,11 +585,23 @@ def build_predictions_book_style(
     team_inputs_df: pd.DataFrame,
     market_df: Optional[pd.DataFrame],
     current_week: Optional[int],
+    valid_teams: Optional[Iterable[str]] = None,
 ) -> pd.DataFrame:
     teams = team_inputs_df.copy()
     teams["rating_0_100"] = _team_rating(teams)
 
+    # Normalize allowed team names and hard-filter schedule to FBS vs FBS only
+    norm_ok: Optional[set] = None
+    if valid_teams is not None:
+        norm_ok = {str(t).strip() for t in valid_teams if str(t).strip()}
+
     sched = schedule_df.copy()
+    if norm_ok is not None and not sched.empty:
+        sched = sched.loc[
+            sched["home_team"].astype(str).str.strip().isin(norm_ok)
+            & sched["away_team"].astype(str).str.strip().isin(norm_ok)
+        ].copy()
+
     for col in ["game_id", "week", "date", "home_team", "away_team", "neutral_site"]:
         if col not in sched.columns:
             sched[col] = None
@@ -746,6 +758,8 @@ def main() -> None:
     schedule = load_schedule_for_year(season, apis, cache, fbs_set=fbs_names)
     write_csv(schedule, f"{DATA_DIR}/cfb_schedule.csv")
     print(f"[live] schedule rows: {schedule.shape[0]}", flush=True)
+    # Sanity: confirm FBS-only filtering
+    raw_sched_rows = int(schedule.shape[0])
 
     # 3) CURRENT WEEK + MARKET (only current week; others default to 0)
     current_week = discover_current_week(schedule) or 1
@@ -753,9 +767,9 @@ def main() -> None:
     print(f"[live] current_week={current_week}; market rows={market.shape[0]}", flush=True)
 
     # 4) PREDICTIONS (book-style)
-    preds = build_predictions_book_style(season, schedule, team_inputs, market, current_week)
+    preds = build_predictions_book_style(season, schedule, team_inputs, market, current_week, valid_teams=fbs_names)
+    print(f"[live] predictions rows (FBS-only): {preds.shape[0]} from schedule={raw_sched_rows}", flush=True)
     write_csv(preds, f"{DATA_DIR}/upa_predictions.csv")
-    print(f"[live] predictions rows: {preds.shape[0]}", flush=True)
 
     # 5) LIVE EDGE
     live_edge = preds.sort_values("EDGE", key=lambda s: s.abs(), ascending=False).head(500)
