@@ -13,6 +13,8 @@ type PredRow = {
   away_ap_rank?: string;
   home_coaches_rank?: string;
   away_coaches_rank?: string;
+  // actual results if finished
+  played?: any; home_points?: string; away_points?: string;
 };
 
 function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
@@ -51,7 +53,11 @@ export default function PredictionsTab() {
         : (Number.isFinite(market) && Number.isFinite(expected)) ? (market - expected) : NaN;
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
-      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral };
+      const hp = toNum(r.home_points);
+      const ap = toNum(r.away_points);
+      const score = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${fmtNum(ap,{maximumFractionDigits:0})} @ ${fmtNum(hp,{maximumFractionDigits:0})}` : "—";
+      const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN; // home minus away
+      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _score: score, _finalDiff: finalDiff };
     });
   }, [rows]);
 
@@ -106,6 +112,8 @@ export default function PredictionsTab() {
             <tr>
               <th>Week</th>
               <th>Date</th>
+              <th>Score (A @ H)</th>
+              <th>Final (H)</th>
               <th colSpan={2}>Matchup</th>
               <th>Model (H)</th>
               <th>Market (H)</th>
@@ -123,6 +131,8 @@ export default function PredictionsTab() {
                 <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i % 2 ? "alt" : undefined}>
                   <td>{r.week}</td>
                   <td>{r.date}</td>
+                  <td>{(r as any)._score}</td>
+                  <td>{fmtNum((r as any)._finalDiff)}</td>
                   <td style={{ textAlign: "right" }}>
                     <TeamLabel home={false} team={r.away_team} neutral={false} />
                     {Number.isFinite(Number(r.away_rank)) ? (
@@ -135,7 +145,7 @@ export default function PredictionsTab() {
                     ) : null}
                   </td>
                   <td style={{ textAlign: "left" }}>
-                    <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
+                    <TeamLabel home={true} team={r.home_team} neutral={(r as any)._neutral} />
                     {Number.isFinite(Number(r.home_rank)) ? (
                       <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
                     ) : null}
@@ -145,18 +155,18 @@ export default function PredictionsTab() {
                       <span style={{ marginLeft: 6, opacity: 0.6, fontSize: "0.8em" }}>(Coaches #{Number(r.home_coaches_rank)})</span>
                     ) : null}
                   </td>
-                  <td>{fmtNum(r._model)}</td>
-                  <td>{fmtNum(r._market)}</td>
+                  <td>{fmtNum((r as any)._model)}</td>
+                  <td>{fmtNum((r as any)._market)}</td>
                   <td>{fmtNum(toNum(r.expected_market_spread_book))}</td>
-                  <td className={r._edge > 0 ? "pos" : "neg"}>{fmtNum(r._edge)}</td>
-                  <td className={r._value > 0 ? "pos" : "neg"}>{fmtNum(r._value)}</td>
+                  <td className={(r as any)._edge > 0 ? "pos" : "neg"}>{fmtNum((r as any)._edge)}</td>
+                  <td className={(r as any)._value > 0 ? "pos" : "neg"}>{fmtNum((r as any)._value)}</td>
                   <td>{qual}</td>
-                  <td>{r._pick}</td>
+                  <td>{(r as any)._pick}</td>
                 </tr>
               );
             })}
             {!filtered.length && (
-              <tr><td colSpan={11} style={{textAlign:"center", padding:12}}>No rows to display.</td></tr>
+              <tr><td colSpan={13} style={{textAlign:"center", padding:12}}>No rows to display.</td></tr>
             )}
           </tbody>
         </table>

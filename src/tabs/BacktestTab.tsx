@@ -12,6 +12,8 @@ type PredRow = {
   away_ap_rank?: string;
   home_coaches_rank?: string;
   away_coaches_rank?: string;
+  // actual
+  home_points?: string; away_points?: string;
 };
 
 async function loadFirst(paths: string[]) {
@@ -97,7 +99,11 @@ export default function BacktestTab() {
     const model = toNum(r.model_spread_book);
     const market = toNum(r.market_spread_book);
     const pick = valueSide(model, market, r.home_team, r.away_team);
-    return { ...r, _model:model, _market:market, _pick: pick.side };
+    const hp = toNum(r.home_points);
+    const ap = toNum(r.away_points);
+    const score = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${fmtNum(ap,{maximumFractionDigits:0})} @ ${fmtNum(hp,{maximumFractionDigits:0})}` : "—";
+    const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN; // home minus away
+    return { ...r, _model:model, _market:market, _pick: pick.side, _score: score, _finalDiff: finalDiff };
   });
 
   return (
@@ -130,7 +136,7 @@ export default function BacktestTab() {
         <table className="tbl compact">
           <thead>
             <tr>
-              <th>Week</th><th>Date</th><th colSpan={2}>Matchup</th>
+              <th>Week</th><th>Date</th><th>Score (A @ H)</th><th>Final (H)</th><th colSpan={2}>Matchup</th>
               <th>Model (H)</th><th>Market (H)</th><th>Value Side</th>
               <th>Qualified</th><th>Result</th>
             </tr>
@@ -140,6 +146,8 @@ export default function BacktestTab() {
               <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i%2?"alt":undefined}>
                 <td>{r.week}</td>
                 <td>{r.date}</td>
+                <td>{r._score}</td>
+                <td>{fmtNum(r._finalDiff)}</td>
                 <td style={{ textAlign: "right" }}>
                   <TeamLabel home={false} team={r.away_team} neutral={false} />
                   {Number.isFinite(Number(r.away_rank)) ? (
@@ -170,7 +178,7 @@ export default function BacktestTab() {
               </tr>
             ))}
             {!tableRows.length && (
-              <tr><td colSpan={9} style={{textAlign:"center",padding:12}}>No rows to display.</td></tr>
+              <tr><td colSpan={11} style={{textAlign:"center",padding:12}}>No rows to display.</td></tr>
             )}
           </tbody>
         </table>
