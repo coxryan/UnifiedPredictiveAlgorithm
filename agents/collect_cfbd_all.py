@@ -345,6 +345,28 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                 df["talent_score_0_100"] = ((df["talent"] - mn) / (mx - mn) * 100.0).round(1)
             talent_df = df[["team", "talent_score_0_100"]]
 
+    # Current season SRS ratings → rank and rank-based score (0..100)
+    srs_cur_df = pd.DataFrame({"team": [], "srs_rating": [], "srs_rank_1_133": [], "srs_score_0_100": []})
+    if apis.ratings_api:
+        key_srs_cur = f"srs:{year}:cur"
+        ok_cur, srs_cur = cache.get(key_srs_cur)
+        if not ok_cur:
+            try:
+                items = apis.ratings_api.get_srs(year=year)
+                srs_cur = [{"team": x.team, "rating": float(getattr(x, "rating", 0) or 0)} for x in (items or [])]
+                cache.set(key_srs_cur, srs_cur)
+            except Exception as e:
+                print(f"[warn] srs current fetch failed: {e}", file=sys.stderr)
+                srs_cur = []
+        if srs_cur:
+            tmp = pd.DataFrame(srs_cur).rename(columns={"rating": "srs_rating"})
+            if not tmp.empty:
+                tmp["srs_rank_1_133"] = tmp["srs_rating"].rank(ascending=False, method="min").astype(int)
+                N = float(tmp["srs_rank_1_133"].max()) if not tmp["srs_rank_1_133"].empty else 133.0
+                # Convert rank (1 best) to 0..100 (100 best)
+                tmp["srs_score_0_100"] = (1.0 - (tmp["srs_rank_1_133"] - 1) / N) * 100.0
+                srs_cur_df = tmp[["team", "srs_rating", "srs_rank_1_133", "srs_score_0_100"]]
+
     # Previous season SOS rank via SRS-based average opponent rating
     prior = year - 1
     sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
@@ -464,6 +486,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         df = talent_df.copy()
         df["team"] = df["team"]
     if not df.empty:
+        df = df.merge(srs_cur_df, on="team", how="left")
         df = df.merge(sos_df, on="team", how="left")
         df = df.merge(portal_df, on="team", how="left")
     else:
@@ -494,6 +517,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "wrps_overall_percent",
         "wrps_percent_0_100",
         "talent_score_0_100",
+        "srs_rating",
+        "srs_rank_1_133",
+        "srs_score_0_100",
         "prev_season_sos_rank_1_133",
         "portal_net_0_100",
         "portal_net_count",
@@ -564,13 +590,19 @@ def _team_rating(df_teams: pd.DataFrame) -> pd.Series:
     wrps = pd.to_numeric(df_teams.get("wrps_percent_0_100"), errors="coerce")
     talent = pd.to_numeric(df_teams.get("talent_score_0_100"), errors="coerce")
     portal = pd.to_numeric(df_teams.get("portal_net_0_100"), errors="coerce")
+    srs_score = pd.to_numeric(df_teams.get("srs_score_0_100"), errors="coerce")
 
     wrps = wrps.fillna(wrps.median() if not wrps.dropna().empty else 50.0)
     talent = talent.fillna(talent.median() if not talent.dropna().empty else 50.0)
     portal = portal.fillna(portal.median() if not portal.dropna().empty else 50.0)
+    # If no SRS data yet (early season / API miss), backfill from WRPS to avoid skew
+    if srs_score.dropna().empty:
+        srs_score = wrps.copy()
+    else:
+        srs_score = srs_score.fillna(srs_score.median() if not srs_score.dropna().empty else 50.0)
 
-    # weights are tunable
-    return (0.5 * wrps + 0.3 * talent + 0.2 * portal).clip(0, 100)
+    # Weights are tunable; add rank-based smoothing via SRS score
+    return (0.35 * wrps + 0.25 * talent + 0.15 * portal + 0.25 * srs_score).clip(0, 100)
 
 
 def _home_spread_from_ratings(home_r: float, away_r: float, neutral_flag: int) -> float:
