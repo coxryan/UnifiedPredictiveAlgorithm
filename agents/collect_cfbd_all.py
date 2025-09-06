@@ -598,6 +598,110 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
 
 # =========================
 # Weekly Elo ranks (ratings) + Poll ranks (AP/Coaches)
+
+def _elo_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+    """Return weekly Elo ratings + rank/score for FBS teams.
+    Columns: week, team, elo, elo_rank_1_133, elo_score_0_100.
+    If the CFBD ratings API is unavailable, returns an empty DataFrame with the
+    correct columns so downstream joins do not fail.
+    """
+    cols = ["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"]
+    if not apis or not getattr(apis, "ratings_api", None):
+        return pd.DataFrame(columns=cols)
+
+    out: List[pd.DataFrame] = []
+    # normalize weeks list
+    uniq_weeks = sorted({int(w) for w in weeks if pd.notna(w)})
+    for wk in uniq_weeks:
+        key = f"elo:{year}:{wk}"
+        ok, cached = cache.get(key)
+        if ok:
+            df = pd.DataFrame(cached)
+        else:
+            try:
+                # CFBD exposes Elo ratings per week
+                items = apis.ratings_api.get_elo_ratings(year=year, week=int(wk))
+            except Exception as e:
+                print(f"[warn] elo fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                items = []
+            rows = []
+            for it in items or []:
+                team = getattr(it, "team", None) or getattr(it, "school", None)
+                # field name varies across client versions (elo vs rating)
+                rating = getattr(it, "elo", None)
+                if rating is None:
+                    rating = getattr(it, "rating", None)
+                try:
+                    rating = float(rating) if rating is not None else None
+                except Exception:
+                    rating = None
+                if team is None:
+                    continue
+                rows.append({"week": int(wk), "team": team, "elo": rating})
+            df = pd.DataFrame(rows)
+            cache.set(key, df.to_dict(orient="records"))
+
+        if not df.empty:
+            df["week"] = int(wk)
+            df["elo"] = pd.to_numeric(df["elo"], errors="coerce")
+            # Rank: 1 is best
+            df["elo_rank_1_133"] = df["elo"].rank(ascending=False, method="min").astype("Int64")
+            N = float(df["elo_rank_1_133"].max() or 133)
+            df["elo_score_0_100"] = (1.0 - (df["elo_rank_1_133"].astype(float) - 1.0) / N) * 100.0
+            out.append(df[["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"]])
+
+    return pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=cols)
+
+
+def _poll_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+    """Return weekly AP/Coaches ranks.
+    Columns: week, team, ap_rank, coaches_rank. If a team is unranked on a
+    given week, the field is left NaN. When the Rankings API is missing,
+    returns an empty DataFrame with expected columns.
+    """
+    cols = ["week", "team", "ap_rank", "coaches_rank"]
+    if not apis or not getattr(apis, "rankings_api", None):
+        return pd.DataFrame(columns=cols)
+
+    out: List[pd.DataFrame] = []
+    uniq_weeks = sorted({int(w) for w in weeks if pd.notna(w)})
+    for wk in uniq_weeks:
+        key = f"polls:{year}:{wk}"
+        ok, cached = cache.get(key)
+        if ok:
+            df = pd.DataFrame(cached)
+        else:
+            try:
+                polls = apis.rankings_api.get_rankings(year=year, week=int(wk))
+            except Exception as e:
+                print(f"[warn] rankings fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                polls = []
+            rows: List[Dict[str, Any]] = []
+            for p in polls or []:
+                poll_name = (getattr(p, "poll", None) or getattr(p, "poll_name", None) or "").lower()
+                ranks = getattr(p, "ranks", None) or []
+                for r in ranks:
+                    team = getattr(r, "school", None) or getattr(r, "team", None)
+                    rank = getattr(r, "rank", None)
+                    try:
+                        rank = int(rank)
+                    except Exception:
+                        rank = None
+                    if team is None:
+                        continue
+                    rows.append({"week": int(wk), "team": team, "poll": poll_name, "rank": rank})
+            df = pd.DataFrame(rows)
+            cache.set(key, df.to_dict(orient="records"))
+
+        if not df.empty:
+            df["week"] = int(wk)
+            ap = df[df["poll"].str.contains("ap", na=False)].rename(columns={"rank": "ap_rank"})
+            coaches = df[df["poll"].str.contains("coach", na=False)].rename(columns={"rank": "coaches_rank"})
+            merged = pd.merge(ap[["week", "team", "ap_rank"]], coaches[["week", "team", "coaches_rank"]],
+                              on=["week", "team"], how="outer")
+            out.append(merged)
+
+    return pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=cols)
 # =========================
 
 def _elo_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
