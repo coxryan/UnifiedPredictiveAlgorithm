@@ -34,6 +34,15 @@ MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
 ODDS_CACHE_DIR = os.environ.get("ODDS_CACHE_DIR", ".cache_odds")
 ODDS_CACHE_TTL_DAYS = int(os.environ.get("ODDS_CACHE_TTL_DAYS", "2"))
 
+# Debug: verbose market selection logging (set DEBUG_MARKET=1/true to enable)
+DEBUG_MARKET = os.environ.get("DEBUG_MARKET", "0").strip().lower() in ("1", "true", "yes", "y")
+def _dbg(msg: str) -> None:
+    if DEBUG_MARKET:
+        try:
+            print(f"[debug-market] {msg}", file=sys.stderr)
+        except Exception:
+            pass
+
 _odds_cache_singleton: Optional[ApiCache] = None
 
 def get_odds_cache() -> ApiCache:
@@ -750,12 +759,14 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     """
     if not ODDS_API_KEY:
         return []
+    _dbg(f"odds_api_fetch_fanduel: weeks={weeks}, cache_root={cache.root}")
     out: List[Dict[str, Any]] = []
     sport = "americanfootball_ncaaf"
     base = "https://api.the-odds-api.com/v4/sports/{sport}/odds"
     for wk in sorted(set(int(w) for w in weeks if str(w).isdigit())):
         key = f"oddsapi:fanduel:{year}:{wk}"
         ok, cached = cache.get(key)
+        _dbg(f"odds_api_fetch_fanduel: wk={wk} cache_ok={ok} cached_items={len(cached) if ok and cached is not None else 0}")
         if ok and cached is not None:
             out.extend(cached)
             continue
@@ -773,6 +784,7 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             r = requests.get(url, params=params, timeout=25)
             r.raise_for_status()
             data = r.json() or []
+            _dbg(f"odds_api_fetch_fanduel: wk={wk} http_ok items={len(data)}")
             rows: List[Dict[str, Any]] = []
             for game in data:
                 bks = game.get("bookmakers") or []
@@ -811,6 +823,7 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
         except Exception as e:
             print(f"[warn] odds api fetch failed (wk {wk}): {e}", file=sys.stderr)
             cache.set(key, [])
+    _dbg(f"odds_api_fetch_fanduel: total_flat_rows={len(out)}")
     return out
 
 def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional[str]:
@@ -836,6 +849,7 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
 
 def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> pd.DataFrame:
     raw = _odds_api_fetch_fanduel(year, weeks, cache)
+    _dbg(f"get_market_lines_fanduel_for_weeks: raw games from odds api={len(raw)}")
     if not raw:
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
     # Build index of schedule by (away,home) for ID/week
@@ -846,10 +860,12 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
         if a and h:
             idx[(a, h)] = {"game_id": row.get("game_id"), "week": row.get("week")}
     out_rows: List[Dict[str, Any]] = []
+    unmatched = []
     for g in raw:
         h_name = _resolve_names_to_schedule(schedule_df, g.get("home_name"))
         a_name = _resolve_names_to_schedule(schedule_df, g.get("away_name"))
         if not h_name or not a_name:
+            unmatched.append((g.get("home_name"), g.get("away_name")))
             continue
         meta = idx.get((a_name, h_name))
         if not meta:
@@ -865,6 +881,9 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
             "away_team": a_name,
             "spread": spread,  # book-style (negative = home favorite)
         })
+    _dbg(f"get_market_lines_fanduel_for_weeks: mapped rows={len(out_rows)} unmatched={len(unmatched)}")
+    if DEBUG_MARKET and unmatched[:5]:
+        _dbg(f"unmatched sample (up to 5): {unmatched[:5]}")
     if not out_rows:
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
     return pd.DataFrame(out_rows)
@@ -879,6 +898,8 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     If unavailable, return empty df (collector will treat market=0 for future games without lines).
     Records status (used/requested/fallback) in status.json.
     """
+    _dbg(f"get_market_lines_for_current_week: env MARKET_SOURCE={MARKET_SOURCE!r}, ODDS_API_KEY={'set' if bool(ODDS_API_KEY) else 'missing'}")
+    _dbg(f"schedule rows={len(schedule_df)} requested week={week}")
     # 1) Record requested market
     requested = (MARKET_SOURCE or 'cfbd').lower()
     used = requested
@@ -888,7 +909,9 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     # 3) If requested is fanduel, try FanDuel branch
     if requested == "fanduel":
         try:
+            _dbg("fanduel branch: starting")
             if not ODDS_API_KEY:
+                _dbg("fanduel branch: missing ODDS_API_KEY → will fallback to CFBD")
                 used = "cfbd"
                 fb_reason = "FanDuel requested but ODDS_API_KEY missing"
             else:
@@ -901,7 +924,9 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                     weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
                 else:
                     weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
+                _dbg(f"fanduel branch: weeks considered (<= requested): {weeks}")
                 fan_df = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                _dbg(f"fanduel branch: rows from odds api mapped={0 if fan_df is None else len(fan_df)}")
                 if fan_df is not None and isinstance(fan_df, pd.DataFrame) and len(fan_df) >= 5:
                     df = fan_df
                 else:
@@ -912,6 +937,7 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
             fb_reason = f"FanDuel branch error: {e}"
     # 4) If used is cfbd, do CFBD logic
     if used == "cfbd":
+        _dbg("cfbd branch: starting")
         if not apis.lines_api:
             df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
         else:
@@ -921,6 +947,7 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                 df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
             else:
                 weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w})
+                _dbg(f"cfbd branch: weeks considered (<= requested): {weeks}")
                 all_rows = []
                 for wk in weeks:
                     key = f"lines:{year}:{wk}"
@@ -959,6 +986,7 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                             cache.set(key, dfi.to_dict(orient="records"))
                     if not dfi.empty:
                         all_rows.append(dfi)
+                _dbg(f"cfbd branch: accumulated weekly frames={len(all_rows)}")
                 if all_rows:
                     df = pd.concat(all_rows, ignore_index=True)
                 else:
@@ -966,6 +994,20 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     # 5) Write status and return
     try:
         _upsert_status_market_source(used, requested, fb_reason)
+    except Exception:
+        pass
+    try:
+        summary = {
+            "requested": requested,
+            "used": used,
+            "fallback_reason": fb_reason,
+            "rows_returned": int(len(df) if isinstance(df, pd.DataFrame) else 0),
+            "odds_key_present": bool(ODDS_API_KEY),
+        }
+        _dbg(f"market summary: {summary}")
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+            json.dump(summary, f, indent=2)
     except Exception:
         pass
     return df
