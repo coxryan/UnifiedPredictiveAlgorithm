@@ -34,8 +34,10 @@ MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
 ODDS_CACHE_DIR = os.environ.get("ODDS_CACHE_DIR", ".cache_odds")
 ODDS_CACHE_TTL_DAYS = int(os.environ.get("ODDS_CACHE_TTL_DAYS", "2"))
 
+
 # Debug: verbose market selection logging (set DEBUG_MARKET=1/true to enable)
 DEBUG_MARKET = os.environ.get("DEBUG_MARKET", "0").strip().lower() in ("1", "true", "yes", "y")
+MARKET_MIN_ROWS = int(os.environ.get("MARKET_MIN_ROWS", "1"))
 def _dbg(msg: str) -> None:
     if DEBUG_MARKET:
         try:
@@ -775,36 +777,46 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             continue
         try:
             url = base.format(sport=sport)
-            params = {
-                "apiKey": ODDS_API_KEY,
-                "regions": "us",
-                "markets": "spreads",
-                "bookmakers": "fanduel",
-            }
-            r = requests.get(url, params=params, timeout=25)
-            r.raise_for_status()
-            data = r.json() or []
-            _dbg(f"odds_api_fetch_fanduel: wk={wk} http_ok items={len(data)}")
+            # We paginate because NCAAF can exceed a single page on busy slates.
+            agg: List[Dict[str, Any]] = []
+            for page in range(1, 6):  # cap pages defensively
+                params = {
+                    "apiKey": ODDS_API_KEY,
+                    "regions": "us",
+                    "markets": "spreads",
+                    "bookmakers": "fanduel",
+                    "oddsFormat": "american",
+                    "dateFormat": "iso",
+                    "page": page,
+                }
+                r = requests.get(url, params=params, timeout=25)
+                if r.status_code == 404:
+                    break
+                r.raise_for_status()
+                data = r.json() or []
+                _dbg(f"odds_api_fetch_fanduel: wk={wk} page={page} items={len(data)}")
+                if not data:
+                    break
+                agg.extend(data)
             rows: List[Dict[str, Any]] = []
-            for game in data:
+            for game in agg:
                 bks = game.get("bookmakers") or []
                 if not bks:
                     continue
-                mks = next((m for m in (bks[0].get("markets") or []) if m.get("key") == "spreads"), None)
-                if not mks:
+                # find a spreads market from any bookmaker entry (FanDuel only requested)
+                mk = None
+                for bk in bks:
+                    markets = bk.get("markets") or []
+                    mk = next((m for m in markets if m.get("key") == "spreads"), None)
+                    if mk:
+                        break
+                if not mk:
                     continue
-                outs = mks.get("outcomes") or []
-                # We need home outcome to compute book-style line for home (negative if home favorite)
-                # The Odds API's outcome names are the team names as shown by them; we capture both
-                # and resolve to schedule names later.
-                # We'll compute a home-style point if we can identify which outcome is home.
-                # The API includes game["home_team"]/game["away_team"].
+                outs = mk.get("outcomes") or []
                 g_home = game.get("home_team")
                 g_away = game.get("away_team")
-                # Find the home outcome
                 out_home = next((o for o in outs if o.get("name") == g_home), None)
                 if out_home is None:
-                    # fallback: first outcome could be home; skip if uncertain
                     continue
                 try:
                     point_home_book = float(out_home.get("point")) if out_home.get("point") is not None else None
@@ -815,9 +827,10 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                 rows.append({
                     "home_name": g_home,
                     "away_name": g_away,
-                    "point_home_book": point_home_book,  # book-style: negative = home favorite
+                    "point_home_book": point_home_book,
                     "commence_time": game.get("commence_time"),
                 })
+            _dbg(f"odds_api_fetch_fanduel: wk={wk} total_items={len(agg)} usable_rows={len(rows)}")
             cache.set(key, rows)
             out.extend(rows)
         except Exception as e:
@@ -827,31 +840,186 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     return out
 
 def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional[str]:
-    """Heuristic: map OddsAPI team name to schedule 'school' name using containment/cleaning."""
+    """Map Odds API/FanDuel team name to schedule school name using robust normalization.
+    Handles short names ("Pitt", "Ole Miss", "App State"), acronyms ("LSU", "UCF"),
+    punctuation and diacritics (Hawai'i → Hawaii), and common aliases.
+
+    Strategy (in order):
+      1) Exact match on normalized/aliased string
+      2) Parenthetical-stripped exact match
+      3) Direct alias table lookup (short → canonical)
+      4) Acronym match (e.g., "LSU" → "Louisiana State")
+      5) Token-set fuzzy containment/Jaccard match with a conservative threshold
+    """
     if not name:
         return None
-    s_name = str(name).strip()
-    schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | set(
-        str(x).strip() for x in schedule_df["away_team"].dropna().unique()
-    )
-    # exact
-    if s_name in schools:
-        return s_name
-    # common normalizations
-    low = s_name.lower()
-    def norm(x: str) -> str:
-        return x.lower().replace("&", "and").replace(" st.", " state").replace(" st ", " state ")
-    # try containment either direction
+
+    # --- helpers -------------------------------------------------------------
+    def strip_diacritics(s: str) -> str:
+        try:
+            # keep ASCII; drop exotic apostrophes (e.g., Hawaiʻi)
+            s2 = (
+                s.replace("ʻ", "'")
+                 .replace("’", "'")
+                 .replace("`", "'")
+            )
+            # lightweight transliteration without external deps
+            return (
+                s2.encode("ascii", "ignore").decode("ascii", "ignore")
+            )
+        except Exception:
+            return s
+
+    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college"}
+    DROP_TOKENS = {"state"}  # treated specially for acronyms
+
+    def clean(s: str) -> str:
+        s = strip_diacritics(s or "").lower().strip()
+        s = s.replace("&", " and ")
+        s = s.replace("-", " ").replace("/", " ")
+        s = s.replace(" st.", " state").replace(" st ", " state ")
+        # remove punctuation but keep parentheses for a later pass
+        import re
+        s = re.sub(r"[^a-z0-9() ]+", " ", s)
+        s = re.sub(r"\s+", " ", s).strip()
+        # drop stop words
+        toks = [t for t in s.split() if t not in STOP_WORDS]
+        return " ".join(toks)
+
+    def no_paren(s: str) -> str:
+        import re
+        return re.sub(r"\([^)]*\)", "", s).strip()
+
+    def acronym_from(s: str) -> str:
+        toks = [t for t in clean(s).split() if t and t not in STOP_WORDS]
+        # keep meaningful tokens; drop generic 'state' only if more tokens remain
+        acc = []
+        for t in toks:
+            if t in DROP_TOKENS and len(toks) > 1:
+                continue
+            acc.append(t[0])
+        return "".join(acc).upper()
+
+    # Common short-name/alias map (lowercase -> canonical lowercase)
+    alias_map = {
+        # nicknames / short forms
+        "pitt": "pittsburgh",
+        "ole miss": "mississippi",
+        "app state": "appalachian state",
+        "la tech": "louisiana tech",
+        "ul monroe": "louisiana monroe",
+        "la monroe": "louisiana monroe",
+        "ul lafayette": "louisiana",
+        "louisiana lafayette": "louisiana",
+        "western ky": "western kentucky",
+        "san jose st": "san jose state",
+        "sj state": "san jose state",
+        "fresno st": "fresno state",
+        "southern miss": "southern mississippi",
+        "mass": "massachusetts",
+        "uconn": "connecticut",
+        "cal": "california",
+        # acronyms that shouldn't rely on automatic heuristic only
+        "lsu": "louisiana state",
+        "byu": "brigham young",
+        "smu": "southern methodist",
+        "tcu": "texas christian",
+        "ucf": "central florida",
+        "usf": "south florida",
+        "utsa": "texas san antonio",
+        "utsa roadrunners": "texas san antonio",
+        "utep": "texas el paso",
+        "unlv": "nevada las vegas",
+        "umass": "massachusetts",
+        "usc": "southern california",
+        "ucla": "ucla",
+        "fiu": "florida international",
+        "fau": "florida atlantic",
+        "nc state": "nc state",
+        "miami fl": "miami",
+        "miami fla": "miami",
+        "miami oh": "miami (oh)",
+        "hawaii": "hawaii",
+        "hawai'i": "hawaii",
+        "hawaiʻi": "hawaii",
+    }
+
+    def alias(s: str) -> str:
+        cs = clean(s)
+        return alias_map.get(cs, cs)
+
+    # Build schedule lookup maps
+    schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | \
+              set(str(x).strip() for x in schedule_df["away_team"].dropna().unique())
+
+    # canonical normalized -> original school
+    norm_map: Dict[str, str] = {}
+    # acronym -> original school (may map multiple; last-win is OK because we fall back to fuzzy)
+    acro_map: Dict[str, str] = {}
+    # token sets for fuzzy matching
+    token_index: List[Tuple[str, set]] = []
+
     for sch in schools:
-        if norm(sch) in norm(s_name) or norm(s_name) in norm(sch):
-            return sch
+        can = alias(sch)
+        norm_map[can] = sch
+        ac = acronym_from(sch)
+        if ac:
+            acro_map[ac] = sch
+        token_index.append((sch, set(can.split())))
+
+    # --- query normalization and staged matching ----------------------------
+    q_raw = name
+    q_norm = alias(q_raw)
+
+    # 1) direct normalized match
+    if q_norm in norm_map:
+        return norm_map[q_norm]
+
+    # 2) parenthetical-stripped direct match
+    q_np = no_paren(q_norm)
+    if q_np in norm_map:
+        return norm_map[q_np]
+
+    # 3) try alias again on stripped form (covers e.g., "Miami (OH) RedHawks")
+    q_alias = alias(q_np)
+    if q_alias in norm_map:
+        return norm_map[q_alias]
+
+    # 4) acronym match (e.g., LSU/SMU/UCF/UTSA)
+    q_acro = acronym_from(q_raw)
+    if q_acro and q_acro in acro_map:
+        return acro_map[q_acro]
+
+    # 5) token-set fuzzy containment / Jaccard similarity
+    q_tokens = set(q_alias.split())
+    best_team, best_score = None, 0.0
+    for sch, toks in token_index:
+        if not toks:
+            continue
+        inter = len(q_tokens & toks)
+        if inter == 0:
+            continue
+        union = len(q_tokens | toks)
+        jacc = inter / float(union) if union else 0.0
+        # also reward containment (short names like "pitt")
+        contain = 1.0 if (q_tokens.issubset(toks) or toks.issubset(q_tokens)) else 0.0
+        score = jacc + 0.25 * contain
+        if score > best_score:
+            best_score, best_team = score, sch
+
+    # conservative threshold to avoid bad matches
+    if best_team and best_score >= 0.45:
+        return best_team
+
     return None
 
-def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> pd.DataFrame:
+def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     raw = _odds_api_fetch_fanduel(year, weeks, cache)
-    _dbg(f"get_market_lines_fanduel_for_weeks: raw games from odds api={len(raw)}")
+    raw_count = len(raw)
+    _dbg(f"get_market_lines_fanduel_for_weeks: raw games from odds api={raw_count}")
     if not raw:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
+        stats = {"raw": raw_count, "mapped": 0, "unmatched": 0}
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]), stats
     # Build index of schedule by (away,home) for ID/week
     idx = {}
     for _, row in schedule_df.iterrows():
@@ -885,8 +1053,12 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
     if DEBUG_MARKET and unmatched[:5]:
         _dbg(f"unmatched sample (up to 5): {unmatched[:5]}")
     if not out_rows:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
-    return pd.DataFrame(out_rows)
+        stats = {"raw": raw_count, "mapped": 0, "unmatched": len(unmatched)}
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]), stats
+    df = pd.DataFrame(out_rows)
+    stats = {"raw": raw_count, "mapped": len(out_rows), "unmatched": len(unmatched)}
+    _dbg(f"get_market_lines_fanduel_for_weeks: stats={stats}")
+    return df, stats
 
 # =========================
 # Market: current week only
@@ -925,13 +1097,16 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                 else:
                     weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
                 _dbg(f"fanduel branch: weeks considered (<= requested): {weeks}")
-                fan_df = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
-                _dbg(f"fanduel branch: rows from odds api mapped={0 if fan_df is None else len(fan_df)}")
-                if fan_df is not None and isinstance(fan_df, pd.DataFrame) and len(fan_df) >= 5:
+                fan_df, fstats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                _dbg(f"fanduel branch: stats={fstats}")
+                if fstats.get("raw", 0) == 0:
+                    used = "cfbd"
+                    fb_reason = "FanDuel returned zero feed rows"
+                elif isinstance(fan_df, pd.DataFrame) and len(fan_df) >= max(1, MARKET_MIN_ROWS):
                     df = fan_df
                 else:
                     used = "cfbd"
-                    fb_reason = "FanDuel returned insufficient rows"
+                    fb_reason = f"FanDuel mapped {len(fan_df)} of {fstats.get('raw', 0)} rows"
         except Exception as e:
             used = "cfbd"
             fb_reason = f"FanDuel branch error: {e}"
@@ -1004,6 +1179,16 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
             "rows_returned": int(len(df) if isinstance(df, pd.DataFrame) else 0),
             "odds_key_present": bool(ODDS_API_KEY),
         }
+        # pass-through fan duel stats if computed in this scope
+        try:
+            if 'fstats' in locals() and isinstance(fstats, dict):
+                summary.update({
+                    "fanduel_raw": int(fstats.get("raw", 0)),
+                    "fanduel_mapped": int(fstats.get("mapped", 0)),
+                    "fanduel_unmatched": int(fstats.get("unmatched", 0)),
+                })
+        except Exception:
+            pass
         _dbg(f"market summary: {summary}")
         os.makedirs(DATA_DIR, exist_ok=True)
         with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
