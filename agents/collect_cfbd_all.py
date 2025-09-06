@@ -46,8 +46,21 @@ def get_odds_cache() -> ApiCache:
 # =========================
 # Status helpers
 # =========================
-def _upsert_status_market_source(market: str, data_dir: str = DATA_DIR) -> None:
-    """Merge-update data/status.json with the selected market source.
+from typing import Optional
+def _upsert_status_market_source(
+    market_used: str,
+    market_requested: Optional[str] = None,
+    fallback_reason: Optional[str] = None,
+    data_dir: str = DATA_DIR
+) -> None:
+    """
+    Merge-update data/status.json with the selected market source and status fields.
+    Always writes:
+      - market_source_used: the used source (lowercased)
+      - market_source: (back-compat) the used source (lowercased)
+      - market_source_config: the requested source (lowercased, if provided)
+      - market_fallback_reason: string if provided (else absent)
+      - generated_at_utc: always refreshed to current UTC ISO timestamp
     Leaves other fields intact if present; creates the file if missing.
     """
     try:
@@ -62,9 +75,22 @@ def _upsert_status_market_source(market: str, data_dir: str = DATA_DIR) -> None:
                 payload = {}
         else:
             payload = {}
-        payload["market_source"] = (market or "cfbd").strip().lower()
-        # always refresh timestamp minimally so UI cache-bust works when only market flips
-        payload.setdefault("generated_at_utc", datetime.utcnow().isoformat(timespec="seconds") + "Z")
+        # Always set used/actual market (lowercased)
+        used_lc = (market_used or "cfbd").strip().lower()
+        payload["market_source_used"] = used_lc
+        payload["market_source"] = used_lc  # back-compat
+        # Requested/config market, if provided
+        if market_requested is not None:
+            payload["market_source_config"] = (market_requested or "").strip().lower()
+        else:
+            payload.pop("market_source_config", None)
+        # Fallback reason, if provided
+        if fallback_reason:
+            payload["market_fallback_reason"] = str(fallback_reason)
+        else:
+            payload.pop("market_fallback_reason", None)
+        # Always refresh timestamp for cache busting
+        payload["generated_at_utc"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
         with open(p, "w") as f:
             json.dump(payload, f, indent=2)
     except Exception:
@@ -834,19 +860,20 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
 # =========================
 def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.DataFrame, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     """
-    Use CFBD Lines API; fetch ALL weeks up to and including `week`.
+    Use CFBD or FanDuel Lines API; fetch ALL weeks up to and including `week`.
     Output columns: game_id, week, home_team, away_team, spread (book-style, negative = home favorite)
     If unavailable, return empty df (collector will treat market=0 for future games without lines).
+    Records status (used/requested/fallback) in status.json.
     """
-    # reflect selected market in status.json for the UI
-    try:
-        _upsert_status_market_source(MARKET_SOURCE)
-    except Exception:
-        pass
-    # Allow switching market provider via env MARKET_SOURCE ("fanduel" uses The Odds API)
-    if MARKET_SOURCE == "fanduel":
+    # 1) Record requested market
+    requested = (MARKET_SOURCE or 'cfbd').lower()
+    used = requested
+    fb_reason = ''
+    df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+
+    # 3) If requested is fanduel, try FanDuel branch
+    if requested == "fanduel":
         try:
-            # fetch all weeks up to current for consistency with CFBD branch
             try:
                 w_int = int(week)
             except Exception:
@@ -856,61 +883,74 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                 weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
             else:
                 weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
-            fd = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
-            return fd if isinstance(fd, pd.DataFrame) else pd.DataFrame(fd)
-        except Exception as e:
-            print(f"[warn] fanduel market branch failed; falling back to CFBD: {e}", file=sys.stderr)
-            # fall through to CFBD branch below
-    if not apis.lines_api:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
-
-    # Determine which weeks to fetch (≤ week)
-    try:
-        w = int(week)
-    except Exception:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
-
-    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w})
-    all_rows = []
-    for wk in weeks:
-        key = f"lines:{year}:{wk}"
-        ok, cached = cache.get(key)
-        if ok:
-            df = pd.DataFrame(cached)
-        else:
-            # Respect CACHE_ONLY: don't make a network call on a cache miss
-            if CACHE_ONLY:
-                cache.set(key, [])
-                df = pd.DataFrame()
+            fan_df = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+            if fan_df is not None and isinstance(fan_df, pd.DataFrame) and len(fan_df) >= 15:
+                df = fan_df
             else:
-                try:
-                    lines = apis.lines_api.get_lines(year=year, week=int(wk))
-                except Exception as e:
-                    print(f"[warn] market lines fetch failed for {year} w{wk}: {e}", file=sys.stderr)
-                    lines = []
-                rows = []
-                for ln in lines or []:
-                    gid = getattr(ln, "id", None)
-                    wv = getattr(ln, "week", None)
-                    ht = getattr(ln, "home_team", None)
-                    at = getattr(ln, "away_team", None)
-                    spread = None
-                    try:
-                        if hasattr(ln, "lines") and ln.lines:
-                            for l in ln.lines:
-                                if hasattr(l, "spread") and l.spread is not None:
-                                    spread = float(l.spread)
-                                    break
-                    except Exception:
-                        pass
-                    if spread is None:
-                        continue
-                    rows.append({"game_id": gid, "week": wv, "home_team": ht, "away_team": at, "spread": spread})
-                df = pd.DataFrame(rows)
-                cache.set(key, df.to_dict(orient="records"))
-        if not df.empty:
-            all_rows.append(df)
-    return pd.concat(all_rows, ignore_index=True) if all_rows else pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
+                used = "cfbd"
+                fb_reason = "FanDuel returned insufficient rows"
+        except Exception as e:
+            used = "cfbd"
+            fb_reason = f"FanDuel branch error: {e}"
+    # 4) If used is cfbd, do CFBD logic
+    if used == "cfbd":
+        if not apis.lines_api:
+            df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+        else:
+            try:
+                w = int(week)
+            except Exception:
+                df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+            else:
+                weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w})
+                all_rows = []
+                for wk in weeks:
+                    key = f"lines:{year}:{wk}"
+                    ok, cached = cache.get(key)
+                    if ok:
+                        dfi = pd.DataFrame(cached)
+                    else:
+                        if CACHE_ONLY:
+                            cache.set(key, [])
+                            dfi = pd.DataFrame()
+                        else:
+                            try:
+                                lines = apis.lines_api.get_lines(year=year, week=int(wk))
+                            except Exception as e:
+                                print(f"[warn] market lines fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                                lines = []
+                            rows = []
+                            for ln in lines or []:
+                                gid = getattr(ln, "id", None)
+                                wv = getattr(ln, "week", None)
+                                ht = getattr(ln, "home_team", None)
+                                at = getattr(ln, "away_team", None)
+                                spread = None
+                                try:
+                                    if hasattr(ln, "lines") and ln.lines:
+                                        for l in ln.lines:
+                                            if hasattr(l, "spread") and l.spread is not None:
+                                                spread = float(l.spread)
+                                                break
+                                except Exception:
+                                    pass
+                                if spread is None:
+                                    continue
+                                rows.append({"game_id": gid, "week": wv, "home_team": ht, "away_team": at, "spread": spread})
+                            dfi = pd.DataFrame(rows)
+                            cache.set(key, dfi.to_dict(orient="records"))
+                    if not dfi.empty:
+                        all_rows.append(dfi)
+                if all_rows:
+                    df = pd.concat(all_rows, ignore_index=True)
+                else:
+                    df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    # 5) Write status and return
+    try:
+        _upsert_status_market_source(used, requested, fb_reason)
+    except Exception:
+        pass
+    return df
 
 
 # =========================

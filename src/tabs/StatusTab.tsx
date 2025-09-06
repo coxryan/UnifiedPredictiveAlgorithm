@@ -14,6 +14,7 @@ type Status = {
   market_source?: string;           // (back-compat) the source actually used
   market_source_used?: string;      // preferred: the source actually used
   market_source_config?: string;    // what we requested (env/flag), may differ if fallback happened
+  market_fallback_reason?: string;  // <-- NEW: human-readable reason when a fallback occurred
 };
 
 type PredRow = { week: string; market_spread_book?: string; model_spread_book?: string; played?: any; model_result?: string; };
@@ -136,6 +137,12 @@ export default function StatusTab() {
             <div className="kv">
               <div className="k">Requested market</div>
               <div className="v">{marketRequested || "—"}</div>
+            </div>
+
+            {/* NEW: explicit fallback reason */}
+            <div className="kv">
+              <div className="k">Fallback reason</div>
+              <div className="v">{status.market_fallback_reason ? status.market_fallback_reason : "—"}</div>
             </div>
 
             <div className="kv"><div className="k">Teams</div><div className="v">{status.teams}</div></div>
