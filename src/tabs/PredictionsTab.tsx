@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { loadCsv, fmtNum, toNum } from "../lib/csv";
 import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
 
+type LiveRow = {
+  state?: string;
+  away_school?: string; home_school?: string;
+  away_points?: string | number; home_points?: string | number;
+};
+
 // -----------------------------
 // Types
 // -----------------------------
@@ -30,6 +36,7 @@ export default function PredictionsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [wk, setWk] = useState<number | null>(null);
   const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
+  const [liveRows, setLiveRows] = useState<LiveRow[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -47,6 +54,13 @@ export default function PredictionsTab() {
         setRows([]);
         setWk(null);
       }
+
+      try {
+        const l = (await loadCsv("data/live_scores.csv")) as LiveRow[];
+        setLiveRows(l || []);
+      } catch {
+        setLiveRows([]);
+      }
     })();
   }, []);
 
@@ -59,6 +73,21 @@ export default function PredictionsTab() {
     ).sort((a, b) => a - b);
     return w as number[];
   }, [rows]);
+
+  // map of live scores keyed by "away|home" using normalized school names from live CSV
+  const liveMap = useMemo(() => {
+    const m = new Map<string, { hp: number | null; ap: number | null; state: string }>();
+    for (const r of liveRows || []) {
+      const a = (r.away_school || "").toString().trim();
+      const h = (r.home_school || "").toString().trim();
+      if (!a || !h) continue;
+      const hp = toNum(r.home_points);
+      const ap = toNum(r.away_points);
+      const st = (r.state || "").toString().toLowerCase();
+      m.set(`${a}|${h}`, { hp: Number.isFinite(hp) ? hp : null, ap: Number.isFinite(ap) ? ap : null, state: st });
+    }
+    return m;
+  }, [liveRows]);
 
   const tableRows = useMemo(() => {
     const filtered = rows.filter((r) => (wk ? Number(r.week) === wk : true));
@@ -79,14 +108,29 @@ export default function PredictionsTab() {
         : NaN;
 
       const pick = valueSide(model, market, r.home_team, r.away_team);
-      const hp = toNum(r.home_points);
-      const ap = toNum(r.away_points);
+
+      // Prefer live scores for in-progress games; fill finals if missing
+      const baseHp = toNum(r.home_points);
+      const baseAp = toNum(r.away_points);
+      const key = `${(r.away_team||"").toString().trim()}|${(r.home_team||"").toString().trim()}`;
+      const live = liveMap.get(key);
+
+      let hp = baseHp, ap = baseAp;
+      if (live && live.state === "in") {
+        if (Number.isFinite(live.hp)) hp = live.hp as number;
+        if (Number.isFinite(live.ap)) ap = live.ap as number;
+      } else if (live && live.state === "post") {
+        // If game is final and base scores are missing, use live
+        if (!Number.isFinite(hp) && Number.isFinite(live.hp)) hp = live.hp as number;
+        if (!Number.isFinite(ap) && Number.isFinite(live.ap)) ap = live.ap as number;
+      }
+
       const score = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${fmtNum(ap,{maximumFractionDigits:0})} @ ${fmtNum(hp,{maximumFractionDigits:0})}` : "—";
       const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN; // home minus away
 
       return { ...r, _model:model, _market:market, _expected:expected, _edge:edge, _value:value, _pick: pick.side, _score: score, _finalDiff: finalDiff };
     });
-  }, [rows, wk, onlyQualified]);
+  }, [rows, wk, onlyQualified, liveMap]);
 
   return (
     <section className="card">
@@ -174,7 +218,7 @@ export default function PredictionsTab() {
 
       <div className="note" style={{ marginTop: 8 }}>
         Book-style spreads shown (negative = home favorite). <b>Edge</b> = model − market (home perspective). <b>Value</b> = market − expected.
-        Games marked with a score are complete; otherwise they are upcoming or in-progress.
+        Games marked with a score are complete or live; upcoming games show “—”.
       </div>
     </section>
   );
