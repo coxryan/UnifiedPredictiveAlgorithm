@@ -1,24 +1,22 @@
-name: build
+name: Deploy
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-env:
-  UPA_YEAR: "2025"
-  UPA_BACKTEST_YEAR: "2024"   # set "0" to skip backtest
-  RUN_BACKTEST: "0"           # set "1" to enable backtest
-  NODE_VERSION: "20.x"
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # Defaults you can override in the UI or env/Secrets
+    env:
+      UPA_YEAR: 2025
+      UPA_BACKTEST_YEAR: 2024
+      CACHE_TTL_DAYS: 90
+      # Add BEARER_TOKEN in repo secrets if using CFBD:
+      # BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,59 +24,60 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r agents/requirements.txt
+          pip install -r requirements.txt
 
       - name: Run collector (live + maybe backtest)
         env:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          UPA_YEAR: ${{ env.UPA_YEAR }}
-          UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
-          RUN_BACKTEST: ${{ env.RUN_BACKTEST }}
+          CACHE_TTL_DAYS: ${{ env.CACHE_TTL_DAYS }}
         run: |
           set -euo pipefail
-          echo "RUN_BACKTEST=${RUN_BACKTEST}"
-          if [ "${RUN_BACKTEST}" = "1" ]; then
-            python -m agents.collect_cfbd_all --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
-          else
-            python -m agents.collect_cfbd_all --year "${UPA_YEAR}" --backtest 0
-          fi
+          python agents/collect_cfbd_all.py --year "$UPA_YEAR" --backtest "$UPA_BACKTEST_YEAR"
 
-      - name: Diagnose data outputs
+      # 🔎 Upload the raw data folder produced by the collector
+      - name: Upload data artifact (raw collector outputs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upa-data-${{ github.run_number }}
+          path: |
+            data/**
+          if-no-files-found: warn
+          retention-days: 10
+
+      - name: Prepare static data for site
         run: |
-          python -m agents.diagnose_run
+          mkdir -p public/data
+          cp -R data/* public/data/ || true
 
-      # ----- Build the site -----
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
 
-      - name: Install dependencies
+      - name: Install web deps
         run: npm install
 
       - name: Build site
         run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # (Optional) also upload built site as artifact for inspection
+      - name: Upload built site (dist) artifact
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: dist
+          name: upa-site-dist-${{ github.run_number }}
+          path: dist/**
+          if-no-files-found: warn
+          retention-days: 10
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
