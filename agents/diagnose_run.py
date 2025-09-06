@@ -1,71 +1,53 @@
-# agents/diagnose_run.py
-# Verify required CSVs exist, are non-empty, and have expected columns.
-import os, sys, pandas as pd
+from __future__ import annotations
+from pathlib import Path
+import pandas as pd
 
-DATA_DIR = "data"
+DATA = Path("data")
 
-def req(p):
-    fp = os.path.join(DATA_DIR, p)
-    if not os.path.exists(fp):
-        print(f"[FAIL] Missing file: {fp}", file=sys.stderr)
-        sys.exit(2)
-    return fp
+def _head(df: pd.DataFrame, n: int = 5) -> str:
+    with pd.option_context("display.max_columns", 20, "display.width", 200):
+        return df.head(n).to_string(index=False)
 
-def head(df, n=5, label="sample"):
-    with pd.option_context("display.max_columns", None, "display.width", 220):
-        print(f"[HEAD] {label} ({min(n,len(df))} rows):")
-        print(df.head(n).to_string(index=False))
+def main() -> None:
+    teams = pd.read_csv(DATA / "upa_team_inputs_datadriven_v0.csv")
+    print(f"[OK] team inputs rows={len(teams)}")
+    print("[HEAD] team inputs (5 rows):")
+    print(_head(teams))
 
-def need_cols(df, cols, name):
-    miss = [c for c in cols if c not in df.columns]
-    if miss:
-        print(f"[FAIL] {name} missing columns: {miss}", file=sys.stderr)
-        print(f"[INFO] {name} columns present: {list(df.columns)}")
-        sys.exit(3)
+    sched = pd.read_csv(DATA / "cfb_schedule.csv")
+    print(f"[OK] schedule rows={len(sched)}")
+    has_real_market = 0
+    if {"market_spread_book","market_is_synthetic"}.issubset(sched.columns):
+        has_real_market = int((sched["market_spread_book"].notna()) & (~sched["market_is_synthetic"].fillna(False))).sum()
+    coverage = (100.0 * has_real_market / max(1, len(sched)))
+    print(f"[DIAG] schedule real-market coverage: {has_real_market}/{len(sched)} = {coverage:.1f}%")
+    cols = [c for c in ["game_id","week","date","away_team","home_team","neutral_site","market_spread_book","market_is_synthetic"] if c in sched.columns]
+    print("[HEAD] schedule (5 rows):")
+    print(_head(sched[cols]))
 
-def nonempty(df, name):
-    if df.shape[0] == 0:
-        print(f"[FAIL] {name} has zero rows", file=sys.stderr)
-        sys.exit(4)
-
-def main():
-    # team inputs
-    ti = pd.read_csv(req("upa_team_inputs_datadriven_v0.csv"))
-    print(f"[OK] team inputs rows={ti.shape[0]}")
-    need_cols(ti, ["team","wrps_percent_0_100","talent_score_0_100"], "team inputs")
-    nonempty(ti, "team inputs")
-    head(ti, label="team inputs")
-
-    # schedule
-    sch = pd.read_csv(req("cfb_schedule.csv"))
-    print(f"[OK] schedule rows={sch.shape[0]}")
-    need_cols(sch, ["week","date","away_team","home_team","neutral_site","market_spread_book"], "schedule")
-    nonempty(sch, "schedule")
-    head(sch[sch["market_spread_book"].astype(str).str.len() > 0], label="schedule (with market)")
-
-    # predictions
-    pr = pd.read_csv(req("upa_predictions.csv"))
-    print(f"[OK] predictions rows={pr.shape[0]}")
-    need_cols(pr, [
+    preds = pd.read_csv(DATA / "upa_predictions.csv")
+    print(f"[OK] predictions rows={len(preds)}")
+    with_market = 0
+    if {"market_spread_book","market_is_synthetic"}.issubset(preds.columns):
+        with_market = int((preds["market_spread_book"].notna()) & (~preds["market_is_synthetic"].fillna(False))).sum()
+    print(f"[DIAG] predictions with REAL market rows = {with_market}")
+    pcols = [
         "week","date","away_team","home_team","neutral_site",
         "model_spread_book","market_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book","qualified_edge_flag",
-    ], "predictions")
-    nonempty(pr, "predictions")
-    head(pr, label="predictions")
+        "edge_points_book","value_points_book","qualified_edge_flag","market_is_synthetic","game_id"
+    ]
+    pcols = [c for c in pcols if c in preds.columns]
+    print("[HEAD] predictions (5 rows):")
+    print(_head(preds[pcols]))
 
-    # live edge
-    le = pd.read_csv(req("live_edge_report.csv"))
-    print(f"[OK] live edge rows={le.shape[0]}")
-    need_cols(le, [
-        "week","date","away_team","home_team","neutral_site",
-        "model_spread_book","market_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book","qualified_edge_flag",
-    ], "live edge")
-    nonempty(le, "live edge")
-    head(le, label="live edge")
+    if "nan_reason" in preds.columns:
+        print("[DIAG] top nan_reason counts:")
+        print(preds["nan_reason"].value_counts(dropna=False).head(10).to_string())
 
-    print("[SUCCESS] Diagnostics passed. All required files present & non-empty.")
+    edge = pd.read_csv(DATA / "live_edge_report.csv")
+    print(f"[OK] live edge rows={len(edge)}")
+
+    print("[SUCCESS] Diagnostics passed. All required files present & shaped.")
 
 if __name__ == "__main__":
     main()

@@ -1,114 +1,120 @@
-#!/usr/bin/env python3
-# agents/collect_cfbd_all.py
-# Orchestrator for UPA-F data:
-# - Team inputs
-# - Schedule (market for current week only, cached)
-# - Predictions + live edge
-# - Status file
-# - Optional backtest
+"""
+Entry-point script (module mode) to produce all live CSVs (and optional backtest).
+Now only fetches market for the CURRENT WEEK; for all other weeks we stamp
+market_spread_book=0.0 and market_is_synthetic=True so downstream logic can
+differentiate. Adds clearer logging of market fetch/join.
+"""
 
-import os
-import json
+from __future__ import annotations
 import argparse
-from datetime import datetime, timedelta, timezone
+import os
+from pathlib import Path
 import pandas as pd
 
-# Clean, package-style imports (no sys.path hacks)
 from agents.lib.cache import ApiCache
-from agents.lib.cfbd_clients import build_clients
-from agents.lib.team_inputs import build_team_inputs
-from agents.lib.market import build_schedule_with_market_current_week_only
-from agents.lib.predict import build_predictions_for_year
+from agents.lib.cfbd_clients import CfbdClients
+from agents.lib.team_inputs import build_team_inputs_datadriven
+from agents.lib.market import (
+    current_week_from_cfbd,
+    build_schedule_with_market_current_week_only,
+)
+from agents.lib.predict import build_predictions_and_edge
 from agents.lib.backtest import run_backtest
 
-def _write_csv(path: str, df: pd.DataFrame):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+DATA_DIR = Path("data")
+CACHE_DIR = Path(".upacache")
+DATA_DIR.mkdir(exist_ok=True)
+CACHE_DIR.mkdir(exist_ok=True)
+
+
+def write_csv(df: pd.DataFrame, path: Path, msg: str = "") -> None:
     df.to_csv(path, index=False)
-    print(f"Wrote {path} ({df.shape[0]} rows)")
+    if msg:
+        print(msg)
 
-def _write_status(path: str, year: int, teams: int, games: int, preds: int, current_week: int):
-    now = datetime.now(timezone.utc)
-    status = {
-        "generated_at_utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "year": year,
-        "current_week": current_week,
-        "teams": int(teams),
-        "games": int(games),
-        "predictions": int(preds),
-        "next_run_eta_utc": (now + timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    }
-    with open(path, "w") as f:
-        json.dump(status, f, indent=2)
-    print(f"Wrote {path}")
 
-def main():
+def write_status(current_week: int) -> None:
+    status = {"ok": True, "current_week": int(current_week)}
+    (DATA_DIR / "status.json").write_text(pd.Series(status).to_json())
+    print("Wrote data/status.json")
+
+
+def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--year", type=int, default=int(os.environ.get("UPA_YEAR", "2025")))
-    parser.add_argument("--backtest", type=int, default=int(os.environ.get("UPA_BACKTEST_YEAR", "0")))
+    parser.add_argument("--year", type=int, required=True)
+    parser.add_argument("--backtest", required=True, help="0 to skip, or season year (e.g., 2024)")
     args = parser.parse_args()
 
-    YEAR = int(args.year)
-    BACKTEST_YEAR = int(args.backtest) if int(args.backtest) and int(args.backtest) != YEAR else 0
+    season = args.year
+    do_backtest = str(args.backtest).strip() != "0"
 
-    BEARER = os.environ.get("BEARER_TOKEN", "").strip()
-    if not BEARER:
-        raise SystemExit("ERROR: Missing BEARER_TOKEN (CFBD API)")
+    bearer = os.environ.get("BEARER_TOKEN", "").strip()
+    if not bearer:
+        print("[warn] BEARER_TOKEN not set; CFBD calls that require auth may be rate-limited.")
 
-    EDGE_MIN = float(os.environ.get("UPA_EDGE_MIN", "2"))
-    VALUE_MIN = float(os.environ.get("UPA_VALUE_MIN", "1"))
-
-    cache = ApiCache(os.path.join("data", ".api_cache"))
-    apis = build_clients(BEARER)
+    cache = ApiCache(root=CACHE_DIR)
+    apis = CfbdClients(bearer=bearer, cache=cache)
 
     # 1) Team inputs
-    print(f"[live] building team inputs for {YEAR} …")
-    inputs = build_team_inputs(YEAR, apis, cache)
-    _write_csv(os.path.join("data", "upa_team_inputs_datadriven_v0.csv"), inputs)
-    print(f"[collector] inputs: teams={inputs.shape[0]}")
-
-    # 2) Schedule (market for current week only; nonempty/empty TTLs)
-    print(f"[live] building schedule (market for current week only) for {YEAR} …")
-    sched, current_week = build_schedule_with_market_current_week_only(
-        YEAR, apis, cache,
-        ttl_lines_nonempty=int(os.environ.get("UPA_TTL_LINES", "21600")),  # 6h
-        ttl_lines_empty=int(os.environ.get("UPA_TTL_LINES_EMPTY", "1800")),# 30m
+    print(f"[live] building team inputs for {season} …")
+    inputs = build_team_inputs_datadriven(apis=apis, season=season)
+    write_csv(
+        inputs,
+        DATA_DIR / "upa_team_inputs_datadriven_v0.csv",
+        f"Wrote data/upa_team_inputs_datadriven_v0.csv ({len(inputs)} rows)",
     )
-    _write_csv(os.path.join("data", "cfb_schedule.csv"), sched)
-    with_mkt = sched["market_spread_book"].astype(str).str.len().gt(0).sum()
-    print(f"[collector] schedule: rows={sched.shape[0]}; with market={with_mkt}")
-    print(f"[live] current_week = {current_week}")
+    print(f"[collector] inputs: teams={len(inputs)}")
 
-    # 3) Predictions
-    print(f"[live] computing predictions for {YEAR} …")
-    preds = build_predictions_for_year(YEAR, inputs, sched, edge_min=EDGE_MIN, value_min=VALUE_MIN)
-    _write_csv(os.path.join("data", "upa_predictions.csv"), preds)
-    with_mkt_preds = preds["market_spread_book"].notna().sum()
-    print(f"[collector] predictions: rows={preds.shape[0]}; with market={with_mkt_preds}")
+    # 2) Schedule + market (current week only; others stamped with 0 + synthetic)
+    cur_week = current_week_from_cfbd(apis=apis, season=season)
+    print(f"[live] building schedule (market for current week only) for {season} …")
+    sched = build_schedule_with_market_current_week_only(
+        apis=apis,
+        season=season,
+        current_week=cur_week,
+    )
+    write_csv(sched, DATA_DIR / "cfb_schedule.csv", f"Wrote data/cfb_schedule.csv ({len(sched)} rows)")
+    has_mkt = sched["market_spread_book"].notna().sum() if "market_spread_book" in sched else 0
+    print(f"[collector] schedule: rows={len(sched)}; with market={has_mkt}")
+    print(f"[live] current_week = {cur_week}")
 
-    # 4) Live Edge (subset of predictions)
-    live_cols = [
-        "week","date","away_team","home_team","neutral_site",
-        "model_spread_book","market_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book","qualified_edge_flag",
-    ]
-    live = preds[live_cols].copy()
-    _write_csv(os.path.join("data", "live_edge_report.csv"), live)
+    # 3) Predictions + live edge
+    print(f"[live] computing predictions for {season} …")
+    preds = build_predictions_and_edge(
+        inputs_df=inputs,
+        schedule_df=sched,
+        season=season,
+    )
+    write_csv(preds, DATA_DIR / "upa_predictions.csv", f"Wrote data/upa_predictions.csv ({len(preds)} rows)")
+    has_mkt_preds = preds.query("(market_is_synthetic == False) and market_spread_book==market_spread_book").shape[0] if "market_is_synthetic" in preds else preds["market_spread_book"].notna().sum()
+    print(f"[collector] predictions: rows={len(preds)}; with real-market={has_mkt_preds}")
 
-    # 5) Status
-    _write_status(os.path.join("data", "status.json"),
-                  YEAR, inputs.shape[0], sched.shape[0], preds.shape[0], current_week)
+    live_edge = preds[
+        [
+            "week", "date", "away_team", "home_team", "neutral_site",
+            "model_spread_book", "market_spread_book", "expected_market_spread_book",
+            "edge_points_book", "value_points_book", "qualified_edge_flag", "market_is_synthetic"
+        ]
+    ].copy()
+    write_csv(live_edge, DATA_DIR / "live_edge_report.csv", f"Wrote data/live_edge_report.csv ({len(live_edge)} rows)")
 
-    # 6) Backtest (optional)
-    if BACKTEST_YEAR:
-        print(f"[backtest] running backtest for {BACKTEST_YEAR} …")
-        inputs_bt = build_team_inputs(BACKTEST_YEAR, apis, cache)
-        run_backtest(
-            year=BACKTEST_YEAR,
-            team_inputs=inputs_bt,
+    write_status(current_week=cur_week)
+
+    # 4) Optional backtest
+    if do_backtest:
+        print(f"[backtest] running for {args.backtest} …")
+        bt_summary, bt_preds = run_backtest(
+            season=int(args.backtest),
+            inputs_live=inputs,
             apis=apis,
             cache=cache,
-            data_dir="data",
+            data_dir=str(DATA_DIR),
         )
+        write_csv(bt_preds, DATA_DIR / "backtest_predictions_2024.csv",
+                  f"Wrote data/backtest_predictions_2024.csv ({len(bt_preds)} rows)")
+        write_csv(bt_summary, DATA_DIR / "backtest_summary_2024.csv",
+                  f"Wrote data/backtest_summary_2024.csv ({len(bt_summary)} rows)")
+
 
 if __name__ == "__main__":
     main()

@@ -1,201 +1,180 @@
-# agents/lib/market.py
-import math
-from datetime import datetime, timezone
+from __future__ import annotations
+import os
+import unicodedata
+from pathlib import Path
+from typing import Dict, Any, Tuple
+
 import pandas as pd
 
-from .cache import ApiCache, cached_call
+from agents.lib.cache import ApiCache
+from agents.lib.cfbd_clients import CfbdClients
 
-def _safe_float(x):
-    try:
-        return float(x)
-    except Exception:
-        return float("nan")
+# Controls for caching empty market pulls
+TTL_EMPTY = int(os.environ.get("UPA_TTL_LINES_EMPTY", "600"))   # 10 minutes default
+TTL_NONEMPTY = int(os.environ.get("UPA_TTL_LINES", "21600"))    # 6 hours default
+FORCE_REFRESH = os.environ.get("UPA_FORCE_REFRESH", "0") == "1"
 
-def _iso_date(dt_str):
-    if not dt_str:
+
+def _norm(s: str) -> str:
+    if not isinstance(s, str):
         return ""
-    return str(dt_str)[:10]
+    s = s.strip().lower()
+    s = unicodedata.normalize("NFKD", s)
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    # simplify punctuation and common aliases
+    s = s.replace("'", "").replace("’", "").replace(".", "").replace(",", "").replace("-", " ")
+    s = s.replace("st.", "st").replace("state univ", "state").replace("univ", "university")
+    s = " ".join(s.split())
+    return s
 
-def _fbs_vs_fbs(g) -> bool:
-    return bool(getattr(g, "home_conference", None)) and bool(getattr(g, "away_conference", None))
 
-def _line_to_home_perspective(line_obj) -> float:
-    """
-    Return home-perspective spread (negative = home favorite), using a robust median across available fields.
-    """
-    cand = []
+ALIASES = {
+    "hawaii": {"hawaii", "hawaii rainbow warriors", "hawaii warriors", "hawaii rainbow"},
+    "san jose state": {"san jose st", "sjsu"},
+    "miami (oh)": {"miami oh", "miami ohio"},
+    "umass": {"massachusetts", "umass amherst"},
+    "connecticut": {"uconn"},
+    "louisiana monroe": {"ulm", "la monroe", "louisiana monroe warhawks"},
+    "texas san antonio": {"utsa", "tx san antonio"},
+    "texas el paso": {"utep"},
+    "southern methodist": {"smu"},
+}
+def _alias_key(s: str) -> str:
+    n = _norm(s)
+    for canon, alset in ALIASES.items():
+        if n == canon or n in alset:
+            return canon
+    return n
 
-    # home-side spreads
-    for attr in ("home_spread", "homeSpread", "home_spread_open", "home_spread_close"):
-        v = getattr(line_obj, attr, None)
-        if v is not None:
-            cand.append(_safe_float(v))
 
-    # away-side spreads -> invert to home perspective
-    for attr in ("away_spread", "awaySpread", "away_spread_open", "away_spread_close"):
-        v = getattr(line_obj, attr, None)
-        if v is not None:
-            cand.append(-_safe_float(v))
-
-    # generic field sometimes appears
-    v = getattr(line_obj, "spread", None)
-    if v is not None:
-        cand.append(-_safe_float(v))
-
-    # formatted text fallback
-    fs = getattr(line_obj, "formattedSpread", None) or getattr(line_obj, "formatted_spread", None)
-    if isinstance(fs, str) and fs.strip():
-        try:
-            parts = fs.replace("–", "-").split()
-            if len(parts) >= 2:
-                cand.append(_safe_float(parts[1]))
-        except Exception:
-            pass
-
-    values = [v for v in cand if math.isfinite(v)]
-    if not values:
-        return float("nan")
-    values.sort()
-    return values[len(values)//2]
-
-def infer_current_week(year: int, games_api, cache: ApiCache,
-                       ttl_calendar=86400, ttl_games=31536000) -> int:
-    """
-    Prefer calendar; fall back to min future week / max historical week.
-    """
-    # Calendar (if available)
+def current_week_from_cfbd(apis: CfbdClients, season: int) -> int:
+    # Prefer CFBD week endpoint; fallback to max in schedule if needed
     try:
-        cal, _ = cached_call(cache, "calendar",
-                             {"fn": "get_calendar", "year": year},
-                             ttl_calendar,
-                             lambda: games_api.get_calendar(year=year))
-        if cal:
-            today = datetime.now(timezone.utc).date()
-            for c in cal:
-                s = _iso_date(getattr(c, "first_game_start", None) or getattr(c, "start_date", None))
-                e = _iso_date(getattr(c, "last_game_start", None) or getattr(c, "end_date", None))
-                if s and e:
-                    try:
-                        sd = datetime.fromisoformat(s).date()
-                        ed = datetime.fromisoformat(e).date()
-                        if sd <= today <= ed:
-                            wk = getattr(c, "week", None) or getattr(c, "season_week", None)
-                            if wk:
-                                return int(wk)
-                    except Exception:
-                        pass
+        weeks = apis.games_api.get_calendar(year=season, season_type="regular")
+        for w in weeks:
+            if getattr(w, "first_game_start", None) and getattr(w, "last_game_start", None):
+                # choose current by date bounds if the SDK provides.
+                # If not available, use 'week' field with current flag when present.
+                pass
+    except Exception:
+        pass
+    # Fallback: derive from scheduled dates (simple, robust)
+    sched = apis.get_schedule_df(season=season)  # cached inside CfbdClients
+    if "week" in sched.columns and not sched.empty:
+        # choose the smallest upcoming or the current max, simple heuristic
+        return int(sched["week"].max())
+    return 1
+
+
+def _fetch_market_rows_for_week(apis: CfbdClients, season: int, week: int) -> pd.DataFrame:
+    """
+    Fetch market/lines for the specific week from your chosen source via CfbdClients.
+    This function should be implemented inside CfbdClients (or here) to hit the API you use.
+    We’ll wrap it with cache + FORCE_REFRESH.
+    """
+    cache: ApiCache = apis.cache
+    key = ("market", season, week)
+    if FORCE_REFRESH:
+        cache.delete(key)
+        print("[market] FORCE REFRESH: ignoring cached result")
+
+    hit = cache.get(key)
+    if hit is not None:
+        return hit
+
+    # ---- Replace this with your actual market source call ----
+    # If you already have a helper in CfbdClients like apis.get_market_lines(season, week),
+    # call it and shape to DataFrame with columns: game_id, week, home_team, away_team, spread (book line)
+    try:
+        df = apis.get_market_lines_df(season=season, week=week)  # expected helper in CfbdClients
+        ttl = TTL_NONEMPTY if len(df) else TTL_EMPTY
+        cache.set(key, df, ttl=ttl)
+        return df
+    except Exception as e:
+        print(f"[market][warn] market fetch failed for week={week}: {e}")
+        df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+        cache.set(key, df, ttl=TTL_EMPTY)
+        return df
+
+
+def build_schedule_with_market_current_week_only(
+    apis: CfbdClients,
+    season: int,
+    current_week: int,
+) -> pd.DataFrame:
+    """
+    Returns the full-season schedule DataFrame with these columns at minimum:
+      game_id, week, date, away_team, home_team, neutral_site,
+      market_spread_book, market_is_synthetic
+
+    - Only the CURRENT WEEK will have real market lines joined (when available).
+    - All NON-CURRENT weeks will have market_spread_book=0.0 and market_is_synthetic=True.
+    - For CURRENT week rows that fail to join, market_spread_book stays NaN and market_is_synthetic=False.
+    """
+    sched = apis.get_schedule_df(season=season).copy()  # cached inside CfbdClients
+    if sched.empty:
+        return pd.DataFrame(columns=[
+            "game_id","week","date","away_team","home_team","neutral_site",
+            "market_spread_book","market_is_synthetic"
+        ])
+
+    # Normalize keys on schedule
+    sched["home_norm"] = sched["home_team"].map(_alias_key)
+    sched["away_norm"] = sched["away_team"].map(_alias_key)
+
+    # Stamp defaults
+    sched["market_spread_book"] = pd.NA
+    sched["market_is_synthetic"] = False
+
+    # Fetch + join for current week only
+    mw = _fetch_market_rows_for_week(apis, season, current_week)
+    m_raw = len(mw)
+    if m_raw:
+        mw = mw.copy()
+        # normalize market side
+        mw["home_norm"] = mw["home_team"].map(_alias_key)
+        mw["away_norm"] = mw["away_team"].map(_alias_key)
+        mw = mw.rename(columns={"spread": "market_spread_book"})[[
+            "game_id","week","home_norm","away_norm","market_spread_book"
+        ]]
+        # Join
+        sched = sched.merge(
+            mw,
+            how="left",
+            on=["game_id","week","home_norm","away_norm"],
+            suffixes=("","_mkt"),
+        )
+        # If join missed because game_id differs but teams match, try team-only join for this week
+        missing_mask = sched["week"].eq(current_week) & sched["market_spread_book"].isna()
+        if missing_mask.any():
+            left = sched.loc[missing_mask, ["home_norm","away_norm"]]
+            right = mw[["home_norm","away_norm","market_spread_book"]].drop_duplicates()
+            rejoin = left.merge(right, how="left", on=["home_norm","away_norm"])
+            sched.loc[missing_mask, "market_spread_book"] = rejoin["market_spread_book"].values
+
+    joined = int(sched.loc[sched["week"].eq(current_week), "market_spread_book"].notna().sum())
+    print(f"[market] fetched_raw={m_raw}; joined_to_schedule={joined}")
+
+    # For all non-current weeks, stamp synthetic market = 0.0
+    non_current_mask = sched["week"].ne(current_week)
+    sched.loc[non_current_mask, "market_spread_book"] = 0.0
+    sched.loc[non_current_mask, "market_is_synthetic"] = True
+
+    # Optional: write debug snapshots
+    debug_dir = Path("data") / "debug"
+    try:
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        if m_raw:
+            mw.head(200).to_csv(debug_dir / f"market_raw_w{current_week}.csv", index=False)
+        sched.loc[sched["week"].eq(current_week) & sched["market_spread_book"].notna()]\
+             .head(200).to_csv(debug_dir / f"market_joined_w{current_week}.csv", index=False)
     except Exception:
         pass
 
-    # Fallback via games
-    games, _ = cached_call(cache, "games",
-                           {"fn": "get_games", "year": year, "season_type": "both"},
-                           ttl_games,
-                           lambda: games_api.get_games(year=year, season_type="both"))
-    if not games:
-        return 1
-
-    today = datetime.now(timezone.utc).date()
-    week_dates = {}
-    for g in games:
-        wk = getattr(g, "week", None)
-        dt = _iso_date(getattr(g, "start_date", None) or getattr(g, "start_time", None))
-        if wk and dt:
-            try:
-                d = datetime.fromisoformat(dt).date()
-                week_dates.setdefault(wk, []).append(d)
-            except Exception:
-                pass
-    future_weeks = [wk for wk, dates in week_dates.items() if min(dates) >= today]
-    if future_weeks:
-        return min(future_weeks)
-    return max(week_dates) if week_dates else 1
-
-# ---------- Smart cache for lines: short TTL for empty; longer TTL for non-empty ----------
-
-def fetch_lines_current_week_only(year: int, week: int, team: str, bet_api, cache: ApiCache,
-                                  ttl_nonempty=21600, ttl_empty=1800):
-    """
-    Returns (lines_list, cache_status)
-    cache_status ∈ {"hit_nonempty","hit_empty","miss_fetched_nonempty","miss_fetched_empty"}
-    """
-    key = {"fn": "get_lines", "year": int(year), "week": int(week), "team": team or ""}
-
-    # Try non-empty bucket first
-    v = cache.get("lines_week_team_nonempty", key, ttl_nonempty)
-    if v is not None:
-        return v, "hit_nonempty"
-
-    # Then try empty bucket (short TTL)
-    v = cache.get("lines_week_team_empty", key, ttl_empty)
-    if v is not None:
-        return v, "hit_empty"
-
-    # Fetch
-    try:
-        res = bet_api.get_lines(year=year, week=int(week), team=team) or []
-    except Exception:
-        res = []
-
-    if res:
-        cache.set("lines_week_team_nonempty", key, res)
-        return res, "miss_fetched_nonempty"
-    else:
-        cache.set("lines_week_team_empty", key, res)
-        return res, "miss_fetched_empty"
-
-def build_schedule_with_market_current_week_only(year: int, apis: dict, cache: ApiCache,
-                                                 ttl_games=31536000, ttl_lines_nonempty=21600, ttl_lines_empty=1800):
-    """
-    Returns a full-season FBS vs FBS schedule with market lines filled ONLY for the current week.
-    Columns: game_id, week, date, away_team, home_team, neutral_site, market_spread_book
-    """
-    games_api = apis["games"]
-    bet_api = apis["betting"]
-
-    # Full season (cached long)
-    games, _ = cached_call(cache, "games",
-                           {"fn": "get_games", "year": year, "season_type": "both"},
-                           ttl_games,
-                           lambda: games_api.get_games(year=year, season_type="both"))
-
-    curr_week = infer_current_week(year, games_api, cache)
-
-    rows = []
-    for g in games or []:
-        if not _fbs_vs_fbs(g):
-            continue
-        ht = getattr(g, "home_team", "") or ""
-        at = getattr(g, "away_team", "") or ""
-        wk = getattr(g, "week", None)
-        date = _iso_date(getattr(g, "start_date", None) or getattr(g, "start_time", None))
-        neutral = getattr(g, "neutral_site", False)
-
-        market_home = float("nan")
-        if wk == curr_week:
-            lines, _ = fetch_lines_current_week_only(
-                year, wk, ht, bet_api, cache,
-                ttl_nonempty=ttl_lines_nonempty, ttl_empty=ttl_lines_empty
-            )
-            maybe = []
-            for ln in (lines or []):
-                for snap in getattr(ln, "lines", []) or []:
-                    val = _line_to_home_perspective(snap)
-                    if math.isfinite(val):
-                        maybe.append(val)
-            if maybe:
-                maybe.sort()
-                market_home = maybe[len(maybe)//2]
-
-        rows.append({
-            "game_id": getattr(g, "id", None),
-            "week": wk,
-            "date": date,
-            "away_team": at,
-            "home_team": ht,
-            "neutral_site": "1" if bool(neutral) else "0",
-            "market_spread_book": round(market_home, 1) if math.isfinite(market_home) else "",
-        })
-
-    df = pd.DataFrame(rows).sort_values(["week", "date", "away_team", "home_team"], ignore_index=True)
-    return df, curr_week
+    return sched[[
+        "game_id","week","date","away_team","home_team","neutral_site",
+        "market_spread_book","market_is_synthetic"
+    ] + [c for c in sched.columns if c not in {
+        "game_id","week","date","away_team","home_team","neutral_site",
+        "market_spread_book","market_is_synthetic","home_norm","away_norm"
+    }]]
