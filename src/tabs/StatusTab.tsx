@@ -2,7 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { loadText, loadCsv, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
 import { Badge } from "../lib/ui";
 
-type Status = { generated_at_utc: string; year: number; teams: number; games?: number; pred_rows?: number; next_run_eta_utc: string; market_source?: string; };
+type Status = {
+  generated_at_utc: string;
+  year: number;
+  teams: number;
+  games?: number;
+  pred_rows?: number;
+  next_run_eta_utc: string;
+
+  // market info written by the collector
+  market_source?: string;           // (back-compat) the source actually used
+  market_source_used?: string;      // preferred: the source actually used
+  market_source_config?: string;    // what we requested (env/flag), may differ if fallback happened
+};
+
 type PredRow = { week: string; market_spread_book?: string; model_spread_book?: string; played?: any; model_result?: string; };
 
 export default function StatusTab() {
@@ -65,12 +78,36 @@ export default function StatusTab() {
     return rows;
   }, [preds]);
 
-  const marketLabel = useMemo(() => {
-    const s = (status?.market_source || "").trim().toLowerCase();
-    if (s === "fanduel") return "FanDuel";
-    if (s === "cfbd") return "CFBD";
-    // default/fallback if not present in status.json
-    return "CFBD";
+  // Normalize raw market strings to pretty labels
+  const prettyMarket = (s?: string) => {
+    const t = (s || "").trim().toLowerCase();
+    if (!t) return "";
+    if (t === "fanduel") return "FanDuel";
+    if (t === "cfbd") return "CFBD";
+    return s || "";
+  };
+
+  // Show both requested and used values; flag a fallback if they differ
+  const { marketCombined, marketUsed, marketRequested, marketMismatch } = useMemo(() => {
+    const usedRaw = (status?.market_source_used ?? status?.market_source) || "";
+    const reqRaw = status?.market_source_config || "";
+
+    const used = prettyMarket(usedRaw);
+    const req = prettyMarket(reqRaw);
+
+    const mismatch =
+      !!used && !!req && used.toLowerCase() !== req.toLowerCase();
+
+    const combined =
+      mismatch ? `${used} (fallback from ${req})`
+      : (used || req || "CFBD");
+
+    return {
+      marketCombined: combined,
+      marketUsed: used,
+      marketRequested: req,
+      marketMismatch: mismatch,
+    };
   }, [status]);
 
   // Cache-busting query string for download links based on status timestamp
@@ -87,7 +124,20 @@ export default function StatusTab() {
             <div className="kv"><div className="k">Last updated</div><div className="v">{status.generated_at_utc}</div></div>
             <div className="kv"><div className="k">Next run ETA</div><div className="v">{status.next_run_eta_utc}</div></div>
             <div className="kv"><div className="k">Season</div><div className="v">{status.year}</div></div>
-            <div className="kv"><div className="k">Market source</div><div className="v">{marketLabel}</div></div>
+
+            <div className="kv">
+              <div className="k">Market source (used)</div>
+              <div className="v">
+                {marketCombined}
+                {marketMismatch ? <Badge tone="warn" style={{ marginLeft: 8 }}>fallback</Badge> : null}
+              </div>
+            </div>
+
+            <div className="kv">
+              <div className="k">Requested market</div>
+              <div className="v">{marketRequested || "—"}</div>
+            </div>
+
             <div className="kv"><div className="k">Teams</div><div className="v">{status.teams}</div></div>
             {!!status.games && <div className="kv"><div className="k">Games</div><div className="v">{status.games}</div></div>}
             {!!status.pred_rows && <div className="kv"><div className="k">Pred rows</div><div className="v">{status.pred_rows}</div></div>}

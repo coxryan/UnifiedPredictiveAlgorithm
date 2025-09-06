@@ -41,6 +41,29 @@ jobs:
             .cache_odds
           key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agents/requirements.txt
+
+      - name: Run collector (live + backtest)
+        env:
+          BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
+          ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
+          ODDS_CACHE_DIR: ${{ env.ODDS_CACHE_DIR }}
+          ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
+        run: |
+          echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
+          python agents/collect_cfbd_all.py --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
+          echo "Collector finished; status.json:"
+          cat data/status.json || true
+
       - name: Install deps
         run: |
           if [ -f package-lock.json ]; then
