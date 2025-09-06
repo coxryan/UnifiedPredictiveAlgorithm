@@ -83,7 +83,7 @@ class CfbdClients:
             self.players_api = cfbd.PlayersApi(cli)
             self.ratings_api = cfbd.RatingsApi(cli)
             self.games_api = cfbd.GamesApi(cli)
-            self.lines_api = cfbd.LinesApi(cli)
+            self.lines_api = cfbd.BettingApi(cli)
 
 
 # =========================
