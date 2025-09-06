@@ -103,6 +103,20 @@ export default function LiveResultsTab() {
       });
   }, [live, predByMatch, fbs]);
 
+  // High-contrast tone styles for full-card background (color-blind friendly)
+  const toneStyle = (tone: string): React.CSSProperties => {
+    switch (tone) {
+      case "ok":
+        // Bright green with white text
+        return { backgroundColor: "#16a34a", color: "#ffffff" };
+      case "bad":
+        // Bright red with white text
+        return { backgroundColor: "#dc2626", color: "#ffffff" };
+      default:
+        return {};
+    }
+  };
+
   return (
     <section className="card">
       <div className="card-title">
@@ -113,7 +127,12 @@ export default function LiveResultsTab() {
       )}
       <div className="grid">
         {cards.map((g:any, i:number)=> (
-          <div key={`${g.event_id||g.date||i}`} className={`live-card ${g._tone}`}>
+          <div
+            key={`${g.event_id || g.date || i}`}
+            className="live-card"
+            style={toneStyle(g._tone)}
+            aria-label={g._tone === "ok" ? "On track" : g._tone === "bad" ? "Behind" : "Mixed/Unknown"}
+          >
             <div className="row teams">
               <div className="side">
                 <div className="lbl">AWAY</div>
