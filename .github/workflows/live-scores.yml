@@ -6,16 +6,17 @@ on:
     - cron: "*/5 * * * *"
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 env:
   UPA_YEAR: "2025"
-  # flip to "1" if you ever want to skip network during maintenance
   CACHE_ONLY: "0"
   CACHE_TTL_DAYS: "2"
 
 jobs:
-  fetch:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,15 +36,29 @@ jobs:
         run: |
           python agents/fetch_live_scores.py --year "${{ env.UPA_YEAR }}" --out "data/live_scores.csv"
 
-      - name: Commit updated live scores (if changed)
+      - name: Stage site (copy repo → _site)
         run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/live_scores.csv
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git commit -m "chore: update live scores"
-            git push
-          fi
+          rm -rf _site
+          mkdir -p _site
+          rsync -a --delete --exclude '.git*' --exclude '.github' ./ _site/
+          # Ensure latest CSV is present in the Pages data dir
+          mkdir -p _site/data
+          cp -f data/live_scores.csv _site/data/live_scores.csv
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
