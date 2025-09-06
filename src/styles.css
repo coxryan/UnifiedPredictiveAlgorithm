@@ -189,3 +189,17 @@ select{
   .grid2{grid-template-columns:1fr}
   .header{flex-direction:column; align-items:flex-start}
 }
+
+/* Live Results grid + cards */
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.live-card { border: 1px solid var(--shade-3); border-radius: 10px; padding: 12px; background: var(--shade-1); box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset; }
+.live-card.ok { border-color: var(--green-2); box-shadow: 0 0 0 1px rgba(0,255,160,0.15) inset; }
+.live-card.bad { border-color: var(--red-2); box-shadow: 0 0 0 1px rgba(255,0,80,0.15) inset; }
+.live-card.warn { border-color: var(--yellow-2); box-shadow: 0 0 0 1px rgba(255,200,0,0.15) inset; }
+.live-card .row { display:flex; justify-content:space-between; align-items:center; margin:6px 0; gap:8px; }
+.live-card .teams .side { flex:1; }
+.live-card .teams .lbl { font-size: 11px; opacity: .65; margin-bottom: 2px; }
+.live-card .teams .name { font-weight: 600; }
+.live-card .teams .score { font-size: 24px; font-weight: 700; }
+.live-card .meta { font-size: 12px; opacity: .7; }
+.live-card .picks { font-size: 12px; gap: 12px; flex-wrap: wrap; }

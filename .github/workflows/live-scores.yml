@@ -1,0 +1,49 @@
+name: live-scores
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+env:
+  UPA_YEAR: "2025"
+  # flip to "1" if you ever want to skip network during maintenance
+  CACHE_ONLY: "0"
+  CACHE_TTL_DAYS: "2"
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas requests
+
+      - name: Fetch live scores (ESPN)
+        run: |
+          python agents/fetch_live_scores.py --year "${{ env.UPA_YEAR }}" --out "data/live_scores.csv"
+
+      - name: Commit updated live scores (if changed)
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live_scores.csv
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore: update live scores"
+            git push
+          fi
