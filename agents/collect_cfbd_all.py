@@ -27,7 +27,7 @@ CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", 
 # If set, we push to Google Sheets when SHEET_ID and GOOGLE_APPLICATION_CREDENTIALS are valid
 ENABLE_SHEETS = False  # you can flip to True later
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
-MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "cfbd").strip().lower()
+MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
 
 
 # =========================
