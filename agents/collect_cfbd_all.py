@@ -24,10 +24,52 @@ CACHE_TTL_DAYS = int(os.environ.get("CACHE_TTL_DAYS", "90"))
 CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
 
+
 # If set, we push to Google Sheets when SHEET_ID and GOOGLE_APPLICATION_CREDENTIALS are valid
 ENABLE_SHEETS = False  # you can flip to True later
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
+
+# Separate cache for odds aggregator so we can switch sources freely
+ODDS_CACHE_DIR = os.environ.get("ODDS_CACHE_DIR", ".cache_odds")
+ODDS_CACHE_TTL_DAYS = int(os.environ.get("ODDS_CACHE_TTL_DAYS", "2"))
+
+_odds_cache_singleton: Optional[ApiCache] = None
+
+def get_odds_cache() -> ApiCache:
+    global _odds_cache_singleton
+    if _odds_cache_singleton is None:
+        _odds_cache_singleton = ApiCache(root=ODDS_CACHE_DIR, days_to_live=ODDS_CACHE_TTL_DAYS)
+    return _odds_cache_singleton
+
+
+# =========================
+# Status helpers
+# =========================
+def _upsert_status_market_source(market: str, data_dir: str = DATA_DIR) -> None:
+    """Merge-update data/status.json with the selected market source.
+    Leaves other fields intact if present; creates the file if missing.
+    """
+    try:
+        os.makedirs(data_dir, exist_ok=True)
+        p = os.path.join(data_dir, "status.json")
+        payload: Dict[str, Any]
+        if os.path.exists(p):
+            try:
+                with open(p, "r") as f:
+                    payload = json.load(f) or {}
+            except Exception:
+                payload = {}
+        else:
+            payload = {}
+        payload["market_source"] = (market or "cfbd").strip().lower()
+        # always refresh timestamp minimally so UI cache-bust works when only market flips
+        payload.setdefault("generated_at_utc", datetime.utcnow().isoformat(timespec="seconds") + "Z")
+        with open(p, "w") as f:
+            json.dump(payload, f, indent=2)
+    except Exception:
+        # non-fatal; never crash the collector for status write
+        pass
 
 
 # =========================
@@ -796,6 +838,11 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     Output columns: game_id, week, home_team, away_team, spread (book-style, negative = home favorite)
     If unavailable, return empty df (collector will treat market=0 for future games without lines).
     """
+    # reflect selected market in status.json for the UI
+    try:
+        _upsert_status_market_source(MARKET_SOURCE)
+    except Exception:
+        pass
     # Allow switching market provider via env MARKET_SOURCE ("fanduel" uses The Odds API)
     if MARKET_SOURCE == "fanduel":
         try:
@@ -809,7 +856,7 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                 weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
             else:
                 weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
-            fd = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, cache)
+            fd = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
             return fd if isinstance(fd, pd.DataFrame) else pd.DataFrame(fd)
         except Exception as e:
             print(f"[warn] fanduel market branch failed; falling back to CFBD: {e}", file=sys.stderr)

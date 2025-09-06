@@ -12,6 +12,8 @@ permissions:
 env:
   MARKET_SOURCE: fanduel
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+  ODDS_CACHE_DIR: .cache_odds
+  ODDS_CACHE_TTL_DAYS: 2
 
 # Also serialize with the live workflow
 concurrency:
@@ -29,6 +31,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Restore API caches (CFBD & Odds)
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache_api
+            .cache_odds
+          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
 
       - name: Install deps
         run: |
