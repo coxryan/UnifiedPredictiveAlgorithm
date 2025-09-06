@@ -681,7 +681,38 @@ def build_predictions_book_style(
     for c in cols:
         if c not in out.columns:
             out[c] = np.nan
-    out = out[cols].sort_values(["WEEK", "DATE", "AWAY", "HOME"], kind="stable").reset_index(drop=True)
+
+    # --- UI-compatible columns (book-style, home-negative) ---
+    # Map to lower-case names the React app expects
+    out["week"] = out["WEEK"]
+    out["date"] = out["DATE"]
+    out["home_team"] = out["HOME"]
+    out["away_team"] = out["AWAY"]
+    out["neutral_site"] = np.where(out["NEUTRAL"].astype(str).str.upper().eq("Y"), "1", "0")
+    out["model_spread_book"] = out["MODEL (H)"]
+    out["market_spread_book"] = out["MARKET (H)"]
+    out["expected_market_spread_book"] = out["EXPECTED (H)"]
+    out["edge_points_book"] = out["EDGE"]
+    out["value_points_book"] = out["VALUE"]
+
+    # Qualification flag to match UI thresholds (EDGE_MIN=2.0, VALUE_MIN=1.0)
+    EDGE_MIN_T = 2.0
+    VALUE_MIN_T = 1.0
+    edge_abs = pd.to_numeric(out["EDGE"], errors="coerce").abs()
+    val_abs = pd.to_numeric(out["VALUE"], errors="coerce").abs()
+    out["qualified_edge_flag"] = np.where((edge_abs >= EDGE_MIN_T) & (val_abs >= VALUE_MIN_T), "1", "0")
+
+    # Optional placeholders used by Team & Backtest tabs
+    if "played" not in out.columns:
+        out["played"] = ""
+    if "model_result" not in out.columns:
+        out["model_result"] = ""
+
+    out = out[cols + [
+        "week","date","home_team","away_team","neutral_site",
+        "model_spread_book","market_spread_book","expected_market_spread_book",
+        "edge_points_book","value_points_book","qualified_edge_flag","played","model_result"
+    ]].sort_values(["WEEK", "DATE", "AWAY", "HOME"], kind="stable").reset_index(drop=True)
     return out
 
 
@@ -776,8 +807,10 @@ def main() -> None:
     write_csv(live_edge, f"{DATA_DIR}/live_edge_report.csv")
 
     # 6) STATUS
+    now_utc = datetime.now(timezone.utc)
     status = {
-        "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "next_run_eta_utc": (now_utc + timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "year": season,
         "current_week": current_week,
         "teams": int(team_inputs.shape[0]),

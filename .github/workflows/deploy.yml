@@ -94,8 +94,19 @@ jobs:
 
       - name: Copy data into built site
         run: |
+          # Ensure multiple fallback locations so UI fetches succeed regardless of path assumptions
           mkdir -p dist/data
+          mkdir -p dist/public/data
+          # Primary: /data/*
           cp -R public/data/* dist/data/ || true
+          # Fallback 1: some code mistakenly fetches /public/data/*
+          cp -R public/data/* dist/public/data/ || true
+          # Fallback 2: if any code points to /upa_predictions.csv etc.
+          cp -R public/data/* dist/ || true
+          echo "Built site data locations:"
+          find dist -maxdepth 2 -type d -name "data" -print
+          ls -lah dist/data || true
+          ls -lah dist/public/data || true
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
