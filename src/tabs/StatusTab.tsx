@@ -116,7 +116,9 @@ export default function StatusTab() {
             <a href={"data/upa_team_inputs_datadriven_v0.csv"} target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
             <a href={"data/cfb_schedule.csv"} target="_blank" rel="noreferrer">schedule CSV ↗</a>{" • "}
             <a href={"data/upa_predictions.csv"} target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
-            <a href={"data/live_edge_report.csv"} target="_blank" rel="noreferrer">live edge CSV ↗</a>
+            <a href={"data/live_edge_report.csv"} target="_blank" rel="noreferrer">live edge CSV ↗</a>{" • "}
+            <a href={"data/2024/upa_predictions_2024_backtest.csv"} target="_blank" rel="noreferrer">backtest predictions (2024) CSV ↗</a>{" • "}
+            <a href={"data/2024/backtest_summary_2024.csv"} target="_blank" rel="noreferrer">backtest summary (2024) CSV ↗</a>
           </div>
         </>
       )}
