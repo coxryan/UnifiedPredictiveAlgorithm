@@ -47,17 +47,29 @@ def fetch_scoreboard(day: str | None = None) -> List[Dict[str, Any]]:
             continue
 
         def team(side):
-            team = side.get("team") or {}
-            name = team.get("displayName") or team.get("name") or team.get("shortDisplayName")
+            t = side.get("team") or {}
+            display = t.get("displayName") or t.get("shortDisplayName") or t.get("name")
+            nickname = t.get("name") or ""
+            location = t.get("location") or ""
+            # Derive a CFBD-style school name: prefer 'location'; else strip trailing nickname
+            school = location or display
+            if display and nickname and display.endswith(" " + nickname):
+                school = display[: -(len(nickname) + 1)].strip()
+            # Score
             score = side.get("score")
             try:
                 score = int(score) if score is not None else None
             except Exception:
                 score = None
-            return name, score
+            return {
+                "display": display,
+                "school": school,
+                "nickname": nickname,
+                "score": score,
+            }
 
-        home_team, home_points = team(home)
-        away_team, away_points = team(away)
+        h = team(home)
+        a = team(away)
 
         rows.append({
             "event_id": ev.get("id"),
@@ -67,10 +79,15 @@ def fetch_scoreboard(day: str | None = None) -> List[Dict[str, Any]]:
             "clock": clock,
             "period": period,
             "venue": venue,
-            "home_team": home_team,
-            "home_points": home_points,
-            "away_team": away_team,
-            "away_points": away_points,
+            # ESPN raw display
+            "home_team": h["display"],
+            "away_team": a["display"],
+            # Normalized school names to match CFBD/our CSVs
+            "home_school": h["school"],
+            "away_school": a["school"],
+            # Scores
+            "home_points": h["score"],
+            "away_points": a["score"],
         })
     return rows
 
