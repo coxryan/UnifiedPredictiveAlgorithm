@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * *"
+    - cron: "0 9 * * *"   # daily at 09:00 UTC
 
 permissions:
   contents: read
@@ -19,8 +19,8 @@ concurrency:
 env:
   UPA_YEAR: "2025"
   UPA_BACKTEST_YEAR: "2024"
+  # Backtest runs only on scheduled builds by default
   RUN_BACKTEST: ${{ github.event_name == 'schedule' && '1' || '0' }}
-  CACHE_DAY: ${{ github.event_name == 'schedule' && format('{0,date,yyyy-MM-dd}', github.event.schedule_time) || format('{0,date,yyyy-MM-dd}', github.event.head_commit.timestamp) }}
 
 jobs:
   build:
@@ -30,6 +30,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # --- Compute a daily cache key string (UTC) and export to env ---
+      - name: Compute cache day
+        run: |
+          echo "CACHE_DAY=$(date -u +%F)" >> "$GITHUB_ENV"
+          echo "Computed CACHE_DAY=$CACHE_DAY"
+
+      # -------------------- Python setup & cache --------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -45,6 +52,7 @@ jobs:
             pip install cfbd pandas numpy
           fi
 
+      # -------------------- Restore API cache (raw CFBD responses) --------------------
       - name: Restore API cache
         uses: actions/cache@v4
         with:
@@ -54,6 +62,7 @@ jobs:
             api-cache-${{ github.ref_name }}-
             api-cache-
 
+      # -------------------- Run collector (live + optional backtest) --------------------
       - name: Run collector (live + maybe backtest)
         env:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
@@ -69,6 +78,7 @@ jobs:
             python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest 0
           fi
 
+      # -------------------- Diagnose data outputs (fail fast if empty) --------------------
       - name: Diagnose data outputs
         run: |
           set -e
@@ -81,6 +91,7 @@ jobs:
           name: data-folder
           path: data
 
+      # -------------------- Save API cache back --------------------
       - name: Save API cache (noop on miss)
         if: always()
         uses: actions/cache/save@v4
@@ -88,6 +99,7 @@ jobs:
           path: data/.api_cache
           key: api-cache-${{ github.ref_name }}-${{ env.CACHE_DAY }}
 
+      # -------------------- Node setup & cache --------------------
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -105,6 +117,7 @@ jobs:
       - name: Build
         run: npm run build
 
+      # -------------------- Upload & Deploy Pages --------------------
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
