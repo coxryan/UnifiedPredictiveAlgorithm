@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { loadText, loadCsv, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
 import { Badge } from "../lib/ui";
 
-type Status = { generated_at_utc: string; year: number; teams: number; games?: number; pred_rows?: number; next_run_eta_utc: string; };
+type Status = { generated_at_utc: string; year: number; teams: number; games?: number; pred_rows?: number; next_run_eta_utc: string; market_source?: string; };
 type PredRow = { week: string; market_spread_book?: string; model_spread_book?: string; played?: any; model_result?: string; };
 
 export default function StatusTab() {
@@ -65,6 +65,14 @@ export default function StatusTab() {
     return rows;
   }, [preds]);
 
+  const marketLabel = useMemo(() => {
+    const s = (status?.market_source || "").trim().toLowerCase();
+    if (s === "fanduel") return "FanDuel";
+    if (s === "cfbd") return "CFBD";
+    // default/fallback if not present in status.json
+    return "CFBD";
+  }, [status]);
+
   // Cache-busting query string for download links based on status timestamp
   const v = status?.generated_at_utc ? `?v=${encodeURIComponent(status.generated_at_utc)}` : "";
 
@@ -79,6 +87,7 @@ export default function StatusTab() {
             <div className="kv"><div className="k">Last updated</div><div className="v">{status.generated_at_utc}</div></div>
             <div className="kv"><div className="k">Next run ETA</div><div className="v">{status.next_run_eta_utc}</div></div>
             <div className="kv"><div className="k">Season</div><div className="v">{status.year}</div></div>
+            <div className="kv"><div className="k">Market source</div><div className="v">{marketLabel}</div></div>
             <div className="kv"><div className="k">Teams</div><div className="v">{status.teams}</div></div>
             {!!status.games && <div className="kv"><div className="k">Games</div><div className="v">{status.games}</div></div>}
             {!!status.pred_rows && <div className="kv"><div className="k">Pred rows</div><div className="v">{status.pred_rows}</div></div>}
