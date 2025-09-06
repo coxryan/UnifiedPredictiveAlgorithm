@@ -60,6 +60,8 @@ jobs:
           ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
           DEBUG_MARKET: 1
         run: |
+          # Force a market-only pass first so we always write market_debug.json + status fields
+          python -c "import os; import agents.collect_cfbd_all as m; m.market_debug_entry(2025, os.environ.get('MARKET_SOURCE'))"
           echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
           python agents/collect_cfbd_all.py --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
           echo "Collector finished; status.json:"

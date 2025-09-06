@@ -1013,6 +1013,60 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     return df
 
 
+# ==========================================================
+# CI/Debug: Helper entry-point to force market status + debug write
+# ==========================================================
+def market_debug_entry(year: int, market_source: Optional[str] = None) -> None:
+    """
+    CI helper: load schedule and force a single pass of market selection so that
+    status.json (requested/used/fallback) and data/market_debug.json are written.
+    Safe no-op on error.
+    """
+    try:
+        # allow override from caller
+        global MARKET_SOURCE
+        if market_source:
+            MARKET_SOURCE = str(market_source).strip().lower() or MARKET_SOURCE
+
+        bearer = os.environ.get("BEARER_TOKEN", "").strip()
+        apis = CfbdClients(bearer_token=bearer)
+        cache = ApiCache()
+
+        # Load schedule (FBS-only filtering is handled inside)
+        schedule_df = load_schedule_for_year(year=year, apis=apis, cache=cache)
+
+        # Discover the "current" week (or fall back to min week in schedule)
+        wk = discover_current_week(schedule_df)
+        if wk is None:
+            wk_series = pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna()
+            wk = int(wk_series.min()) if not wk_series.empty else 1
+
+        # Run the market selection pass (this also writes status + market_debug)
+        _ = get_market_lines_for_current_week(
+            year=year,
+            week=int(wk),
+            schedule_df=schedule_df,
+            apis=apis,
+            cache=cache,
+        )
+    except Exception as _e:
+        # Never fail CI because of debug helper
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+                json.dump(
+                    {
+                        "requested": MARKET_SOURCE,
+                        "error": str(_e),
+                        "odds_key_present": bool(ODDS_API_KEY),
+                    },
+                    f,
+                    indent=2,
+                )
+        except Exception:
+            pass
+
+
 # =========================
 # Weekly Elo ranks (ratings) + Poll ranks (AP/Coaches)
 
