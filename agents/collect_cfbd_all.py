@@ -95,6 +95,18 @@ class CfbdClients:
 # =========================
 def write_csv(df: pd.DataFrame, path: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    # Auto-fix/model-grade known outputs before writing
+    try:
+        if isinstance(df, pd.DataFrame):
+            base = os.path.basename(path)
+            if base in ("upa_predictions.csv", "backtest_predictions_2024.csv", "upa_predictions_2024_backtest.csv"):
+                if '_apply_book_grades' in globals():
+                    try:
+                        df = _apply_book_grades(df.copy())
+                    except Exception:
+                        pass
+    except Exception:
+        pass
     df.to_csv(path, index=False)
 
 
@@ -103,6 +115,83 @@ def _safe_float(x, default=None):
         return float(x)
     except Exception:
         return default
+
+# --- Book-style grading helper ----------------------------------------------
+# Negative line = home favorite. Grade using final score + book line.
+# Returns: "CORRECT", "INCORRECT", "P" (push) or "" if not gradeable.
+def _grade_pick_result(pick_side, home_points, away_points, market_home_line) -> str:
+    try:
+        if pick_side is None or str(pick_side).strip() == "":
+            return ""
+        hp = float(home_points) if home_points is not None else float("nan")
+        ap = float(away_points) if away_points is not None else float("nan")
+        m  = float(market_home_line) if market_home_line is not None else float("nan")
+        if not (np.isfinite(hp) and np.isfinite(ap) and np.isfinite(m)):
+            return ""
+        # book-style: home covers if (home - away + market) > 0
+        adj = (hp - ap) + m
+        if abs(adj) < 1e-9:
+            return "P"
+        cover_home = 1 if adj > 0 else -1
+        ps = str(pick_side).upper()
+        pick_home = ("HOME" in ps) or ("(HOME)" in ps)
+        pick_away = ("AWAY" in ps) or ("(AWAY)" in ps)
+        if pick_home:
+            return "CORRECT" if cover_home > 0 else "INCORRECT"
+        if pick_away:
+            return "CORRECT" if cover_home < 0 else "INCORRECT"
+        return ""
+    except Exception:
+        return ""
+
+# Apply grading to a predictions/backtest DataFrame if required columns exist
+# - Infers model pick if not present using edge or (model - market)
+# - Leaves expected_result blank unless an expected pick is provided
+def _apply_book_grades(df: pd.DataFrame) -> pd.DataFrame:
+    # Must have scores and market
+    req = {"home_points", "away_points", "market_spread_book"}
+    if not req.issubset(df.columns):
+        return df
+    # Normalize numeric columns
+    for c in ["home_points", "away_points", "market_spread_book", "edge_points_book", "model_spread_book", "expected_market_spread_book"]:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
+
+    def _norm_pick(s):
+        if s is None:
+            return ""
+        t = str(s).strip().upper()
+        if "AWAY" in t:
+            return "AWAY"
+        if "HOME" in t:
+            return "HOME"
+        return ""
+
+    # Infer model pick if missing
+    if "model_pick_side" in df.columns:
+        model_pick = df["model_pick_side"].map(_norm_pick)
+    else:
+        # Use edge if available; else use model - market
+        edge = df.get("edge_points_book")
+        if edge is None:
+            edge = pd.to_numeric(df.get("model_spread_book"), errors="coerce") - pd.to_numeric(df.get("market_spread_book"), errors="coerce")
+        edge = pd.to_numeric(edge, errors="coerce")
+        # By convention: edge = model - market; edge > 0 => value AWAY; else HOME
+        model_pick = edge.apply(lambda e: "AWAY" if pd.notna(e) and e > 0 else ("HOME" if pd.notna(e) else ""))
+
+    # Expected pick only if explicitly present
+    expected_pick = df["expected_pick_side"].map(_norm_pick) if "expected_pick_side" in df.columns else pd.Series([""] * len(df), index=df.index)
+
+    # Compute results row-wise
+    df["model_result"] = [
+        _grade_pick_result(p, hp, ap, m)
+        for p, hp, ap, m in zip(model_pick, df["home_points"], df["away_points"], df["market_spread_book"])
+    ]
+    df["expected_result"] = [
+        _grade_pick_result(p, hp, ap, m)
+        for p, hp, ap, m in zip(expected_pick, df["home_points"], df["away_points"], df["market_spread_book"])
+    ]
+    return df
 
 
 def _normalize_percent(x: Optional[float]) -> Optional[float]:
