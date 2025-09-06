@@ -19,6 +19,8 @@ import pandas as pd
 DATA_DIR = "data"
 CACHE_DIR = ".cache_api"
 CACHE_TTL_DAYS = int(os.environ.get("CACHE_TTL_DAYS", "90"))
+# If set, do not hit any external APIs; use cache only (write empty on miss)
+CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
 # If set, we push to Google Sheets when SHEET_ID and GOOGLE_APPLICATION_CREDENTIALS are valid
 ENABLE_SHEETS = False  # you can flip to True later
@@ -566,31 +568,36 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
         if ok:
             df = pd.DataFrame(cached)
         else:
-            try:
-                lines = apis.lines_api.get_lines(year=year, week=int(wk))
-            except Exception as e:
-                print(f"[warn] market lines fetch failed for {year} w{wk}: {e}", file=sys.stderr)
-                lines = []
-            rows = []
-            for ln in lines or []:
-                gid = getattr(ln, "id", None)
-                wv = getattr(ln, "week", None)
-                ht = getattr(ln, "home_team", None)
-                at = getattr(ln, "away_team", None)
-                spread = None
+            # Respect CACHE_ONLY: don't make a network call on a cache miss
+            if CACHE_ONLY:
+                cache.set(key, [])
+                df = pd.DataFrame()
+            else:
                 try:
-                    if hasattr(ln, "lines") and ln.lines:
-                        for l in ln.lines:
-                            if hasattr(l, "spread") and l.spread is not None:
-                                spread = float(l.spread)
-                                break
-                except Exception:
-                    pass
-                if spread is None:
-                    continue
-                rows.append({"game_id": gid, "week": wv, "home_team": ht, "away_team": at, "spread": spread})
-            df = pd.DataFrame(rows)
-            cache.set(key, df.to_dict(orient="records"))
+                    lines = apis.lines_api.get_lines(year=year, week=int(wk))
+                except Exception as e:
+                    print(f"[warn] market lines fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                    lines = []
+                rows = []
+                for ln in lines or []:
+                    gid = getattr(ln, "id", None)
+                    wv = getattr(ln, "week", None)
+                    ht = getattr(ln, "home_team", None)
+                    at = getattr(ln, "away_team", None)
+                    spread = None
+                    try:
+                        if hasattr(ln, "lines") and ln.lines:
+                            for l in ln.lines:
+                                if hasattr(l, "spread") and l.spread is not None:
+                                    spread = float(l.spread)
+                                    break
+                    except Exception:
+                        pass
+                    if spread is None:
+                        continue
+                    rows.append({"game_id": gid, "week": wv, "home_team": ht, "away_team": at, "spread": spread})
+                df = pd.DataFrame(rows)
+                cache.set(key, df.to_dict(orient="records"))
         if not df.empty:
             all_rows.append(df)
     return pd.concat(all_rows, ignore_index=True) if all_rows else pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
@@ -600,567 +607,128 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
 # Weekly Elo ranks (ratings) + Poll ranks (AP/Coaches)
 
 def _elo_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
-    """Return weekly Elo ratings + rank/score for FBS teams.
-    Columns: week, team, elo, elo_rank_1_133, elo_score_0_100.
-    If the CFBD ratings API is unavailable, returns an empty DataFrame with the
-    correct columns so downstream joins do not fail.
     """
-    cols = ["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"]
-    if not apis or not getattr(apis, "ratings_api", None):
-        return pd.DataFrame(columns=cols)
+    Fetch (and cache) Elo ratings by week and return a per-week rank and a 0..100 score.
+    Schema: week, team, elo, elo_rank_1_133, elo_score_0_100
+    """
+    if not apis.ratings_api:
+        return pd.DataFrame(columns=["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"])
 
-    out: List[pd.DataFrame] = []
-    # normalize weeks list
-    uniq_weeks = sorted({int(w) for w in weeks if pd.notna(w)})
+    uniq_weeks = sorted({int(w) for w in weeks if w is not None and str(w).strip().isdigit()})
+    all_rows: List[Dict[str, Any]] = []
+
     for wk in uniq_weeks:
         key = f"elo:{year}:{wk}"
-        ok, cached = cache.get(key)
+        ok, data = cache.get(key)
+        if not ok and CACHE_ONLY:
+            # On cache-miss in CACHE_ONLY mode, write an empty list and continue
+            cache.set(key, [])
+            data = []
+            ok = True
+
         if ok:
-            df = pd.DataFrame(cached)
+            rows = data or []
         else:
             try:
-                # CFBD exposes Elo ratings per week
                 items = apis.ratings_api.get_elo_ratings(year=year, week=int(wk))
             except Exception as e:
-                print(f"[warn] elo fetch failed for {year} w{wk}: {e}", file=sys.stderr)
+                print(f"[warn] elo fetch failed y{year} w{wk}: {e}", file=sys.stderr)
                 items = []
+
             rows = []
             for it in items or []:
                 team = getattr(it, "team", None) or getattr(it, "school", None)
-                # field name varies across client versions (elo vs rating)
-                rating = getattr(it, "elo", None)
-                if rating is None:
-                    rating = getattr(it, "rating", None)
+                rating = getattr(it, "elo", None) or getattr(it, "rating", None)
                 try:
-                    rating = float(rating) if rating is not None else None
+                    rating = float(rating)
                 except Exception:
                     rating = None
-                if team is None:
+                if team is None or rating is None:
                     continue
                 rows.append({"week": int(wk), "team": team, "elo": rating})
-            df = pd.DataFrame(rows)
-            cache.set(key, df.to_dict(orient="records"))
 
-        if not df.empty:
-            df["week"] = int(wk)
-            df["elo"] = pd.to_numeric(df["elo"], errors="coerce")
-            # Rank: 1 is best
-            df["elo_rank_1_133"] = df["elo"].rank(ascending=False, method="min").astype("Int64")
-            N = float(df["elo_rank_1_133"].max() or 133)
-            df["elo_score_0_100"] = (1.0 - (df["elo_rank_1_133"].astype(float) - 1.0) / N) * 100.0
-            out.append(df[["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"]])
+            cache.set(key, rows)
 
-    return pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=cols)
+        all_rows.extend(rows)
+
+    df = pd.DataFrame(all_rows)
+    if df.empty:
+        return pd.DataFrame(columns=["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"])
+
+    # Per-week ranks (1 is best)
+    df["elo_rank_1_133"] = df.groupby("week")["elo"].rank(ascending=False, method="min").astype(int)
+    # Convert rank to a 0..100 score (100 best) using the max rank present per week
+    max_rank = df.groupby("week")["elo_rank_1_133"].transform("max").astype("float64")
+    df["elo_score_0_100"] = (1.0 - (df["elo_rank_1_133"].astype("float64") - 1.0) / max_rank) * 100.0
+    return df[["week", "team", "elo", "elo_rank_1_133", "elo_score_0_100"]]
 
 
+# Helper: cache AP/Coaches poll ranks per week
 def _poll_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
-    """Return weekly AP/Coaches ranks.
-    Columns: week, team, ap_rank, coaches_rank. If a team is unranked on a
-    given week, the field is left NaN. When the Rankings API is missing,
-    returns an empty DataFrame with expected columns.
     """
-    cols = ["week", "team", "ap_rank", "coaches_rank"]
-    if not apis or not getattr(apis, "rankings_api", None):
-        return pd.DataFrame(columns=cols)
+    Fetch (and cache) AP and Coaches poll ranks by week.
+    Schema: week, team, ap_rank, coaches_rank
+    """
+    if not apis.rankings_api:
+        return pd.DataFrame(columns=["week", "team", "ap_rank", "coaches_rank"])
 
-    out: List[pd.DataFrame] = []
-    uniq_weeks = sorted({int(w) for w in weeks if pd.notna(w)})
+    uniq_weeks = sorted({int(w) for w in weeks if w is not None and str(w).strip().isdigit()})
+    out_rows: List[Dict[str, Any]] = []
+
     for wk in uniq_weeks:
         key = f"polls:{year}:{wk}"
-        ok, cached = cache.get(key)
+        ok, data = cache.get(key)
+        if not ok and CACHE_ONLY:
+            cache.set(key, [])
+            data = []
+            ok = True
+
         if ok:
-            df = pd.DataFrame(cached)
+            rows = data or []
         else:
             try:
-                polls = apis.rankings_api.get_rankings(year=year, week=int(wk))
+                wr_list = apis.rankings_api.get_rankings(year=year, week=int(wk))
             except Exception as e:
-                print(f"[warn] rankings fetch failed for {year} w{wk}: {e}", file=sys.stderr)
-                polls = []
-            rows: List[Dict[str, Any]] = []
-            for p in polls or []:
-                poll_name = (getattr(p, "poll", None) or getattr(p, "poll_name", None) or "").lower()
-                ranks = getattr(p, "ranks", None) or []
-                for r in ranks:
-                    team = getattr(r, "school", None) or getattr(r, "team", None)
-                    rank = getattr(r, "rank", None)
-                    try:
-                        rank = int(rank)
-                    except Exception:
-                        rank = None
-                    if team is None:
-                        continue
-                    rows.append({"week": int(wk), "team": team, "poll": poll_name, "rank": rank})
-            df = pd.DataFrame(rows)
-            cache.set(key, df.to_dict(orient="records"))
+                print(f"[warn] polls fetch failed y{year} w{wk}: {e}", file=sys.stderr)
+                wr_list = []
 
-        if not df.empty:
-            df["week"] = int(wk)
-            ap = df[df["poll"].str.contains("ap", na=False)].rename(columns={"rank": "ap_rank"})
-            coaches = df[df["poll"].str.contains("coach", na=False)].rename(columns={"rank": "coaches_rank"})
-            merged = pd.merge(ap[["week", "team", "ap_rank"]], coaches[["week", "team", "coaches_rank"]],
-                              on=["week", "team"], how="outer")
-            out.append(merged)
-
-    return pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=cols)
-# =========================
-
-def _elo_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
-    """Fetch weekly Elo ratings and convert to per-week ranks and 0..100 score."""
-    if not apis.ratings_api:
-        return pd.DataFrame(columns=["week","team","elo_rank_1_133","elo_score_0_100"])
-    out: List[Dict[str, Any]] = []
-    for wk in sorted({int(w) for w in weeks if pd.notna(w)}):
-        key = f"elo:{year}:{wk}"
-        ok, data = cache.get(key)
-        if not ok:
-            try:
-                items = apis.ratings_api.get_elo(year=year, week=int(wk)) or []
-                data = [{"week": wk, "team": getattr(it, "team", None), "elo": float(getattr(it, "elo", 0) or 0)} for it in items]
-                cache.set(key, data)
-            except Exception as e:
-                print(f"[warn] elo fetch failed for {year} w{wk}: {e}", file=sys.stderr)
-                data = []
-        out.extend(data)
-    df = pd.DataFrame(out)
-    if df.empty:
-        return pd.DataFrame(columns=["week","team","elo_rank_1_133","elo_score_0_100"])
-    df["elo"] = pd.to_numeric(df["elo"], errors="coerce")
-    df["elo_rank_1_133"] = df.groupby("week")["elo"].rank(ascending=False, method="min").astype(int)
-    maxr = df.groupby("week")["elo_rank_1_133"].transform("max").astype(float)
-    df["elo_score_0_100"] = (1.0 - (df["elo_rank_1_133"] - 1) / maxr) * 100.0
-    return df[["week","team","elo_rank_1_133","elo_score_0_100"]]
-
-
-def _poll_ranks(year: int, weeks: List[int], apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
-    """Fetch weekly AP/Coaches poll ranks (Top 25). Returns NaN for unranked teams."""
-    if not apis.rankings_api:
-        return pd.DataFrame(columns=["week","team","ap_rank","coaches_rank"])
-    rows: List[Dict[str, Any]] = []
-    for wk in sorted({int(w) for w in weeks if pd.notna(w)}):
-        key = f"polls:{year}:{wk}"
-        ok, data = cache.get(key)
-        if not ok:
-            try:
-                items = apis.rankings_api.get_rankings(year=year, week=int(wk), season_type="regular") or []
-                serial: List[Dict[str, Any]] = []
-                for p in items:
-                    poll_name = (getattr(p, "poll", None) or getattr(p, "poll_name", None) or "").lower()
-                    ranks = getattr(p, "ranks", []) or []
+            rows = []
+            for wr in wr_list or []:
+                polls = getattr(wr, "polls", None) or []
+                ap_map: Dict[str, int] = {}
+                coaches_map: Dict[str, int] = {}
+                for p in polls:
+                    pname = (getattr(p, "poll", "") or "").lower()
+                    ranks = getattr(p, "ranks", None) or []
                     for r in ranks:
-                        school = getattr(r, "school", None) or getattr(r, "team", None)
+                        team = getattr(r, "school", None) or getattr(r, "team", None)
                         rank = getattr(r, "rank", None)
-                        if not school or rank is None:
+                        try:
+                            rank = int(rank)
+                        except Exception:
+                            rank = None
+                        if not team or rank is None:
                             continue
-                        serial.append({"poll": poll_name, "team": school, "rank": int(rank), "week": int(wk)})
-                cache.set(key, serial)
-                data = serial
-            except Exception as e:
-                print(f"[warn] rankings fetch failed for {year} w{wk}: {e}", file=sys.stderr)
-                data = []
-        ap_map: Dict[str, int] = {}
-        co_map: Dict[str, int] = {}
-        for row in data:
-            poll = (row.get("poll") or "").lower()
-            team = row.get("team")
-            rk = row.get("rank")
-            if not team or rk is None:
-                continue
-            if "ap" in poll:
-                ap_map[team] = rk
-            elif "coaches" in poll:
-                co_map[team] = rk
-        for t in set(list(ap_map.keys()) + list(co_map.keys())):
-            rows.append({"week": int(wk), "team": t, "ap_rank": ap_map.get(t), "coaches_rank": co_map.get(t)})
-    return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["week","team","ap_rank","coaches_rank"])
+                        if "coaches" in pname:
+                            coaches_map[team] = rank
+                        elif pname == "ap" or "associated" in pname or "press" in pname:
+                            ap_map[team] = rank
+                teams = set(list(ap_map.keys()) + list(coaches_map.keys()))
+                for t in teams:
+                    rows.append(
+                        {
+                            "week": int(wk),
+                            "team": t,
+                            "ap_rank": ap_map.get(t),
+                            "coaches_rank": coaches_map.get(t),
+                        }
+                    )
 
+            cache.set(key, rows)
 
-# =========================
-# Predictions
-# =========================
-def _team_rating(df_teams: pd.DataFrame) -> pd.Series:
-    wrps = pd.to_numeric(df_teams.get("wrps_percent_0_100"), errors="coerce")
-    talent = pd.to_numeric(df_teams.get("talent_score_0_100"), errors="coerce")
-    portal = pd.to_numeric(df_teams.get("portal_net_0_100"), errors="coerce")
-    srs_score = pd.to_numeric(df_teams.get("srs_score_0_100"), errors="coerce")
+        out_rows.extend(rows)
 
-    wrps = wrps.fillna(wrps.median() if not wrps.dropna().empty else 50.0)
-    talent = talent.fillna(talent.median() if not talent.dropna().empty else 50.0)
-    portal = portal.fillna(portal.median() if not portal.dropna().empty else 50.0)
-    # If no SRS data yet (early season / API miss), backfill from WRPS to avoid skew
-    if srs_score.dropna().empty:
-        srs_score = wrps.copy()
-    else:
-        srs_score = srs_score.fillna(srs_score.median() if not srs_score.dropna().empty else 50.0)
-
-    # Weights are tunable; add rank-based smoothing via SRS score
-    return (0.35 * wrps + 0.25 * talent + 0.15 * portal + 0.25 * srs_score).clip(0, 100)
-
-
-def _home_spread_from_ratings(home_r: float, away_r: float, neutral_flag: int) -> float:
-    scale = 12.0  # 12 rating points ~ 1 TD (tune later)
-    hfa = 0.0 if int(neutral_flag) == 1 else 2.0
-    return (home_r - away_r) / (scale / 7.0) + hfa
-
-
-def build_predictions_book_style(
-    season: int,
-    schedule_df: pd.DataFrame,
-    team_inputs_df: pd.DataFrame,
-    market_df: Optional[pd.DataFrame],
-    current_week: Optional[int],
-    valid_teams: Optional[Iterable[str]] = None,
-) -> pd.DataFrame:
-    teams = team_inputs_df.copy()
-    teams["rating_0_100"] = _team_rating(teams)
-
-    # Normalize allowed team names and hard-filter schedule to FBS vs FBS only
-    norm_ok: Optional[set] = None
-    if valid_teams is not None:
-        norm_ok = {str(t).strip() for t in valid_teams if str(t).strip()}
-
-    sched = schedule_df.copy()
-    if norm_ok is not None and not sched.empty:
-        sched = sched.loc[
-            sched["home_team"].astype(str).str.strip().isin(norm_ok)
-            & sched["away_team"].astype(str).str.strip().isin(norm_ok)
-        ].copy()
-
-    for col in ["game_id", "week", "date", "home_team", "away_team", "neutral_site"]:
-        if col not in sched.columns:
-            sched[col] = None
-
-    sched = sched.merge(
-        teams[["team", "rating_0_100"]].rename(columns={"team": "home_team", "rating_0_100": "home_rating"}),
-        on="home_team",
-        how="left",
-    ).merge(
-        teams[["team", "rating_0_100"]].rename(columns={"team": "away_team", "rating_0_100": "away_rating"}),
-        on="away_team",
-        how="left",
-    )
-    # --- Ranks: prefer weekly Elo; fallback to season SRS ---
-    weeks_list = pd.to_numeric(sched.get("week"), errors="coerce").dropna().astype(int).tolist()
-    elo = _elo_ranks(season, weeks_list, apis, cache)
-    if not elo.empty:
-        sched = sched.merge(
-            elo.rename(columns={"team": "home_team", "elo_rank_1_133": "home_rank"}),
-            on=["week", "home_team"], how="left",
-        ).merge(
-            elo.rename(columns={"team": "away_team", "elo_rank_1_133": "away_rank"}),
-            on=["week", "away_team"], how="left",
-        )
-    else:
-        # fallback to season SRS rank in team inputs
-        sched = sched.merge(
-            teams[["team", "srs_rank_1_133"]].rename(columns={"team": "home_team", "srs_rank_1_133": "home_rank"}),
-            on="home_team", how="left",
-        ).merge(
-            teams[["team", "srs_rank_1_133"]].rename(columns={"team": "away_team", "srs_rank_1_133": "away_rank"}),
-            on="away_team", how="left",
-        )
-
-    sched["home_rank"] = pd.to_numeric(sched["home_rank"], errors="coerce")
-    sched["away_rank"] = pd.to_numeric(sched["away_rank"], errors="coerce")
-    med_rank = 66 if sched[["home_rank","away_rank"]].stack().dropna().empty else int(sched[["home_rank","away_rank"]].stack().median())
-    sched["home_rank"] = sched["home_rank"].fillna(med_rank).astype(float)
-    sched["away_rank"] = sched["away_rank"].fillna(med_rank).astype(float)
-    sched["rank_delta"] = (sched["away_rank"] - sched["home_rank"]).astype(float)
-
-    # (Optional) Poll ranks merged for completeness (not used by UI yet)
-    polls = _poll_ranks(season, weeks_list, apis, cache)
-    if not polls.empty:
-        sched = sched.merge(
-            polls.rename(columns={"team": "home_team", "ap_rank": "home_ap_rank", "coaches_rank": "home_coaches_rank"}),
-            on=["week", "home_team"], how="left",
-        ).merge(
-            polls.rename(columns={"team": "away_team", "ap_rank": "away_ap_rank", "coaches_rank": "away_coaches_rank"}),
-            on=["week", "away_team"], how="left",
-        )
-
-    sched["home_rating"] = sched["home_rating"].fillna(50.0)
-    sched["away_rating"] = sched["away_rating"].fillna(50.0)
-    sched["neutral_site"] = pd.to_numeric(sched["neutral_site"], errors="coerce").fillna(0).astype(int)
-
-    # Internal home-positive model spread
-    sched["model_h"] = [
-        _home_spread_from_ratings(h, a, n) for h, a, n in zip(sched["home_rating"], sched["away_rating"], sched["neutral_site"])
-    ]
-
-    # Market: current week only; others = 0 internally
-    sched["market_h"] = 0.0
-    if market_df is not None and not market_df.empty and current_week is not None:
-        m = market_df.copy()
-        # market_df is book-style (negative favors home). Convert to internal home-positive.
-        m["market_h_internal"] = -1.0 * pd.to_numeric(m["spread"], errors="coerce")
-        m = m.loc[pd.to_numeric(m["week"], errors="coerce").fillna(-1).astype(int) == int(current_week)]
-        sched = sched.merge(
-            m[["game_id", "market_h_internal"]], on="game_id", how="left", validate="one_to_one"
-        )
-        sched["market_h"] = sched["market_h_internal"].fillna(0.0)
-        sched.drop(columns=["market_h_internal"], inplace=True, errors="ignore")
-
-    # Expected = market (hook for smoothing later)
-    sched["expected_h"] = sched["market_h"]
-
-    # --- Calibrate model using market & rank delta (linear least squares) ---
-    sched["model_h_base"] = sched["model_h"].astype(float)
-    alpha, beta, gamma = 0.0, 1.0, 0.0
-    cal = sched.loc[
-        pd.notna(sched["market_h"]) & pd.notna(sched["model_h_base"]) & pd.notna(sched["rank_delta"])
-    , ["market_h", "model_h_base", "rank_delta"]].copy()
-    if cal.shape[0] >= 8:
-        try:
-            X = np.column_stack([
-                np.ones(len(cal)),
-                cal["model_h_base"].to_numpy(float),
-                cal["rank_delta"].to_numpy(float),
-            ])
-            y = cal["market_h"].to_numpy(float)
-            theta, *_ = np.linalg.lstsq(X, y, rcond=None)
-            alpha, beta, gamma = float(theta[0]), float(theta[1]), float(theta[2])
-        except Exception:
-            # Fallback: only adjust on rank_delta → residual regression
-            denom = float(np.maximum(1e-6, np.var(cal["rank_delta"].to_numpy(float))))
-            resid = (cal["market_h"].to_numpy(float) - cal["model_h_base"].to_numpy(float))
-            num = float(np.cov(cal["rank_delta"].to_numpy(float), resid, bias=True)[0, 1])
-            gamma = num / denom
-            alpha, beta = 0.0, 1.0
-    else:
-        # Default gentle rank influence when little data: ~1 point per 100 rank places
-        alpha, beta, gamma = 0.0, 1.0, 0.01
-
-    # Bound coefficients to keep adjustments reasonable
-    beta = float(np.clip(beta, 0.6, 1.4))
-    gamma = float(np.clip(gamma, -0.02, 0.02))  # ≤2 pts per 100-rank delta
-    alpha = float(np.clip(alpha, -3.0, 3.0))
-
-    # Adjusted model (home-positive)
-    sched["model_h_adj"] = alpha + beta * sched["model_h_base"].astype(float) + gamma * sched["rank_delta"].astype(float)
-    print(f"[live] rank-calibration: alpha={alpha:.3f} beta={beta:.3f} gamma={gamma:.3f} n={cal.shape[0]}", flush=True)
-
-    # Edge & Value using adjusted model
-    sched["edge_h"] = sched["model_h_adj"].astype(float) - sched["market_h"].astype(float)
-    same_side = np.sign(sched["model_h_adj"]) == np.sign(sched["expected_h"])
-    sched["value_h"] = np.where(same_side, np.abs(sched["edge_h"]), 0.0)
-
-    # Convert to book-style for UI (also keep base for debugging)
-    sched["MODEL_BASE (H)"] = (-1.0 * sched["model_h_base"]).round(1)
-    sched["MODEL (H)"] = (-1.0 * sched["model_h_adj"]).round(1)
-    sched["MARKET (H)"] = (-1.0 * sched["market_h"]).round(1)
-    sched["EXPECTED (H)"] = (-1.0 * sched["expected_h"]).round(1)
-    # book-style edge = (book_model - book_market) = -(model_h - market_h)
-    sched["EDGE"] = (-1.0 * sched["edge_h"]).round(1)
-    sched["VALUE"] = (sched["value_h"]).round(1)
-
-    # --- Outcomes & correctness (for past weeks) ---
-    # played if we have both scores
-    sched["home_points"] = pd.to_numeric(sched.get("home_points"), errors="coerce")
-    sched["away_points"] = pd.to_numeric(sched.get("away_points"), errors="coerce")
-    sched["played_flag"] = np.where(pd.notna(sched["home_points"]) & pd.notna(sched["away_points"]), 1, 0)
-
-    # Actual ATS from home perspective using internal lines
-    # market_h (internal) already computed; margin_home = home_points - away_points
-    margin_home = (sched["home_points"] - sched["away_points"]).astype(float)
-    ats_score = margin_home - sched["market_h"].astype(float)
-    # model pick from adjusted model vs market: edge_h > 0 ⇒ value = AWAY, else HOME
-    model_pick = np.where((sched["model_h_adj"].astype(float) - sched["market_h"].astype(float)) > 0, "AWAY", "HOME")
-
-    result = np.where(sched["played_flag"].eq(1),
-                      np.where(ats_score > 0, "HOME",
-                               np.where(ats_score < 0, "AWAY", "PUSH")), "")
-    sched["model_result"] = np.where(sched["played_flag"].eq(1),
-                                      np.where(result == "PUSH", "PUSH",
-                                               np.where(result == model_pick, "CORRECT", "INCORRECT")), "")
-
-    out = sched.rename(
-        columns={
-            "week": "WEEK",
-            "date": "DATE",
-            "away_team": "AWAY",
-            "home_team": "HOME",
-            "neutral_site": "NEUTRAL",
-        }
-    )
-    out["NEUTRAL"] = np.where(out["NEUTRAL"].astype(int) == 1, "Y", "—")
-    # Carry ranks to output
-    out["HOME_RANK"] = pd.to_numeric(sched.get("home_rank"), errors="coerce")
-    out["AWAY_RANK"] = pd.to_numeric(sched.get("away_rank"), errors="coerce")
-    out["HOME_POINTS"] = sched.get("home_points")
-    out["AWAY_POINTS"] = sched.get("away_points")
-
-    cols = [
-        "WEEK",
-        "DATE",
-        "AWAY",
-        "HOME",
-        "NEUTRAL",
-        "MODEL (H)",
-        "MARKET (H)",
-        "EXPECTED (H)",
-        "EDGE",
-        "VALUE",
-        "game_id",
-        "HOME_RANK",
-        "AWAY_RANK",
-        "HOME_POINTS",
-        "AWAY_POINTS",
-    ]
-    for c in cols:
-        if c not in out.columns:
-            out[c] = np.nan
-
-    # --- UI-compatible columns (book-style, home-negative) ---
-    # Map to lower-case names the React app expects
-    out["week"] = out["WEEK"]
-    out["date"] = out["DATE"]
-    out["home_team"] = out["HOME"]
-    out["away_team"] = out["AWAY"]
-    out["home_rank"] = out["HOME_RANK"]
-    out["away_rank"] = out["AWAY_RANK"]
-    out["neutral_site"] = np.where(out["NEUTRAL"].astype(str).str.upper().eq("Y"), "1", "0")
-    out["model_spread_book"] = out["MODEL (H)"]
-    out["model_base_spread_book"] = out["MODEL_BASE (H)"]
-    out["market_spread_book"] = out["MARKET (H)"]
-    out["expected_market_spread_book"] = out["EXPECTED (H)"]
-    out["edge_points_book"] = out["EDGE"]
-    out["value_points_book"] = out["VALUE"]
-    out["home_points"] = out["HOME_POINTS"]
-    out["away_points"] = out["AWAY_POINTS"]
-    out["played"] = np.where(sched["played_flag"].eq(1), "1", "")
-
-    # Qualification flag to match UI thresholds (EDGE_MIN=2.0, VALUE_MIN=1.0)
-    EDGE_MIN_T = 2.0
-    VALUE_MIN_T = 1.0
-    edge_abs = pd.to_numeric(out["EDGE"], errors="coerce").abs()
-    val_abs = pd.to_numeric(out["VALUE"], errors="coerce").abs()
-    out["qualified_edge_flag"] = np.where((edge_abs >= EDGE_MIN_T) & (val_abs >= VALUE_MIN_T), "1", "0")
-
-    # Optional placeholders used by Team & Backtest tabs
-    if "played" not in out.columns:
-        out["played"] = ""
-    if "model_result" not in out.columns:
-        out["model_result"] = ""
-
-    out = out[cols + [
-        "week","date","home_team","away_team","home_rank","away_rank","neutral_site",
-        "model_spread_book","model_base_spread_book","market_spread_book","expected_market_spread_book",
-        "edge_points_book","value_points_book","qualified_edge_flag","played","model_result",
-        "home_points","away_points"
-    ]].sort_values(["WEEK", "DATE", "AWAY", "HOME"], kind="stable").reset_index(drop=True)
-    return out
-
-
-# =========================
-# (Optional) Backtest stub
-# =========================
-def run_backtest_stub(year: int, out_dir: str = DATA_DIR):
-    # Minimal placeholder. Keep your prior backtest if you prefer.
-    df = pd.DataFrame(
-        [
-            {"week": 1, "wins": 10, "losses": 6, "push": 0, "pct": round(10 / 16, 3)},
-            {"week": 2, "wins": 9, "losses": 7, "push": 0, "pct": round(9 / 16, 3)},
-        ]
-    )
-    write_csv(df, os.path.join(out_dir, f"backtest_summary_{year}.csv"))
-
-
-# =========================
-# Google Sheets (optional)
-# =========================
-def maybe_push_sheets(df: pd.DataFrame, sheet_title: str, sheet_id_env: str = "SHEET_ID"):
-    if not ENABLE_SHEETS:
-        return
-    SHEET_ID = os.environ.get(sheet_id_env, "").strip()
-    SA = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
-    if not (SHEET_ID and SA and os.path.exists(SA)):
-        return
-    try:
-        import gspread
-        from google.oauth2.service_account import Credentials
-
-        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = Credentials.from_service_account_file(SA, scopes=scopes)
-        gc = gspread.authorize(creds)
-        sh = gc.open_by_key(SHEET_ID)
-        try:
-            ws = sh.worksheet(sheet_title)
-        except Exception:
-            ws = sh.add_worksheet(title=sheet_title, rows=str(len(df) + 10), cols=str(len(df.columns) + 5))
-        ws.clear()
-        ws.update([df.columns.tolist()] + df.fillna("").values.tolist())
-        print(f"[sheets] updated: {sheet_title}", flush=True)
-    except Exception as e:
-        print(f"[warn] Sheets update skipped/failed: {e}", file=sys.stderr)
-
-
-# =========================
-# Main
-# =========================
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--year", type=int, required=True)
-    parser.add_argument("--backtest", type=int, required=False)
-    args = parser.parse_args()
-
-    season = int(args.year)
-    backtest_year = int(args.backtest) if args.backtest else None
-
-    os.makedirs(DATA_DIR, exist_ok=True)
-
-    cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
-    apis = CfbdClients(bearer_token=os.environ.get("BEARER_TOKEN", "").strip())
-
-    # 1) TEAM INPUTS
-    team_inputs = build_team_inputs_datadriven(season, apis, cache)
-    write_csv(team_inputs, f"{DATA_DIR}/upa_team_inputs_datadriven_v0.csv")
-    maybe_push_sheets(team_inputs, "Team Inputs")
-    print(f"[live] team inputs for {season}: {team_inputs.shape}", flush=True)
-
-    # Build FBS set from team_inputs for schedule filter
-    fbs_names = set(pd.Series(team_inputs.get("team", [])).dropna().astype(str))
-
-    # 2) SCHEDULE
-    schedule = load_schedule_for_year(season, apis, cache, fbs_set=fbs_names)
-    write_csv(schedule, f"{DATA_DIR}/cfb_schedule.csv")
-    print(f"[live] schedule rows: {schedule.shape[0]}", flush=True)
-    # Sanity: confirm FBS-only filtering
-    raw_sched_rows = int(schedule.shape[0])
-
-    # 3) CURRENT WEEK + MARKET (only current week; others default to 0)
-    current_week = discover_current_week(schedule) or 1
-    market = get_market_lines_for_current_week(season, current_week, schedule, apis, cache)
-    print(f"[live] current_week={current_week}; market rows={market.shape[0]}", flush=True)
-
-    # 4) PREDICTIONS (book-style)
-    preds = build_predictions_book_style(season, schedule, team_inputs, market, current_week, valid_teams=fbs_names)
-    print(f"[live] predictions rows (FBS-only): {preds.shape[0]} from schedule={raw_sched_rows}", flush=True)
-    write_csv(preds, f"{DATA_DIR}/upa_predictions.csv")
-
-    # 5) LIVE EDGE
-    live_edge = preds.sort_values("EDGE", key=lambda s: s.abs(), ascending=False).head(500)
-    write_csv(live_edge, f"{DATA_DIR}/live_edge_report.csv")
-
-    # 6) STATUS
-    now_utc = datetime.now(timezone.utc)
-    status = {
-        "generated_at_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "next_run_eta_utc": (now_utc + timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "year": season,
-        "current_week": current_week,
-        "teams": int(team_inputs.shape[0]),
-        "games": int(schedule.shape[0]),
-        "pred_rows": int(preds.shape[0]),
-        "note": "Market lines only fetched for current week; other weeks default to 0.",
-    }
-    with open(f"{DATA_DIR}/status.json", "w") as f:
-        json.dump(status, f, indent=2)
-
-    # 7) OPTIONAL BACKTEST
-    if backtest_year:
-        run_backtest_stub(backtest_year)
-
-    print("[done] collectors completed.", flush=True)
-
-
-if __name__ == "__main__":
-    main()
+    df = pd.DataFrame(out_rows)
+    if df.empty:
+        return pd.DataFrame(columns=["week", "team", "ap_rank", "coaches_rank"])
+    return df[["week", "team", "ap_rank", "coaches_rank"]]
