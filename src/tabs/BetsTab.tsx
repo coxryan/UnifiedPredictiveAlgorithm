@@ -76,6 +76,8 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
  export default function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [wk, setWk] = useState<number | null>(null);
+  const [kickMap, setKickMap] = useState<Record<string, string>>({});
+  const keyOf = (w: any, a: any, h: any) => `${Number(w) || 0}|${(a ?? "").toString().trim()}|${(h ?? "").toString().trim()}`;
 
   // Controls
   const [bankroll, setBankroll] = useState<string>("1000");
@@ -93,6 +95,18 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       setRows(r);
       const nextWk = nextUpcomingWeek(r as any);
       setWk(nextWk);
+      try {
+        const sched = (await loadCsv("data/cfb_schedule.csv")) as any[];
+        const m: Record<string, string> = {};
+        const norm = (s: any) => (s ?? "").toString().trim();
+        const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
+        for (const r of sched || []) {
+          const dt = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? "").toString();
+          if (!dt) continue;
+          m[key(r.week, r.away_team, r.home_team)] = dt;
+        }
+        setKickMap(m);
+      } catch {}
     } catch {
       setRows([]);
       setWk(null);
@@ -130,11 +144,12 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
       const ev = Number.isFinite(edge) ? evFromEdge(edge, Number(odds) || -110) : NaN;
-      const hour = kickoffHour(r.date);
+      const schedDt = kickMap[keyOf(r.week, r.away_team, r.home_team)];
+      const hour = kickoffHour(schedDt || r.date);
       const bucket = bucketOfHour(hour);
       return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev, _hour: hour, _bucket: bucket } as any;
     });
-  }, [rows, odds]);
+  }, [rows, odds, kickMap]);
 
   // Base candidate set for selected week
   const candidatesRaw = useMemo(() => {

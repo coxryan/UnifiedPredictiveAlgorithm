@@ -184,6 +184,28 @@ def _date_only(x) -> Optional[str]:
         return None
     return None
 
+# Preserve full ISO datetime string (UTC if provided), else None
+def _iso_datetime_str(x) -> Optional[str]:
+    if x is None:
+        return None
+    try:
+        if isinstance(x, str):
+            return x
+        if hasattr(x, "isoformat"):
+            try:
+                return x.isoformat()
+            except Exception:
+                pass
+        dt = pd.to_datetime(x, errors="coerce")
+        if pd.notna(dt):
+            try:
+                return dt.isoformat()
+            except Exception:
+                return None
+    except Exception:
+        return None
+    return None
+
 def load_schedule_for_year(
     year: int,
     apis: CfbdClients,
@@ -225,6 +247,7 @@ def load_schedule_for_year(
                     "game_id": getattr(g, "id", None),
                     "week": getattr(g, "week", None),
                     "date": _date_only(getattr(g, "start_date", None)),
+                    "kickoff_utc": _iso_datetime_str(getattr(g, "start_date", None)),
                     "away_team": getattr(g, "away_team", None),
                     "home_team": getattr(g, "home_team", None),
                     "neutral_site": 1 if getattr(g, "neutral_site", False) else 0,
