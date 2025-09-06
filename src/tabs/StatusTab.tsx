@@ -65,6 +65,9 @@ export default function StatusTab() {
     return rows;
   }, [preds]);
 
+  // Cache-busting query string for download links based on status timestamp
+  const v = status?.generated_at_utc ? `?v=${encodeURIComponent(status.generated_at_utc)}` : "";
+
   return (
     <section className="card">
       <div className="card-title">Collector Status</div>
@@ -113,12 +116,13 @@ export default function StatusTab() {
           </div>
 
           <div className="note" style={{ marginTop: 8 }}>
-            <a href={"data/upa_team_inputs_datadriven_v0.csv"} target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
-            <a href={"data/cfb_schedule.csv"} target="_blank" rel="noreferrer">schedule CSV ↗</a>{" • "}
-            <a href={"data/upa_predictions.csv"} target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
-            <a href={"data/live_edge_report.csv"} target="_blank" rel="noreferrer">live edge CSV ↗</a>{" • "}
-            <a href={"data/2024/upa_predictions_2024_backtest.csv"} target="_blank" rel="noreferrer">backtest predictions (2024) CSV ↗</a>{" • "}
-            <a href={"data/2024/backtest_summary_2024.csv"} target="_blank" rel="noreferrer">backtest summary (2024) CSV ↗</a>
+            <a href={`data/upa_team_inputs_datadriven_v0.csv${v}`} target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
+            <a href={`data/cfb_schedule.csv${v}`} target="_blank" rel="noreferrer">schedule CSV ↗</a>{" • "}
+            <a href={`data/upa_predictions.csv${v}`} target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
+            <a href={`data/live_edge_report.csv${v}`} target="_blank" rel="noreferrer">live edge CSV ↗</a>{" • "}
+            <a href={`data/2024/upa_predictions_2024_backtest.csv${v}`} target="_blank" rel="noreferrer">backtest predictions (2024) CSV ↗</a>{" • "}
+            <a href={`data/2024/backtest_summary_2024.csv${v}`} target="_blank" rel="noreferrer">backtest summary (2024) CSV ↗</a>{" • "}
+            <a href={`data/backtest_predictions_2024.csv${v}`} target="_blank" rel="noreferrer">alt: backtest predictions (2024) CSV ↗</a>
           </div>
         </>
       )}
