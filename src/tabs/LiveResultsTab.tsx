@@ -99,4 +99,27 @@ export default function LiveResultsTab() {
             <div className="row teams">
               <div className="side">
                 <div className="lbl">AWAY</div>
-                <div className="name">{g.away_school || g.away_team}</div
+                <div className="name">{g.away_school || g.away_team}</div>
+                <div className="score">{fmtNum(g.away_points, { maximumFractionDigits: 0 })}</div>
+              </div>
+              <div className="side">
+                <div className="lbl">HOME</div>
+                <div className="name">{g.home_school || g.home_team}</div>
+                <div className="score">{fmtNum(g.home_points, { maximumFractionDigits: 0 })}</div>
+              </div>
+            </div>
+            <div className="row meta">
+              <div>{g.detail || "—"}</div>
+              <div>{g.venue || ""}</div>
+            </div>
+            <div className="row picks">
+              <div>Model (H): {fmtNum(g._model)}</div>
+              <div>Market (H): {fmtNum(g._market)}</div>
+              <div>Pick: {g._pick || "—"}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
