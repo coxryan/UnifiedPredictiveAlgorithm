@@ -5,11 +5,10 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# Default knobs
 env:
   UPA_YEAR: "2025"
-  UPA_BACKTEST_YEAR: "2024"   # set "0" to skip
-  RUN_BACKTEST: "0"           # set "1" to run backtest
+  UPA_BACKTEST_YEAR: "2024"   # set "0" to skip backtest
+  RUN_BACKTEST: "0"           # set "1" to enable backtest
   NODE_VERSION: "20.x"
 
 permissions:
@@ -23,14 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: List repo layout (debug)
-        run: |
-          echo "HEAD=$(git rev-parse --short HEAD)"
-          echo "BRANCH=${GITHUB_REF_NAME}"
-          git ls-files | sort | sed 's/^/ - /'
-          echo "agents dir:"
-          ls -la agents || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -58,57 +49,25 @@ jobs:
           fi
 
       - name: Diagnose data outputs
-        shell: bash
         run: |
-          set -e
-          if python - <<'PY'
-import importlib.util, sys
-sys.exit(0 if importlib.util.find_spec("agents.diagnose_run") else 1)
-PY
-          then
-            python -m agents.diagnose_run
-          else
-            echo "agents/diagnose_run.py not found; running inline diagnostics."
-            python - <<'PY'
-import os, sys, pandas as pd
-DATA_DIR="data"
-def req(p):
-    fp=os.path.join(DATA_DIR,p)
-    if not os.path.exists(fp):
-        print(f"[FAIL] Missing file: {fp}", file=sys.stderr); sys.exit(2)
-    return fp
-def head(df,n=5,l="sample"):
-    with pd.option_context("display.max_columns",None,"display.width",220):
-        print(f"[HEAD] {l} ({min(n,len(df))} rows):"); print(df.head(n).to_string(index=False))
-def need(df,cols,name):
-    m=[c for c in cols if c not in df.columns]
-    if m: print(f"[FAIL] {name} missing columns: {m}", file=sys.stderr); print(f"[INFO] {name} columns: {list(df.columns)}"); sys.exit(3)
-def nonempty(df,name):
-    if df.shape[0]==0: print(f"[FAIL] {name} has zero rows", file=sys.stderr); sys.exit(4)
-ti=pd.read_csv(req("upa_team_inputs_datadriven_v0.csv")); print(f"[OK] team inputs rows={ti.shape[0]}"); need(ti,["team","wrps_percent_0_100","talent_score_0_100"],"team inputs"); nonempty(ti,"team inputs"); head(ti,"team inputs")
-sch=pd.read_csv(req("cfb_schedule.csv")); print(f"[OK] schedule rows={sch.shape[0]}"); need(sch,["week","date","away_team","home_team","neutral_site","market_spread_book"],"schedule"); nonempty(sch,"schedule"); head(sch[sch["market_spread_book"].astype(str).str.len()>0],"schedule (with market)")
-pr=pd.read_csv(req("upa_predictions.csv")); print(f"[OK] predictions rows={pr.shape[0]}"); need(pr,["week","date","away_team","home_team","neutral_site","model_spread_book","market_spread_book","expected_market_spread_book","edge_points_book","value_points_book","qualified_edge_flag"],"predictions"); nonempty(pr,"predictions"); head(pr,"predictions")
-le=pd.read_csv(req("live_edge_report.csv")); print(f"[OK] live edge rows={le.shape[0]}"); need(le,["week","date","away_team","home_team","neutral_site","model_spread_book","market_spread_book","expected_market_spread_book","edge_points_book","value_points_book","qualified_edge_flag"],"live edge"); nonempty(le,"live edge"); head(le,"live edge")
-print("[SUCCESS] Diagnostics passed.")
-PY
-          fi
+          python -m agents.diagnose_run
 
       # ----- Build the site -----
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # don't set "cache: 'npm'" unless you have a lockfile
+
       - name: Install dependencies
         run: npm install
+
       - name: Build site
         run: npm run build
 
-      # ----- Upload Pages artifact & deploy -----
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: dist
 
   deploy:
     needs: build
@@ -116,6 +75,9 @@ PY
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
