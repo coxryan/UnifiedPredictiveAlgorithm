@@ -84,11 +84,25 @@ def _upsert_status_market_source(
             payload["market_source_config"] = (market_requested or "").strip().lower()
         else:
             payload.pop("market_source_config", None)
+        # Back-compat + aliases for UI
+        if market_requested is not None:
+            req_lc = (market_requested or "").strip().lower()
+            payload["requested_market"] = req_lc
+            payload["market_requested"] = req_lc
+            payload["market_source_requested"] = req_lc
+        else:
+            payload.pop("requested_market", None)
+            payload.pop("market_requested", None)
+            payload.pop("market_source_requested", None)
         # Fallback reason, if provided
         if fallback_reason:
             payload["market_fallback_reason"] = str(fallback_reason)
         else:
             payload.pop("market_fallback_reason", None)
+        if fallback_reason:
+            payload["fallback_reason"] = str(fallback_reason)
+        else:
+            payload.pop("fallback_reason", None)
         # Always refresh timestamp for cache busting
         payload["generated_at_utc"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
         with open(p, "w") as f:
@@ -874,21 +888,25 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     # 3) If requested is fanduel, try FanDuel branch
     if requested == "fanduel":
         try:
-            try:
-                w_int = int(week)
-            except Exception:
-                w_int = None
-            weeks = []
-            if w_int is not None:
-                weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
-            else:
-                weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
-            fan_df = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
-            if fan_df is not None and isinstance(fan_df, pd.DataFrame) and len(fan_df) >= 15:
-                df = fan_df
-            else:
+            if not ODDS_API_KEY:
                 used = "cfbd"
-                fb_reason = "FanDuel returned insufficient rows"
+                fb_reason = "FanDuel requested but ODDS_API_KEY missing"
+            else:
+                try:
+                    w_int = int(week)
+                except Exception:
+                    w_int = None
+                weeks = []
+                if w_int is not None:
+                    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
+                else:
+                    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
+                fan_df = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                if fan_df is not None and isinstance(fan_df, pd.DataFrame) and len(fan_df) >= 5:
+                    df = fan_df
+                else:
+                    used = "cfbd"
+                    fb_reason = "FanDuel returned insufficient rows"
         except Exception as e:
             used = "cfbd"
             fb_reason = f"FanDuel branch error: {e}"
