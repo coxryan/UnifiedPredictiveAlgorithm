@@ -1,64 +1,62 @@
 name: live-scores
 
 on:
-  workflow_dispatch: {}
+  # runs every 5 minutes and can be triggered manually
   schedule:
     - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
-env:
-  UPA_YEAR: "2025"
-  CACHE_ONLY: "0"
-  CACHE_TTL_DAYS: "2"
+# prevent Pages from getting two concurrent deploys
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
           pip install pandas requests
 
       - name: Fetch live scores (ESPN)
-        run: |
-          python agents/fetch_live_scores.py --year "${{ env.UPA_YEAR }}" --out "data/live_scores.csv"
+        run: python agents/fetch_live_scores.py --out live_scores.csv
 
-      - name: Stage site (copy repo → _site)
+      # Pull the last good site bundle produced by the deploy workflow
+      - name: Download last site bundle (from deploy)
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: deploy.yml
+          workflow_conclusion: success
+          name: site-bundle
+          path: site
+          if_no_artifact_found: fail
+
+      - name: Inject live scores into site bundle
         run: |
-          rm -rf _site
-          mkdir -p _site
-          rsync -a --delete --exclude '.git*' --exclude '.github' ./ _site/
-          # Ensure latest CSV is present in the Pages data dir
-          mkdir -p _site/data
-          cp -f data/live_scores.csv _site/data/live_scores.csv
+          mkdir -p site/data
+          cp live_scores.csv site/data/live_scores.csv
+          echo "Injected live_scores.csv into site/data/"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: site
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    concurrency:
-      group: "pages"
-      cancel-in-progress: true
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4

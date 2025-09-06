@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadCsv, fmtNum, toNum } from "../lib/csv";
+import { Badge } from "../lib/ui";
 
 // Join ESPN live scores with our predictions by (away_school, home_school)
 // and filter to FBS-vs-FBS using the current season team inputs file.
@@ -53,6 +54,21 @@ export default function LiveResultsTab() {
     })();
   }, []);
 
+  const lastUpdated = useMemo(() => {
+    const times = (live || [])
+      .map(r => {
+        try { return Date.parse(String(r.date || "")); } catch { return NaN; }
+      })
+      .filter((n) => Number.isFinite(n) && !Number.isNaN(n));
+    if (!times.length) return null;
+    return new Date(Math.max(...(times as number[])));
+  }, [live]);
+
+  const lastUpdatedLabel = useMemo(
+    () => (lastUpdated ? lastUpdated.toLocaleString() : "—"),
+    [lastUpdated]
+  );
+
   const predByMatch = useMemo(() => {
     const key = (a:string,h:string)=> `${a}|${h}`;
     const map = new Map<string, { model:number, market:number }>();
@@ -89,7 +105,9 @@ export default function LiveResultsTab() {
 
   return (
     <section className="card">
-      <div className="card-title">Live Results (auto-refreshed via GitHub Actions)</div>
+      <div className="card-title">
+        Live Results <Badge tone="muted">Updated {lastUpdatedLabel}</Badge>
+      </div>
       {!live.length && (
         <div className="note">No live rows found. Expecting <code>data/live_scores.csv</code>.</div>
       )}

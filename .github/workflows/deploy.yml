@@ -1,20 +1,19 @@
-# .github/workflows/deploy.yml  (or your main workflow)
-name: Deploy
+name: deploy
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-env:
-  UPA_YEAR: '2025'
-  UPA_BACKTEST_YEAR: ''
-  CACHE_TTL_DAYS: '90'
+# Also serialize with the live workflow
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -23,95 +22,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compute weekly cache key
-        id: cachekey
-        run: echo "week=$(date -u +%G-W%V)" >> $GITHUB_OUTPUT
-
-      - name: Restore API cache (.cache_api)
-        uses: actions/cache@v4
-        with:
-          path: .cache_api
-          key: api-${{ env.UPA_YEAR }}-${{ steps.cachekey.outputs.week }}
-          restore-keys: |
-            api-${{ env.UPA_YEAR }}-
-            api-
-
-      # --- Python -----------------------------------------------------------
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install Python deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r agents/requirements.txt
-
-      - name: Run collector (live + maybe backtest)
-        env:
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          CACHE_TTL_DAYS: ${{ env.CACHE_TTL_DAYS }}
-          UPA_YEAR: ${{ env.UPA_YEAR }}
-          UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
-        run: |
-          set -euo pipefail
-          if [ -n "${UPA_BACKTEST_YEAR}" ]; then
-            python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
-          else
-            python agents/collect_cfbd_all.py --year "${UPA_YEAR}"
-          fi
-          echo "Collector finished; listing data/"
-          ls -lah data || true
-
-      - name: Upload data artifact (raw)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: upa-data-${{ github.run_number }}
-          path: data/**
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Mirror data to public
-        run: |
-          mkdir -p public/data
-          cp -R data/* public/data/ || true
-          ls -lah public/data || true
-
-      # --- Node / UI --------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
-      - name: Install UI deps
+      - name: Install deps
         run: |
-          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
 
-      - name: Build site
+      - name: Build UI
         run: npm run build
 
-      - name: Copy data into built site
+      - name: Copy data into dist
         run: |
-          # Ensure multiple fallback locations so UI fetches succeed regardless of path assumptions
           mkdir -p dist/data
-          mkdir -p dist/public/data
-          # Primary: /data/*
-          cp -R public/data/* dist/data/ || true
-          # Fallback 1: some code mistakenly fetches /public/data/*
-          cp -R public/data/* dist/public/data/ || true
-          # Fallback 2: if any code points to /upa_predictions.csv etc.
-          cp -R public/data/* dist/ || true
-          echo "Built site data locations:"
-          find dist -maxdepth 2 -type d -name "data" -print
-          ls -lah dist/data || true
-          ls -lah dist/public/data || true
+          if [ -d data ]; then
+            cp -R data/* dist/data/ || true
+          fi
+          if [ -d public ]; then
+            cp -R public/* dist/ || true
+          fi
 
-      - name: Upload pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+      # 👇 this is what the live-scores workflow downloads
+      - name: Upload portable site bundle (for live workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-bundle
+          path: dist
+          retention-days: 3
 
   deploy:
     needs: build
@@ -120,6 +68,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
