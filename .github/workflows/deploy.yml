@@ -67,7 +67,8 @@ jobs:
           ODDS_CACHE_DIR: ${{ env.ODDS_CACHE_DIR }}
           ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
           DEBUG_MARKET: 1
-          REQUIRE_SCHED_MIN_ROWS: 50
+          REQUIRE_SCHED_MIN_ROWS: 0
+          MARKET_MIN_ROWS: 1
         run: |
           # Force a market-only pass first so we always write market_debug.json + status fields
           python -c "import os; import agents.collect_cfbd_all as m; m.market_debug_entry(2025, os.environ.get('MARKET_SOURCE'))"

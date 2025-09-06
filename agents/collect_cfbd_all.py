@@ -420,6 +420,28 @@ def load_schedule_for_year(
         return df
 
     if not apis.games_api:
+        # Try to reuse previously generated schedule to avoid requiring a CFBD token
+        try:
+            p = os.path.join(DATA_DIR, "cfb_schedule.csv")
+            if os.path.exists(p):
+                df = pd.read_csv(p)
+                # Keep only the requested year if we have a date column
+                if "date" in df.columns:
+                    df = df[df["date"].astype(str).str.startswith(str(year))].copy()
+                # Ensure required columns exist
+                if "neutral_site" not in df.columns:
+                    df["neutral_site"] = 0
+                keep = [c for c in ["game_id", "week", "date", "kickoff_utc", "away_team", "home_team", "neutral_site", "home_points", "away_points"] if c in df.columns]
+                if keep:
+                    df = df[keep]
+                # FBS-only filter if we have the list
+                if norm_fbs:
+                    df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
+                cache.set(key, df.to_dict(orient="records"))
+                return df
+        except Exception:
+            pass
+        # Fall back to a tiny seed schedule if nothing else is available
         df = _dummy_schedule(year)
         if norm_fbs:
             df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
@@ -1270,42 +1292,35 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
 
     # 3) If requested is fanduel, try FanDuel branch
     if requested == "fanduel":
-        # Early guard: fallback if schedule is too small for FanDuel name-mapping (likely missing CFBD token)
-        if requested == "fanduel" and sched_rows < max(50, MARKET_MIN_ROWS * 10):
-            used = "cfbd"
-            fb_reason = "Schedule too small for FanDuel name-mapping (likely missing CFBD token)"
-            _dbg(f"fanduel branch: skipping because schedule rows={sched_rows}")
-        else:
-            try:
-                _dbg("fanduel branch: starting")
-                if not ODDS_API_KEY:
-                    _dbg("fanduel branch: missing ODDS_API_KEY → will fallback to CFBD")
-                    used = "cfbd"
-                    fb_reason = "FanDuel requested but ODDS_API_KEY missing"
-                else:
-                    try:
-                        w_int = int(week)
-                    except Exception:
-                        w_int = None
-                    weeks = []
-                    if w_int is not None:
-                        weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
-                    else:
-                        weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
-                    _dbg(f"fanduel branch: weeks considered (<= requested): {weeks}")
-                    fan_df, fstats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
-                    _dbg(f"fanduel branch: stats={fstats}")
-                    if fstats.get("raw", 0) == 0:
-                        used = "cfbd"
-                        fb_reason = "FanDuel returned zero feed rows"
-                    elif isinstance(fan_df, pd.DataFrame) and len(fan_df) >= max(1, MARKET_MIN_ROWS):
-                        df = fan_df
-                    else:
-                        used = "cfbd"
-                        fb_reason = f"FanDuel mapped {len(fan_df)} of {fstats.get('raw', 0)} rows"
-            except Exception as e:
+        try:
+            _dbg("fanduel branch: starting (no schedule-size gate)")
+            if not ODDS_API_KEY:
                 used = "cfbd"
-                fb_reason = f"FanDuel branch error: {e}"
+                fb_reason = "FanDuel requested but ODDS_API_KEY missing"
+            else:
+                try:
+                    w_int = int(week)
+                except Exception:
+                    w_int = None
+                if w_int is not None:
+                    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
+                else:
+                    weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
+                _dbg(f"fanduel branch: weeks considered (<= requested): {weeks}")
+                fan_df, fstats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                _dbg(f"fanduel branch: stats={fstats}")
+                if fstats.get("raw", 0) == 0:
+                    used = "cfbd"
+                    fb_reason = "FanDuel returned zero feed rows"
+                else:
+                    # Prefer FanDuel even if 0 rows mapped (we'll record the reason for visibility)
+                    used = "fanduel"
+                    df = fan_df if isinstance(fan_df, pd.DataFrame) else pd.DataFrame(columns=["game_id","week","home_team","away_team","spread"])
+                    if len(df) == 0:
+                        fb_reason = f"FanDuel returned {int(fstats.get('raw', 0))} rows but 0 matched schedule names (check alias mapping)"
+        except Exception as e:
+            used = "cfbd"
+            fb_reason = f"FanDuel branch error: {e}"
     # 4) If used is cfbd, do CFBD logic
     if used == "cfbd":
         _dbg("cfbd branch: starting")
@@ -1424,27 +1439,7 @@ def market_debug_entry(year: int, market_source: Optional[str] = None) -> None:
         except Exception:
             sched_rows = 0
 
-        thresh = REQUIRE_SCHED_MIN_ROWS or 0
-        if thresh and sched_rows < thresh:
-            try:
-                os.makedirs(DATA_DIR, exist_ok=True)
-                with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-                    json.dump(
-                        {
-                            "requested": MARKET_SOURCE,
-                            "used": "skipped",
-                            "reason": "schedule_rows_lt_threshold",
-                            "schedule_rows": int(sched_rows),
-                            "threshold": int(thresh),
-                            "bearer_token_present": bool(bearer),
-                            "note": "Skipping FanDuel/CFBD selection in debug pre-pass to avoid misleading fallback."
-                        },
-                        f,
-                        indent=2,
-                    )
-            except Exception:
-                pass
-            return
+
 
         # Discover the "current" week (or fall back to min week in schedule)
         wk = discover_current_week(schedule_df)
