@@ -1,11 +1,10 @@
-name: Deploy Portal
+name: Build & Deploy (UPA-F)
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    # Optional nightly refresh (UTC 09:00). Adjust to your preference.
     - cron: "0 9 * * *"
 
 permissions:
@@ -15,16 +14,13 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
-  # Live & backtest seasons
   UPA_YEAR: "2025"
   UPA_BACKTEST_YEAR: "2024"
-
-  # Thresholds (keep in sync with UI)
-  UPA_EDGE_MIN: "2"
-  UPA_VALUE_MIN: "1"
+  RUN_BACKTEST: ${{ github.event_name == 'schedule' && '1' || '0' }}
+  CACHE_DAY: ${{ github.event_name == 'schedule' && format('{0,date,yyyy-MM-dd}', github.event.schedule_time) || format('{0,date,yyyy-MM-dd}', github.event.head_commit.timestamp) }}
 
 jobs:
   build:
@@ -34,24 +30,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---------- CFBD API cache (persists across runs) ----------
-      - name: Set cache day
-        run: echo "CACHE_DAY=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-
-      - name: Restore API cache
-        uses: actions/cache@v4
-        with:
-          path: data/.api_cache
-          key: api-cache-${{ github.ref_name }}-${{ hashFiles('agents/**/*.py') }}-${{ env.CACHE_DAY }}
-          restore-keys: |
-            api-cache-${{ github.ref_name }}-
-            api-cache-
-
-      # ---------- Toolchains ----------
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install Python deps
         run: |
@@ -59,30 +42,58 @@ jobs:
           if [ -f "agents/requirements.txt" ]; then
             pip install -r agents/requirements.txt
           else
-            # minimal deps for the collector
             pip install cfbd pandas numpy
           fi
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Restore API cache
+        uses: actions/cache@v4
         with:
-          node-version: "20"
-          # NOTE: do not set "cache: npm" unless you have a lockfile at repo root
+          path: data/.api_cache
+          key: api-cache-${{ github.ref_name }}-${{ env.CACHE_DAY }}
+          restore-keys: |
+            api-cache-${{ github.ref_name }}-
+            api-cache-
 
-      # ---------- Data collection (live + backtest) ----------
-      - name: Run collector (live + backtest)
+      - name: Run collector (live + maybe backtest)
         env:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           UPA_YEAR: ${{ env.UPA_YEAR }}
           UPA_BACKTEST_YEAR: ${{ env.UPA_BACKTEST_YEAR }}
-          # Optional: tune TTLs here if desired
-          # UPA_TTL_LINES: "3600"
+          RUN_BACKTEST: ${{ env.RUN_BACKTEST }}
         run: |
-          python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
-          echo "Data files written:"
-          find data -maxdepth 2 -type f -printf "%P\n" | sort || true
+          set -euo pipefail
+          echo "RUN_BACKTEST=${RUN_BACKTEST}"
+          if [ "${RUN_BACKTEST}" = "1" ]; then
+            python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest "${UPA_BACKTEST_YEAR}"
+          else
+            python agents/collect_cfbd_all.py --year "${UPA_YEAR}" --backtest 0
+          fi
 
-      # ---------- Build UI ----------
+      - name: Diagnose data outputs
+        run: |
+          set -e
+          python agents/diagnose_run.py
+
+      - name: Upload data artifact (for inspection)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-folder
+          path: data
+
+      - name: Save API cache (noop on miss)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/.api_cache
+          key: api-cache-${{ github.ref_name }}-${{ env.CACHE_DAY }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
       - name: Install Node deps
         run: |
           if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
@@ -94,30 +105,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      # ---------- Ship data into built site ----------
-      - name: Copy data -> dist/data
-        run: |
-          mkdir -p dist/data
-          cp -R data/* dist/data/ 2>/dev/null || true
-          echo "dist/data listing:"
-          find dist/data -maxdepth 2 -type f -printf "%P\n" | sort || true
-
-      # ---------- Publish to Pages ----------
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
