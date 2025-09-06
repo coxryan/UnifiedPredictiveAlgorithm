@@ -6,19 +6,23 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
 // -----------------------------
 // Types
 // -----------------------------
- type PredRow = {
-  week: string; date: string; neutral_site?: string;
-  home_team: string; away_team: string; played?: any;
-  model_spread_book?: string; market_spread_book?: string;
-  expected_market_spread_book?: string;
-  edge_points_book?: string; value_points_book?: string;
-  qualified_edge_flag?: string;
-  // optional ranks (if present)
-  home_rank?: string; away_rank?: string;
-  home_ap_rank?: string; away_ap_rank?: string;
-  home_coaches_rank?: string; away_coaches_rank?: string;
-  // optional scores (if present for settled games)
-  home_points?: string; away_points?: string;
+type PredRow = {
+ week: string; date: string; neutral_site?: string;
+ home_team: string; away_team: string; played?: any;
+ model_spread_book?: string; market_spread_book?: string;
+ expected_market_spread_book?: string;
+ edge_points_book?: string; value_points_book?: string;
+ qualified_edge_flag?: string;
+ // optional ranks (if present)
+ home_rank?: string; away_rank?: string;
+ home_ap_rank?: string; away_ap_rank?: string;
+ home_coaches_rank?: string; away_coaches_rank?: string;
+ // optional scores (if present for settled games)
+ home_points?: string; away_points?: string;
+ // additional optional fields for schedule/game info
+ game_id?: string;
+ kickoff_utc?: string;
+ start_date?: string;
 };
 
  type StakeMode = "flat" | "prop" | "kelly";
@@ -86,10 +90,11 @@ function bucketOfHour(h: number | null): Bucket {
   return "night";                  // 18:00+ → Night slate
 }
 
- export default function BetsTab() {
+export default function BetsTab() {
   const [rows, setRows] = useState<PredRow[]>([]);
   const [wk, setWk] = useState<number | null>(null);
-  const [kickMap, setKickMap] = useState<Record<string, string>>({});
+  const [kickKeyMap, setKickKeyMap] = useState<Record<string, string>>({});
+  const [kickIdMap, setKickIdMap] = useState<Record<string, string>>({});
   const keyOf = (w: any, a: any, h: any) => `${Number(w) || 0}|${(a ?? "").toString().trim()}|${(h ?? "").toString().trim()}`;
 
   // Controls
@@ -110,15 +115,18 @@ function bucketOfHour(h: number | null): Bucket {
       setWk(nextWk);
       try {
         const sched = (await loadCsv("data/cfb_schedule.csv")) as any[];
-        const m: Record<string, string> = {};
+        const byKey: Record<string, string> = {};
+        const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? "").toString().trim();
         const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
         for (const r of sched || []) {
           const dt = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? "").toString();
           if (!dt) continue;
-          m[key(r.week, r.away_team, r.home_team)] = dt;
+          byKey[key(r.week, r.away_team, r.home_team)] = dt;
+          if (r.game_id != null && r.game_id !== "") byId[String(r.game_id)] = dt;
         }
-        setKickMap(m);
+        setKickKeyMap(byKey);
+        setKickIdMap(byId);
       } catch {}
     } catch {
       setRows([]);
@@ -157,12 +165,17 @@ function bucketOfHour(h: number | null): Bucket {
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
       const ev = Number.isFinite(edge) ? evFromEdge(edge, Number(odds) || -110) : NaN;
-      const schedDt = kickMap[keyOf(r.week, r.away_team, r.home_team)];
+      const schedDt =
+        (r as any).kickoff_utc ||
+        (r as any).start_date ||
+        (r as any).dateTime ||
+        (r.game_id ? kickIdMap[String(r.game_id)] : undefined) ||
+        kickKeyMap[keyOf(r.week, r.away_team, r.home_team)];
       const hour = kickoffHourET(schedDt || r.date);
       const bucket = bucketOfHour(hour);
       return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev, _hour: hour, _bucket: bucket } as any;
     });
-  }, [rows, odds, kickMap]);
+  }, [rows, odds, kickKeyMap, kickIdMap]);
 
   // Base candidate set for selected week
   const candidatesRaw = useMemo(() => {
