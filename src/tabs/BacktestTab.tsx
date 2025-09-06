@@ -136,7 +136,9 @@ export default function BacktestTab() {
         <table className="tbl compact">
           <thead>
             <tr>
-              <th>Week</th><th>Date</th><th>Score (A @ H)</th><th>Final (H)</th><th colSpan={2}>Matchup</th>
+              <th>Week</th><th>Date</th><th>Score (A @ H)</th><th>Final (H)</th>
+              <th>Model</th>
+              <th colSpan={2}>Matchup</th>
               <th>Model (H)</th><th>Market (H)</th><th>Value Side</th>
               <th>Qualified</th><th>Result</th>
             </tr>
@@ -148,6 +150,15 @@ export default function BacktestTab() {
                 <td>{r.date}</td>
                 <td>{r._score}</td>
                 <td>{fmtNum(r._finalDiff)}</td>
+                <td>
+                  {r.model_result === "CORRECT"
+                    ? "✓"
+                    : r.model_result === "INCORRECT"
+                    ? "✗"
+                    : r.model_result === "P"
+                    ? "P"
+                    : "—"}
+                </td>
                 <td style={{ textAlign: "right" }}>
                   <TeamLabel home={false} team={r.away_team} neutral={false} />
                   {Number.isFinite(Number(r.away_rank)) ? (
