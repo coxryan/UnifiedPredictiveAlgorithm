@@ -23,6 +23,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Compute weekly cache key
+        id: cachekey
+        run: echo "week=$(date -u +%G-W%V)" >> $GITHUB_OUTPUT
+
+      - name: Restore API cache (.cache_api)
+        uses: actions/cache@v4
+        with:
+          path: .cache_api
+          key: api-${{ env.UPA_YEAR }}-${{ steps.cachekey.outputs.week }}
+          restore-keys: |
+            api-${{ env.UPA_YEAR }}-
+            api-
+
       # --- Python -----------------------------------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -71,7 +84,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install UI deps
         run: |
