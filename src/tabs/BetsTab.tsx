@@ -55,17 +55,44 @@ type PredRow = {
   return b * p - (1 - p); // expected ROI per $1 staked
  }
 
-// Extract kickoff hour (Eastern Time) from a date string; supports various formats
+// Extract kickoff hour (Eastern Time) from a date string; robustly handles date-only and timezones
 function kickoffHourET(dateStr?: string): number | null {
   if (!dateStr) return null;
-  // Try to parse a clock directly if it exists in the string
-  const m = dateStr.match(/(\d{1,2}):(\d{2})/);
-  if (m) {
-    const h = Number(m[1]);
-    if (Number.isFinite(h)) return Math.max(0, Math.min(23, h));
+  const s = dateStr.toString().trim();
+
+  // 1) Pure date (YYYY-MM-DD) → no reliable time; let caller default to Afternoon
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+
+  // 2) If explicit clock exists, capture it
+  const clock = s.match(/(\d{1,2}):(\d{2})/);
+
+  // 3) If timezone/offset present (Z or ±HH:MM), parse as Date and convert to ET
+  const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
+  if (hasTZ) {
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        hour: "2-digit",
+        hour12: false,
+      }).formatToParts(d);
+      const hh = parts.find((p) => p.type === "hour")?.value;
+      const h = Number(hh);
+      return Number.isFinite(h) ? h : (clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null);
+    } catch {
+      return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
+    }
   }
-  // Parse as Date and then get the hour in America/New_York
-  const d = new Date(dateStr);
+
+  // 4) Time present but NO timezone → treat the captured hour as ET directly
+  if (clock) {
+    const h = Number(clock[1]);
+    return Number.isFinite(h) ? Math.max(0, Math.min(23, h)) : null;
+  }
+
+  // 5) Last resort: try Date parsing and read ET hour; if that fails, unknown
+  const d = new Date(s);
   if (isNaN(d.getTime())) return null;
   try {
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -77,9 +104,7 @@ function kickoffHourET(dateStr?: string): number | null {
     const h = Number(hh);
     return Number.isFinite(h) ? h : null;
   } catch {
-    // Fallback to UTC hour
-    const h = d.getUTCHours();
-    return Number.isFinite(h) ? h : null;
+    return null;
   }
 }
 
