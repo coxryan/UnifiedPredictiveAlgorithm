@@ -180,14 +180,35 @@ def _date_only(x) -> Optional[str]:
         return None
     return None
 
-def load_schedule_for_year(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+def load_schedule_for_year(
+    year: int,
+    apis: CfbdClients,
+    cache: ApiCache,
+    fbs_set: Optional[Iterable[str]] = None,
+) -> pd.DataFrame:
+    # Build a normalized FBS set if provided
+    norm_fbs: Optional[set] = None
+    if fbs_set is not None:
+        norm_fbs = {str(t).strip() for t in fbs_set if str(t).strip()}
+    elif apis.teams_api:
+        try:
+            fbs = apis.teams_api.get_fbs_teams(year=year)
+            norm_fbs = {getattr(t, "school", None) for t in (fbs or []) if getattr(t, "school", None)}
+        except Exception:
+            norm_fbs = None
+
     key = f"sched:{year}"
     ok, data = cache.get(key)
     if ok:
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+        if norm_fbs:
+            df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
+        return df
 
     if not apis.games_api:
         df = _dummy_schedule(year)
+        if norm_fbs:
+            df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
         cache.set(key, df.to_dict(orient="records"))
         return df
 
@@ -206,11 +227,15 @@ def load_schedule_for_year(year: int, apis: CfbdClients, cache: ApiCache) -> pd.
                 }
             )
         df = pd.DataFrame(rows)
+        if norm_fbs:
+            df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
         cache.set(key, df.to_dict(orient="records"))
         return df
     except Exception as e:
         print(f"[warn] schedule fetch failed: {e}", file=sys.stderr)
         df = _dummy_schedule(year)
+        if norm_fbs:
+            df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
         cache.set(key, df.to_dict(orient="records"))
         return df
 
@@ -714,8 +739,11 @@ def main() -> None:
     maybe_push_sheets(team_inputs, "Team Inputs")
     print(f"[live] team inputs for {season}: {team_inputs.shape}", flush=True)
 
+    # Build FBS set from team_inputs for schedule filter
+    fbs_names = set(pd.Series(team_inputs.get("team", [])).dropna().astype(str))
+
     # 2) SCHEDULE
-    schedule = load_schedule_for_year(season, apis, cache)
+    schedule = load_schedule_for_year(season, apis, cache, fbs_set=fbs_names)
     write_csv(schedule, f"{DATA_DIR}/cfb_schedule.csv")
     print(f"[live] schedule rows: {schedule.shape[0]}", flush=True)
 
