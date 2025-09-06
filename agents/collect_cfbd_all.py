@@ -855,6 +855,22 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         return None
 
     # --- helpers -------------------------------------------------------------
+    # Mascot words to drop
+    MASCOT_WORDS = {
+        "bulldogs","wildcats","tigers","aggressors","agies","aggies","gators","longhorns","buckeyes","nittany","lions","nittany lions",
+        "yellow","jackets","yellow jackets","demon","deacons","demon deacons","crimson","tide","crimson tide","redhawks","red hawks",
+        "chippewas","huskies","zips","warhawks","cardinals","terrapins","razorbacks","trojans","bruins","gophers","badgers","cornhuskers",
+        "rebels","utes","bearcats","cowboys","mountaineers","hurricanes","sem inoles","seminoles","sooners","volunteers","commodores",
+        "panthers","wolfpack","falcons","eagles","golden eagles","golden","golden flashes","flashes","blazers","tar","heels","tar heels",
+        "skyhawks","gamecocks","blue devils","blue","blue hens","scarlet knights","knights","rainbow warriors","warriors","rainbows",
+        "rainbow","broncos","lancers","gaels","lions","rams","owls","spartans","spartans","tigers","tide","pirates","raiders","mean green",
+        "anteaters","jaguars","trojans","minutemen","red wolves","hokies","uconn huskies","bulls","thundering herd","mustangs","cavaliers",
+        "paladins","mocs","moccasins","mocsins","thunderbirds","mountaineers","phoenix","blue raiders","jayhawks","illini","aztecs",
+        "redbirds","salukis","lumberjacks","cowgirls","cowboys","bears","mavericks","rivers","catamounts","governors","bengals",
+        "buccaneers","runnin","runnin bulldogs","runnin' bulldogs","runnin-bulldogs","lobos","vandals","owls","golden hurricane",
+        "scarlet","scarlet knights"
+    }
+
     def strip_diacritics(s: str) -> str:
         try:
             # keep ASCII; drop exotic apostrophes (e.g., Hawaiʻi)
@@ -870,7 +886,27 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         except Exception:
             return s
 
+    def drop_mascots(tokens: list[str]) -> list[str]:
+        # remove single-word or two-word mascot phrases if more informative tokens remain
+        if not tokens:
+            return tokens
+        toks = tokens[:]
+        # remove two-word sequences first
+        i = 0
+        out = []
+        while i < len(toks):
+            if i + 1 < len(toks) and f"{toks[i]} {toks[i+1]}" in MASCOT_WORDS and len(toks) > 2:
+                i += 2
+                continue
+            if toks[i] in MASCOT_WORDS and len(toks) > 1:
+                i += 1
+                continue
+            out.append(toks[i])
+            i += 1
+        return out if out else tokens
+
     STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college"}
+    STOP_WORDS |= {"st","st.","state","and","at","amp","amp;"}
     DROP_TOKENS = {"state"}  # treated specially for acronyms
 
     def clean(s: str) -> str:
@@ -882,8 +918,9 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         import re
         s = re.sub(r"[^a-z0-9() ]+", " ", s)
         s = re.sub(r"\s+", " ", s).strip()
-        # drop stop words
+        s = s.replace("a&amp;m", "a&m").replace("a & m", "a&m").replace("a and m", "a&m")
         toks = [t for t in s.split() if t not in STOP_WORDS]
+        toks = drop_mascots(toks)
         return " ".join(toks)
 
     def no_paren(s: str) -> str:
@@ -891,14 +928,15 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         return re.sub(r"\([^)]*\)", "", s).strip()
 
     def acronym_from(s: str) -> str:
-        toks = [t for t in clean(s).split() if t and t not in STOP_WORDS]
-        # keep meaningful tokens; drop generic 'state' only if more tokens remain
-        acc = []
-        for t in toks:
-            if t in DROP_TOKENS and len(toks) > 1:
+        base = []
+        for t in clean(s).split():
+            if t in STOP_WORDS:
                 continue
-            acc.append(t[0])
-        return "".join(acc).upper()
+            if t == "a&m":
+                base.extend(list("A&M"))
+                continue
+            base.append(t[0])
+        return "".join([c for c in base if c.isalpha() or c == "&"]).upper()
 
     # Common short-name/alias map (lowercase -> canonical lowercase)
     alias_map = {
@@ -942,11 +980,57 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         "hawaii": "hawaii",
         "hawai'i": "hawaii",
         "hawaiʻi": "hawaii",
+        # inserted aliases:
+        "penn st": "penn state",
+        "penn state nittany lions": "penn state",
+        "pittsburgh panthers": "pittsburgh",
+        "georgia bulldogs": "georgia",
+        "tennessee volunteers": "tennessee",
+        "wake forest demon deacons": "wake forest",
+        "georgia tech yellow jackets": "georgia tech",
+        "central michigan chippewas": "central michigan",
+        "northern illinois huskies": "northern illinois",
+        "miami (oh) redhawks": "miami (oh)",
+        "miami oh redhawks": "miami (oh)",
+        "miami oh": "miami (oh)",
+        "texas a&m aggies": "texas a&m",
+        "texas a and m": "texas a&m",
+        "texas a m": "texas a&m",
+        "louisiana state tigers": "louisiana state",
+        "lsu tigers": "louisiana state",
+        "usc trojans": "southern california",
+        "southern cal": "southern california",
+        "ole miss rebels": "mississippi",
+        "utsa roadrunners": "texas san antonio",
+        "utep miners": "texas el paso",
+        "byu cougars": "brigham young",
+        "smu mustangs": "southern methodist",
+        "tcu horned frogs": "texas christian",
+        "ucf knights": "central florida",
+        "usf bulls": "south florida",
+        "unlv rebels": "nevada las vegas",
+        "uab blazers": "uab",
+        "utsa": "texas san antonio",
+        "vt": "virginia tech",
+        "uva": "virginia",
+        "nc st": "nc state",
+        "ga tech": "georgia tech",
+        "la lafayette": "louisiana",
+        "louisiana lafayette": "louisiana",
+        "la monroe warhawks": "louisiana monroe",
+        "ul monroe warhawks": "louisiana monroe",
+        "hawaii rainbow warriors": "hawaii",
+        "hawai'i rainbow warriors": "hawaii",
+        "hawaiʻi rainbow warriors": "hawaii"
     }
 
     def alias(s: str) -> str:
         cs = clean(s)
         return alias_map.get(cs, cs)
+
+    # Ensure schedule columns exist
+    if "home_team" not in schedule_df.columns or "away_team" not in schedule_df.columns:
+        return None
 
     # Build schedule lookup maps
     schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | \
@@ -1008,7 +1092,7 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
             best_score, best_team = score, sch
 
     # conservative threshold to avoid bad matches
-    if best_team and best_score >= 0.45:
+    if best_team and best_score >= 0.40:
         return best_team
 
     return None
