@@ -9,6 +9,9 @@ permissions:
   contents: read
   pages: write
   id-token: write
+env:
+  MARKET_SOURCE: fanduel
+  ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
 
 # Also serialize with the live workflow
 concurrency:

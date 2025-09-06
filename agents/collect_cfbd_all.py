@@ -12,6 +12,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import requests
 
 # =========================
 # Config
@@ -22,8 +23,11 @@ CACHE_TTL_DAYS = int(os.environ.get("CACHE_TTL_DAYS", "90"))
 # If set, do not hit any external APIs; use cache only (write empty on miss)
 CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
+
 # If set, we push to Google Sheets when SHEET_ID and GOOGLE_APPLICATION_CREDENTIALS are valid
 ENABLE_SHEETS = False  # you can flip to True later
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
+MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "cfbd").strip().lower()
 
 
 # =========================
@@ -654,6 +658,135 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
     return df
 
 
+
+# =========================
+# FanDuel via The Odds API (optional aggregator)
+# =========================
+def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> List[Dict[str, Any]]:
+    """Return a flat list of {home_name, away_name, point_home_book, commence_time} using The Odds API.
+    Requires env ODDS_API_KEY. We request FanDuel spreads only.
+    """
+    if not ODDS_API_KEY:
+        return []
+    out: List[Dict[str, Any]] = []
+    sport = "americanfootball_ncaaf"
+    base = "https://api.the-odds-api.com/v4/sports/{sport}/odds"
+    for wk in sorted(set(int(w) for w in weeks if str(w).isdigit())):
+        key = f"oddsapi:fanduel:{year}:{wk}"
+        ok, cached = cache.get(key)
+        if ok and cached is not None:
+            out.extend(cached)
+            continue
+        if CACHE_ONLY:
+            cache.set(key, [])
+            continue
+        try:
+            url = base.format(sport=sport)
+            params = {
+                "apiKey": ODDS_API_KEY,
+                "regions": "us",
+                "markets": "spreads",
+                "bookmakers": "fanduel",
+            }
+            r = requests.get(url, params=params, timeout=25)
+            r.raise_for_status()
+            data = r.json() or []
+            rows: List[Dict[str, Any]] = []
+            for game in data:
+                bks = game.get("bookmakers") or []
+                if not bks:
+                    continue
+                mks = next((m for m in (bks[0].get("markets") or []) if m.get("key") == "spreads"), None)
+                if not mks:
+                    continue
+                outs = mks.get("outcomes") or []
+                # We need home outcome to compute book-style line for home (negative if home favorite)
+                # The Odds API's outcome names are the team names as shown by them; we capture both
+                # and resolve to schedule names later.
+                # We'll compute a home-style point if we can identify which outcome is home.
+                # The API includes game["home_team"]/game["away_team"].
+                g_home = game.get("home_team")
+                g_away = game.get("away_team")
+                # Find the home outcome
+                out_home = next((o for o in outs if o.get("name") == g_home), None)
+                if out_home is None:
+                    # fallback: first outcome could be home; skip if uncertain
+                    continue
+                try:
+                    point_home_book = float(out_home.get("point")) if out_home.get("point") is not None else None
+                except Exception:
+                    point_home_book = None
+                if point_home_book is None:
+                    continue
+                rows.append({
+                    "home_name": g_home,
+                    "away_name": g_away,
+                    "point_home_book": point_home_book,  # book-style: negative = home favorite
+                    "commence_time": game.get("commence_time"),
+                })
+            cache.set(key, rows)
+            out.extend(rows)
+        except Exception as e:
+            print(f"[warn] odds api fetch failed (wk {wk}): {e}", file=sys.stderr)
+            cache.set(key, [])
+    return out
+
+def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional[str]:
+    """Heuristic: map OddsAPI team name to schedule 'school' name using containment/cleaning."""
+    if not name:
+        return None
+    s_name = str(name).strip()
+    schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | set(
+        str(x).strip() for x in schedule_df["away_team"].dropna().unique()
+    )
+    # exact
+    if s_name in schools:
+        return s_name
+    # common normalizations
+    low = s_name.lower()
+    def norm(x: str) -> str:
+        return x.lower().replace("&", "and").replace(" st.", " state").replace(" st ", " state ")
+    # try containment either direction
+    for sch in schools:
+        if norm(sch) in norm(s_name) or norm(s_name) in norm(sch):
+            return sch
+    return None
+
+def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> pd.DataFrame:
+    raw = _odds_api_fetch_fanduel(year, weeks, cache)
+    if not raw:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
+    # Build index of schedule by (away,home) for ID/week
+    idx = {}
+    for _, row in schedule_df.iterrows():
+        a = str(row.get("away_team") or "").strip()
+        h = str(row.get("home_team") or "").strip()
+        if a and h:
+            idx[(a, h)] = {"game_id": row.get("game_id"), "week": row.get("week")}
+    out_rows: List[Dict[str, Any]] = []
+    for g in raw:
+        h_name = _resolve_names_to_schedule(schedule_df, g.get("home_name"))
+        a_name = _resolve_names_to_schedule(schedule_df, g.get("away_name"))
+        if not h_name or not a_name:
+            continue
+        meta = idx.get((a_name, h_name))
+        if not meta:
+            continue
+        try:
+            spread = float(g.get("point_home_book"))
+        except Exception:
+            continue
+        out_rows.append({
+            "game_id": meta.get("game_id"),
+            "week": meta.get("week"),
+            "home_team": h_name,
+            "away_team": a_name,
+            "spread": spread,  # book-style (negative = home favorite)
+        })
+    if not out_rows:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])  # book-style
+    return pd.DataFrame(out_rows)
+
 # =========================
 # Market: current week only
 # =========================
@@ -663,6 +796,24 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
     Output columns: game_id, week, home_team, away_team, spread (book-style, negative = home favorite)
     If unavailable, return empty df (collector will treat market=0 for future games without lines).
     """
+    # Allow switching market provider via env MARKET_SOURCE ("fanduel" uses The Odds API)
+    if MARKET_SOURCE == "fanduel":
+        try:
+            # fetch all weeks up to current for consistency with CFBD branch
+            try:
+                w_int = int(week)
+            except Exception:
+                w_int = None
+            weeks = []
+            if w_int is not None:
+                weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int) if int(x) <= w_int})
+            else:
+                weeks = sorted({int(x) for x in pd.to_numeric(schedule_df.get("week"), errors="coerce").dropna().astype(int)})
+            fd = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, cache)
+            return fd if isinstance(fd, pd.DataFrame) else pd.DataFrame(fd)
+        except Exception as e:
+            print(f"[warn] fanduel market branch failed; falling back to CFBD: {e}", file=sys.stderr)
+            # fall through to CFBD branch below
     if not apis.lines_api:
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]) 
 
