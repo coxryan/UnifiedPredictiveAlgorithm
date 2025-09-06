@@ -56,56 +56,65 @@ type PredRow = {
  }
 
 // Extract kickoff hour (Eastern Time) from a date string; robustly handles date-only and timezones
-function kickoffHourET(dateStr?: string): number | null {
-  if (!dateStr) return null;
+function kickoffLabelET(dateStr?: string): string {
+  if (!dateStr) return '';
   const s = dateStr.toString().trim();
-
-  // 1) Pure date (YYYY-MM-DD) → no reliable time; let caller default to Afternoon
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
-
-  // 2) If explicit clock exists, capture it
+  // If we only have a date (no time), do not fabricate a time (avoids 8:00 PM ET issue).
+  // Example: "2025-09-06" should show blank / TBA rather than 8:00 PM (UTC→ET artifact).
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+  // If an explicit clock is present, prefer that clock as ET even if no timezone is present.
   const clock = s.match(/(\d{1,2}):(\d{2})/);
-
-  // 3) If timezone/offset present (Z or ±HH:MM), parse as Date and convert to ET
+  // If the string carries an explicit timezone (Z or ±HH:MM), format in ET.
   const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
   if (hasTZ) {
     const d = new Date(s);
-    if (isNaN(d.getTime())) return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
-    try {
-      const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York",
-        hour: "2-digit",
-        hour12: false,
-      }).formatToParts(d);
-      const hh = parts.find((p) => p.type === "hour")?.value;
-      const h = Number(hh);
-      return Number.isFinite(h) ? h : (clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null);
-    } catch {
-      return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
+    if (!isNaN(d.getTime())) {
+      try {
+        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+        return `${t} ET`;
+      } catch {}
     }
+    // Fall back to clock if parse failed
+    return clock ? `${clock[1]}:${clock[2]} ET` : '';
   }
-
-  // 4) Time present but NO timezone → treat the captured hour as ET directly
-  if (clock) {
-    const h = Number(clock[1]);
-    return Number.isFinite(h) ? Math.max(0, Math.min(23, h)) : null;
+  // If we have a clock but no timezone, just echo the clock (assume ET for display).
+  if (clock) return `${clock[1]}:${clock[2]} ET`;
+  // Otherwise, try a last-resort parse (may succeed for full ISO without TZ on some platforms).
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    try {
+      const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+      return `${t} ET`;
+    } catch {}
   }
+  return '';
+}
 
-  // 5) Last resort: try Date parsing and read ET hour; if that fails, unknown
+function kickoffHourET(dateStr?: string): number | null {
+  if (!dateStr) return null;
+  const s = dateStr.toString().trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; // date-only → unknown
+  const clock = s.match(/(\d{1,2}):(\d{2})/);
+  const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
+  if (hasTZ) {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      try {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+        const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
+        return Number(hh);
+      } catch {}
+    }
+    return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
+  }
+  if (clock) return Math.max(0, Math.min(23, Number(clock[1])));
   const d = new Date(s);
   if (isNaN(d.getTime())) return null;
   try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
-      hour: "2-digit",
-      hour12: false,
-    }).formatToParts(d);
-    const hh = parts.find((p) => p.type === "hour")?.value;
-    const h = Number(hh);
-    return Number.isFinite(h) ? h : null;
-  } catch {
-    return null;
-  }
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+    const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
+    return Number(hh);
+  } catch { return null; }
 }
 
 function bucketOfHour(h: number | null): Bucket {
@@ -144,9 +153,23 @@ export default function BetsTab() {
         const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? "").toString().trim();
         const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
+        // Helper: combine date and time if needed
+        function combineDateTime(dateStr: string, timeStr: string): string {
+          if (!dateStr) return '';
+          if (!timeStr) return dateStr;
+          // If dateStr already has a clock, don't append timeStr
+          if (/(\d{1,2}):(\d{2})/.test(dateStr)) return dateStr;
+          return `${dateStr} ${timeStr}`;
+        }
         for (const r of sched || []) {
-          const dt = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? "").toString();
-          if (!dt) continue;
+          let dateStr = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? '').toString().trim();
+          if (!dateStr) continue;
+          let timeStr = '';
+          if (!/(\d{1,2}):(\d{2})/.test(dateStr)) {
+            timeStr =
+              (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? '').toString().trim();
+          }
+          const dt = timeStr ? combineDateTime(dateStr, timeStr) : dateStr;
           byKey[key(r.week, r.away_team, r.home_team)] = dt;
           if (r.game_id != null && r.game_id !== "") byId[String(r.game_id)] = dt;
         }
@@ -190,15 +213,31 @@ export default function BetsTab() {
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const neutral = r.neutral_site === "1" || r.neutral_site === "true";
       const ev = Number.isFinite(edge) ? evFromEdge(edge, Number(odds) || -110) : NaN;
-      const schedDt =
+      // Build schedule datetime string as in PredictionsTab
+      let schedDt: string | undefined =
         (r as any).kickoff_utc ||
         (r as any).start_date ||
         (r as any).dateTime ||
         (r.game_id ? kickIdMap[String(r.game_id)] : undefined) ||
         kickKeyMap[keyOf(r.week, r.away_team, r.home_team)];
-      const hour = kickoffHourET(schedDt || r.date);
+      // If not present, fallback to r.date
+      if (!schedDt) schedDt = r.date;
+      const kickLabel = kickoffLabelET(schedDt);
+      const hour = kickoffHourET(schedDt);
       const bucket = bucketOfHour(hour);
-      return { ...r, _model: model, _market: market, _edge: edge, _value: value, _pick: pick.side, _neutral: neutral, _ev: ev, _hour: hour, _bucket: bucket } as any;
+      return {
+        ...r,
+        _model: model,
+        _market: market,
+        _edge: edge,
+        _value: value,
+        _pick: pick.side,
+        _neutral: neutral,
+        _ev: ev,
+        _hour: hour,
+        _bucket: bucket,
+        _kick: kickLabel,
+      } as any;
     });
   }, [rows, odds, kickKeyMap, kickIdMap]);
 
@@ -372,6 +411,7 @@ export default function BetsTab() {
                 <tr>
                   <th>Wk</th>
                   <th>Date</th>
+                  <th>Kick (ET)</th>
                   <th colSpan={2}>Matchup</th>
                   <th>Model (H)</th>
                   <th>Market (H)</th>
@@ -389,6 +429,7 @@ export default function BetsTab() {
                   <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i % 2 ? "alt" : undefined}>
                     <td>{r.week}</td>
                     <td>{r.date}</td>
+                    <td>{r._kick}</td>
                     <td style={{ textAlign: "right" }}>
                       <TeamLabel home={false} team={r.away_team} neutral={false} />
                     </td>

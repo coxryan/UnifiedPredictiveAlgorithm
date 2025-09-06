@@ -73,9 +73,25 @@ export default function PredictionsTab() {
         const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? '').toString().trim();
         const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
+        // Helper: combine date and time if needed
+        function combineDateTime(dateStr: string, timeStr: string): string {
+          if (!dateStr) return '';
+          if (!timeStr) return dateStr;
+          // If dateStr already has a clock, don't append timeStr
+          if (/(\d{1,2}):(\d{2})/.test(dateStr)) return dateStr;
+          return `${dateStr} ${timeStr}`;
+        }
         for (const r of sched || []) {
-          const dt = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? '').toString();
-          if (!dt) continue;
+          // Preferred order for date and time fields
+          let dateStr = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? '').toString().trim();
+          if (!dateStr) continue;
+          // If dateStr does not contain a clock, look for a time-only field
+          let timeStr = '';
+          if (!/(\d{1,2}):(\d{2})/.test(dateStr)) {
+            timeStr =
+              (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? '').toString().trim();
+          }
+          const dt = timeStr ? combineDateTime(dateStr, timeStr) : dateStr;
           byKey[key(r.week, r.away_team, r.home_team)] = dt;
           if (r.game_id != null && r.game_id !== '') byId[String(r.game_id)] = dt;
         }
