@@ -1564,6 +1564,87 @@ def _resolve_names_to_schedule_with_details(schedule_df: pd.DataFrame, name: str
     detail.update({"best_team": best_team, "best_score": best_score})
     return None, detail
 
+
+# --- Auto-fix aliases from unmatched fuzzy matches ---
+def _autofix_aliases_from_unmatched(unmatched_json_path: str = os.path.join(DATA_DIR, "market_unmatched.json"),
+                                    alias_json_path: str = os.path.join(DATA_DIR, "team_aliases.json"),
+                                    min_score: float = 0.86) -> Dict[str, str]:
+    """
+    Read market_unmatched.json (emitted by get_market_lines_fanduel_for_weeks) and
+    auto-generate alias entries for FanDuel/raw names that had strong fuzzy matches.
+    Saves/merges into data/team_aliases.json.
+
+    Returns the dict of aliases added (normalized keys).
+    """
+    try:
+        if not os.path.exists(unmatched_json_path):
+            return {}
+        with open(unmatched_json_path, "r") as f:
+            payload = json.load(f) or {}
+        items = payload.get("unmatched", payload) or []
+        # Load existing aliases (already normalized in resolver)
+        alias_map: Dict[str, str] = {}
+        if os.path.exists(alias_json_path):
+            try:
+                with open(alias_json_path, "r") as af:
+                    alias_map = json.load(af) or {}
+            except Exception:
+                alias_map = {}
+        added: Dict[str, str] = {}
+
+        def _norm_for_alias(s: str) -> str:
+            # mirror the simple cleaner in the resolver
+            s = (s or "").lower().strip()
+            s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
+            s = s.replace(" st.", " state").replace(" st ", " state ")
+            import re
+            s = re.sub(r"[^a-z0-9() ]+", " ", s)
+            s = re.sub(r"\s+", " ", s).strip()
+            return s
+
+        for u in items:
+            # Home side
+            fd_h = u.get("fd_home")
+            h_best = u.get("home_fuzzy") or u.get("home_best")
+            h_score = float(u.get("home_fuzzy_score") or u.get("home_best_score") or 0.0)
+            h_res = u.get("home_resolved")
+            # Away side
+            fd_a = u.get("fd_away")
+            a_best = u.get("away_fuzzy") or u.get("away_best")
+            a_score = float(u.get("away_fuzzy_score") or u.get("away_best_score") or 0.0)
+            a_res = u.get("away_resolved")
+
+            # Decide target canonical name:
+            # prefer a directly resolved schedule name; else use the fuzzy "best" when score is high.
+            target_h = h_res or (h_best if h_score >= min_score else None)
+            target_a = a_res or (a_best if a_score >= min_score else None)
+
+            # If we have a target and a raw name, write alias (normalized key -> normalized value)
+            if fd_h and target_h:
+                k = _norm_for_alias(fd_h)
+                v = _norm_for_alias(target_h)
+                if k and v and k != v and alias_map.get(k) != v:
+                    alias_map[k] = v
+                    added[k] = v
+            if fd_a and target_a:
+                k = _norm_for_alias(fd_a)
+                v = _norm_for_alias(target_a)
+                if k and v and k != v and alias_map.get(k) != v:
+                    alias_map[k] = v
+                    added[k] = v
+
+        if added:
+            os.makedirs(os.path.dirname(alias_json_path), exist_ok=True)
+            with open(alias_json_path, "w") as af:
+                json.dump(alias_map, af, indent=2, sort_keys=True)
+            _dbg(f"autofix_aliases_from_unmatched: added {len(added)} alias entries -> {alias_json_path}")
+        else:
+            _dbg("autofix_aliases_from_unmatched: no strong fuzzy candidates to add")
+        return added
+    except Exception as e:
+        print(f"[warn] autofix aliases failed: {e}", file=sys.stderr)
+        return {}
+
 # --- Odds matching helpers (date + fuzzy) ---------------------------------
 import difflib
 
@@ -1764,6 +1845,17 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
             # JSON
             with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
                 json.dump({"year": year, "unmatched": unmatched_details}, f, indent=2)
+            # Auto-add strong fuzzy matches into team_aliases.json so next pass resolves them
+            try:
+                alias_added = _autofix_aliases_from_unmatched(
+                    unmatched_json_path=os.path.join(DATA_DIR, "market_unmatched.json"),
+                    alias_json_path=os.path.join(DATA_DIR, "team_aliases.json"),
+                    min_score=0.86
+                )
+                if alias_added:
+                    _dbg(f"alias_autofix: inserted {len(alias_added)} aliases; will apply on next resolution pass")
+            except Exception as _e:
+                print(f"[warn] alias autofix failed: {_e}", file=sys.stderr)
         except Exception:
             pass
         try:
@@ -1827,6 +1919,20 @@ def get_market_lines_for_current_week(year: int, week: int, schedule_df: pd.Data
                 _dbg(f"fanduel branch: weeks considered (<= requested): {weeks}")
                 fan_df, fstats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
                 _dbg(f"fanduel branch: stats={fstats}")
+                # If we produced unmatched and alias_autofix wrote new entries, try a one-time second pass
+                if fstats.get("unmatched", 0) > 0:
+                    alias_path = os.path.join(DATA_DIR, "team_aliases.json")
+                    try:
+                        # mtime check: if alias file updated in the last 2 minutes, attempt a second pass
+                        if os.path.exists(alias_path) and (time.time() - os.path.getmtime(alias_path)) < 120:
+                            _dbg("fanduel branch: running a second pass after alias_autofix")
+                            fan_df2, fstats2 = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                            _dbg(f"fanduel second pass: stats={fstats2}")
+                            # Prefer the second pass if it improved mapping
+                            if fstats2.get('mapped', 0) >= fstats.get('mapped', 0):
+                                fan_df, fstats = fan_df2, fstats2
+                    except Exception as _e:
+                        print(f"[warn] second pass after alias_autofix failed: {_e}", file=sys.stderr)
                 if fstats.get("raw", 0) == 0:
                     used = "cfbd"
                     fb_reason = "FanDuel returned zero feed rows"

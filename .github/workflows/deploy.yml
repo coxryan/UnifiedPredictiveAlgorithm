@@ -1,126 +1,43 @@
-name: deploy
+import React from "react";
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+const StatusTab: React.FC = () => {
+  const v = `?v=${Date.now()}`;
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+  return (
+    <div>
+      {/* ... other content ... */}
 
-env:
-  MARKET_SOURCE: fanduel
-  ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-  ODDS_CACHE_DIR: .cache_odds
-  ODDS_CACHE_TTL_DAYS: 2
+      <div className="note" style={{ marginTop: 8 }}>
+        <a href={`data/team_inputs.csv${v}`} target="_blank" rel="noreferrer">
+          team inputs CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/schedule.csv${v}`} target="_blank" rel="noreferrer">
+          schedule CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/predictions.csv${v}`} target="_blank" rel="noreferrer">
+          predictions CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/live_edge.csv${v}`} target="_blank" rel="noreferrer">
+          live edge CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/backtest_summary_2024.csv${v}`} target="_blank" rel="noreferrer">
+          backtest summary (2024) CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/market_unmatched.csv${v}`} target="_blank" rel="noreferrer">
+          market unmatched CSV ↗
+        </a>
+        {" • "}
+        <a href={`data/backtest_predictions_2024.csv${v}`} target="_blank" rel="noreferrer" alt="backtest predictions (2024) CSV">
+          backtest predictions (2024) CSV ↗
+        </a>
+      </div>
+    </div>
+  );
+};
 
-# Serialize with other Pages publishers to avoid races
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Restore API caches (CFBD & Odds)
-        uses: actions/cache@v4
-        with:
-          path: |
-            .cache_api
-            .cache_odds
-          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
-          restore-keys: |
-            api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
-            api-caches-${{ runner.os }}-
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r agents/requirements.txt
-
-      - name: Check CFBD token (warning only)
-        run: |
-          if [ -z "${{ secrets.CFBD_BEARER_TOKEN }}" ]; then
-            echo "::warning::CFBD_BEARER_TOKEN secret is empty. Without it, schedule may be tiny and FanDuel mapping will be skipped."
-          else
-            echo "CFBD_BEARER_TOKEN is present."
-          fi
-
-      - name: Run collector (live + backtest)
-        env:
-          BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
-          MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
-          ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
-          ODDS_CACHE_DIR: ${{ env.ODDS_CACHE_DIR }}
-          ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
-          DEBUG_MARKET: 1
-          REQUIRE_SCHED_MIN_ROWS: 0
-          MARKET_MIN_ROWS: 1
-        run: |
-          # Force a market-only pass first so we always write market_debug.json + status fields
-          python -c "import os; import agents.collect_cfbd_all as m; m.market_debug_entry(2025, os.environ.get('MARKET_SOURCE'))"
-          echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
-          python agents/collect_cfbd_all.py --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
-          echo "Collector finished; status.json:"
-          cat data/status.json || true
-          echo "market_debug.json:"
-          cat data/market_debug.json || true
-
-      - name: Install deps
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm i
-          fi
-
-      - name: Build UI
-        run: npm run build
-
-      - name: Copy data into dist
-        run: |
-          mkdir -p dist/data
-          if [ -d data ]; then
-            cp -R data/* dist/data/ || true
-          fi
-          if [ -d public ]; then
-            cp -R public/* dist/ || true
-          fi
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-      - name: Upload portable site bundle (for live workflow)
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-bundle
-          path: dist
-          retention-days: 3
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+export default StatusTab;

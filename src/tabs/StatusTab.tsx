@@ -188,6 +188,9 @@ export default function StatusTab() {
             <a href={`data/live_edge_report.csv${v}`} target="_blank" rel="noreferrer">live edge CSV ↗</a>{" • "}
             <a href={`data/2024/upa_predictions_2024_backtest.csv${v}`} target="_blank" rel="noreferrer">backtest predictions (2024) CSV ↗</a>{" • "}
             <a href={`data/2024/backtest_summary_2024.csv${v}`} target="_blank" rel="noreferrer">backtest summary (2024) CSV ↗</a>{" • "}
+            {" • "}
+            <a href={`data/market_unmatched.csv${v}`} target="_blank" rel="noreferrer">market unmatched CSV ↗</a>
+            {" • "}
             <a href={`data/backtest_predictions_2024.csv${v}`} target="_blank" rel="noreferrer">alt: backtest predictions (2024) CSV ↗</a>
           </div>
         </>
