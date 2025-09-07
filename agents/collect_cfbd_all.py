@@ -1564,6 +1564,41 @@ def _resolve_names_to_schedule_with_details(schedule_df: pd.DataFrame, name: str
     detail.update({"best_team": best_team, "best_score": best_score})
     return None, detail
 
+# --- Odds matching helpers (date + fuzzy) ---------------------------------
+import difflib
+
+def _date_from_iso(s: Any) -> Optional[str]:
+    """Return YYYY-MM-DD from an ISO-like datetime string or pandas/py datetime."""
+    if s is None:
+        return None
+    try:
+        if isinstance(s, str):
+            if len(s) >= 10:
+                return s[:10]
+        dt = pd.to_datetime(s, errors="coerce")
+        if pd.notna(dt):
+            return str(dt.date())
+    except Exception:
+        return None
+    return None
+
+
+def _best_fuzzy_match(q_name: str, candidates: Iterable[str], normalize_fn) -> Tuple[Optional[str], float, str]:
+    """Return (best_candidate, score, q_norm) using difflib on normalized strings.
+    Score in [0,1]. If no candidates, returns (None, 0.0, q_norm).
+    """
+    try:
+        qn = normalize_fn(q_name or "")
+        cand_norm = [(c, normalize_fn(c)) for c in candidates]
+        best_c, best_s = None, 0.0
+        for raw, cn in cand_norm:
+            s = difflib.SequenceMatcher(None, qn, cn).ratio()
+            if s > best_s:
+                best_s, best_c = s, raw
+        return best_c, float(best_s), qn
+    except Exception:
+        return None, 0.0, str(q_name or "")
+
 def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     raw = _odds_api_fetch_fanduel(year, weeks, cache)
     raw_count = len(raw)
@@ -1579,6 +1614,32 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
         if a and h:
             idx[(a, h)] = {"game_id": row.get("game_id"), "week": row.get("week")}
 
+    # Build schedule-by-date index with quick lookup sets
+    sched_by_date: Dict[str, Dict[str, Any]] = {}
+    def _clean_local(x: str) -> str:
+        # Local cleaner consistent with name resolver
+        def _clean_impl(s: str) -> str:
+            s = (s or "").lower().strip()
+            s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
+            s = s.replace(" st.", " state").replace(" st ", " state ")
+            import re
+            s = re.sub(r"[^a-z0-9() ]+", " ", s)
+            s = re.sub(r"\s+", " ", s).strip()
+            return s
+        return _clean_impl(x)
+
+    for _, row in schedule_df.iterrows():
+        d = str(row.get("date") or "").strip()
+        if not d:
+            continue
+        h = str(row.get("home_team") or "").strip()
+        a = str(row.get("away_team") or "").strip()
+        ent = sched_by_date.setdefault(d, {"pairs": set(), "home_set": set(), "away_set": set(), "teams": set()})
+        ent["pairs"].add((a, h))
+        ent["home_set"].add(h)
+        ent["away_set"].add(a)
+        ent["teams"].update([h, a])
+
     out_rows: List[Dict[str, Any]] = []
     unmatched_details: List[Dict[str, Any]] = []
 
@@ -1590,18 +1651,67 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
         a_name, a_dbg = _resolve_names_to_schedule_with_details(schedule_df, a_raw)
 
         if not h_name or not a_name:
-            # capture rich debug row
+            # Fallback: constrain to the same date and use fuzzy on that subset
+            cdate = _date_from_iso(g.get("commence_time"))
+            same_date = sched_by_date.get(cdate, {}) if cdate else {}
+            cand_teams = same_date.get("teams") if same_date else None
+            # If date missing or no teams on that date, consider ALL schedule teams
+            if not cand_teams:
+                cand_teams = set(str(x).strip() for x in schedule_df.get("home_team", pd.Series([], dtype=str)).dropna()) | \
+                              set(str(x).strip() for x in schedule_df.get("away_team", pd.Series([], dtype=str)).dropna())
+
+            # local normalizer that mirrors resolver's `clean` (best-effort)
+            def _norm(s: str) -> str:
+                s = (s or "").lower().strip()
+                s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
+                s = s.replace(" st.", " state").replace(" st ", " state ")
+                import re
+                s = re.sub(r"[^a-z0-9() ]+", " ", s)
+                s = re.sub(r"\s+", " ", s).strip()
+                return s
+
+            # Try fuzzy for whichever side failed
+            if not h_name:
+                h_best, h_score, h_qn = _best_fuzzy_match(h_raw, cand_teams, _norm)
+            else:
+                h_best, h_score, h_qn = h_name, 1.0, _norm(h_raw)
+            if not a_name:
+                a_best, a_score, a_qn = _best_fuzzy_match(a_raw, cand_teams, _norm)
+            else:
+                a_best, a_score, a_qn = a_name, 1.0, _norm(a_raw)
+
+            # Accept only if both sides found and the pair exists on the date (or globally) AND scores high
+            pair_ok = False
+            if h_best and a_best:
+                if cdate and same_date:
+                    pair_ok = (a_best, h_best) in same_date.get("pairs", set())
+                if not pair_ok:
+                    pair_ok = (a_best, h_best) in idx
+
+            if h_best and a_best and pair_ok and min(h_score, a_score) >= 0.82:
+                h_name, a_name = h_best, a_best
+                # proceed with normal path (skip unmatched append)
+            else:
+                unmatched_details.append({
+                    "fd_home": h_raw,
+                    "fd_away": a_raw,
+                    "home_resolved": h_name,
+                    "away_resolved": a_name,
+                    "home_fuzzy": h_best,
+                    "home_fuzzy_score": h_score,
+                    "away_fuzzy": a_best,
+                    "away_fuzzy_score": a_score,
+                    "commence_date": cdate,
+                    "reason": "unmatched-after-fuzzy" if (h_best or a_best) else "no-resolution",
+                })
+                continue
+
+        # FBS-vs-FBS guard: only proceed if this pair exists in schedule index
+        if (a_name, h_name) not in idx:
+            # non-FBS or not a scheduled FBS pair; skip
             unmatched_details.append({
-                "fd_home": h_raw,
-                "fd_away": a_raw,
-                "home_resolved": h_name,
-                "away_resolved": a_name,
-                "home_norm": h_dbg.get("q_alias") or h_dbg.get("q_norm"),
-                "away_norm": a_dbg.get("q_alias") or a_dbg.get("q_norm"),
-                "home_best": h_dbg.get("best_team"),
-                "home_best_score": h_dbg.get("best_score"),
-                "away_best": a_dbg.get("best_team"),
-                "away_best_score": a_dbg.get("best_score"),
+                "fd_home": h_raw, "fd_away": a_raw, "home_resolved": h_name, "away_resolved": a_name,
+                "reason": "pair-not-in-index"
             })
             continue
 
@@ -1612,12 +1722,6 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
                 "fd_away": a_raw,
                 "home_resolved": h_name,
                 "away_resolved": a_name,
-                "home_norm": h_dbg.get("q_alias") or h_dbg.get("q_norm"),
-                "away_norm": a_dbg.get("q_alias") or a_dbg.get("q_norm"),
-                "home_best": h_dbg.get("best_team"),
-                "home_best_score": h_dbg.get("best_score"),
-                "away_best": a_dbg.get("best_team"),
-                "away_best_score": a_dbg.get("best_score"),
                 "reason": "resolved-names-not-in-schedule-index"
             })
             continue
