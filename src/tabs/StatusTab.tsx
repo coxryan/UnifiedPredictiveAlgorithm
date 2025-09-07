@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from "react";
 
 interface StatusJson {
+  // new schema
   last_updated?: string;
   next_run_eta?: string;
-  season?: string | number;
-  requested_market?: string;
   market_source_used?: string;
-  fallback_reason?: string;
+  requested_market?: string;
+
+  // legacy/alt schema
+  generated_at_utc?: string;
+  next_run_eta_utc?: string;
+  market_source?: string;
+  market_requested?: string;
+
+  // common
+  season?: string | number;
   teams?: number;
   games?: number;
   pred_rows?: number;
 }
 
-// Helper to resolve paths against Vite's BASE_URL (works on GH Pages)
-// Ensures exactly one slash between base and path.
+/** Build a URL that respects Vite/GitHub Pages BASE_URL. */
 function withBase(path: string): string {
   const base = (import.meta as any)?.env?.BASE_URL ?? "/";
   const b = String(base).replace(/\/+$/, "");
@@ -21,14 +28,62 @@ function withBase(path: string): string {
   return `${b}/${p}`;
 }
 
-const STATUS_URL = withBase("data/status.json");
-const UNMATCHED_ODDS_CSV_URL = withBase("data/unmatched_odds.csv");
+/** Try a list of URLs in order until one succeeds (non-404). */
+async function fetchJsonWithFallback<T = any>(urls: string[]): Promise<T> {
+  let lastErr: any;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        lastErr = new Error(`HTTP ${res.status} for ${url}`);
+        continue;
+      }
+      return (await res.json()) as T;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr ?? new Error("Failed to load JSON");
+}
 
+async function headExists(urls: string[]): Promise<boolean> {
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+      if (res.ok) return true;
+    } catch {
+      // continue
+    }
+  }
+  return false;
+}
+
+/** Friendly date/time. */
 function formatTimestamp(ts?: string): string {
   if (!ts) return "";
   const d = new Date(ts);
   return isNaN(d.getTime()) ? ts : d.toLocaleString();
 }
+
+/** Field pickers (support both old and new keys) */
+function pickLastUpdated(s: StatusJson) {
+  return s.last_updated ?? s.generated_at_utc ?? "";
+}
+function pickNextEta(s: StatusJson) {
+  return s.next_run_eta ?? s.next_run_eta_utc ?? "";
+}
+function pickRequestedMarket(s: StatusJson) {
+  return s.requested_market ?? s.market_requested ?? "-";
+}
+function pickMarketUsed(s: StatusJson) {
+  return s.market_source_used ?? s.market_source ?? "-";
+}
+
+const STATUS_PRIMARY = withBase("data/status.json");
+const STATUS_FALLBACK = "data/status.json";
+
+const UNMATCHED_CSV_PRIMARY = withBase("data/unmatched_odds.csv");
+const UNMATCHED_CSV_FALLBACK = "data/unmatched_odds.csv";
 
 const StatusTab: React.FC = () => {
   const [status, setStatus] = useState<StatusJson | null>(null);
@@ -39,33 +94,29 @@ const StatusTab: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
 
-    setLoading(true);
-    fetch(STATUS_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to load status (${res.status})`);
-        return res.json();
-      })
-      .then((data: StatusJson) => {
+    (async () => {
+      try {
+        setLoading(true);
+        // Try base-aware then relative
+        const s = await fetchJsonWithFallback<StatusJson>([
+          STATUS_PRIMARY,
+          STATUS_FALLBACK,
+        ]);
         if (!cancelled) {
-          setStatus(data);
+          setStatus(s);
           setLoading(false);
         }
-      })
-      .catch((e) => {
+      } catch (e: any) {
         if (!cancelled) {
-          setError(e.message || "Failed to load status.");
+          setError(e?.message || "Failed to load status.");
           setLoading(false);
         }
-      });
+      }
 
-    // Probe for unmatched_odds.csv
-    fetch(UNMATCHED_ODDS_CSV_URL, { method: "HEAD" })
-      .then((res) => {
-        if (!cancelled) setCsvAvailable(res.ok);
-      })
-      .catch(() => {
-        if (!cancelled) setCsvAvailable(false);
-      });
+      // Probe CSV existence
+      const csvExists = await headExists([UNMATCHED_CSV_PRIMARY, UNMATCHED_CSV_FALLBACK]);
+      if (!cancelled) setCsvAvailable(csvExists);
+    })();
 
     return () => {
       cancelled = true;
@@ -94,15 +145,22 @@ const StatusTab: React.FC = () => {
     );
   }
 
+  const lastUpdated = pickLastUpdated(status);
+  const nextEta = pickNextEta(status);
+  const requestedMarket = pickRequestedMarket(status);
+  const marketUsed = pickMarketUsed(status);
+
+  const csvUrl = csvAvailable ? UNMATCHED_CSV_PRIMARY : UNMATCHED_CSV_FALLBACK;
+
   return (
     <div className="card" style={{ maxWidth: 600, margin: "2rem auto", padding: "1.5rem" }}>
       <div className="row" style={{ marginBottom: 12 }}>
         <label><strong>Last updated:</strong></label>
-        <span style={{ marginLeft: 8 }}>{formatTimestamp(status.last_updated)}</span>
+        <span style={{ marginLeft: 8 }}>{formatTimestamp(lastUpdated)}</span>
       </div>
       <div className="row" style={{ marginBottom: 12 }}>
         <label><strong>Next run ETA:</strong></label>
-        <span style={{ marginLeft: 8 }}>{formatTimestamp(status.next_run_eta)}</span>
+        <span style={{ marginLeft: 8 }}>{formatTimestamp(nextEta)}</span>
       </div>
       <div className="row" style={{ marginBottom: 12 }}>
         <label><strong>Season:</strong></label>
@@ -110,16 +168,16 @@ const StatusTab: React.FC = () => {
       </div>
       <div className="row" style={{ marginBottom: 12 }}>
         <label><strong>Requested market:</strong></label>
-        <span style={{ marginLeft: 8 }}>{status.requested_market ?? "-"}</span>
+        <span style={{ marginLeft: 8 }}>{requestedMarket}</span>
       </div>
       <div className="row" style={{ marginBottom: 12 }}>
-        <label><strong>Market source used:</strong></label>
-        <span style={{ marginLeft: 8 }}>{status.market_source_used ?? "-"}</span>
+        <label><strong>Market source (used):</strong></label>
+        <span style={{ marginLeft: 8 }}>{marketUsed}</span>
       </div>
-      {status.fallback_reason && status.fallback_reason.trim().length > 0 && (
+      {status["fallback_reason"] && String(status["fallback_reason"]).trim().length > 0 && (
         <div className="row" style={{ marginBottom: 12 }}>
           <label><strong>Fallback reason:</strong></label>
-          <span style={{ marginLeft: 8 }}>{status.fallback_reason}</span>
+          <span style={{ marginLeft: 8 }}>{status["fallback_reason"]}</span>
         </div>
       )}
       <div className="row" style={{ marginBottom: 12 }}>
@@ -141,7 +199,7 @@ const StatusTab: React.FC = () => {
           <div style={{ marginTop: 8 }}>
             {csvAvailable ? (
               <a
-                href={UNMATCHED_ODDS_CSV_URL}
+                href={csvUrl}
                 download
                 className="download-link"
                 style={{ color: "#4af", textDecoration: "underline" }}
