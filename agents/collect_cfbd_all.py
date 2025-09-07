@@ -199,6 +199,13 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
         if isinstance(df, pd.DataFrame):
             base = os.path.basename(path)
             if base in ("upa_predictions.csv", "backtest_predictions_2024.csv", "upa_predictions_2024_backtest.csv"):
+                # First mirror book columns to legacy columns, if available
+                if '_mirror_book_to_legacy_columns' in globals():
+                    try:
+                        df = _mirror_book_to_legacy_columns(df.copy())
+                    except Exception:
+                        pass
+                # Then apply book grades, if available
                 if '_apply_book_grades' in globals():
                     try:
                         df = _apply_book_grades(df.copy())
@@ -291,6 +298,35 @@ def _apply_book_grades(df: pd.DataFrame) -> pd.DataFrame:
         for p, hp, ap, m in zip(expected_pick, df["home_points"], df["away_points"], df["market_spread_book"])
     ]
     return df
+
+
+# --- Mirror FanDuel/“book” columns to legacy columns for UI compatibility ---
+def _mirror_book_to_legacy_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Mirror FanDuel/“book” columns into legacy columns the UI expects.
+    This is a no-op when the legacy column already exists with data.
+    """
+    try:
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            return df
+        def _missing(col: str) -> bool:
+            return (col not in df.columns) or pd.to_numeric(df[col], errors="coerce").isna().all() if col in df.columns else True
+        mappings = [
+            ("market_spread_book", "market_spread"),
+            ("market_spread_book", "market_h"),  # UI legacy alias for book-style spread (home perspective)
+            ("model_spread_book", "model_spread"),
+            ("edge_points_book", "edge"),
+            ("value_points_book", "value"),
+            ("ev_percent_book", "ev_percent"),
+            ("ev_bps_book", "ev_bps"),
+            ("expected_market_spread_book", "expected_market_spread"),
+        ]
+        for src, dst in mappings:
+            if src in df.columns and _missing(dst):
+                df[dst] = df[src]
+        return df
+    except Exception:
+        return df
 
 
 def _normalize_percent(x: Optional[float]) -> Optional[float]:
