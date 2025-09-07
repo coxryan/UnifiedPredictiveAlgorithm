@@ -1972,338 +1972,78 @@ def get_market_lines_for_current_week(
 # ======================================================
 def market_debug_entry() -> None:
     """
-    Market-only helper used by CI to always emit market diagnostics and update
-    status. This function **does not** mutate module-level globals; it reads
-    any overrides from the environment and uses local variables only.
+    Run a market-only pass that (a) updates status.json with the market
+    source used, and (b) writes small debug artefacts:
+      - data/market_debug.json (summary)
+      - data/market_debug.csv  (resolved market lines)
 
-    Side effects:
-      - writes data/market_debug.json with a small summary
-      - writes data/market_debug.csv with the resolved market dataframe
-      - updates data/status.json via get_market_lines_for_current_week()
+    This function intentionally does **not** mutate module-level globals.
+    Any environment overrides should be provided via env vars before the
+    module is imported. We only read env here and compute with locals.
     """
     try:
-        # Respect env overrides but fall back to module defaults.
-        year = int(os.environ.get("UPA_YEAR", datetime.utcnow().year))
-        bearer = os.environ.get("CFBD_BEARER_TOKEN", "").strip()
-        cache_root = os.environ.get("CFBD_CACHE_DIR", CACHE_DIR)
+        # Resolve season and optional week override from env.
+        year_env = os.environ.get("SEASON") or os.environ.get("YEAR")
+        try:
+            year = int(year_env) if year_env else datetime.utcnow().year
+        except Exception:
+            year = datetime.utcnow().year
 
-        cache = ApiCache(root=cache_root, days_to_live=CACHE_TTL_DAYS)
+        week_override = os.environ.get("CURRENT_WEEK")
+        week_from_env = None
+        try:
+            if week_override:
+                week_from_env = int(week_override)
+        except Exception:
+            week_from_env = None
+
+        # Build local cache & CFBD client using current env configuration.
+        cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
+        bearer = os.environ.get("CFBD_BEARER_TOKEN", "").strip()
         apis = CfbdClients(bearer_token=bearer)
 
-        # Load schedule (FBS-vs-FBS is already handled in loader when possible)
-        sched = load_schedule_for_year(year, apis, cache)
-        if sched is None or sched.empty:
-            os.makedirs(DATA_DIR, exist_ok=True)
-            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-                json.dump(
-                    {
-                        "requested": (MARKET_SOURCE or "cfbd"),
-                        "used": None,
-                        "rows_returned": 0,
-                        "odds_key_present": bool(ODDS_API_KEY),
-                        "note": "empty schedule",
-                    },
-                    f,
-                    indent=2,
-                )
-            return
+        # Load schedule and determine week.
+        schedule = load_schedule_for_year(year, apis, cache)
+        wk_auto = discover_current_week(schedule) or (int(schedule["week"].max()) if not schedule.empty else 1)
+        week = int(week_from_env or wk_auto or 1)
 
-        # Determine current week (prefer helper – falls back to max week seen)
-        wk_series = pd.to_numeric(sched.get("week"), errors="coerce")
-        cur_week = discover_current_week(sched) or int(wk_series.dropna().max())
+        # Pull market lines (this will also upsert status.json inside).
+        market_df = get_market_lines_for_current_week(year, week, schedule, apis, cache)
 
-        # Pull market lines (this call also writes status.json via _upsert_status_market_source)
-        lines = get_market_lines_for_current_week(year, int(cur_week), sched, apis, cache)
-        rows = int(len(lines)) if isinstance(lines, pd.DataFrame) else 0
-
-        # Read what source ended up being used from status.json
-        status_path = os.path.join(DATA_DIR, "status.json")
-        used = None
+        # Ensure data directory exists and write artefacts.
         try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+        except Exception:
+            pass
+
+        try:
+            market_df.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
+        except Exception as e:
+            print(f"[warn] could not write market_debug.csv: {e}", file=sys.stderr)
+
+        # Build a compact summary for quick inspection.
+        try:
+            status_used = None
+            status_path = os.path.join(DATA_DIR, "status.json")
             if os.path.exists(status_path):
-                with open(status_path, "r") as sf:
-                    used = (json.load(sf) or {}).get("market_source_used")
-        except Exception:
-            used = None
+                try:
+                    with open(status_path, "r") as f:
+                        _s = json.load(f) or {}
+                    status_used = _s.get("market_source_used") or _s.get("market_source")
+                except Exception:
+                    status_used = None
 
-        dbg = {
-            "requested": (MARKET_SOURCE or "cfbd"),
-            "used": used,
-            "rows_returned": rows,
-            "odds_key_present": bool(ODDS_API_KEY),
-        }
-
-        os.makedirs(DATA_DIR, exist_ok=True)
-        with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-            json.dump(dbg, f, indent=2)
-
-        # Also drop the resolved market df for quick inspection
-        try:
-            if isinstance(lines, pd.DataFrame) and not lines.empty:
-                lines.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
-        except Exception:
-            pass
-
-    except Exception as e:
-        # Never crash CI on this helper
-        try:
-            os.makedirs(DATA_DIR, exist_ok=True)
+            summary = {
+                "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                "requested": (MARKET_SOURCE or "cfbd"),
+                "used": status_used or (MARKET_SOURCE or "cfbd"),
+                "rows": int(len(market_df)),
+                "odds_key_present": bool(ODDS_API_KEY),
+            }
             with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-                json.dump({"error": str(e)}, f, indent=2)
-        except Exception:
-            pass
-
-
-# ======================================================
-# Predictions & Backtest
-# ======================================================
-def _team_strength_row(row: pd.Series) -> float:
-    # Weighted composite (tuneable)
-    wrps = _safe_float(row.get("wrps_percent_0_100"), 50.0)
-    talent = _safe_float(row.get("talent_score_0_100"), 50.0)
-    srs = _safe_float(row.get("srs_score_0_100"), 50.0)
-    portal = _safe_float(row.get("portal_net_0_100"), 50.0)
-    # 0..100 scale -> center 0 by subtracting 50
-    return 0.35 * (wrps - 50.0) + 0.25 * (talent - 50.0) + 0.30 * (srs - 50.0) + 0.10 * (portal - 50.0)
-
-
-def _calibrate_model_to_market(df: pd.DataFrame) -> Tuple[float, float]:
-    """
-    Fit simple linear calibration: market ≈ a * raw_model + b
-    raw_model here is the *home line* our model thinks it should be (negative ⇒ home favored).
-    """
-    d = df.dropna(subset=["market_spread_book"]).copy()
-    if d.empty:
-        return 1.0, 0.0
-    x = pd.to_numeric(d["raw_model_line"], errors="coerce")
-    y = pd.to_numeric(d["market_spread_book"], errors="coerce")
-    msk = x.notna() & y.notna()
-    if not msk.any():
-        return 1.0, 0.0
-    x = x[msk].values
-    y = y[msk].values
-    if len(x) < 3:
-        return 1.0, 0.0
-    # least squares
-    X = np.vstack([x, np.ones_like(x)]).T
-    a, b = np.linalg.lstsq(X, y, rcond=None)[0]
-    return float(a), float(b)
-
-
-def build_predictions_for_year(
-    year: int,
-    schedule_df: pd.DataFrame,
-    team_inputs: pd.DataFrame,
-    market_df: pd.DataFrame,
-    fbs_only: bool = True,
-) -> pd.DataFrame:
-    sched = schedule_df.copy()
-
-    # Merge team inputs (home/away)
-    left = sched.merge(team_inputs.add_prefix("home_"), left_on="home_team", right_on="home_team", how="left")
-    full = left.merge(team_inputs.add_prefix("away_"), left_on="away_team", right_on="away_team", how="left")
-
-    # Compute strengths and raw model home line (negative ⇒ home favored)
-    full["home_strength"] = full.apply(lambda r: _team_strength_row(r.filter(like="home_")), axis=1)
-    full["away_strength"] = full.apply(lambda r: _team_strength_row(r.filter(like="away_")), axis=1)
-    # translate strength diff into points; the 0.25 scale acts like “points per 25 model points”
-    full["raw_model_line"] = -(full["home_strength"] - full["away_strength"]) * (1.0 / 2.5)
-
-    # Attach market (home line)
-    m = market_df.rename(columns={"spread": "market_spread_book"})
-    full = full.merge(m[["game_id", "market_spread_book"]], on="game_id", how="left")
-
-    # Calibrate model to market
-    a, b = _calibrate_model_to_market(full)
-    full["model_spread_book"] = a * full["raw_model_line"] + b
-
-    # Expected “market given model” (used for value sanity)
-    full["expected_market_spread_book"] = full["model_spread_book"]
-
-    # Edge and value (book perspective: edge = model - market)
-    full["edge_points_book"] = pd.to_numeric(full["model_spread_book"], errors="coerce") - pd.to_numeric(
-        full["market_spread_book"], errors="coerce"
-    )
-    full["value_points_book"] = full["edge_points_book"].abs()
-
-    # Simple EV proxy (percent) using a soft sigmoid on edge
-    def _ev(edge):
-        try:
-            e = float(edge)
-        except Exception:
-            return np.nan
-        return 1.0 / (1.0 + np.exp(-e / 3.0))  # bigger edge → closer to 1
-
-    full["ev_percent_book"] = full["edge_points_book"].map(_ev)
-
-    # Model pick side (book perspective)
-    # edge = model - market; edge < 0 ⇒ value HOME; edge > 0 ⇒ value AWAY
-    def _pick_side(e):
-        if pd.isna(e):
-            return ""
-        return "HOME" if e < 0 else "AWAY"
-
-    full["model_pick_side"] = full["edge_points_book"].map(_pick_side)
-
-    # Keep core output columns
-    keep = [
-        "game_id",
-        "week",
-        "date",
-        "kickoff_utc",
-        "away_team",
-        "home_team",
-        "neutral_site",
-        "home_points",
-        "away_points",
-        "market_spread_book",
-        "model_spread_book",
-        "expected_market_spread_book",
-        "edge_points_book",
-        "value_points_book",
-        "ev_percent_book",
-        "model_pick_side",
-    ]
-    for k in keep:
-        if k not in full.columns:
-            full[k] = None
-
-    out = full[keep].copy()
-    out.sort_values(["week", "date", "home_team"], inplace=True, ignore_index=True)
-    return out
-
-
-def build_backtest_for_year(
-    year: int, schedule_df: pd.DataFrame, team_inputs: pd.DataFrame, market_df: pd.DataFrame
-) -> pd.DataFrame:
-    df = build_predictions_for_year(year, schedule_df, team_inputs, market_df)
-    # grading is applied at write_csv time (_apply_book_grades), but ensure types
-    for c in ("home_points", "away_points", "market_spread_book"):
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors="coerce")
-    return df
-
-
-# ======================================================
-# CLI
-# ======================================================
-def main():
-    parser = argparse.ArgumentParser("collect_cfbd_all")
-    parser.add_argument("--year", type=int, default=int(os.environ.get("UPA_YEAR", datetime.now().year)))
-    parser.add_argument("--backtest", type=int, default=int(os.environ.get("UPA_BACKTEST_YEAR", datetime.now().year - 1)))
-    parser.add_argument("--market", type=str, default=os.environ.get("MARKET_SOURCE", "fanduel"))
-    parser.add_argument("--data-dir", type=str, default=DATA_DIR)
-    parser.add_argument("--cache-cfbd", type=str, default=CACHE_DIR)
-    parser.add_argument("--cache-odds", type=str, default=ODDS_CACHE_DIR)
-    parser.add_argument("--odds-api-key", type=str, default=os.environ.get("ODDS_API_KEY", ""))
-    parser.add_argument("--cfbd-api-key", type=str, default=os.environ.get("CFBD_API_KEY", os.environ.get("BEARER_TOKEN", "")))
-    args = parser.parse_args()
-
-    # propagate env
-    global DATA_DIR, CACHE_DIR, ODDS_CACHE_DIR, ODDS_API_KEY
-    DATA_DIR = args.data_dir or DATA_DIR
-    CACHE_DIR = args.cache_cfbd or CACHE_DIR
-    ODDS_CACHE_DIR = args.cache_odds or ODDS_CACHE_DIR
-    if args.odds_api_key:
-        ODDS_API_KEY = args.odds_api_key
-
-    os.makedirs(DATA_DIR, exist_ok=True)
-
-    # CFBD Clients
-    cfbd_key = args.cfbd_api_key.strip()
-    apis = CfbdClients(bearer_token=cfbd_key)
-
-    # Caches
-    api_cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
-    odds_cache = get_odds_cache()
-
-    # FBS list (for filtering)
-    fbs_set = None
-    try:
-        if apis.teams_api:
-            fbs = apis.teams_api.get_fbs_teams(year=args.year)
-            fbs_set = {getattr(t, "school", None) for t in (fbs or []) if getattr(t, "school", None)}
-    except Exception:
-        fbs_set = None
-
-    # 1) Build / load schedule for target year
-    schedule = load_schedule_for_year(args.year, apis, api_cache, fbs_set=fbs_set)
-    if REQUIRE_SCHED_MIN_ROWS and len(schedule) < REQUIRE_SCHED_MIN_ROWS:
-        print(f"[warn] schedule rows too small ({len(schedule)} < {REQUIRE_SCHED_MIN_ROWS}); using dummy", file=sys.stderr)
-        schedule = _dummy_schedule(args.year)
-
-    # Persist schedule (idempotent)
-    write_csv(schedule, os.path.join(DATA_DIR, "cfb_schedule.csv"))
-
-    # 2) Team inputs
-    team_inputs = build_team_inputs_datadriven(args.year, apis, api_cache)
-    write_csv(team_inputs, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
-
-    # 3) Determine current week from schedule
-    cur_week = discover_current_week(schedule) or int(schedule["week"].min())
-
-    # 4) Market for current week (and prior weeks up to current)
-    market_df = get_market_lines_for_current_week(args.year, cur_week, schedule, apis, api_cache)
-
-    # 5) Predictions for the year (uses calibrated model vs market)
-    preds = build_predictions_for_year(args.year, schedule, team_inputs, market_df)
-    write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
-
-    # 6) Backtest for prior (default 2024)
-    try:
-        back_year = int(args.backtest)
-    except Exception:
-        back_year = args.year - 1
-
-    # Use CFBD market for backtest, regardless of MARKET_SOURCE (FanDuel only carries current + near-future)
-    if back_year:
-        bt_schedule = load_schedule_for_year(back_year, apis, api_cache, fbs_set=fbs_set)
-        # backtest lines: CFBD only
-        bt_lines = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
-        if apis.lines_api:
-            try:
-                wmax = int(pd.to_numeric(bt_schedule["week"], errors="coerce").max() or 15)
-                rows = []
-                for w in range(1, wmax + 1):
-                    try:
-                        ls = apis.lines_api.get_lines(year=back_year, week=w, season_type="both")
-                        r = []
-                        for ln in ls or []:
-                            game_id = getattr(ln, "id", None) or getattr(ln, "game_id", None)
-                            home = getattr(ln, "home_team", None)
-                            away = getattr(ln, "away_team", None)
-                            fav = getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None)
-                            spread = getattr(ln, "spread", None)
-                            r.append({"game_id": game_id, "week": w, "home_team": home, "away_team": away, "favorite": fav, "spread": spread})
-                        dfl = pd.DataFrame(r)
-                        if not dfl.empty:
-                            dfl = _cfbd_lines_to_bookstyle(dfl)
-                            rows.append(dfl)
-                    except Exception:
-                        continue
-                if rows:
-                    bt_lines = pd.concat(rows, ignore_index=True)
-            except Exception as e:
-                print(f"[warn] backtest lines fetch failed: {e}", file=sys.stderr)
-
-        backtest = build_backtest_for_year(back_year, bt_schedule, team_inputs, bt_lines)
-        # write to canonical 2024 path for UI tabs
-        bt_out1 = os.path.join(DATA_DIR, "2024", "upa_predictions_2024_backtest.csv") if back_year == 2024 else os.path.join(DATA_DIR, f"{back_year}", f"upa_predictions_{back_year}_backtest.csv")
-        os.makedirs(os.path.dirname(bt_out1), exist_ok=True)
-        write_csv(backtest, bt_out1)
-
-    # 7) Status
-    extra = {
-        "season": args.year,
-        "teams": int(team_inputs["team"].nunique() if "team" in team_inputs else 0),
-        "games": int(len(schedule)),
-        "pred_rows": int(len(preds)),
-        "last_updated": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-    }
-    _upsert_status_market_source(market_used=os.environ.get("MARKET_SOURCE", "fanduel"), market_requested=os.environ.get("MARKET_SOURCE", "fanduel"), fallback_reason=None, data_dir=DATA_DIR, extra=extra)
-
-    print(f"[ok] wrote: cfb_schedule.csv, upa_team_inputs_datadriven_v0.csv, upa_predictions.csv", file=sys.stderr)
-
-
-if __name__ == "__main__":
-    main()
+                json.dump(summary, f, indent=2)
+        except Exception as e:
+            print(f"[warn] could not write market_debug.json: {e}", file=sys.stderr)
+    except Exception as e:
+        # Never crash the workflow; surface as stderr only.
+        print(f"[warn] market_debug_entry failed: {e}", file=sys.stderr)
