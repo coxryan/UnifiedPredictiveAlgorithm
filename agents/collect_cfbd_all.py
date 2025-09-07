@@ -1972,78 +1972,88 @@ def get_market_lines_for_current_week(
 # ======================================================
 def market_debug_entry() -> None:
     """
-    Run a market-only pass that (a) updates status.json with the market
-    source used, and (b) writes small debug artefacts:
-      - data/market_debug.json (summary)
-      - data/market_debug.csv  (resolved market lines)
-
-    This function intentionally does **not** mutate module-level globals.
-    Any environment overrides should be provided via env vars before the
-    module is imported. We only read env here and compute with locals.
+    Market-only pass:
+      * loads schedule,
+      * discovers current week,
+      * fetches market lines for all weeks up to current week,
+      * writes small debug artefacts into DATA_DIR:
+          - market_debug.json (summary + market-source bookkeeping)
+          - market_debug.csv  (resolved market lines)
+    Notes:
+      - This function reads configuration exclusively from environment variables
+        that are already consumed at module import time (e.g. DATA_DIR,
+        MARKET_SOURCE, ODDS_API_KEY, etc.). It does NOT mutate module-level
+        globals and takes no positional arguments (call it as: market_debug_entry()).
     """
     try:
-        # Resolve season and optional week override from env.
-        year_env = os.environ.get("SEASON") or os.environ.get("YEAR")
-        try:
-            year = int(year_env) if year_env else datetime.utcnow().year
-        except Exception:
-            year = datetime.utcnow().year
+        # Resolve season and optional week override from env (fall back to UTC year)
+        year = int(os.environ.get("YEAR", str(datetime.utcnow().year)))
+        week_override = os.environ.get("WEEK")
+        week_override = int(week_override) if (week_override or "").strip().isdigit() else None
 
-        week_override = os.environ.get("CURRENT_WEEK")
-        week_from_env = None
-        try:
-            if week_override:
-                week_from_env = int(week_override)
-        except Exception:
-            week_from_env = None
-
-        # Build local cache & CFBD client using current env configuration.
-        cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
+        # Construct clients/cache (CFBD token may be empty; code will gracefully degrade)
         bearer = os.environ.get("CFBD_BEARER_TOKEN", "").strip()
         apis = CfbdClients(bearer_token=bearer)
+        cache = ApiCache()
 
-        # Load schedule and determine week.
-        schedule = load_schedule_for_year(year, apis, cache)
-        wk_auto = discover_current_week(schedule) or (int(schedule["week"].max()) if not schedule.empty else 1)
-        week = int(week_from_env or wk_auto or 1)
+        # Load schedule & determine current week
+        sched = load_schedule_for_year(year, apis, cache)
+        cur_week = discover_current_week(sched) or 1
+        if week_override:
+            cur_week = max(1, int(week_override))
 
-        # Pull market lines (this will also upsert status.json inside).
-        market_df = get_market_lines_for_current_week(year, week, schedule, apis, cache)
+        # Fetch market lines (this will also upsert status.json with used/requested/fallback)
+        lines = get_market_lines_for_current_week(year, cur_week, sched, apis, cache)
 
-        # Ensure data directory exists and write artefacts.
+        # Ensure data dir exists
+        os.makedirs(DATA_DIR, exist_ok=True)
+
+        # Write debug artefacts
+        debug_csv = os.path.join(DATA_DIR, "market_debug.csv")
+        write_csv(lines, debug_csv)
+
+        # Re-open status.json to include a quick summary alongside existing fields
+        status_path = os.path.join(DATA_DIR, "status.json")
+        status_payload = {}
+        if os.path.exists(status_path):
+            try:
+                with open(status_path, "r") as f:
+                    status_payload = json.load(f) or {}
+            except Exception:
+                status_payload = {}
+
+        # Prepare a concise debug summary
+        summary = {
+            "year": year,
+            "week_used": cur_week,
+            "requested_market": (MARKET_SOURCE or "cfbd"),
+            "status_market_used": status_payload.get("market_source_used"),
+            "fallback_reason": status_payload.get("fallback_reason") or status_payload.get("market_fallback_reason"),
+            "rows_returned": int(lines.shape[0]) if isinstance(lines, pd.DataFrame) else 0,
+            "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+
+        with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+            json.dump(summary, f, indent=2)
+
+        # Also emit a brief log line when DEBUG_MARKET is enabled
+        _dbg(f"market_debug_entry: summary={summary}")
+
+    except Exception as e:
+        # Best-effort: write an error stub so the UI/workflow has a breadcrumb
         try:
             os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, 'market_debug.json'), 'w') as f:
+                json.dump(
+                    {
+                        "error": str(e),
+                        "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                        "requested_market": (MARKET_SOURCE or "cfbd"),
+                    },
+                    f,
+                    indent=2,
+                )
         except Exception:
             pass
-
-        try:
-            market_df.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
-        except Exception as e:
-            print(f"[warn] could not write market_debug.csv: {e}", file=sys.stderr)
-
-        # Build a compact summary for quick inspection.
-        try:
-            status_used = None
-            status_path = os.path.join(DATA_DIR, "status.json")
-            if os.path.exists(status_path):
-                try:
-                    with open(status_path, "r") as f:
-                        _s = json.load(f) or {}
-                    status_used = _s.get("market_source_used") or _s.get("market_source")
-                except Exception:
-                    status_used = None
-
-            summary = {
-                "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-                "requested": (MARKET_SOURCE or "cfbd"),
-                "used": status_used or (MARKET_SOURCE or "cfbd"),
-                "rows": int(len(market_df)),
-                "odds_key_present": bool(ODDS_API_KEY),
-            }
-            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-                json.dump(summary, f, indent=2)
-        except Exception as e:
-            print(f"[warn] could not write market_debug.json: {e}", file=sys.stderr)
-    except Exception as e:
-        # Never crash the workflow; surface as stderr only.
-        print(f"[warn] market_debug_entry failed: {e}", file=sys.stderr)
+        # Re-raise for CI visibility
+        raise
