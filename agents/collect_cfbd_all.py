@@ -1264,6 +1264,198 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
 
     return None
 
+
+# --- Detailed resolver with debug info ---
+def _resolve_names_to_schedule_with_details(schedule_df: pd.DataFrame, name: str) -> Tuple[Optional[str], Dict[str, Any]]:
+    """
+    Detailed resolver: returns (resolved_school_or_None, detail_dict) where detail_dict includes:
+      - q_raw, q_norm, q_no_paren, q_alias
+      - best_team, best_score (for fuzzy stage)
+    Uses the same logic as _resolve_names_to_schedule.
+    """
+    detail: Dict[str, Any] = {"q_raw": name, "q_norm": None, "q_no_paren": None, "q_alias": None, "best_team": None, "best_score": None}
+    if not name:
+        return None, detail
+
+    # ---- begin inlined logic (kept in sync with _resolve_names_to_schedule) ----
+    MASCOT_WORDS = {
+        "bulldogs","wildcats","tigers","aggressors","agies","aggies","gators","longhorns","buckeyes","nittany","lions","nittany lions",
+        "yellow","jackets","yellow jackets","demon","deacons","demon deacons","crimson","tide","crimson tide","redhawks","red hawks",
+        "chippewas","huskies","zips","warhawks","cardinals","terrapins","razorbacks","trojans","bruins","gophers","badgers","cornhuskers",
+        "rebels","utes","bearcats","cowboys","mountaineers","hurricanes","seminoles","sooners","volunteers","commodores",
+        "panthers","wolfpack","falcons","eagles","golden eagles","golden","golden flashes","flashes","blazers","tar","heels","tar heels",
+        "skyhawks","gamecocks","blue devils","blue","blue hens","scarlet knights","knights","rainbow warriors","warriors","rainbows",
+        "rainbow","broncos","lancers","gaels","lions","rams","owls","spartans","tigers","tide","pirates","raiders","mean green",
+        "anteaters","jaguars","trojans","minutemen","red wolves","hokies","uconn huskies","bulls","thundering herd","mustangs","cavaliers",
+        "paladins","mocs","moccasins","mocsins","thunderbirds","mountaineers","phoenix","blue raiders","jayhawks","illini","aztecs",
+        "redbirds","salukis","lumberjacks","cowgirls","cowboys","bears","mavericks","rivers","catamounts","governors","bengals",
+        "buccaneers","runnin","runnin bulldogs","runnin' bulldogs","runnin-bulldogs","lobos","vandals","owls","golden hurricane",
+        "scarlet","scarlet knights"
+    }
+
+    def strip_diacritics(s: str) -> str:
+        try:
+            s2 = s.replace("ʻ", "'").replace("’", "'").replace("`", "'")
+            return s2.encode("ascii", "ignore").decode("ascii", "ignore")
+        except Exception:
+            return s
+
+    def drop_mascots(tokens: list[str]) -> list[str]:
+        if not tokens:
+            return tokens
+        toks = tokens[:]
+        i = 0
+        out = []
+        while i < len(toks):
+            if i + 1 < len(toks) and f"{toks[i]} {toks[i+1]}" in MASCOT_WORDS and len(toks) > 2:
+                i += 2
+                continue
+            if toks[i] in MASCOT_WORDS and len(toks) > 1:
+                i += 1
+                continue
+            out.append(toks[i])
+            i += 1
+        return out if out else tokens
+
+    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college"} | {"st","st.","state","and","at","amp","amp;"}
+
+    def clean(s: str) -> str:
+        s = strip_diacritics(s or "").lower().strip()
+        s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
+        s = s.replace(" st.", " state").replace(" st ", " state ")
+        import re
+        s = re.sub(r"[^a-z0-9() ]+", " ", s)
+        s = re.sub(r"\s+", " ", s).strip()
+        s = s.replace("a&amp;m", "a&m").replace("a & m", "a&m").replace("a and m", "a&m")
+        toks = [t for t in s.split() if t not in STOP_WORDS]
+        toks = drop_mascots(toks)
+        return " ".join(toks)
+
+    def no_paren(s: str) -> str:
+        import re
+        return re.sub(r"\\([^)]*\\)", "", s).strip()
+
+    def acronym_from(s: str) -> str:
+        base = []
+        for t in clean(s).split():
+            if t in STOP_WORDS:
+                continue
+            if t == "a&m":
+                base.extend(list("A&M"))
+                continue
+            base.append(t[0])
+        return "".join([c for c in base if c.isalpha() or c == "&"]).upper()
+
+    alias_map = {
+        "pitt": "pittsburgh",
+        "ole miss": "mississippi",
+        "app state": "appalachian state",
+        "la tech": "louisiana tech",
+        "ul monroe": "louisiana monroe",
+        "la monroe": "louisiana monroe",
+        "ul lafayette": "louisiana",
+        "louisiana lafayette": "louisiana",
+        "western ky": "western kentucky",
+        "san jose st": "san jose state",
+        "sj state": "san jose state",
+        "fresno st": "fresno state",
+        "southern miss": "southern mississippi",
+        "mass": "massachusetts",
+        "uconn": "connecticut",
+        "cal": "california",
+        "penn st": "penn state",
+        "southern cal": "southern california",
+        "la lafayette": "louisiana",
+        "nc st": "nc state",
+        "ga tech": "georgia tech",
+        "vt": "virginia tech",
+        "uva": "virginia",
+        "hawaii": "hawaii",
+        "hawai'i": "hawaii",
+        "hawaiʻi": "hawaii",
+        "lsu": "louisiana state",
+        "byu": "brigham young",
+        "smu": "southern methodist",
+        "tcu": "texas christian",
+        "ucf": "central florida",
+        "usf": "south florida",
+        "utsa": "texas san antonio",
+        "utep": "texas el paso",
+        "unlv": "nevada las vegas",
+        "umass": "massachusetts",
+        "usc": "southern california",
+        "fiu": "florida international",
+        "fau": "florida atlantic",
+        "miami fl": "miami",
+        "miami fla": "miami",
+        "miami oh": "miami (oh)",
+        # plus the full “School + Mascot” forms (same as in the main resolver) ...
+    }
+
+    def alias(s: str) -> str:
+        cs = clean(s)
+        return alias_map.get(cs, cs)
+
+    if "home_team" not in schedule_df.columns or "away_team" not in schedule_df.columns:
+        return None, detail
+
+    schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | \
+              set(str(x).strip() for x in schedule_df["away_team"].dropna().unique())
+
+    norm_map: Dict[str, str] = {}
+    acro_map: Dict[str, str] = {}
+    token_index: List[Tuple[str, set]] = []
+
+    for sch in schools:
+        can = alias(sch)
+        norm_map[can] = sch
+        ac = acronym_from(sch)
+        if ac:
+            acro_map[ac] = sch
+        token_index.append((sch, set(can.split())))
+
+    q_raw = name
+    q_norm = alias(q_raw)
+    detail["q_norm"] = q_norm
+
+    if q_norm in norm_map:
+        return norm_map[q_norm], detail
+
+    q_np = no_paren(q_norm)
+    detail["q_no_paren"] = q_np
+    if q_np in norm_map:
+        return norm_map[q_np], detail
+
+    q_alias = alias(q_np)
+    detail["q_alias"] = q_alias
+    if q_alias in norm_map:
+        return norm_map[q_alias], detail
+
+    q_acro = acronym_from(q_raw)
+    if q_acro and q_acro in acro_map:
+        return acro_map[q_acro], detail
+
+    q_tokens = set(q_alias.split())
+    best_team, best_score = None, 0.0
+    for sch, toks in token_index:
+        if not toks:
+            continue
+        inter = len(q_tokens & toks)
+        if inter == 0:
+            continue
+        union = len(q_tokens | toks)
+        jacc = inter / float(union) if union else 0.0
+        contain = 1.0 if (q_tokens.issubset(toks) or toks.issubset(q_tokens)) else 0.0
+        score = jacc + 0.25 * contain
+        if score > best_score:
+            best_score, best_team = score, sch
+
+    if best_team and best_score >= 0.40:
+        return best_team, {"q_raw": name, "q_norm": q_norm, "q_no_paren": q_np, "q_alias": q_alias, "best_team": best_team, "best_score": best_score}
+
+    detail.update({"best_team": best_team, "best_score": best_score})
+    return None, detail
+
 def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df: pd.DataFrame, cache: ApiCache) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     raw = _odds_api_fetch_fanduel(year, weeks, cache)
     raw_count = len(raw)
@@ -1271,43 +1463,104 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
     if not raw:
         stats = {"raw": raw_count, "mapped": 0, "unmatched": 0}
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]), stats
-    # Build index of schedule by (away,home) for ID/week
+
     idx = {}
     for _, row in schedule_df.iterrows():
         a = str(row.get("away_team") or "").strip()
         h = str(row.get("home_team") or "").strip()
         if a and h:
             idx[(a, h)] = {"game_id": row.get("game_id"), "week": row.get("week")}
+
     out_rows: List[Dict[str, Any]] = []
-    unmatched = []
+    unmatched_details: List[Dict[str, Any]] = []
+
     for g in raw:
-        h_name = _resolve_names_to_schedule(schedule_df, g.get("home_name"))
-        a_name = _resolve_names_to_schedule(schedule_df, g.get("away_name"))
+        h_raw = g.get("home_name")
+        a_raw = g.get("away_name")
+
+        h_name, h_dbg = _resolve_names_to_schedule_with_details(schedule_df, h_raw)
+        a_name, a_dbg = _resolve_names_to_schedule_with_details(schedule_df, a_raw)
+
         if not h_name or not a_name:
-            unmatched.append((g.get("home_name"), g.get("away_name")))
+            # capture rich debug row
+            unmatched_details.append({
+                "fd_home": h_raw,
+                "fd_away": a_raw,
+                "home_resolved": h_name,
+                "away_resolved": a_name,
+                "home_norm": h_dbg.get("q_alias") or h_dbg.get("q_norm"),
+                "away_norm": a_dbg.get("q_alias") or a_dbg.get("q_norm"),
+                "home_best": h_dbg.get("best_team"),
+                "home_best_score": h_dbg.get("best_score"),
+                "away_best": a_dbg.get("best_team"),
+                "away_best_score": a_dbg.get("best_score"),
+            })
             continue
+
         meta = idx.get((a_name, h_name))
         if not meta:
+            unmatched_details.append({
+                "fd_home": h_raw,
+                "fd_away": a_raw,
+                "home_resolved": h_name,
+                "away_resolved": a_name,
+                "home_norm": h_dbg.get("q_alias") or h_dbg.get("q_norm"),
+                "away_norm": a_dbg.get("q_alias") or a_dbg.get("q_norm"),
+                "home_best": h_dbg.get("best_team"),
+                "home_best_score": h_dbg.get("best_score"),
+                "away_best": a_dbg.get("best_team"),
+                "away_best_score": a_dbg.get("best_score"),
+                "reason": "resolved-names-not-in-schedule-index"
+            })
             continue
+
         try:
             spread = float(g.get("point_home_book"))
         except Exception:
+            # malformed odds row
+            unmatched_details.append({
+                "fd_home": h_raw,
+                "fd_away": a_raw,
+                "home_resolved": h_name,
+                "away_resolved": a_name,
+                "reason": "invalid-point-home-book"
+            })
             continue
+
         out_rows.append({
             "game_id": meta.get("game_id"),
             "week": meta.get("week"),
             "home_team": h_name,
             "away_team": a_name,
-            "spread": spread,  # book-style (negative = home favorite)
+            "spread": spread,
         })
-    _dbg(f"get_market_lines_fanduel_for_weeks: mapped rows={len(out_rows)} unmatched={len(unmatched)}")
-    if DEBUG_MARKET and unmatched[:5]:
-        _dbg(f"unmatched sample (up to 5): {unmatched[:5]}")
+
+    # Emit full mismatch list to logs (all entries) and save to files
+    if unmatched_details:
+        try:
+            for u in unmatched_details:
+                _dbg(f"UNMATCHED: fd=({u.get('fd_home')} vs {u.get('fd_away')}) "
+                     f"home_norm={u.get('home_norm')}→{u.get('home_best')}({u.get('home_best_score')}) "
+                     f"away_norm={u.get('away_norm')}→{u.get('away_best')}({u.get('away_best_score')}) "
+                     f"reason={u.get('reason')}")
+        except Exception:
+            pass
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            # CSV
+            pd.DataFrame(unmatched_details).to_csv(os.path.join(DATA_DIR, "market_unmatched.csv"), index=False)
+            # JSON
+            with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
+                json.dump({"year": year, "unmatched": unmatched_details}, f, indent=2)
+        except Exception:
+            pass
+
     if not out_rows:
-        stats = {"raw": raw_count, "mapped": 0, "unmatched": len(unmatched)}
+        stats = {"raw": raw_count, "mapped": 0, "unmatched": len(unmatched_details)}
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]), stats
+
     df = pd.DataFrame(out_rows)
-    stats = {"raw": raw_count, "mapped": len(out_rows), "unmatched": len(unmatched)}
+    stats = {"raw": raw_count, "mapped": len(out_rows), "unmatched": len(unmatched_details)}
     _dbg(f"get_market_lines_fanduel_for_weeks: stats={stats}")
     return df, stats
 
