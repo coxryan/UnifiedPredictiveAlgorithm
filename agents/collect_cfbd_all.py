@@ -1191,6 +1191,60 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         "unlv rebels": "nevada las vegas",
     }
 
+    # --- Common short forms & book variants (added)
+    alias_map.update({
+        "san diego st": "san diego state",
+        "boise st": "boise state",
+        "colorado st": "colorado state",
+        "washington st": "washington state",
+        "texas st": "texas state",
+        "arkansas st": "arkansas state",
+        "app st": "appalachian state",
+        "west virginia mountaineers": "west virginia",
+        "miami-oh": "miami (oh)",
+        "miami oh redhawks": "miami (oh)",
+        "brigham young university": "brigham young",
+        "central florida ucf": "central florida",
+        "nevada-las vegas": "nevada las vegas",
+        "ul laf": "louisiana",
+        "ull": "louisiana",
+        "ulm": "louisiana monroe",
+        "la laf": "louisiana",
+        "la monroe": "louisiana monroe",
+        "ut san antonio": "texas san antonio",
+        "s miss": "southern mississippi",
+        "southern mississippi golden eagles": "southern mississippi",
+        "n illinois": "northern illinois",
+        "niu": "northern illinois",
+        "s florida": "south florida",
+        "c florida": "central florida",
+        "w kentucky": "western kentucky",
+        "e michigan": "eastern michigan",
+        "w michigan": "western michigan",
+        "s mississippi": "southern mississippi",
+        "bama": "alabama",
+        "ole miss rebels": "mississippi",
+        "texas a and m aggies": "texas a&m",
+        "texas christian horned frogs": "texas christian",
+        "southern methodist mustangs": "southern methodist",
+        "brigham young cougars": "brigham young",
+        "nevada las vegas rebels": "nevada las vegas",
+    })
+
+    # --- External alias overrides (optional) ---
+    try:
+        for _pth in (os.path.join(DATA_DIR, "team_aliases.json"), "agents/team_aliases.json", "data/team_aliases.json"):
+            if os.path.exists(_pth):
+                with open(_pth, "r") as _f:
+                    _extra = json.load(_f) or {}
+                # Normalize keys/values via local `clean()`
+                _norm_extra = {clean(str(k)): clean(str(v)) for k, v in _extra.items() if isinstance(k, str) and isinstance(v, str)}
+                alias_map.update(_norm_extra)
+                break
+    except Exception:
+        # Do not fail name resolution if overrides are malformed
+        pass
+
     def alias(s: str) -> str:
         cs = clean(s)
         return alias_map.get(cs, cs)
@@ -1392,6 +1446,60 @@ def _resolve_names_to_schedule_with_details(schedule_df: pd.DataFrame, name: str
         # plus the full “School + Mascot” forms (same as in the main resolver) ...
     }
 
+    # --- Common short forms & book variants (added)
+    alias_map.update({
+        "san diego st": "san diego state",
+        "boise st": "boise state",
+        "colorado st": "colorado state",
+        "washington st": "washington state",
+        "texas st": "texas state",
+        "arkansas st": "arkansas state",
+        "app st": "appalachian state",
+        "west virginia mountaineers": "west virginia",
+        "miami-oh": "miami (oh)",
+        "miami oh redhawks": "miami (oh)",
+        "brigham young university": "brigham young",
+        "central florida ucf": "central florida",
+        "nevada-las vegas": "nevada las vegas",
+        "ul laf": "louisiana",
+        "ull": "louisiana",
+        "ulm": "louisiana monroe",
+        "la laf": "louisiana",
+        "la monroe": "louisiana monroe",
+        "ut san antonio": "texas san antonio",
+        "s miss": "southern mississippi",
+        "southern mississippi golden eagles": "southern mississippi",
+        "n illinois": "northern illinois",
+        "niu": "northern illinois",
+        "s florida": "south florida",
+        "c florida": "central florida",
+        "w kentucky": "western kentucky",
+        "e michigan": "eastern michigan",
+        "w michigan": "western michigan",
+        "s mississippi": "southern mississippi",
+        "bama": "alabama",
+        "ole miss rebels": "mississippi",
+        "texas a and m aggies": "texas a&m",
+        "texas christian horned frogs": "texas christian",
+        "southern methodist mustangs": "southern methodist",
+        "brigham young cougars": "brigham young",
+        "nevada las vegas rebels": "nevada las vegas",
+    })
+
+    # --- External alias overrides (optional) ---
+    try:
+        for _pth in (os.path.join(DATA_DIR, "team_aliases.json"), "agents/team_aliases.json", "data/team_aliases.json"):
+            if os.path.exists(_pth):
+                with open(_pth, "r") as _f:
+                    _extra = json.load(_f) or {}
+                # Normalize keys/values via local `clean()`
+                _norm_extra = {clean(str(k)): clean(str(v)) for k, v in _extra.items() if isinstance(k, str) and isinstance(v, str)}
+                alias_map.update(_norm_extra)
+                break
+    except Exception:
+        # Do not fail name resolution if overrides are malformed
+        pass
+
     def alias(s: str) -> str:
         cs = clean(s)
         return alias_map.get(cs, cs)
@@ -1552,6 +1660,15 @@ def get_market_lines_fanduel_for_weeks(year: int, weeks: List[int], schedule_df:
             # JSON
             with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
                 json.dump({"year": year, "unmatched": unmatched_details}, f, indent=2)
+        except Exception:
+            pass
+        try:
+            # Print top 20 unmatched raw name pairs by frequency
+            from collections import Counter
+            pair_counts = Counter((u.get("fd_home"), u.get("fd_away")) for u in unmatched_details)
+            top = pair_counts.most_common(20)
+            for (h,a), cnt in top:
+                _dbg(f"UNMATCHED_TOP x{cnt}: home='{h}' away='{a}'")
         except Exception:
             pass
 
