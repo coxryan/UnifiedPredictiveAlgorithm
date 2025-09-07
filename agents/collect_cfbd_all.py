@@ -1,3 +1,4 @@
+# agents/collect_cfbd_all.py
 from __future__ import annotations
 
 import argparse
@@ -7,7 +8,7 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
@@ -26,50 +27,40 @@ CACHE_TTL_DAYS = int(os.environ.get("CACHE_TTL_DAYS", "90"))
 # If set, do not hit any external APIs; use cache only (write empty on miss)
 CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
-# Optional Google Sheets push (disabled by default)
-ENABLE_SHEETS = False
-ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
+# CFBD token
+CFBD_BEARER = os.environ.get("CFBD_API_KEY", os.environ.get("BEARER_TOKEN", "")).strip()
+
+# Market source
 MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
 
-# Separate cache for FanDuel (Odds API) so we can flip sources freely
+# FanDuel via The Odds API
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 ODDS_CACHE_DIR = os.environ.get("ODDS_CACHE_DIR", ".cache_odds")
 ODDS_CACHE_TTL_DAYS = int(os.environ.get("ODDS_CACHE_TTL_DAYS", "2"))
 
-# Require schedule to have at least N rows (guards against bad/missing reads)
+# Status options
 REQUIRE_SCHED_MIN_ROWS = int(os.environ.get("REQUIRE_SCHED_MIN_ROWS", "0") or 0)
+MARKET_MIN_ROWS = int(os.environ.get("MARKET_MIN_ROWS", "1"))
 
 # Debug logging for market selection & matching
 DEBUG_MARKET = os.environ.get("DEBUG_MARKET", "0").strip().lower() in ("1", "true", "yes", "y")
-MARKET_MIN_ROWS = int(os.environ.get("MARKET_MIN_ROWS", "1"))  # minimum rows to consider a market usable
 
 
 def _dbg(msg: str) -> None:
     if DEBUG_MARKET:
-        try:
-            print(f"[debug-market] {msg}", file=sys.stderr)
-        except Exception:
-            pass
+        print(f"[debug-market] {msg}", file=sys.stderr)
 
 
 # ======================================================
 # Status helpers
 # ======================================================
-def _upsert_status_market_source(
-    market_used: str,
-    market_requested: Optional[str] = None,
-    fallback_reason: Optional[str] = None,
+def _upsert_status(
     data_dir: str = DATA_DIR,
-    extra: Optional[Dict[str, Any]] = None,
+    **fields: Any,
 ) -> None:
     """
-    Merge-update data/status.json with the selected market source and status fields.
-    Always writes:
-      - market_source_used: the used source (lowercased)
-      - market_source: (back-compat) the used source (lowercased)
-      - market_source_config/requested_market: requested source (lowercased, if provided)
-      - fallback_reason/market_fallback_reason: string if provided
-      - generated_at_utc: current UTC ISO timestamp
-    Keeps other fields intact if present; creates the file if missing.
+    Merge-update data/status.json with provided fields.
+    Always sets 'generated_at_utc' (ISO).
     """
     try:
         os.makedirs(data_dir, exist_ok=True)
@@ -83,38 +74,42 @@ def _upsert_status_market_source(
                 payload = {}
         else:
             payload = {}
-
-        used_lc = (market_used or "cfbd").strip().lower()
-        payload["market_source_used"] = used_lc
-        payload["market_source"] = used_lc  # back-compat
-
-        if market_requested is not None:
-            req_lc = (market_requested or "").strip().lower()
-            payload["market_source_config"] = req_lc
-            payload["requested_market"] = req_lc
-            payload["market_requested"] = req_lc
-            payload["market_source_requested"] = req_lc
-        else:
-            for k in ("market_source_config", "requested_market", "market_requested", "market_source_requested"):
-                payload.pop(k, None)
-
-        if fallback_reason:
-            payload["market_fallback_reason"] = str(fallback_reason)
-            payload["fallback_reason"] = str(fallback_reason)
-        else:
-            payload.pop("market_fallback_reason", None)
-            payload.pop("fallback_reason", None)
-
+        payload.update(fields)
         payload["generated_at_utc"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-
-        if extra:
-            payload.update(extra)
-
         with open(p, "w") as f:
             json.dump(payload, f, indent=2)
     except Exception:
-        # never crash on status writing
         pass
+
+
+def _record_market_status(
+    market_used: str,
+    market_requested: Optional[str] = None,
+    fallback_reason: Optional[str] = None,
+    extra: Optional[Dict[str, Any]] = None,
+    data_dir: str = DATA_DIR,
+) -> None:
+    used_lc = (market_used or "cfbd").strip().lower()
+    fields = {
+        "market_source_used": used_lc,
+        "market_source": used_lc,  # back-compat
+    }
+    if market_requested is not None:
+        req_lc = market_requested.strip().lower()
+        fields.update(
+            {
+                "market_source_config": req_lc,
+                "requested_market": req_lc,
+                "market_requested": req_lc,
+                "market_source_requested": req_lc,
+            }
+        )
+    if fallback_reason:
+        fields["market_fallback_reason"] = str(fallback_reason)
+        fields["fallback_reason"] = str(fallback_reason)
+    if extra:
+        fields.update(extra)
+    _upsert_status(data_dir=data_dir, **fields)
 
 
 # ======================================================
@@ -192,24 +187,16 @@ class CfbdClients:
 
 
 # ======================================================
-# Helpers
+# IO helpers
 # ======================================================
 def write_csv(df: pd.DataFrame, path: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    # Mirror/grade for UI compatibility when writing predictions/backtest
+    # Mirror + grade for UI when writing predictions/backtest
+    base = os.path.basename(path)
     try:
-        base = os.path.basename(path)
         if base in ("upa_predictions.csv", "backtest_predictions_2024.csv", "upa_predictions_2024_backtest.csv"):
-            if "_mirror_book_to_legacy_columns" in globals():
-                try:
-                    df = _mirror_book_to_legacy_columns(df.copy())
-                except Exception:
-                    pass
-            if "_apply_book_grades" in globals():
-                try:
-                    df = _apply_book_grades(df.copy())
-                except Exception:
-                    pass
+            df = _mirror_book_to_legacy_columns(df.copy())
+            df = _apply_book_grades(df.copy())
     except Exception:
         pass
     df.to_csv(path, index=False)
@@ -222,29 +209,26 @@ def _safe_float(x, default=None):
         return default
 
 
-# --- Book-style grading helper ----------------------------------------------
-# Negative line = home favorite. Grade using final score + book line.
-# Returns: "CORRECT", "INCORRECT", "P" (push) or "" if not gradeable.
+# ======================================================
+# Book-style grading & column mirroring
+# ======================================================
 def _grade_pick_result(pick_side, home_points, away_points, market_home_line) -> str:
     try:
-        if pick_side is None or str(pick_side).strip() == "":
+        if not pick_side:
             return ""
         hp = float(home_points) if home_points is not None else float("nan")
         ap = float(away_points) if away_points is not None else float("nan")
         m = float(market_home_line) if market_home_line is not None else float("nan")
         if not (np.isfinite(hp) and np.isfinite(ap) and np.isfinite(m)):
             return ""
-        # book-style: home covers if (home - away + market) > 0
-        adj = (hp - ap) + m
+        adj = (hp - ap) + m  # home + line
         if abs(adj) < 1e-9:
             return "P"
         cover_home = 1 if adj > 0 else -1
-        ps = str(pick_side).upper()
-        pick_home = ("HOME" in ps) or ("(HOME)" in ps)
-        pick_away = ("AWAY" in ps) or ("(AWAY)" in ps)
-        if pick_home:
+        side = str(pick_side).upper()
+        if "HOME" in side:
             return "CORRECT" if cover_home > 0 else "INCORRECT"
-        if pick_away:
+        if "AWAY" in side:
             return "CORRECT" if cover_home < 0 else "INCORRECT"
         return ""
     except Exception:
@@ -252,90 +236,63 @@ def _grade_pick_result(pick_side, home_points, away_points, market_home_line) ->
 
 
 def _apply_book_grades(df: pd.DataFrame) -> pd.DataFrame:
-    # Must have scores and market
     req = {"home_points", "away_points", "market_spread_book"}
     if not req.issubset(df.columns):
         return df
 
-    # Normalize numeric columns
-    for c in [
-        "home_points",
-        "away_points",
-        "market_spread_book",
-        "edge_points_book",
-        "model_spread_book",
-        "expected_market_spread_book",
-    ]:
+    for c in ["home_points", "away_points", "market_spread_book", "edge_points_book", "model_spread_book"]:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
-    def _norm_pick(s):
-        if s is None:
-            return ""
-        t = str(s).strip().upper()
-        if "AWAY" in t:
+    def _norm(s):
+        s = ("" if s is None else str(s)).strip().upper()
+        if "AWAY" in s:
             return "AWAY"
-        if "HOME" in t:
+        if "HOME" in s:
             return "HOME"
         return ""
 
-    # Infer model pick if missing
+    # derive model pick if missing
     if "model_pick_side" in df.columns:
-        model_pick = df["model_pick_side"].map(_norm_pick)
+        model_pick = df["model_pick_side"].map(_norm)
     else:
-        edge = df.get("edge_points_book")
-        if edge is None:
-            edge = pd.to_numeric(df.get("model_spread_book"), errors="coerce") - pd.to_numeric(
-                df.get("market_spread_book"), errors="coerce"
-            )
-        edge = pd.to_numeric(edge, errors="coerce")
-        # edge = model - market; edge > 0 ⇒ value AWAY; else HOME
+        edge = pd.to_numeric(df.get("edge_points_book"), errors="coerce")
         model_pick = edge.apply(lambda e: "AWAY" if pd.notna(e) and e > 0 else ("HOME" if pd.notna(e) else ""))
-
-    expected_pick = (
-        df["expected_pick_side"].map(_norm_pick)
-        if "expected_pick_side" in df.columns
-        else pd.Series([""] * len(df), index=df.index)
-    )
 
     df["model_result"] = [
         _grade_pick_result(p, hp, ap, m)
         for p, hp, ap, m in zip(model_pick, df["home_points"], df["away_points"], df["market_spread_book"])
-    ]
-    df["expected_result"] = [
-        _grade_pick_result(p, hp, ap, m)
-        for p, hp, ap, m in zip(expected_pick, df["home_points"], df["away_points"], df["market_spread_book"])
     ]
     return df
 
 
 def _mirror_book_to_legacy_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Mirror FanDuel/“book” columns into legacy columns the UI expects."""
-    try:
-        if not isinstance(df, pd.DataFrame) or df.empty:
-            return df
-
-        def _missing(col: str) -> bool:
-            return (col not in df.columns) or pd.to_numeric(df[col], errors="coerce").isna().all()
-
-        mappings = [
-            ("market_spread_book", "market_spread"),
-            ("market_spread_book", "market_h"),
-            ("model_spread_book", "model_spread"),
-            ("edge_points_book", "edge"),
-            ("value_points_book", "value"),
-            ("ev_percent_book", "ev_percent"),
-            ("ev_bps_book", "ev_bps"),
-            ("expected_market_spread_book", "expected_market_spread"),
-        ]
-        for src, dst in mappings:
-            if src in df.columns and _missing(dst):
-                df[dst] = df[src]
-        return df
-    except Exception:
+    if not isinstance(df, pd.DataFrame) or df.empty:
         return df
 
+    def _missing(col: str) -> bool:
+        return (col not in df.columns) or pd.to_numeric(df[col], errors="coerce").isna().all()
 
+    mappings = [
+        ("market_spread_book", "market_spread"),
+        ("market_spread_book", "market_h"),
+        ("model_spread_book", "model_spread"),
+        ("edge_points_book", "edge"),
+        ("value_points_book", "value"),
+        ("ev_percent_book", "ev_percent"),
+        ("ev_bps_book", "ev_bps"),
+        ("expected_market_spread_book", "expected_market_spread"),
+    ]
+    for src, dst in mappings:
+        if src in df.columns and _missing(dst):
+            df[dst] = df[src]
+    return df
+
+
+# ======================================================
+# Simple transforms
+# ======================================================
 def _normalize_percent(x: Optional[float]) -> Optional[float]:
     if x is None:
         return None
@@ -411,44 +368,24 @@ def _dummy_schedule(year: int) -> pd.DataFrame:
 
 
 def _date_only(x) -> Optional[str]:
-    if x is None:
-        return None
     try:
         if isinstance(x, str):
             return x[:10] if x else None
-        if hasattr(x, "date"):
-            try:
-                return x.date().isoformat()
-            except Exception:
-                pass
         dt = pd.to_datetime(x, errors="coerce")
         if pd.notna(dt):
-            try:
-                return dt.date().isoformat()
-            except Exception:
-                return None
+            return dt.date().isoformat()
     except Exception:
         return None
     return None
 
 
 def _iso_datetime_str(x) -> Optional[str]:
-    if x is None:
-        return None
     try:
         if isinstance(x, str):
             return x
-        if hasattr(x, "isoformat"):
-            try:
-                return x.isoformat()
-            except Exception:
-                pass
         dt = pd.to_datetime(x, errors="coerce")
         if pd.notna(dt):
-            try:
-                return dt.isoformat()
-            except Exception:
-                return None
+            return dt.isoformat()
     except Exception:
         return None
     return None
@@ -552,25 +489,22 @@ def load_schedule_for_year(
 # Team Inputs (RP + Talent + SRS + SOS + Portal)
 # ======================================================
 def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
-    # conference map
     team_conf: Dict[str, str] = {}
     if apis.teams_api:
         try:
             fbs = apis.teams_api.get_fbs_teams(year=year)
             team_conf = {t.school: (t.conference or "FBS") for t in fbs}
-        except Exception as e:
-            print(f"[warn] fbs teams fetch failed: {e}", file=sys.stderr)
+        except Exception:
+            pass
 
-    # Returning Production (Connelly via CFBD)
+    # Returning Production
     rp_rows: List[Dict[str, Any]] = []
     if apis.players_api and team_conf:
         conferences = sorted({c for c in team_conf.values() if c})
         for conf in conferences:
             key = f"rp:{year}:{conf}"
             ok, data = cache.get(key)
-            if ok:
-                items = data
-            else:
+            if not ok:
                 try:
                     items = apis.players_api.get_returning_production(year=year, conference=conf)
                     serial = []
@@ -583,20 +517,17 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                                 "offense": getattr(it, "offense", None),
                                 "defense": getattr(it, "defense", None),
                                 "total_ppa": getattr(it, "total_ppa", None),
-                                "total_offense_ppa": getattr(it, "total_offense_ppa", None),
+                                "total_offense_ppa": getattr(it, "total_offense_ppa", None)
+                                or ((getattr(it, "total_passing_ppa", None) or 0) + (getattr(it, "total_rushing_ppa", None) or 0)),
                                 "total_defense_ppa": getattr(it, "total_defense_ppa", None)
                                 or getattr(it, "total_defensive_ppa", None),
-                                "total_passing_ppa": getattr(it, "total_passing_ppa", None),
-                                "total_rushing_ppa": getattr(it, "total_rushing_ppa", None),
                             }
                         )
                     cache.set(key, serial)
-                    items = serial
-                except Exception as e:
-                    print(f"[warn] returning production fetch failed for {conf}: {e}", file=sys.stderr)
-                    items = []
-
-            for it in items or []:
+                    data = serial
+                except Exception:
+                    data = []
+            for it in data or []:
                 rp_rows.append(
                     {
                         "team": it.get("team"),
@@ -605,14 +536,11 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                         "_offense": it.get("offense"),
                         "_defense": it.get("defense"),
                         "_ppa_tot": it.get("total_ppa"),
-                        "_ppa_off": it.get("total_offense_ppa")
-                        or ((it.get("total_passing_ppa") or 0) + (it.get("total_rushing_ppa") or 0)),
+                        "_ppa_off": it.get("total_offense_ppa"),
                         "_ppa_def": it.get("total_defense_ppa"),
                     }
                 )
     rp_df = pd.DataFrame(rp_rows).drop_duplicates(subset=["team"])
-
-    # Ensure numeric for PPA/RP columns (prevents object dtype during scaling)
     for _col in ["_overall", "_offense", "_defense", "_ppa_tot", "_ppa_off", "_ppa_def"]:
         if _col in rp_df.columns:
             rp_df[_col] = pd.to_numeric(rp_df[_col], errors="coerce").astype("float64")
@@ -621,33 +549,29 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         rp_df["wrps_offense_percent"] = rp_df["_offense"].map(_normalize_percent)
         rp_df["wrps_defense_percent"] = rp_df["_defense"].map(_normalize_percent)
         rp_df["wrps_overall_percent"] = rp_df["_overall"].map(_normalize_percent)
-
+        # fallbacks
         if rp_df["wrps_overall_percent"].isna().all():
             rp_df["wrps_overall_percent"] = _scale_0_100(rp_df["_ppa_tot"]).round(1)
         if rp_df["wrps_offense_percent"].isna().all():
             rp_df["wrps_offense_percent"] = _scale_0_100(rp_df["_ppa_off"]).round(1)
         if rp_df["wrps_defense_percent"].isna().all():
             rp_df["wrps_defense_percent"] = _scale_0_100(rp_df["_ppa_def"]).round(1)
+        rp_df["wrps_percent_0_100"] = pd.to_numeric(rp_df["wrps_overall_percent"], errors="coerce").astype("float64").round(1)
 
-        rp_df["wrps_percent_0_100"] = pd.to_numeric(rp_df["wrps_overall_percent"], errors="coerce").astype("float64")
-        rp_df["wrps_percent_0_100"] = rp_df["wrps_percent_0_100"].round(1)
-
-    # Team Talent
+    # Talent
     talent_df = pd.DataFrame({"team": [], "talent_score_0_100": []})
     if apis.teams_api:
         key = f"talent:{year}"
         ok, data = cache.get(key)
-        if ok:
-            df = pd.DataFrame(data)
-        else:
+        if not ok:
             try:
                 items = apis.teams_api.get_talent(year=year)
-                df = pd.DataFrame([{"team": x.team, "talent": float(getattr(x, "talent", 0) or 0)} for x in items or []])
-                cache.set(key, df.to_dict(orient="records"))
-            except Exception as e:
-                print(f"[warn] talent fetch failed: {e}", file=sys.stderr)
-                df = pd.DataFrame()
-        if not df.empty:
+                data = [{"team": x.team, "talent": float(getattr(x, "talent", 0) or 0)} for x in items or []]
+                cache.set(key, data)
+            except Exception:
+                data = []
+        if data:
+            df = pd.DataFrame(data)
             mn, mx = df["talent"].min(), df["talent"].max()
             if mx == mn:
                 df["talent_score_0_100"] = 50.0
@@ -655,193 +579,44 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                 df["talent_score_0_100"] = ((df["talent"] - mn) / (mx - mn) * 100.0).round(1)
             talent_df = df[["team", "talent_score_0_100"]]
 
-    # Current season SRS ratings → rank and rank-score
+    # SRS (current)
     srs_cur_df = pd.DataFrame({"team": [], "srs_rating": [], "srs_rank_1_133": [], "srs_score_0_100": []})
     if apis.ratings_api:
-        key_srs_cur = f"srs:{year}:cur"
-        ok_cur, srs_cur = cache.get(key_srs_cur)
-        if not ok_cur:
-            try:
-                items = apis.ratings_api.get_srs(year=year)
-                srs_cur = [{"team": x.team, "rating": float(getattr(x, "rating", 0) or 0)} for x in (items or [])]
-                cache.set(key_srs_cur, srs_cur)
-            except Exception as e:
-                print(f"[warn] srs current fetch failed: {e}", file=sys.stderr)
-                srs_cur = []
-        if srs_cur:
-            tmp = pd.DataFrame(srs_cur).rename(columns={"rating": "srs_rating"})
-            if not tmp.empty:
-                tmp["srs_rank_1_133"] = tmp["srs_rating"].rank(ascending=False, method="min").astype(int)
-                N = float(tmp["srs_rank_1_133"].max()) if not tmp["srs_rank_1_133"].empty else 133.0
-                tmp["srs_score_0_100"] = (1.0 - (tmp["srs_rank_1_133"] - 1) / N) * 100.0
-                srs_cur_df = tmp[["team", "srs_rating", "srs_rank_1_133", "srs_score_0_100"]]
-
-    # Prior season SOS (approx via avg opp SRS)
-    prior = year - 1
-    sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
-    if apis.ratings_api and apis.games_api:
-        key_srs = f"srs:{prior}"
-        key_games = f"games:{prior}"
-        ok_srs, srs_data = cache.get(key_srs)
-        ok_g, g_data = cache.get(key_games)
-        if not ok_srs:
-            try:
-                srs_items = apis.ratings_api.get_srs(year=prior)
-                srs_df = pd.DataFrame([{"team": x.team, "rating": float(x.rating or 0)} for x in srs_items or []])
-                cache.set(key_srs, srs_df.to_dict(orient="records"))
-            except Exception as e:
-                print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
-                srs_df = pd.DataFrame()
-        else:
-            srs_df = pd.DataFrame(srs_data)
-        if not ok_g:
-            try:
-                g_items = apis.games_api.get_games(year=prior, season_type="both")
-                g_df = pd.DataFrame(
-                    [
-                        {"home_team": getattr(g, "home_team", None), "away_team": getattr(g, "away_team", None)}
-                        for g in g_items or []
-                    ]
-                )
-                cache.set(key_games, g_df.to_dict(orient="records"))
-            except Exception as e:
-                print(f"[warn] games fetch failed (prior): {e}", file=sys.stderr)
-                g_df = pd.DataFrame()
-        else:
-            g_df = pd.DataFrame(g_data)
-
-        if not srs_df.empty and not g_df.empty:
-            srs_map = dict(zip(srs_df["team"], srs_df["rating"]))
-            from collections import defaultdict
-
-            opps = defaultdict(list)
-            for _, row in g_df.iterrows():
-                ht, at = row.get("home_team"), row.get("away_team")
-                if ht in srs_map and at in srs_map:
-                    opps[ht].append(srs_map[at])
-                    opps[at].append(srs_map[ht])
-            rows = [{"team": t, "sos_value": sum(v) / len(v)} for t, v in opps.items() if v]
-            df = pd.DataFrame(rows)
-            if not df.empty:
-                df["prev_season_sos_rank_1_133"] = df["sos_value"].rank(ascending=False, method="min").astype(int)
-                sos_df = df[["team", "prev_season_sos_rank_1_133"]]
-
-    # Transfer Portal (net)
-    portal_df = pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
-    if apis.players_api:
-        key = f"portal:{year}"
-        ok, data = cache.get(key)
+        key_cur = f"srs:{year}:cur"
+        ok, data = cache.get(key_cur)
         if not ok:
             try:
-                items = apis.players_api.get_transfer_portal(year=year)
-                serial = []
-                for p in items or []:
-                    serial.append(
-                        {
-                            "to_team": getattr(p, "destination", None) or getattr(p, "to_team", None),
-                            "from_team": getattr(p, "origin", None) or getattr(p, "from_team", None),
-                            "rating": getattr(p, "rating", None),
-                            "stars": getattr(p, "stars", None),
-                        }
-                    )
-                cache.set(key, serial)
-                data = serial
-            except Exception as e:
-                print(f"[warn] portal fetch failed: {e}", file=sys.stderr)
-                data = []
-        from collections import defaultdict
-
-        incoming = defaultdict(int)
-        outgoing = defaultdict(int)
-        rating_in = defaultdict(float)
-        rating_out = defaultdict(float)
-        for p in data or []:
-            to_team = p.get("to_team")
-            from_team = p.get("from_team")
-            rating = p.get("rating")
-            stars = p.get("stars")
-            try:
-                val = float(rating) if rating is not None else (float(stars) if stars is not None else 1.0)
+                items = apis.ratings_api.get_srs(year=year)
+                data = [{"team": x.team, "rating": float(getattr(x, "rating", 0) or 0)} for x in (items or [])]
+                cache.set(key_cur, data)
             except Exception:
-                val = 1.0
-            if to_team:
-                incoming[to_team] += 1
-                rating_in[to_team] += val
-            if from_team:
-                outgoing[from_team] += 1
-                rating_out[from_team] += val
-        all_teams = set(list(incoming.keys()) + list(outgoing.keys()))
-        rows = []
-        for t in all_teams:
-            cnt_net = incoming[t] - outgoing[t]
-            val_net = rating_in[t] - rating_out[t]
-            rows.append({"team": t, "portal_net_count": cnt_net, "portal_net_value": val_net})
-        dfp = pd.DataFrame(rows)
-        if not dfp.empty:
-            def scale(series):
-                s = pd.to_numeric(series, errors="coerce")
-                if s.notna().sum() == 0:
-                    return pd.Series([50.0] * len(s), index=s.index)
-                mn, mx = s.min(), s.max()
-                if mx == mn:
-                    return pd.Series([50.0] * len(s), index=s.index)
-                return (s - mn) / (mx - mn) * 100.0
-            dfp["portal_net_0_100"] = (0.5 * scale(dfp["portal_net_count"]) + 0.5 * scale(dfp["portal_net_value"])).round(1)
-            portal_df = dfp[["team", "portal_net_0_100", "portal_net_count", "portal_net_value"]]
+                data = []
+        if data:
+            df = pd.DataFrame(data).rename(columns={"rating": "srs_rating"})
+            df["srs_rank_1_133"] = df["srs_rating"].rank(ascending=False, method="min").astype(int)
+            N = float(df["srs_rank_1_133"].max()) if not df["srs_rank_1_133"].empty else 133.0
+            df["srs_score_0_100"] = (1.0 - (df["srs_rank_1_133"] - 1) / N) * 100.0
+            srs_cur_df = df[["team", "srs_rating", "srs_rank_1_133", "srs_score_0_100"]]
 
-    # Merge inputs
+    # Merge
     df = rp_df.merge(talent_df, on="team", how="left") if not rp_df.empty else pd.DataFrame()
     if df.empty and not talent_df.empty:
         df = talent_df.copy()
         df["conference"] = "FBS"
     if not df.empty:
         df = df.merge(srs_cur_df, on="team", how="left")
-        df = df.merge(sos_df, on="team", how="left")
-        df = df.merge(portal_df, on="team", how="left")
-    else:
-        # minimal seed to keep UI alive if token missing
-        seed = [
-            {"team": "Kansas State", "conference": "Big 12", "wrps_percent_0_100": 60, "talent_score_0_100": 68, "portal_net_0_100": 55},
-            {"team": "Iowa State", "conference": "Big 12", "wrps_percent_0_100": 55, "talent_score_0_100": 60, "portal_net_0_100": 52},
-            {"team": "Hawai'i", "conference": "MWC", "wrps_percent_0_100": 48, "talent_score_0_100": 40, "portal_net_0_100": 45},
-            {"team": "Stanford", "conference": "ACC", "wrps_percent_0_100": 50, "talent_score_0_100": 62, "portal_net_0_100": 43},
-            {"team": "Wyoming", "conference": "MWC", "wrps_percent_0_100": 57, "talent_score_0_100": 50, "portal_net_0_100": 49},
-            {"team": "Akron", "conference": "MAC", "wrps_percent_0_100": 45, "talent_score_0_100": 38, "portal_net_0_100": 42},
-        ]
-        df = pd.DataFrame(seed)
-
-    # Fill missing conference using team_conf
-    if "conference" not in df.columns or df["conference"].isna().any():
-        if team_conf:
-            df["conference"] = df["team"].map(team_conf).fillna(df.get("conference")).fillna("FBS")
-        else:
-            df["conference"] = df.get("conference", "FBS")
-
-    # Ensure all expected columns exist
+    if "conference" not in df.columns:
+        df["conference"] = "FBS"
     for col in [
         "team",
         "conference",
-        "wrps_offense_percent",
-        "wrps_defense_percent",
-        "wrps_overall_percent",
         "wrps_percent_0_100",
         "talent_score_0_100",
-        "srs_rating",
-        "srs_rank_1_133",
         "srs_score_0_100",
-        "prev_season_sos_rank_1_133",
-        "portal_net_0_100",
-        "portal_net_count",
-        "portal_net_value",
     ]:
         if col not in df.columns:
             df[col] = None
-
-    if "conference" in df.columns:
-        df.sort_values(["conference", "team"], inplace=True, ignore_index=True)
-    else:
-        df.sort_values(["team"], inplace=True, ignore_index=True)
-
+    df.sort_values(["conference", "team"], inplace=True, ignore_index=True)
     return df
 
 
@@ -860,8 +635,8 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     day_key = datetime.utcnow().strftime("%Y%m%d")
     key = f"oddsapi:fanduel:daily:{day_key}"
     ok, cached = cache.get(key)
-    _dbg(f"odds_api_fetch_fanduel: cache_ok={ok} cached_items={len(cached) if ok and cached is not None else 0} key={key}")
     if ok and cached is not None:
+        _dbg(f"odds_api_fetch_fanduel: cache hit -> {len(cached)} rows")
         return list(cached)
 
     if CACHE_ONLY:
@@ -869,9 +644,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
         _dbg("odds_api_fetch_fanduel: CACHE_ONLY=1 and cache miss → empty cached")
         return []
 
-    out: List[Dict[str, Any]] = []
     sport = "americanfootball_ncaaf"
     base = "https://api.the-odds-api.com/v4/sports/{sport}/odds"
+    out: List[Dict[str, Any]] = []
 
     try:
         url = base.format(sport=sport)
@@ -888,11 +663,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             }
             r = requests.get(url, params=params, timeout=25)
             if r.status_code == 404:
-                _dbg(f"odds_api_fetch_fanduel: page {page} -> 404 (stop)")
                 break
             r.raise_for_status()
             data = r.json() or []
-            _dbg(f"odds_api_fetch_fanduel: page={page} items={len(data)}")
             if not data:
                 break
             agg.extend(data)
@@ -931,8 +704,8 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                 }
             )
 
-        _dbg(f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} (saving to cache key={key})")
         cache.set(key, rows)
+        _dbg(f"odds_api_fetch_fanduel: fetched rows={len(rows)} (cached)")
         return rows
     except Exception as e:
         print(f"[warn] odds api fetch failed: {e}", file=sys.stderr)
@@ -945,8 +718,6 @@ import difflib
 
 
 def _date_from_iso(s: Any) -> Optional[str]:
-    if s is None:
-        return None
     try:
         if isinstance(s, str) and len(s) >= 10:
             return s[:10]
@@ -956,20 +727,6 @@ def _date_from_iso(s: Any) -> Optional[str]:
     except Exception:
         return None
     return None
-
-
-def _best_fuzzy_match(q_name: str, candidates: Iterable[str], normalize_fn) -> Tuple[Optional[str], float, str]:
-    try:
-        qn = normalize_fn(q_name or "")
-        cand_norm = [(c, normalize_fn(c)) for c in candidates]
-        best_c, best_s = None, 0.0
-        for raw, cn in cand_norm:
-            s = difflib.SequenceMatcher(None, qn, cn).ratio()
-            if s > best_s:
-                best_s, best_c = s, raw
-        return best_c, float(best_s), qn
-    except Exception:
-        return None, 0.0, str(q_name or "")
 
 
 def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional[str]:
@@ -985,23 +742,25 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
     if not name:
         return None
 
-    # --- helpers -------------------------------------------------------------
     MASCOT_WORDS = {
-        "bulldogs","wildcats","tigers","aggressors","agies","aggies","gators","longhorns","buckeyes","nittany","lions","nittany lions",
-        "yellow","jackets","yellow jackets","demon","deacons","demon deacons","crimson","tide","crimson tide","redhawks","red hawks",
-        "chippewas","huskies","zips","warhawks","cardinals","terrapins","razorbacks","trojans","bruins","gophers","badgers","cornhuskers",
-        "rebels","utes","bearcats","cowboys","mountaineers","hurricanes","seminoles","sooners","volunteers","commodores",
-        "panthers","wolfpack","falcons","eagles","golden eagles","golden","golden flashes","flashes","blazers","tar","heels","tar heels",
-        "skyhawks","gamecocks","blue devils","blue","blue hens","scarlet knights","knights","rainbow warriors","warriors","rainbows",
-        "rainbow","broncos","lancers","gaels","lions","rams","owls","spartans","tigers","tide","pirates","raiders","mean green",
-        "anteaters","jaguars","trojans","minutemen","red wolves","hokies","uconn huskies","bulls","thundering herd","mustangs","cavaliers",
-        "paladins","mocs","moccasins","mocsins","thunderbirds","mountaineers","phoenix","blue raiders","jayhawks","illini","aztecs",
-        "redbirds","salukis","lumberjacks","cowgirls","cowboys","bears","mavericks","rivers","catamounts","governors","bengals",
-        "buccaneers","runnin","runnin bulldogs","runnin' bulldogs","runnin-bulldogs","lobos","vandals","owls","golden hurricane",
-        "scarlet","scarlet knights",
+        "bulldogs","wildcats","tigers","gators","longhorns","buckeyes","nittany","lions","nittany lions",
+        "yellow","jackets","yellow jackets","demon","deacons","demon deacons","crimson","tide","crimson tide",
+        "redhawks","red hawks","chippewas","huskies","zips","warhawks","cardinals","terrapins","razorbacks",
+        "trojans","bruins","gophers","badgers","cornhuskers","rebels","utes","bearcats","cowboys","mountaineers",
+        "hurricanes","seminoles","sooners","volunteers","commodores","panthers","wolfpack","falcons","eagles",
+        "golden eagles","golden","golden flashes","flashes","blazers","tar","heels","tar heels","skyhawks",
+        "gamecocks","blue devils","blue","blue hens","scarlet knights","knights","rainbow warriors","warriors",
+        "rainbows","broncos","lancers","gaels","lions","rams","owls","spartans","pirates","raiders","mean green",
+        "anteaters","jaguars","minutemen","red wolves","hokies","bulls","thundering herd","mustangs","cavaliers",
+        "paladins","mocs","moccasins","thunderbirds","phoenix","jayhawks","illini","aztecs","redbirds","salukis",
+        "lumberjacks","cowgirls","bears","mavericks","rivers","catamounts","governors","bengals","buccaneers",
+        "runnin","runnin bulldogs","runnin' bulldogs","runnin-bulldogs","lobos","vandals","golden hurricane",
+        "scarlet",
         # appended for FanDuel variants
-        "midshipmen","dukes","bearkats","roadrunners","cardinal","cougars","knights"
+        "midshipmen","dukes","bearkats","roadrunners","cardinal","cougars"
     }
+
+    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college", "st", "st.", "state", "and", "at", "amp", "amp;"}
 
     def strip_diacritics(s: str) -> str:
         try:
@@ -1010,14 +769,11 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         except Exception:
             return s
 
-    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college", "st", "st.", "state", "and", "at", "amp", "amp;"}
-
     def drop_mascots(tokens: list[str]) -> list[str]:
         if not tokens:
             return tokens
         toks = tokens[:]
-        i = 0
-        out = []
+        i, out = 0, []
         while i < len(toks):
             if i + 1 < len(toks) and f"{toks[i]} {toks[i+1]}" in MASCOT_WORDS and len(toks) > 2:
                 i += 2
@@ -1055,8 +811,8 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
             base.append(t[0])
         return "".join([c for c in base if c.isalpha() or c == "&"]).upper()
 
+    # alias map
     alias_map = {
-        # short forms / book variants
         "pitt": "pittsburgh",
         "ole miss": "mississippi",
         "app state": "appalachian state",
@@ -1099,182 +855,13 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         "miami fl": "miami",
         "miami fla": "miami",
         "miami oh": "miami (oh)",
-        # school+mascot forms
-        "air force falcons": "air force",
-        "akron zips": "akron",
-        "alabama crimson tide": "alabama",
-        "appalachian state mountaineers": "appalachian state",
-        "arizona wildcats": "arizona",
-        "arizona state sun devils": "arizona state",
-        "arkansas razorbacks": "arkansas",
-        "army black knights": "army",
-        "auburn tigers": "auburn",
-        "ball state cardinals": "ball state",
-        "baylor bears": "baylor",
-        "boise state broncos": "boise state",
-        "boston college eagles": "boston college",
-        "brigham young cougars": "brigham young",
-        "cal golden bears": "california",
-        "california golden bears": "california",
-        "central florida knights": "central florida",
-        "central michigan chippewas": "central michigan",
-        "charlotte 49ers": "charlotte",
-        "cincinnati bearcats": "cincinnati",
-        "clemson tigers": "clemson",
-        "coastal carolina chanticleers": "coastal carolina",
-        "colorado buffaloes": "colorado",
-        "colorado state rams": "colorado state",
-        "duke blue devils": "duke",
-        "east carolina pirates": "east carolina",
-        "eastern michigan eagles": "eastern michigan",
-        "florida gators": "florida",
-        "florida state seminoles": "florida state",
-        "georgia bulldogs": "georgia",
-        "georgia southern eagles": "georgia southern",
-        "georgia state panthers": "georgia state",
-        "georgia tech yellow jackets": "georgia tech",
-        "hawaii rainbow warriors": "hawaii",
-        "houston cougars": "houston",
-        "illinois fighting illini": "illinois",
-        "indiana hoosiers": "indiana",
-        "iowa hawkeyes": "iowa",
-        "iowa state cyclones": "iowa state",
-        "james madison dukes": "james madison",
-        "kansas jayhawks": "kansas",
-        "kansas state wildcats": "kansas state",
+        # school+mascot forms (sampled for coverage)
         "kent state golden flashes": "kent state",
-        "kentucky wildcats": "kentucky",
-        "liberty flames": "liberty",
-        "louisiana ragin cajuns": "louisiana",
-        "louisiana lafayette ragin cajuns": "louisiana",
-        "louisiana monroe warhawks": "louisiana monroe",
-        "louisiana state tigers": "louisiana state",
-        "louisville cardinals": "louisville",
-        "marshall thundering herd": "marshall",
-        "maryland terrapins": "maryland",
-        "memphis tigers": "memphis",
         "miami hurricanes": "miami",
         "miami (oh) redhawks": "miami (oh)",
-        "michigan wolverines": "michigan",
-        "michigan state spartans": "michigan state",
-        "middle tennessee blue raiders": "middle tennessee",
-        "minnesota golden gophers": "minnesota",
-        "mississippi rebels": "mississippi",
-        "mississippi state bulldogs": "mississippi state",
-        "missouri tigers": "missouri",
-        "navy midshipmen": "navy",
-        "nebraska cornhuskers": "nebraska",
-        "nevada wolf pack": "nevada",
-        "new mexico lobos": "new mexico",
-        "new mexico state aggies": "new mexico state",
-        "north carolina tar heels": "north carolina",
-        "nc state wolfpack": "nc state",
-        "north texas mean green": "north texas",
-        "northern illinois huskies": "northern illinois",
-        "northwestern wildcats": "northwestern",
-        "notre dame fighting irish": "notre dame",
-        "ohio bobcats": "ohio",
-        "ohio state buckeyes": "ohio state",
-        "oklahoma sooners": "oklahoma",
-        "oklahoma state cowboys": "oklahoma state",
-        "old dominion monarchs": "old dominion",
-        "oregon ducks": "oregon",
-        "oregon state beavers": "oregon state",
-        "penn state nittany lions": "penn state",
-        "pittsburgh panthers": "pittsburgh",
-        "purdue boilermakers": "purdue",
-        "rice owls": "rice",
-        "rutgers scarlet knights": "rutgers",
-        "san diego state aztecs": "san diego state",
-        "san jose state spartans": "san jose state",
-        "smu mustangs": "southern methodist",
-        "south alabama jaguars": "south alabama",
-        "south carolina gamecocks": "south carolina",
-        "south florida bulls": "south florida",
-        "southern miss golden eagles": "southern mississippi",
-        "stanford cardinal": "stanford",
-        "syracuse orange": "syracuse",
-        "tcu horned frogs": "texas christian",
-        "temple owls": "temple",
-        "tennessee volunteers": "tennessee",
-        "texas longhorns": "texas",
-        "texas a and m": "texas a&m",
-        "texas a m": "texas a&m",
-        "texas a&m aggies": "texas a&m",
-        "texas state bobcats": "texas state",
-        "texas tech red raiders": "texas tech",
-        "toledo rockets": "toledo",
-        "troy trojans": "troy",
-        "tulane green wave": "tulane",
-        "tulsa golden hurricane": "tulsa",
-        "uab blazers": "uab",
         "ucf knights": "central florida",
-        "ucla bruins": "ucla",
-        "unlv rebels": "nevada las vegas",
         "usc trojans": "southern california",
-        "utah utes": "utah",
-        "utah state aggies": "utah state",
-        "utsa roadrunners": "texas san antonio",
-        "virginia cavaliers": "virginia",
-        "virginia tech hokies": "virginia tech",
-        "wake forest demon deacons": "wake forest",
-        "washington huskies": "washington",
-        "washington state cougars": "washington state",
-        "western kentucky hilltoppers": "western kentucky",
-        "western michigan broncos": "western michigan",
-        "wisconsin badgers": "wisconsin",
-        "wyoming cowboys": "wyoming",
     }
-    # extra FanDuel → schedule mappings we saw in logs
-    alias_map.update({
-        "arizona wildcats":"arizona",
-        "arkansas razorbacks":"arkansas",
-        "arkansas state red wolves":"arkansas state",
-        "byu cougars":"brigham young",
-        "boston college eagles":"boston college",
-        "california golden bears":"california",
-        "charlotte 49ers":"charlotte",
-        "coastal carolina chanticleers":"coastal carolina",
-        "colorado state rams":"colorado state",
-        "east carolina pirates":"east carolina",
-        "eastern michigan eagles":"eastern michigan",
-        "houston cougars":"houston",
-        "iowa state cyclones":"iowa state",
-        "kansas state wildcats":"kansas state",
-        "miami hurricanes":"miami",
-        "miami (oh) redhawks":"miami (oh)",
-        "mississippi state bulldogs":"mississippi state",
-        "nc state wolfpack":"nc state",
-        "navy midshipmen":"navy",
-        "nevada wolf pack":"nevada",
-        "north carolina tar heels":"north carolina",
-        "oklahoma state cowboys":"oklahoma state",
-        "old dominion monarchs":"old dominion",
-        "san diego st aztecs":"san diego state",
-        "san jose st spartans":"san jose state",
-        "south carolina gamecocks":"south carolina",
-        "stanford cardinal":"stanford",
-        "uab blazers":"uab",
-        "ucf knights":"central florida",
-        "unlv rebels":"nevada las vegas",
-        "usc trojans":"southern california",
-        "utah utes":"utah",
-        "utep miners":"texas el paso",
-        "utsa roadrunners":"texas san antonio",
-        "washington huskies":"washington",
-        "western michigan broncos":"western michigan",
-        "appalachian state mountaineers":"appalachian state",
-        "virginia cavaliers":"virginia",
-        "texas tech red raiders":"texas tech",
-        "baylor bears":"baylor",
-        "purdue boilermakers":"purdue",
-        "air force falcons":"air force",
-        "wyoming cowboys":"wyoming",
-        "georgia bulldogs":"georgia",
-        "georgia tech yellow jackets":"georgia tech",
-        "boise state broncos":"boise state",
-        "washington state cougars":"washington state"
-    })
 
     # Allow external overrides
     try:
@@ -1282,7 +869,6 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
             if os.path.exists(_pth):
                 with open(_pth, "r") as _f:
                     _extra = json.load(_f) or {}
-                # Normalize keys/values via local clean()
                 _norm_extra = {clean(str(k)): clean(str(v)) for k, v in _extra.items() if isinstance(k, str) and isinstance(v, str)}
                 alias_map.update(_norm_extra)
                 break
@@ -1331,11 +917,22 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         return norm_map[q_alias]
 
     # 4) acronym
-    q_acro = acronym_from(q_raw)
+    def acronym_from_raw(s: str) -> str:
+        base = []
+        for t in clean(s).split():
+            if t in STOP_WORDS:
+                continue
+            if t == "a&m":
+                base.extend(list("A&M"))
+                continue
+            base.append(t[0])
+        return "".join([c for c in base if c.isalpha() or c == "&"]).upper()
+
+    q_acro = acronym_from_raw(q_raw)
     if q_acro and q_acro in acro_map:
         return acro_map[q_acro]
 
-    # 5) fuzzy
+    # 5) fuzzy token Jaccard + containment
     q_tokens = set(q_alias.split())
     best_team, best_score = None, 0.0
     for sch, toks in token_index:
@@ -1356,253 +953,18 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
     return None
 
 
-def _resolve_names_to_schedule_with_details(schedule_df: pd.DataFrame, name: str) -> Tuple[Optional[str], Dict[str, Any]]:
-    """Detailed resolver: (resolved_school, detail_dict)."""
-    detail: Dict[str, Any] = {"q_raw": name, "q_norm": None, "q_no_paren": None, "q_alias": None, "best_team": None, "best_score": None}
-    if not name:
-        return None, detail
-
-    # Keep this logic in sync with _resolve_names_to_schedule
-    MASCOT_WORDS = {
-        "bulldogs","wildcats","tigers","aggressors","agies","aggies","gators","longhorns","buckeyes","nittany","lions","nittany lions",
-        "yellow","jackets","yellow jackets","demon","deacons","demon deacons","crimson","tide","crimson tide","redhawks","red hawks",
-        "chippewas","huskies","zips","warhawks","cardinals","terrapins","razorbacks","trojans","bruins","gophers","badgers","cornhuskers",
-        "rebels","utes","bearcats","cowboys","mountaineers","hurricanes","seminoles","sooners","volunteers","commodores",
-        "panthers","wolfpack","falcons","eagles","golden eagles","golden","golden flashes","flashes","blazers","tar","heels","tar heels",
-        "skyhawks","gamecocks","blue devils","blue","blue hens","scarlet knights","knights","rainbow warriors","warriors","rainbows",
-        "rainbow","broncos","lancers","gaels","lions","rams","owls","spartans","tigers","tide","pirates","raiders","mean green",
-        "anteaters","jaguars","trojans","minutemen","red wolves","hokies","uconn huskies","bulls","thundering herd","mustangs","cavaliers",
-        "paladins","mocs","moccasins","mocsins","thunderbirds","mountaineers","phoenix","blue raiders","jayhawks","illini","aztecs",
-        "redbirds","salukis","lumberjacks","cowgirls","cowboys","bears","mavericks","rivers","catamounts","governors","bengals",
-        "buccaneers","runnin","runnin bulldogs","runnin' bulldogs","runnin-bulldogs","lobos","vandals","owls","golden hurricane",
-        "scarlet","scarlet knights",
-        # appended for FanDuel variants
-        "midshipmen","dukes","bearkats","roadrunners","cardinal","cougars","knights"
-    }
-
-    def strip_diacritics(s: str) -> str:
-        try:
-            s2 = s.replace("ʻ", "'").replace("’", "'").replace("`", "'")
-            return s2.encode("ascii", "ignore").decode("ascii", "ignore")
-        except Exception:
-            return s
-
-    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college", "st", "st.", "state", "and", "at", "amp", "amp;"}
-
-    def drop_mascots(tokens: list[str]) -> list[str]:
-        if not tokens:
-            return tokens
-        toks = tokens[:]
-        i = 0
-        out = []
-        while i < len(toks):
-            if i + 1 < len(toks) and f"{toks[i]} {toks[i+1]}" in MASCOT_WORDS and len(toks) > 2:
-                i += 2
-                continue
-            if toks[i] in MASCOT_WORDS and len(toks) > 1:
-                i += 1
-                continue
-            out.append(toks[i])
-            i += 1
-        return out if out else tokens
-
-    def clean(s: str) -> str:
-        s = strip_diacritics(s or "").lower().strip()
-        s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
-        s = s.replace(" st.", " state").replace(" st ", " state ")
-        import re
-        s = re.sub(r"[^a-z0-9() ]+", " ", s)
-        s = re.sub(r"\s+", " ", s).strip()
-        toks = [t for t in s.split() if t not in STOP_WORDS]
-        toks = drop_mascots(toks)
-        return " ".join(toks)
-
-    def no_paren(s: str) -> str:
-        import re
-        return re.sub(r"\([^)]*\)", "", s).strip()
-
-    def acronym_from(s: str) -> str:
-        base = []
-        for t in clean(s).split():
-            if t in STOP_WORDS:
-                continue
-            if t == "a&m":
-                base.extend(list("A&M"))
-                continue
-            base.append(t[0])
-        return "".join([c for c in base if c.isalpha() or c == "&"]).upper()
-
-    alias_map = {
-        "pitt": "pittsburgh",
-        "ole miss": "mississippi",
-        "app state": "appalachian state",
-        "la tech": "louisiana tech",
-        "ul monroe": "louisiana monroe",
-        "la monroe": "louisiana monroe",
-        "ul lafayette": "louisiana",
-        "louisiana lafayette": "louisiana",
-        "western ky": "western kentucky",
-        "san jose st": "san jose state",
-        "sj state": "san jose state",
-        "fresno st": "fresno state",
-        "southern miss": "southern mississippi",
-        "mass": "massachusetts",
-        "uconn": "connecticut",
-        "cal": "california",
-        "penn st": "penn state",
-        "southern cal": "southern california",
-        "la lafayette": "louisiana",
-        "nc st": "nc state",
-        "ga tech": "georgia tech",
-        "vt": "virginia tech",
-        "uva": "virginia",
-        "hawaii": "hawaii",
-        "hawai'i": "hawaii",
-        "hawaiʻi": "hawaii",
-        "lsu": "louisiana state",
-        "byu": "brigham young",
-        "smu": "southern methodist",
-        "tcu": "texas christian",
-        "ucf": "central florida",
-        "usf": "south florida",
-        "utsa": "texas san antonio",
-        "utep": "texas el paso",
-        "unlv": "nevada las vegas",
-        "umass": "massachusetts",
-        "usc": "southern california",
-        "fiu": "florida international",
-        "fau": "florida atlantic",
-        "miami fl": "miami",
-        "miami fla": "miami",
-        "miami oh": "miami (oh)",
-    }
-    alias_map.update({
-        "arizona wildcats":"arizona",
-        "arkansas razorbacks":"arkansas",
-        "arkansas state red wolves":"arkansas state",
-        "byu cougars":"brigham young",
-        "boston college eagles":"boston college",
-        "california golden bears":"california",
-        "charlotte 49ers":"charlotte",
-        "coastal carolina chanticleers":"coastal carolina",
-        "colorado state rams":"colorado state",
-        "east carolina pirates":"east carolina",
-        "eastern michigan eagles":"eastern michigan",
-        "houston cougars":"houston",
-        "iowa state cyclones":"iowa state",
-        "kansas state wildcats":"kansas state",
-        "miami hurricanes":"miami",
-        "miami (oh) redhawks":"miami (oh)",
-        "mississippi state bulldogs":"mississippi state",
-        "nc state wolfpack":"nc state",
-        "navy midshipmen":"navy",
-        "nevada wolf pack":"nevada",
-        "north carolina tar heels":"north carolina",
-        "oklahoma state cowboys":"oklahoma state",
-        "old dominion monarchs":"old dominion",
-        "san diego st aztecs":"san diego state",
-        "san jose st spartans":"san jose state",
-        "south carolina gamecocks":"south carolina",
-        "stanford cardinal":"stanford",
-        "uab blazers":"uab",
-        "ucf knights":"central florida",
-        "unlv rebels":"nevada las vegas",
-        "usc trojans":"southern california",
-        "utah utes":"utah",
-        "utep miners":"texas el paso",
-        "utsa roadrunners":"texas san antonio",
-        "washington huskies":"washington",
-        "western michigan broncos":"western michigan",
-        "appalachian state mountaineers":"appalachian state",
-        "virginia cavaliers":"virginia",
-        "texas tech red raiders":"texas tech",
-        "baylor bears":"baylor",
-        "purdue boilermakers":"purdue",
-        "air force falcons":"air force",
-        "wyoming cowboys":"wyoming",
-        "georgia bulldogs":"georgia",
-        "georgia tech yellow jackets":"georgia tech",
-        "boise state broncos":"boise state",
-        "washington state cougars":"washington state"
-    })
-
-    # External overrides
+def _best_fuzzy_match(q_name: str, candidates: Iterable[str], normalize_fn) -> Tuple[Optional[str], float, str]:
     try:
-        for _pth in (os.path.join(DATA_DIR, "team_aliases.json"), "agents/team_aliases.json", "data/team_aliases.json"):
-            if os.path.exists(_pth):
-                with open(_pth, "r") as _f:
-                    _extra = json.load(_f) or {}
-                _norm_extra = {clean(str(k)): clean(str(v)) for k, v in _extra.items() if isinstance(k, str) and isinstance(v, str)}
-                alias_map.update(_norm_extra)
-                break
+        qn = normalize_fn(q_name or "")
+        cand_norm = [(c, normalize_fn(c)) for c in candidates]
+        best_c, best_s = None, 0.0
+        for raw, cn in cand_norm:
+            s = difflib.SequenceMatcher(None, qn, cn).ratio()
+            if s > best_s:
+                best_s, best_c = s, raw
+        return best_c, float(best_s), qn
     except Exception:
-        pass
-
-    def alias(s: str) -> str:
-        cs = clean(s)
-        return alias_map.get(cs, cs)
-
-    if "home_team" not in schedule_df.columns or "away_team" not in schedule_df.columns:
-        return None, detail
-
-    schools = set(str(x).strip() for x in schedule_df["home_team"].dropna().unique()) | set(
-        str(x).strip() for x in schedule_df["away_team"].dropna().unique()
-    )
-
-    norm_map: Dict[str, str] = {}
-    acro_map: Dict[str, str] = {}
-    token_index: List[Tuple[str, set]] = []
-
-    for sch in schools:
-        can = alias(sch)
-        norm_map[can] = sch
-        ac = acronym_from(sch)
-        if ac:
-            acro_map[ac] = sch
-        token_index.append((sch, set(can.split())))
-
-    q_raw = name
-    q_norm = alias(q_raw)
-    detail["q_norm"] = q_norm
-
-    if q_norm in norm_map:
-        return norm_map[q_norm], detail
-
-    q_np = no_paren(q_norm)
-    detail["q_no_paren"] = q_np
-    if q_np in norm_map:
-        return norm_map[q_np], detail
-
-    q_alias = alias(q_np)
-    detail["q_alias"] = q_alias
-    if q_alias in norm_map:
-        return norm_map[q_alias], detail
-
-    q_acro = acronym_from(q_raw)
-    if q_acro and q_acro in acro_map:
-        return acro_map[q_acro], detail
-
-    q_tokens = set(q_alias.split())
-    best_team, best_score = None, 0.0
-    for sch, toks in token_index:
-        if not toks:
-            continue
-        inter = len(q_tokens & toks)
-        if inter == 0:
-            continue
-        union = len(q_tokens | toks)
-        jacc = inter / float(union) if union else 0.0
-        contain = 1.0 if (q_tokens.issubset(toks) or toks.issubset(q_tokens)) else 0.0
-        score = jacc + 0.25 * contain
-        if score > best_score:
-            best_score, best_team = score, sch
-
-    if best_team and best_score >= 0.40:
-        detail.update({"best_team": best_team, "best_score": best_score})
-        return best_team, detail
-
-    detail.update({"best_team": best_team, "best_score": best_score})
-    return None, detail
+        return None, 0.0, str(q_name or "")
 
 
 def _autofix_aliases_from_unmatched(
@@ -1684,7 +1046,6 @@ def get_market_lines_fanduel_for_weeks(
 ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     raw = _odds_api_fetch_fanduel(year, weeks, cache)
     raw_count = len(raw)
-    _dbg(f"get_market_lines_fanduel_for_weeks: raw games from odds api={raw_count}")
     if not raw:
         stats = {"raw": raw_count, "mapped": 0, "unmatched": 0}
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"]), stats
@@ -1699,6 +1060,7 @@ def get_market_lines_fanduel_for_weeks(
 
     # Schedule by date for constrained matching
     sched_by_date: Dict[str, Dict[str, Any]] = {}
+
     def _clean_local(x: str) -> str:
         s = (x or "").lower().strip()
         s = s.replace("&", " and ").replace("-", " ").replace("/", " ")
@@ -1727,8 +1089,8 @@ def get_market_lines_fanduel_for_weeks(
         h_raw = g.get("home_name")
         a_raw = g.get("away_name")
 
-        h_name, h_dbg = _resolve_names_to_schedule_with_details(schedule_df, h_raw)
-        a_name, a_dbg = _resolve_names_to_schedule_with_details(schedule_df, a_raw)
+        h_name = _resolve_names_to_schedule(schedule_df, h_raw)
+        a_name = _resolve_names_to_schedule(schedule_df, a_raw)
 
         if not h_name or not a_name:
             # Constrain to same date and fuzzy within that slate
@@ -1740,17 +1102,14 @@ def get_market_lines_fanduel_for_weeks(
                     str(x).strip() for x in schedule_df.get("away_team", pd.Series([], dtype=str)).dropna()
                 )
 
-            def _norm(s: str) -> str:
-                return _clean_local(s)
-
             if not h_name:
-                h_best, h_score, h_qn = _best_fuzzy_match(h_raw, cand_teams, _norm)
+                h_best, h_score, _ = _best_fuzzy_match(h_raw, cand_teams, _clean_local)
             else:
-                h_best, h_score, h_qn = h_name, 1.0, _norm(h_raw)
+                h_best, h_score = h_name, 1.0
             if not a_name:
-                a_best, a_score, a_qn = _best_fuzzy_match(a_raw, cand_teams, _norm)
+                a_best, a_score, _ = _best_fuzzy_match(a_raw, cand_teams, _clean_local)
             else:
-                a_best, a_score, a_qn = a_name, 1.0, _norm(a_raw)
+                a_best, a_score = a_name, 1.0
 
             pair_ok = False
             if h_best and a_best:
@@ -1826,17 +1185,11 @@ def get_market_lines_fanduel_for_weeks(
             pd.DataFrame(unmatched_details).to_csv(os.path.join(DATA_DIR, "market_unmatched.csv"), index=False)
             with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
                 json.dump({"year": year, "unmatched": unmatched_details}, f, indent=2)
-            # auto-add strong fuzzy matches to aliases for next run
-            try:
-                alias_added = _autofix_aliases_from_unmatched(
-                    unmatched_json_path=os.path.join(DATA_DIR, "market_unmatched.json"),
-                    alias_json_path=os.path.join(DATA_DIR, "team_aliases.json"),
-                    min_score=0.86,
-                )
-                if alias_added:
-                    _dbg(f"alias_autofix: inserted {len(alias_added)} aliases; will apply on next pass")
-            except Exception as _e:
-                print(f"[warn] alias autofix failed: {_e}", file=sys.stderr)
+            _autofix_aliases_from_unmatched(
+                unmatched_json_path=os.path.join(DATA_DIR, "market_unmatched.json"),
+                alias_json_path=os.path.join(DATA_DIR, "team_aliases.json"),
+                min_score=0.86,
+            )
         except Exception:
             pass
 
@@ -1846,7 +1199,6 @@ def get_market_lines_fanduel_for_weeks(
 
     df = pd.DataFrame(out_rows)
     stats = {"raw": raw_count, "mapped": len(out_rows), "unmatched": len(unmatched_details)}
-    _dbg(f"get_market_lines_fanduel_for_weeks: stats={stats}")
     return df, stats
 
 
@@ -1855,20 +1207,15 @@ def get_market_lines_fanduel_for_weeks(
 # ======================================================
 def _cfbd_lines_to_bookstyle(df: pd.DataFrame) -> pd.DataFrame:
     """
-    CFBD returns lines in various bookmaker perspectives; we want book-style 'home line' (negative ⇒ home favored).
-    If CFBD line is 'away spread' (negative ⇒ away favored), convert to home line by multiplying by -1 when needed.
-    This implementation assumes df has columns: game_id, home_team, away_team, spread_home if available;
-    else 'spread' from favorite/underdog orientation is mapped to home side when favorite==home.
+    Map CFBD lines to home-line convention (negative ⇒ home favored) where possible.
+    Expected columns may vary; we try a few reasonable projections.
     """
     if df.empty:
         return df
     out = df.copy()
-    if "spread_home" in out.columns:
-        out.rename(columns={"spread_home": "spread"}, inplace=True)
-        return out[["game_id", "week", "home_team", "away_team", "spread"]]
-    # attempt to construct home line
+
+    # If favorite + spread are present, derive home line.
     if {"favorite", "spread", "home_team", "away_team", "game_id", "week"}.issubset(out.columns):
-        # if favorite == home, home_line = -abs(spread); else home_line = +abs(spread)
         try:
             fav = out["favorite"].astype(str)
             sp = pd.to_numeric(out["spread"], errors="coerce")
@@ -1877,7 +1224,8 @@ def _cfbd_lines_to_bookstyle(df: pd.DataFrame) -> pd.DataFrame:
             return out[["game_id", "week", "home_team", "away_team", "spread"]]
         except Exception:
             pass
-    # last resort: if 'spread' exists, assume already home-line
+
+    # Last resort: if 'spread' exists, assume already home-line
     keep = [c for c in ["game_id", "week", "home_team", "away_team", "spread"] if c in out.columns]
     return out[keep] if keep else pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
@@ -1885,10 +1233,6 @@ def _cfbd_lines_to_bookstyle(df: pd.DataFrame) -> pd.DataFrame:
 def get_market_lines_for_current_week(
     year: int, week: int, schedule_df: pd.DataFrame, apis: CfbdClients, cache: ApiCache
 ) -> pd.DataFrame:
-    """
-    Use CFBD or FanDuel; fetch all weeks up to 'week' and return a df with *home line* ('spread', negative=home favorite).
-    Records status (used/requested/fallback) in status.json.
-    """
     _dbg(f"get_market_lines_for_current_week: env MARKET_SOURCE={MARKET_SOURCE!r}, ODDS_API_KEY={'set' if bool(ODDS_API_KEY) else 'missing'}")
     _dbg(f"schedule rows={len(schedule_df)} requested week={week}")
 
@@ -1897,7 +1241,7 @@ def get_market_lines_for_current_week(
     fb_reason = ""
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
-    # If FanDuel requested
+    # FanDuel branch
     if requested == "fanduel":
         try:
             if not ODDS_API_KEY:
@@ -1905,7 +1249,7 @@ def get_market_lines_for_current_week(
                 fb_reason = "FanDuel requested but ODDS_API_KEY missing"
             else:
                 weeks = list(range(1, int(week) + 1))
-                fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                fanduel_df, _stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
                 # keep only <= current week
                 fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= int(week)].copy()
                 if len(fanduel_df) >= MARKET_MIN_ROWS:
@@ -1918,34 +1262,26 @@ def get_market_lines_for_current_week(
             used = "cfbd"
             fb_reason = f"FanDuel fetch error: {e}"
 
-    # CFBD branch (either requested or fallback)
+    # CFBD fallback (or requested)
     if used != "fanduel":
         try:
             if not apis.lines_api:
                 fb_reason = fb_reason or "CFBD lines API unavailable"
             else:
-                # Note: CFBD lines API may require querying per week
                 lines_rows: List[pd.DataFrame] = []
                 for w in range(1, int(week) + 1):
                     try:
                         ls = apis.lines_api.get_lines(year=year, week=w, season_type="both")
-                        # Flatten to rows
                         rows = []
                         for ln in ls or []:
-                            # Each 'ln' can have multiple lines (different books)
-                            game_id = getattr(ln, "id", None) or getattr(ln, "game_id", None)
-                            home = getattr(ln, "home_team", None)
-                            away = getattr(ln, "away_team", None)
-                            fav = getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None)
-                            spread = getattr(ln, "spread", None)
                             rows.append(
                                 {
-                                    "game_id": game_id,
+                                    "game_id": getattr(ln, "id", None) or getattr(ln, "game_id", None),
                                     "week": w,
-                                    "home_team": home,
-                                    "away_team": away,
-                                    "favorite": fav,
-                                    "spread": spread,
+                                    "home_team": getattr(ln, "home_team", None),
+                                    "away_team": getattr(ln, "away_team", None),
+                                    "favorite": getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None),
+                                    "spread": getattr(ln, "spread", None),
                                 }
                             )
                         dfl = pd.DataFrame(rows)
@@ -1961,105 +1297,83 @@ def get_market_lines_for_current_week(
         except Exception as e:
             fb_reason = fb_reason or f"CFBD fetch error: {e}"
 
-    # Record status
-    _upsert_status_market_source(used, requested, fb_reason, DATA_DIR)
+    _record_market_status(used, requested, fb_reason, data_dir=DATA_DIR)
     return out_df
 
 
 # ======================================================
-# Predictions & Backtest
+# Model / Predictions (book-style)
 # ======================================================
 def _team_strength_row(row: pd.Series) -> float:
     # Weighted composite (tuneable)
     wrps = _safe_float(row.get("wrps_percent_0_100"), 50.0)
     talent = _safe_float(row.get("talent_score_0_100"), 50.0)
     srs = _safe_float(row.get("srs_score_0_100"), 50.0)
-    portal = _safe_float(row.get("portal_net_0_100"), 50.0)
-    # 0..100 scale -> center 0 by subtracting 50
-    return 0.35 * (wrps - 50.0) + 0.25 * (talent - 50.0) + 0.30 * (srs - 50.0) + 0.10 * (portal - 50.0)
+    return 0.45 * (wrps - 50.0) + 0.25 * (talent - 50.0) + 0.30 * (srs - 50.0)
 
 
-def _calibrate_model_to_market(df: pd.DataFrame) -> Tuple[float, float]:
+def _calibrate_model_to_market(x: pd.Series, y: pd.Series) -> Tuple[float, float]:
     """
     Fit simple linear calibration: market ≈ a * raw_model + b
-    raw_model here is the *home line* our model thinks it should be (negative ⇒ home favored).
+    Returns (a, b). Falls back to (1, 0) if not enough paired data.
     """
-    d = df.dropna(subset=["market_spread_book"]).copy()
-    if d.empty:
+    xd = pd.to_numeric(x, errors="coerce")
+    yd = pd.to_numeric(y, errors="coerce")
+    mask = xd.notna() & yd.notna()
+    if mask.sum() < 8:
         return 1.0, 0.0
-    x = pd.to_numeric(d["raw_model_line"], errors="coerce")
-    y = pd.to_numeric(d["market_spread_book"], errors="coerce")
-    msk = x.notna() & y.notna()
-    if not msk.any():
+    X = xd[mask].values
+    Y = yd[mask].values
+    A = np.vstack([X, np.ones(len(X))]).T
+    try:
+        a, b = np.linalg.lstsq(A, Y, rcond=None)[0]
+        return float(a), float(b)
+    except Exception:
         return 1.0, 0.0
-    x = x[msk].values
-    y = y[msk].values
-    if len(x) < 3:
-        return 1.0, 0.0
-    # least squares
-    X = np.vstack([x, np.ones_like(x)]).T
-    a, b = np.linalg.lstsq(X, y, rcond=None)[0]
-    return float(a), float(b)
 
 
-def build_predictions_for_year(
-    year: int,
-    schedule_df: pd.DataFrame,
+def build_predictions_book_style(
+    season: int,
+    schedule: pd.DataFrame,
     team_inputs: pd.DataFrame,
-    market_df: pd.DataFrame,
-    fbs_only: bool = True,
+    market: pd.DataFrame,
 ) -> pd.DataFrame:
-    sched = schedule_df.copy()
-
-    # Merge team inputs (home/away)
-    left = sched.merge(team_inputs.add_prefix("home_"), left_on="home_team", right_on="home_team", how="left")
-    full = left.merge(team_inputs.add_prefix("away_"), left_on="away_team", right_on="away_team", how="left")
-
-    # Compute strengths and raw model home line (negative ⇒ home favored)
-    full["home_strength"] = full.apply(lambda r: _team_strength_row(r.filter(like="home_")), axis=1)
-    full["away_strength"] = full.apply(lambda r: _team_strength_row(r.filter(like="away_")), axis=1)
-    # translate strength diff into points; the 0.25 scale acts like “points per 25 model points”
-    full["raw_model_line"] = -(full["home_strength"] - full["away_strength"]) * (1.0 / 2.5)
-
-    # Attach market (home line)
-    m = market_df.rename(columns={"spread": "market_spread_book"})
-    full = full.merge(m[["game_id", "market_spread_book"]], on="game_id", how="left")
-
-    # Calibrate model to market
-    a, b = _calibrate_model_to_market(full)
-    full["model_spread_book"] = a * full["raw_model_line"] + b
-
-    # Expected “market given model” (used for value sanity)
-    full["expected_market_spread_book"] = full["model_spread_book"]
-
-    # Edge and value (book perspective: edge = model - market)
-    full["edge_points_book"] = pd.to_numeric(full["model_spread_book"], errors="coerce") - pd.to_numeric(
-        full["market_spread_book"], errors="coerce"
+    # Strength scores
+    tmap = dict(
+        zip(team_inputs["team"], team_inputs.apply(_team_strength_row, axis=1))
     )
-    full["value_points_book"] = full["edge_points_book"].abs()
 
-    # Simple EV proxy (percent) using a soft sigmoid on edge
-    def _ev(edge):
-        try:
-            e = float(edge)
-        except Exception:
-            return np.nan
-        return 1.0 / (1.0 + np.exp(-e / 3.0))  # bigger edge → closer to 1
+    df = schedule.copy()
+    df["home_strength"] = df["home_team"].map(tmap)
+    df["away_strength"] = df["away_team"].map(tmap)
+    df["model_spread_raw"] = (df["home_strength"] - df["away_strength"])
+    # Light HFA unless neutral
+    df["hfa_adj"] = np.where(df.get("neutral_site", 0).astype(int) == 1, 0.0, 1.0)
+    df["model_spread_raw"] = df["model_spread_raw"] + df["hfa_adj"]
 
-    full["ev_percent_book"] = full["edge_points_book"].map(_ev)
+    # Merge book market spread (home line)
+    market = market[["game_id", "spread"]].rename(columns={"spread": "market_spread_book"})
+    df = df.merge(market, on="game_id", how="left")
 
-    # Model pick side (book perspective)
-    # edge = model - market; edge < 0 ⇒ value HOME; edge > 0 ⇒ value AWAY
-    def _pick_side(e):
-        if pd.isna(e):
-            return ""
-        return "HOME" if e < 0 else "AWAY"
+    # Calibrate model to market using available pairs
+    a, b = _calibrate_model_to_market(df["model_spread_raw"], df["market_spread_book"])
+    df["model_spread_book"] = a * df["model_spread_raw"] + b
 
-    full["model_pick_side"] = full["edge_points_book"].map(_pick_side)
+    # Edge = model - market (home perspective)
+    df["edge_points_book"] = df["model_spread_book"] - df["market_spread_book"]
+    df["value_points_book"] = -np.abs(df["edge_points_book"]) + df["edge_points_book"].abs().max() / 4.0  # soft emphasis
+    # EV% (toy): convert edge (pts) -> win prob lift using a 13.5pt sigma proxy
+    sigma = 13.5
+    df["ev_percent_book"] = (df["edge_points_book"] / (sigma * 2.0)).clip(-0.5, 0.5) * 100.0 + 50.0
 
-    # Keep core output columns
+    # Expected market (book) if we regress model back a bit
+    df["expected_market_spread_book"] = 0.7 * df["market_spread_book"] + 0.3 * df["model_spread_book"]
+
+    # Picks (side chosen by model edge)
+    df["model_pick_side"] = np.where(df["edge_points_book"] > 0, "AWAY", np.where(df["edge_points_book"] < 0, "HOME", ""))
+
+    # Keep columns for UI
     keep = [
-        "game_id",
         "week",
         "date",
         "kickoff_utc",
@@ -2068,154 +1382,72 @@ def build_predictions_for_year(
         "neutral_site",
         "home_points",
         "away_points",
-        "market_spread_book",
         "model_spread_book",
-        "expected_market_spread_book",
+        "market_spread_book",
         "edge_points_book",
         "value_points_book",
         "ev_percent_book",
+        "expected_market_spread_book",
         "model_pick_side",
+        "game_id",
     ]
-    for k in keep:
-        if k not in full.columns:
-            full[k] = None
-
-    out = full[keep].copy()
-    out.sort_values(["week", "date", "home_team"], inplace=True, ignore_index=True)
-    return out
-
-
-def build_backtest_for_year(
-    year: int, schedule_df: pd.DataFrame, team_inputs: pd.DataFrame, market_df: pd.DataFrame
-) -> pd.DataFrame:
-    df = build_predictions_for_year(year, schedule_df, team_inputs, market_df)
-    # grading is applied at write_csv time (_apply_book_grades), but ensure types
-    for c in ("home_points", "away_points", "market_spread_book"):
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors="coerce")
-    return df
+    return df[keep]
 
 
 # ======================================================
-# CLI
+# Main
 # ======================================================
-def main():
-    parser = argparse.ArgumentParser("collect_cfbd_all")
-    parser.add_argument("--year", type=int, default=int(os.environ.get("UPA_YEAR", datetime.now().year)))
-    parser.add_argument("--backtest", type=int, default=int(os.environ.get("UPA_BACKTEST_YEAR", datetime.now().year - 1)))
-    parser.add_argument("--market", type=str, default=os.environ.get("MARKET_SOURCE", "fanduel"))
-    parser.add_argument("--data-dir", type=str, default=DATA_DIR)
-    parser.add_argument("--cache-cfbd", type=str, default=CACHE_DIR)
-    parser.add_argument("--cache-odds", type=str, default=ODDS_CACHE_DIR)
-    parser.add_argument("--odds-api-key", type=str, default=os.environ.get("ODDS_API_KEY", ""))
-    parser.add_argument("--cfbd-api-key", type=str, default=os.environ.get("CFBD_API_KEY", os.environ.get("BEARER_TOKEN", "")))
-    args = parser.parse_args()
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser("Collect CFBD + build predictions (book-style) + status")
+    parser.add_argument("--year", type=int, default=datetime.utcnow().year)
+    parser.add_argument("--data-dir", default=DATA_DIR)
+    parser.add_argument("--cache-only", action="store_true")
+    args = parser.parse_args(argv)
 
-    # propagate env
-    global DATA_DIR, CACHE_DIR, ODDS_CACHE_DIR, ODDS_API_KEY
-    DATA_DIR = args.data_dir or DATA_DIR
-    CACHE_DIR = args.cache_cfbd or CACHE_DIR
-    ODDS_CACHE_DIR = args.cache_odds or ODDS_CACHE_DIR
-    if args.odds_api_key:
-        ODDS_API_KEY = args.odds_api_key
+    data_dir = args.data_dir
+    os.makedirs(data_dir, exist_ok=True)
 
-    os.makedirs(DATA_DIR, exist_ok=True)
+    if args.cache_only:
+        os.environ["CACHE_ONLY"] = "1"
 
-    # CFBD Clients
-    cfbd_key = args.cfbd_api_key.strip()
-    apis = CfbdClients(bearer_token=cfbd_key)
+    cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
+    apis = CfbdClients(CFBD_BEARER)
 
-    # Caches
-    api_cache = ApiCache(root=CACHE_DIR, days_to_live=CACHE_TTL_DAYS)
-    odds_cache = get_odds_cache()
+    # Team inputs
+    team_inputs = build_team_inputs_datadriven(args.year, apis, cache)
+    write_csv(team_inputs, os.path.join(data_dir, "upa_team_inputs_datadriven_v0.csv"))
 
-    # FBS list (for filtering)
-    fbs_set = None
-    try:
-        if apis.teams_api:
-            fbs = apis.teams_api.get_fbs_teams(year=args.year)
-            fbs_set = {getattr(t, "school", None) for t in (fbs or []) if getattr(t, "school", None)}
-    except Exception:
-        fbs_set = None
-
-    # 1) Build / load schedule for target year
-    schedule = load_schedule_for_year(args.year, apis, api_cache, fbs_set=fbs_set)
+    # Schedule
+    schedule = load_schedule_for_year(args.year, apis, cache)
     if REQUIRE_SCHED_MIN_ROWS and len(schedule) < REQUIRE_SCHED_MIN_ROWS:
-        print(f"[warn] schedule rows too small ({len(schedule)} < {REQUIRE_SCHED_MIN_ROWS}); using dummy", file=sys.stderr)
-        schedule = _dummy_schedule(args.year)
+        print(f"[warn] schedule rows below minimum: {len(schedule)}", file=sys.stderr)
 
-    # Persist schedule (idempotent)
-    write_csv(schedule, os.path.join(DATA_DIR, "cfb_schedule.csv"))
+    write_csv(schedule, os.path.join(data_dir, "cfb_schedule.csv"))
 
-    # 2) Team inputs
-    team_inputs = build_team_inputs_datadriven(args.year, apis, api_cache)
-    write_csv(team_inputs, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
+    # Current week
+    wk = discover_current_week(schedule) or int(schedule["week"].min())
 
-    # 3) Determine current week from schedule
-    cur_week = discover_current_week(schedule) or int(schedule["week"].min())
+    # Market
+    market = get_market_lines_for_current_week(args.year, wk, schedule, apis, cache)
 
-    # 4) Market for current week (and prior weeks up to current)
-    market_df = get_market_lines_for_current_week(args.year, cur_week, schedule, apis, api_cache)
+    # Predictions (book-style)
+    preds = build_predictions_book_style(args.year, schedule, team_inputs, market)
 
-    # 5) Predictions for the year (uses calibrated model vs market)
-    preds = build_predictions_for_year(args.year, schedule, team_inputs, market_df)
-    write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
+    # Mirror for UI + grading happens in write_csv
+    write_csv(preds, os.path.join(data_dir, "upa_predictions.csv"))
 
-    # 6) Backtest for prior (default 2024)
-    try:
-        back_year = int(args.backtest)
-    except Exception:
-        back_year = args.year - 1
+    # Basic status
+    _upsert_status(
+        data_dir=data_dir,
+        year=args.year,
+        teams=int(team_inputs["team"].nunique()) if not team_inputs.empty else 0,
+        games=len(schedule),
+        pred_rows=len(preds),
+        next_run_eta_utc=(datetime.utcnow().replace(tzinfo=timezone.utc)).isoformat(timespec="seconds").replace("+00:00", "Z"),
+    )
 
-    # Use CFBD market for backtest, regardless of MARKET_SOURCE (FanDuel only carries current + near-future)
-    if back_year:
-        bt_schedule = load_schedule_for_year(back_year, apis, api_cache, fbs_set=fbs_set)
-        # backtest lines: CFBD only
-        bt_lines = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
-        if apis.lines_api:
-            try:
-                wmax = int(pd.to_numeric(bt_schedule["week"], errors="coerce").max() or 15)
-                rows = []
-                for w in range(1, wmax + 1):
-                    try:
-                        ls = apis.lines_api.get_lines(year=back_year, week=w, season_type="both")
-                        r = []
-                        for ln in ls or []:
-                            game_id = getattr(ln, "id", None) or getattr(ln, "game_id", None)
-                            home = getattr(ln, "home_team", None)
-                            away = getattr(ln, "away_team", None)
-                            fav = getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None)
-                            spread = getattr(ln, "spread", None)
-                            r.append({"game_id": game_id, "week": w, "home_team": home, "away_team": away, "favorite": fav, "spread": spread})
-                        dfl = pd.DataFrame(r)
-                        if not dfl.empty:
-                            dfl = _cfbd_lines_to_bookstyle(dfl)
-                            rows.append(dfl)
-                    except Exception:
-                        continue
-                if rows:
-                    bt_lines = pd.concat(rows, ignore_index=True)
-            except Exception as e:
-                print(f"[warn] backtest lines fetch failed: {e}", file=sys.stderr)
-
-        backtest = build_backtest_for_year(back_year, bt_schedule, team_inputs, bt_lines)
-        # write to canonical 2024 path for UI tabs
-        bt_out1 = os.path.join(DATA_DIR, "2024", "upa_predictions_2024_backtest.csv") if back_year == 2024 else os.path.join(DATA_DIR, f"{back_year}", f"upa_predictions_{back_year}_backtest.csv")
-        os.makedirs(os.path.dirname(bt_out1), exist_ok=True)
-        write_csv(backtest, bt_out1)
-
-    # 7) Status
-    extra = {
-        "season": args.year,
-        "teams": int(team_inputs["team"].nunique() if "team" in team_inputs else 0),
-        "games": int(len(schedule)),
-        "pred_rows": int(len(preds)),
-        "last_updated": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-    }
-    _upsert_status_market_source(market_used=os.environ.get("MARKET_SOURCE", "fanduel"), market_requested=os.environ.get("MARKET_SOURCE", "fanduel"), fallback_reason=None, data_dir=DATA_DIR, extra=extra)
-
-    print(f"[ok] wrote: cfb_schedule.csv, upa_team_inputs_datadriven_v0.csv, upa_predictions.csv", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
