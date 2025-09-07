@@ -40,6 +40,9 @@ jobs:
             .cache_api
             .cache_odds
           key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
+          restore-keys: |
+            api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
+            api-caches-${{ runner.os }}-
 
       - name: Setup Python
         uses: actions/setup-python@v5

@@ -818,86 +818,94 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
 def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> List[Dict[str, Any]]:
     """Return a flat list of {home_name, away_name, point_home_book, commence_time} using The Odds API.
     Requires env ODDS_API_KEY. We request FanDuel spreads only.
+
+    NOTE: The Odds API endpoint does not filter by CFB 'week'; it returns current/upcoming games.
+    We therefore cache the entire slate once per day and reuse it across all requested weeks.
     """
     if not ODDS_API_KEY:
+        _dbg("odds_api_fetch_fanduel: missing ODDS_API_KEY")
         return []
-    _dbg(f"odds_api_fetch_fanduel: weeks={weeks}, cache_root={cache.root}")
+    # One slate per day (UTC). We rely on ODDS_CACHE_TTL_DAYS to expire quickly.
+    day_key = datetime.utcnow().strftime("%Y%m%d")
+    key = f"oddsapi:fanduel:daily:{day_key}"
+    ok, cached = cache.get(key)
+    _dbg(f"odds_api_fetch_fanduel: cache_ok={ok} cached_items={len(cached) if ok and cached is not None else 0} key={key}")
+    if ok and cached is not None:
+        return list(cached)
+
+    if CACHE_ONLY:
+        cache.set(key, [])
+        _dbg("odds_api_fetch_fanduel: CACHE_ONLY=1 and cache miss → writing empty list")
+        return []
+
     out: List[Dict[str, Any]] = []
     sport = "americanfootball_ncaaf"
     base = "https://api.the-odds-api.com/v4/sports/{sport}/odds"
-    for wk in sorted(set(int(w) for w in weeks if str(w).isdigit())):
-        key = f"oddsapi:fanduel:{year}:{wk}"
-        ok, cached = cache.get(key)
-        _dbg(f"odds_api_fetch_fanduel: wk={wk} cache_ok={ok} cached_items={len(cached) if ok and cached is not None else 0}")
-        if ok and cached is not None:
-            out.extend(cached)
-            continue
-        if CACHE_ONLY:
-            cache.set(key, [])
-            continue
-        try:
-            url = base.format(sport=sport)
-            # We paginate because NCAAF can exceed a single page on busy slates.
-            agg: List[Dict[str, Any]] = []
-            for page in range(1, 6):  # cap pages defensively
-                params = {
-                    "apiKey": ODDS_API_KEY,
-                    "regions": "us",
-                    "markets": "spreads",
-                    "bookmakers": "fanduel",
-                    "oddsFormat": "american",
-                    "dateFormat": "iso",
-                    "page": page,
-                }
-                r = requests.get(url, params=params, timeout=25)
-                if r.status_code == 404:
+
+    try:
+        url = base.format(sport=sport)
+        agg: List[Dict[str, Any]] = []
+        # Paginate a few pages to cover a full college slate
+        for page in range(1, 6):
+            params = {
+                "apiKey": ODDS_API_KEY,
+                "regions": "us",
+                "markets": "spreads",
+                "bookmakers": "fanduel",
+                "oddsFormat": "american",
+                "dateFormat": "iso",
+                "page": page,
+            }
+            r = requests.get(url, params=params, timeout=25)
+            if r.status_code == 404:
+                _dbg(f"odds_api_fetch_fanduel: page {page} -> 404 (stop)")
+                break
+            r.raise_for_status()
+            data = r.json() or []
+            _dbg(f"odds_api_fetch_fanduel: page={page} items={len(data)}")
+            if not data:
+                break
+            agg.extend(data)
+
+        rows: List[Dict[str, Any]] = []
+        for game in agg:
+            bks = game.get("bookmakers") or []
+            if not bks:
+                continue
+            mk = None
+            for bk in bks:
+                markets = bk.get("markets") or []
+                mk = next((m for m in markets if m.get("key") == "spreads"), None)
+                if mk:
                     break
-                r.raise_for_status()
-                data = r.json() or []
-                _dbg(f"odds_api_fetch_fanduel: wk={wk} page={page} items={len(data)}")
-                if not data:
-                    break
-                agg.extend(data)
-            rows: List[Dict[str, Any]] = []
-            for game in agg:
-                bks = game.get("bookmakers") or []
-                if not bks:
-                    continue
-                # find a spreads market from any bookmaker entry (FanDuel only requested)
-                mk = None
-                for bk in bks:
-                    markets = bk.get("markets") or []
-                    mk = next((m for m in markets if m.get("key") == "spreads"), None)
-                    if mk:
-                        break
-                if not mk:
-                    continue
-                outs = mk.get("outcomes") or []
-                g_home = game.get("home_team")
-                g_away = game.get("away_team")
-                out_home = next((o for o in outs if o.get("name") == g_home), None)
-                if out_home is None:
-                    continue
-                try:
-                    point_home_book = float(out_home.get("point")) if out_home.get("point") is not None else None
-                except Exception:
-                    point_home_book = None
-                if point_home_book is None:
-                    continue
-                rows.append({
-                    "home_name": g_home,
-                    "away_name": g_away,
-                    "point_home_book": point_home_book,
-                    "commence_time": game.get("commence_time"),
-                })
-            _dbg(f"odds_api_fetch_fanduel: wk={wk} total_items={len(agg)} usable_rows={len(rows)}")
-            cache.set(key, rows)
-            out.extend(rows)
-        except Exception as e:
-            print(f"[warn] odds api fetch failed (wk {wk}): {e}", file=sys.stderr)
-            cache.set(key, [])
-    _dbg(f"odds_api_fetch_fanduel: total_flat_rows={len(out)}")
-    return out
+            if not mk:
+                continue
+            outs = mk.get("outcomes") or []
+            g_home = game.get("home_team")
+            g_away = game.get("away_team")
+            out_home = next((o for o in outs if o.get("name") == g_home), None)
+            if out_home is None:
+                continue
+            try:
+                point_home_book = float(out_home.get("point")) if out_home.get("point") is not None else None
+            except Exception:
+                point_home_book = None
+            if point_home_book is None:
+                continue
+            rows.append({
+                "home_name": g_home,
+                "away_name": g_away,
+                "point_home_book": point_home_book,
+                "commence_time": game.get("commence_time"),
+            })
+
+        _dbg(f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} (saving to cache key={key})")
+        cache.set(key, rows)
+        return rows
+    except Exception as e:
+        print(f"[warn] odds api fetch failed: {e}", file=sys.stderr)
+        cache.set(key, [])
+        return []
 
 def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional[str]:
     """Map Odds API/FanDuel team name to schedule school name using robust normalization.
