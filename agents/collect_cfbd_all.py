@@ -1042,7 +1042,8 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
 
     def no_paren(s: str) -> str:
         import re
-        return re.sub(r"$begin:math:text$[^)]*$end:math:text$", "", s).strip()
+        # Strip any parenthetical suffixes, e.g., "Miami (OH)" -> "Miami"
+        return re.sub(r"\([^)]*\)", "", s).strip()
 
     def acronym_from(s: str) -> str:
         base = []
@@ -1964,6 +1965,93 @@ def get_market_lines_for_current_week(
     # Record status
     _upsert_status_market_source(used, requested, fb_reason, DATA_DIR)
     return out_df
+
+
+# ======================================================
+# Market-only debug entrypoint for CI
+# ======================================================
+def market_debug_entry() -> None:
+    """
+    Market-only helper used by CI to always emit market diagnostics and update
+    status. This function **does not** mutate module-level globals; it reads
+    any overrides from the environment and uses local variables only.
+
+    Side effects:
+      - writes data/market_debug.json with a small summary
+      - writes data/market_debug.csv with the resolved market dataframe
+      - updates data/status.json via get_market_lines_for_current_week()
+    """
+    try:
+        # Respect env overrides but fall back to module defaults.
+        year = int(os.environ.get("UPA_YEAR", datetime.utcnow().year))
+        bearer = os.environ.get("CFBD_BEARER_TOKEN", "").strip()
+        cache_root = os.environ.get("CFBD_CACHE_DIR", CACHE_DIR)
+
+        cache = ApiCache(root=cache_root, days_to_live=CACHE_TTL_DAYS)
+        apis = CfbdClients(bearer_token=bearer)
+
+        # Load schedule (FBS-vs-FBS is already handled in loader when possible)
+        sched = load_schedule_for_year(year, apis, cache)
+        if sched is None or sched.empty:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+                json.dump(
+                    {
+                        "requested": (MARKET_SOURCE or "cfbd"),
+                        "used": None,
+                        "rows_returned": 0,
+                        "odds_key_present": bool(ODDS_API_KEY),
+                        "note": "empty schedule",
+                    },
+                    f,
+                    indent=2,
+                )
+            return
+
+        # Determine current week (prefer helper – falls back to max week seen)
+        wk_series = pd.to_numeric(sched.get("week"), errors="coerce")
+        cur_week = discover_current_week(sched) or int(wk_series.dropna().max())
+
+        # Pull market lines (this call also writes status.json via _upsert_status_market_source)
+        lines = get_market_lines_for_current_week(year, int(cur_week), sched, apis, cache)
+        rows = int(len(lines)) if isinstance(lines, pd.DataFrame) else 0
+
+        # Read what source ended up being used from status.json
+        status_path = os.path.join(DATA_DIR, "status.json")
+        used = None
+        try:
+            if os.path.exists(status_path):
+                with open(status_path, "r") as sf:
+                    used = (json.load(sf) or {}).get("market_source_used")
+        except Exception:
+            used = None
+
+        dbg = {
+            "requested": (MARKET_SOURCE or "cfbd"),
+            "used": used,
+            "rows_returned": rows,
+            "odds_key_present": bool(ODDS_API_KEY),
+        }
+
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+            json.dump(dbg, f, indent=2)
+
+        # Also drop the resolved market df for quick inspection
+        try:
+            if isinstance(lines, pd.DataFrame) and not lines.empty:
+                lines.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
+        except Exception:
+            pass
+
+    except Exception as e:
+        # Never crash CI on this helper
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
+                json.dump({"error": str(e)}, f, indent=2)
+        except Exception:
+            pass
 
 
 # ======================================================
