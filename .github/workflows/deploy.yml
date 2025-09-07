@@ -1,12 +1,9 @@
-name: Deploy site
+name: deploy
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  # Nightly refresh and deploy (UTC 04:10)
-  schedule:
-    - cron: "10 4 * * *"
 
 permissions:
   contents: read
@@ -14,108 +11,116 @@ permissions:
   id-token: write
 
 env:
-  # Model years
-  UPA_YEAR: ${{ vars.UPA_YEAR || '2025' }}
-  UPA_BACKTEST_YEAR: ${{ vars.UPA_BACKTEST_YEAR || '2024' }}
-
-  # Market selection (cfbd or fanduel)
-  MARKET_SOURCE: ${{ vars.MARKET_SOURCE || 'fanduel' }}
-
-  # API keys
-  CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
+  MARKET_SOURCE: fanduel
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-
-  # Cache folders
-  CFBD_CACHE_DIR: .cache_cfbd
   ODDS_CACHE_DIR: .cache_odds
   ODDS_CACHE_TTL_DAYS: 2
+
+# Serialize with other Pages publishers to avoid races
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show requested market
-        run: |
-          echo "Requested MARKET_SOURCE=${MARKET_SOURCE}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Set up Python
+      - name: Restore API caches (CFBD & Odds)
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache_api
+            .cache_odds
+          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
+          restore-keys: |
+            api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
+            api-caches-${{ runner.os }}-
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Restore CFBD cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CFBD_CACHE_DIR }}
-          key: cfbd-${{ env.UPA_YEAR }}-${{ env.MARKET_SOURCE }}
-
-      - name: Restore Odds cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.ODDS_CACHE_DIR }}
-          key: odds-${{ env.UPA_YEAR }}-${{ env.MARKET_SOURCE }}
+          python-version: '3.11'
 
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          if [ -f agents/requirements.txt ]; then pip install -r agents/requirements.txt; fi
+          pip install -r agents/requirements.txt
+
+      - name: Check CFBD token (warning only)
+        run: |
+          if [ -z "${{ secrets.CFBD_BEARER_TOKEN }}" ]; then
+            echo "::warning::CFBD_BEARER_TOKEN secret is empty. Without it, schedule may be tiny and FanDuel mapping will be skipped."
+          else
+            echo "CFBD_BEARER_TOKEN is present."
+          fi
 
       - name: Run collector (live + backtest)
         env:
-          BEARER_TOKEN: ${{ env.CFBD_API_KEY }}
+          BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
+          ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
+          ODDS_CACHE_DIR: ${{ env.ODDS_CACHE_DIR }}
+          ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
+          DEBUG_MARKET: 1
+          REQUIRE_SCHED_MIN_ROWS: 0
+          MARKET_MIN_ROWS: 1
         run: |
-          set -euo pipefail
-          echo "Starting collector for ${UPA_YEAR} (backtest ${UPA_BACKTEST_YEAR}) with market=${MARKET_SOURCE}"
-          python agents/collect_cfbd_all.py \
-            --year "${UPA_YEAR}" \
-            --backtest "${UPA_BACKTEST_YEAR}" \
-            --market "${MARKET_SOURCE}" \
-            --data-dir "data" \
-            --cache-cfbd "${CFBD_CACHE_DIR}" \
-            --cache-odds "${ODDS_CACHE_DIR}" \
-            --odds-api-key "${ODDS_API_KEY}" \
-            --cfbd-api-key "${CFBD_API_KEY}" || true
+          # Force a market-only pass first so we always write market_debug.json + status fields
+          python -c "import os; import agents.collect_cfbd_all as m; m.market_debug_entry(2025, os.environ.get('MARKET_SOURCE'))"
+          echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
+          python agents/collect_cfbd_all.py --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
+          echo "Collector finished; status.json:"
+          cat data/status.json || true
+          echo "market_debug.json:"
+          cat data/market_debug.json || true
 
-          echo "Collector finished; status.json (if present):"
-          if [ -f data/status.json ]; then cat data/status.json || true; fi
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install deps (no lockfile required)
+      - name: Install deps
         run: |
-          npm install --no-audit --no-fund
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
 
-      - name: Build site
-        run: |
-          npm run build
+      - name: Build UI
+        run: npm run build
 
-      - name: Bundle data into site
+      - name: Copy data into dist
         run: |
           mkdir -p dist/data
-          if [ -d data ]; then cp -R data/* dist/data/ || true; fi
+          if [ -d data ]; then
+            cp -R data/* dist/data/ || true
+          fi
+          if [ -d public ]; then
+            cp -R public/* dist/ || true
+          fi
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
+      - name: Upload portable site bundle (for live workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-bundle
+          path: dist
+          retention-days: 3
+
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
