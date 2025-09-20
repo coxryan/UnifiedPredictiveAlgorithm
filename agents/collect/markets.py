@@ -45,6 +45,7 @@ def get_market_lines_for_current_week(
     used = requested
     fb_reason = ""
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    market_extra: Dict[str, Any] = {}
 
     # If FanDuel requested
     if requested == "fanduel":
@@ -55,6 +56,7 @@ def get_market_lines_for_current_week(
             else:
                 weeks = list(range(1, int(week) + 1))
                 fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
                 # keep only <= current week
                 fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= int(week)].copy()
                 if len(fanduel_df) >= MARKET_MIN_ROWS:
@@ -108,7 +110,7 @@ def get_market_lines_for_current_week(
             fb_reason = fb_reason or f"CFBD fetch error: {e}"
 
     # Record status
-    _upsert_status_market_source(used, requested, fb_reason, DATA_DIR)
+    _upsert_status_market_source(used, requested, fb_reason, DATA_DIR, extra=market_extra or None)
     return out_df
 
 

@@ -9,6 +9,7 @@ import requests
 
 from .cache import ApiCache
 from .config import ODDS_API_KEY, CACHE_ONLY, DATA_DIR, _dbg
+from .status import _upsert_status_market_source
 
 
 def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> List[Dict[str, Any]]:
@@ -18,6 +19,15 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     """
     if not ODDS_API_KEY:
         _dbg("odds_api_fetch_fanduel: missing ODDS_API_KEY")
+        try:
+            _upsert_status_market_source(
+                market_used="none",
+                market_requested="fanduel",
+                fallback_reason="missing ODDS_API_KEY",
+                extra={"market_error": "missing_odds_api_key"}
+            )
+        except Exception:
+            pass
         return []
 
     day_key = pd.Timestamp.utcnow().strftime("%Y%m%d")
@@ -164,7 +174,7 @@ def _resolve_names_to_schedule(schedule_df: pd.DataFrame, name: str) -> Optional
         except Exception:
             return s
 
-    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college", "st", "st.", "state", "and", "at", "amp", "amp;"}
+    STOP_WORDS = {"university", "univ", "the", "of", "men's", "womens", "women's", "college", "st", "st.", "and", "at", "amp", "amp;"}
 
     def drop_mascots(tokens: list[str]) -> list[str]:
         if not tokens:
@@ -884,8 +894,10 @@ def get_market_lines_fanduel_for_weeks(
                     # Allow if both teams appear in same slate teams on same date
                     pair_ok = (h_best in (same_date.get("home_set") or set())) and (a_best in (same_date.get("away_set") or set()))
 
-            h_name = h_name or (h_best if pair_ok else None)
-            a_name = a_name or (a_best if pair_ok else None)
+            # Accept only if the (away, home) pair exists for that slate/date AND both fuzzy scores clear threshold
+            accept = pair_ok and (min(float(h_score or 0.0), float(a_score or 0.0)) >= 0.78)
+            h_name = h_name or (h_best if accept else None)
+            a_name = a_name or (a_best if accept else None)
 
             unmatched_details.append(
                 {
@@ -921,11 +933,32 @@ def get_market_lines_fanduel_for_weeks(
     df = pd.DataFrame(out_rows)
     stats = {"raw": raw_count, "mapped": len(df), "unmatched": len(unmatched_details)}
 
+    # Also record summary stats to status.json so the UI can reflect mapping health
+    try:
+        _upsert_status_market_source(
+            market_used="fanduel" if len(df) >= 1 else "none",
+            market_requested="fanduel",
+            fallback_reason=None if len(df) >= 1 else "no_fanduel_matches",
+            extra={"market_raw": raw_count, "market_mapped": len(df), "market_unmatched": len(unmatched_details)}
+        )
+    except Exception:
+        pass
+
     # Write unmatched details for alias improvement workflow
     try:
         os.makedirs(DATA_DIR, exist_ok=True)
         with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
             json.dump({"year": year, "stats": stats, "unmatched": unmatched_details}, f, indent=2)
+    except Exception:
+        pass
+
+    # Opportunistically add strong fuzzy matches to team_aliases.json for next run
+    try:
+        _autofix_aliases_from_unmatched(
+            unmatched_json_path=os.path.join(DATA_DIR, "market_unmatched.json"),
+            alias_json_path=os.path.join(DATA_DIR, "team_aliases.json"),
+            min_score=0.86,
+        )
     except Exception:
         pass
 
