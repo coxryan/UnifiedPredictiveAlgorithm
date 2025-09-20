@@ -101,12 +101,156 @@ jobs:
           echo "market_debug.json (if present):"
           test -f data/market_debug.json && cat data/market_debug.json || echo "market_debug.json not found"
 
-      - name: Emit backfill summary (guarantee file)
+
+      # New step: Build ALL site data (always regenerate)
+      - name: Build ALL site data (always regenerate)
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
+          ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
+          CACHE_DIR: ${{ env.CACHE_DIR }}
         run: |
-          # This will read data/upa_predictions.csv (if present) and write data/market_predictions_backfill.json
-          # so the Status page link never 404s. It won't fail the build if diagnostics fail.
-          python agents/diagnose_run.py || true
-          test -f data/market_predictions_backfill.json && echo "Backfill summary present." || echo "Backfill summary not generated."
+          set -euo pipefail
+          python - <<'PY'
+          import os, json, sys
+          from datetime import datetime, timedelta
+          import pandas as pd
+          from agents.collect import (
+            CfbdClients, ApiCache, DATA_DIR, write_csv, _dbg,
+            load_schedule_for_year, discover_current_week,
+            get_market_lines_for_current_week,
+          )
+          # Optional builders (may not exist in all forks)
+          try:
+            from agents.collect.team_inputs import build_team_inputs_datadriven
+          except Exception:
+            build_team_inputs_datadriven = None
+          try:
+            # If your repo has a real predictions builder, import it here.
+            # Provide a function that returns a DataFrame with prediction columns.
+            from agents.build_predictions import build_predictions_for_year  # type: ignore
+          except Exception:
+            build_predictions_for_year = None
+          try:
+            # Optional live edge builder
+            from agents.build_live_edge import build_live_edge_report  # type: ignore
+          except Exception:
+            build_live_edge_report = None
+          # Utilities
+          DATA = os.environ.get("DATA_DIR","data")
+          YEAR = int(os.environ.get("YEAR","2025"))
+          os.makedirs(DATA, exist_ok=True)
+          apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
+          cache = ApiCache()
+          # 1) TEAM INPUTS
+          ti_path = os.path.join(DATA, "upa_team_inputs_datadriven_v0.csv")
+          if build_team_inputs_datadriven:
+            try:
+              ti = build_team_inputs_datadriven(YEAR, apis, cache)
+              write_csv(ti, ti_path)
+              print(f"[OK] wrote {ti_path} rows={len(ti)}")
+            except Exception as e:
+              print(f"[warn] team inputs build failed: {e}")
+              if not os.path.exists(ti_path):
+                pd.DataFrame(columns=["team","conference","wrps_percent_0_100","talent_score_0_100","portal_net_0_100"]).to_csv(ti_path, index=False)
+          else:
+            if not os.path.exists(ti_path):
+              pd.DataFrame(columns=["team","conference","wrps_percent_0_100","talent_score_0_100","portal_net_0_100"]).to_csv(ti_path, index=False)
+          # 2) SCHEDULE (fresh/refetched if stale per loader heuristic)
+          sched = load_schedule_for_year(YEAR, apis, cache)
+          write_csv(sched, os.path.join(DATA, "cfb_schedule.csv"))
+          print(f"[OK] wrote schedule rows={len(sched)}")
+          # 3) MARKET (FanDuel or CFBD per env); write CSV always, JSON already handled by debug entry
+          wk = discover_current_week(sched) or 1
+          mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
+          write_csv(mkt, os.path.join(DATA, "market_debug.csv"))
+          print(f"[OK] wrote market_debug rows={len(mkt)} for weeks <= {wk}")
+          # Ensure unmatched CSV exists (empty if matcher didn't emit one)
+          unmatched_p = os.path.join(DATA, "market_unmatched.csv")
+          if not os.path.exists(unmatched_p):
+            pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]).to_csv(unmatched_p, index=False)
+          # 4) LIVE SCORES (Eastern day)
+          try:
+            from agents.fetch_live_scores import fetch_scoreboard
+            rows = fetch_scoreboard(None)
+            pd.DataFrame(rows).to_csv(os.path.join(DATA, "live_scores.csv"), index=False)
+            print(f"[OK] wrote live_scores rows={len(rows)}")
+          except Exception as e:
+            print(f"[warn] live scores fetch failed: {e}")
+            ls_p = os.path.join(DATA, "live_scores.csv")
+            if not os.path.exists(ls_p):
+              pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]).to_csv(ls_p, index=False)
+          # 5) PREDICTIONS (best-effort)
+          preds_p = os.path.join(DATA, "upa_predictions.csv")
+          preds_rows = 0
+          if build_predictions_for_year:
+            try:
+              preds = build_predictions_for_year(YEAR, sched_df=sched)
+              write_csv(preds, preds_p)  # helpers.write_csv will also do FanDuel backfill if markets exist
+              preds_rows = len(preds)
+              print(f"[OK] wrote predictions rows={preds_rows}")
+            except Exception as e:
+              print(f"[warn] predictions build failed: {e}")
+          if not os.path.exists(preds_p):
+            # Ensure file exists; model may be external to this repo
+            pd.DataFrame(columns=[
+              "week","date","away_team","home_team","neutral_site",
+              "model_spread_book","market_spread_book","expected_market_spread_book",
+              "edge_points_book","value_points_book","qualified_edge_flag","game_id"
+            ]).to_csv(preds_p, index=False)
+          # 6) LIVE EDGE (optional)
+          edge_p = os.path.join(DATA, "live_edge_report.csv")
+          if build_live_edge_report:
+            try:
+              edge = build_live_edge_report(YEAR, preds_csv=preds_p)
+              write_csv(edge, edge_p)
+              print(f"[OK] wrote live_edge_report rows={len(edge)}")
+            except Exception as e:
+              print(f"[warn] live edge build failed: {e}")
+          if not os.path.exists(edge_p):
+            pd.DataFrame(columns=["week","away_team","home_team","edge_points_book","value_points_book","qualified_edge_flag"]).to_csv(edge_p, index=False)
+          # 7) STATUS + BACKFILL SUMMARY
+          # Update status.json with counts
+          status_p = os.path.join(DATA, "status.json")
+          now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+          try:
+            teams = pd.read_csv(ti_path) if os.path.exists(ti_path) else pd.DataFrame()
+            games = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
+            preds = pd.read_csv(preds_p)
+            status = {}
+            if os.path.exists(status_p):
+              try:
+                status = json.load(open(status_p))
+              except Exception:
+                status = {}
+            status.update({
+              "generated_at_utc": now,
+              "year": YEAR,
+              "teams": int(len(teams)) if not teams.empty else 0,
+              "games": int(len(games)) if not games.empty else 0,
+              "pred_rows": int(len(preds)) if not preds.empty else 0,
+              "next_run_eta_utc": now,
+            })
+            json.dump(status, open(status_p,"w"), indent=2)
+            print(f"[OK] wrote status.json")
+          except Exception as e:
+            print(f"[warn] status update failed: {e}")
+          # Backfill summary for Status page link
+          try:
+            sched = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
+            preds = pd.read_csv(preds_p)
+            out = {
+              "file": "upa_predictions.csv",
+              "predictions_rows": int(len(preds)),
+              "predictions_rows_with_market": int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0,
+              "schedule_rows": int(len(sched)),
+              "schedule_rows_with_market": int(pd.to_numeric(sched.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in sched.columns else 0,
+            }
+            open(os.path.join(DATA, "market_predictions_backfill.json"),"w").write(json.dumps(out, indent=2))
+            print("[OK] wrote market_predictions_backfill.json")
+          except Exception as e:
+            print(f"[warn] unable to write backfill summary: {e}")
+          PY
 
       - name: Install deps
         run: |

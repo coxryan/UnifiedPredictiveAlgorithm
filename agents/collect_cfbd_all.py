@@ -110,3 +110,37 @@ if __name__ == "__main__":
 
     # Create data/market_debug.json and data/market_debug.csv so UI links always resolve.
     market_debug_entry()
+
+    # Also ensure schedule, market CSV, and live scores are materialized so the UI never 404s after a clean checkout.
+    try:
+        import os
+        import pandas as pd
+        from agents.collect import CfbdClients, ApiCache, load_schedule_for_year, discover_current_week, get_market_lines_for_current_week, DATA_DIR, write_csv
+        from agents.fetch_live_scores import fetch_scoreboard
+        year = int(os.environ.get("YEAR", "2025"))
+        apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
+        cache = ApiCache()
+        os.makedirs(DATA_DIR, exist_ok=True)
+        # schedule
+        sched = load_schedule_for_year(year, apis, cache)
+        write_csv(sched, os.path.join(DATA_DIR, "cfb_schedule.csv"))
+        # market CSV redundancy (if debug step failed, ensure CSV exists)
+        wk = discover_current_week(sched) or 1
+        lines = get_market_lines_for_current_week(year, wk, sched, apis, cache)
+        if isinstance(lines, pd.DataFrame) and not lines.empty:
+            lines.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
+        # live scores
+        try:
+            rows = fetch_scoreboard(None)
+            pd.DataFrame(rows).to_csv(os.path.join(DATA_DIR, "live_scores.csv"), index=False)
+        except Exception:
+            pass
+        # touch predictions file if missing (headers only; builder will populate when available)
+        pred_p = os.path.join(DATA_DIR, "upa_predictions.csv")
+        if not os.path.exists(pred_p):
+            pd.DataFrame(columns=[
+                "week","date","away_team","home_team","neutral_site","model_spread_book","market_spread_book",
+                "expected_market_spread_book","edge_points_book","value_points_book","qualified_edge_flag","game_id"
+            ]).to_csv(pred_p, index=False)
+    except Exception:
+        pass
