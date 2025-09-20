@@ -63,26 +63,13 @@ export default function PredictionsTab() {
         const normalized = r.map(norm);
         setRows(normalized);
 
-        // Prefer the most recent week that actually has market data.
-        const weeksWithMarket = Array.from(
-          new Set(
-            normalized
-              .filter(x => Number.isFinite(toNum(x.market_spread_book)))
-              .map(x => Number(x.week))
-              .filter(w => Number.isFinite(w))
-          )
-        ).sort((a,b)=>a-b);
-
-        if (weeksWithMarket.length) {
-          setWk(weeksWithMarket[weeksWithMarket.length - 1]);
+        // Revert: default to upcoming week (original behavior). If unavailable, fall back to earliest week present.
+        const nextWk = nextUpcomingWeek(normalized as any);
+        if (nextWk) {
+          setWk(nextWk);
         } else {
-          // Fallback: upcoming if available, else min week present
-          const nextWk = nextUpcomingWeek(normalized as any);
-          if (nextWk) setWk(nextWk);
-          else {
-            const w = Array.from(new Set(normalized.map(x => Number(x.week)).filter(x => Number.isFinite(x)))).sort((a,b)=>a-b);
-            setWk(w.length ? w[0] : null);
-          }
+          const w = Array.from(new Set(normalized.map(x => Number(x.week)).filter(x => Number.isFinite(x)))).sort((a,b)=>a-b);
+          setWk(w.length ? w[0] : null);
         }
       } catch {
         setRows([]);
