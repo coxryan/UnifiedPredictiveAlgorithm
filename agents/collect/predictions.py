@@ -105,14 +105,20 @@ def build_predictions_for_year(
     preds = sched.copy()
     preds["game_id"] = _sanitize_numeric(preds.get("game_id"))
     if not markets.empty:
-        merged = preds.merge(markets, on=[c for c in ["game_id"] if c in preds.columns and c in markets.columns], how="left", suffixes=("", "_m"))
-        if merged.get("market_spread_book").isna().all():
-            merged = preds.merge(
-                markets,
-                on=[c for c in ["week", "home_team", "away_team"] if c in preds.columns and c in markets.columns],
-                how="left",
-                suffixes=("", "_m"),
-            )
+        join_cols_game = [c for c in ["game_id"] if c in preds.columns and c in markets.columns]
+        merged = preds.merge(markets, on=join_cols_game, how="left", suffixes=("", "_m")) if join_cols_game else preds.copy()
+        col = merged.get("market_spread_book")
+        if col is None or col.isna().all():
+            join_cols_matchup = [
+                c for c in ["week", "home_team", "away_team"] if c in preds.columns and c in markets.columns
+            ]
+            if join_cols_matchup:
+                merged = preds.merge(
+                    markets,
+                    on=join_cols_matchup,
+                    how="left",
+                    suffixes=("", "_m"),
+                )
         preds = merged
 
     preds["neutral_site"] = preds.get("neutral_site", 0).fillna(0).astype(int)
