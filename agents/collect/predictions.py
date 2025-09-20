@@ -30,8 +30,9 @@ def _rating_from_team_inputs(team_inputs: pd.DataFrame) -> pd.Series:
     w_talent = df["talent_score_0_100"].fillna(50.0) / 100.0
     w_srs = df["srs_score_0_100"].fillna(50.0) / 100.0
     rating = (0.45 * w_wrps) + (0.30 * w_talent) + (0.25 * w_srs)
-    # keep consistent index by team name
     rating.index = df["team"].astype(str)
+    # Ensure unique index by collapsing duplicate team rows (average scores)
+    rating = rating.groupby(level=0).mean()
     return rating
 
 
