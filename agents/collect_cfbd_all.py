@@ -51,6 +51,8 @@ from agents.collect import (
     load_schedule_for_year,
     # teams
     build_team_inputs_datadriven,
+    build_predictions_for_year,
+    build_live_edge_report,
     # odds + name resolution
     _odds_api_fetch_fanduel,
     _date_from_iso,
@@ -81,6 +83,8 @@ __all__ = [
     "discover_current_week","_dummy_schedule","_date_only","_iso_datetime_str","load_schedule_for_year",
     # teams
     "build_team_inputs_datadriven",
+    "build_predictions_for_year",
+    "build_live_edge_report",
     # odds + name resolution
     "_odds_api_fetch_fanduel","_date_from_iso","_best_fuzzy_match","_resolve_names_to_schedule",
     "_resolve_names_to_schedule_with_details","_autofix_aliases_from_unmatched","get_market_lines_fanduel_for_weeks",
@@ -115,32 +119,50 @@ if __name__ == "__main__":
     try:
         import os
         import pandas as pd
-        from agents.collect import CfbdClients, ApiCache, load_schedule_for_year, discover_current_week, get_market_lines_for_current_week, DATA_DIR, write_csv
+        from agents.collect import (
+            CfbdClients,
+            ApiCache,
+            load_schedule_for_year,
+            discover_current_week,
+            get_market_lines_for_current_week,
+            build_team_inputs_datadriven,
+            build_predictions_for_year,
+            build_live_edge_report,
+            DATA_DIR,
+            write_csv,
+        )
         from agents.fetch_live_scores import fetch_scoreboard
         year = int(os.environ.get("YEAR", "2025"))
         apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
         cache = ApiCache()
         os.makedirs(DATA_DIR, exist_ok=True)
+        # team inputs
+        teams_df = build_team_inputs_datadriven(year, apis, cache)
+        write_csv(teams_df, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
         # schedule
         sched = load_schedule_for_year(year, apis, cache)
         write_csv(sched, os.path.join(DATA_DIR, "cfb_schedule.csv"))
         # market CSV redundancy (if debug step failed, ensure CSV exists)
         wk = discover_current_week(sched) or 1
         lines = get_market_lines_for_current_week(year, wk, sched, apis, cache)
-        if isinstance(lines, pd.DataFrame) and not lines.empty:
-            lines.to_csv(os.path.join(DATA_DIR, "market_debug.csv"), index=False)
+        write_csv(lines, os.path.join(DATA_DIR, "market_debug.csv"))
+        # predictions + live edge
+        preds = build_predictions_for_year(
+            year,
+            sched,
+            apis=apis,
+            cache=cache,
+            markets_df=lines,
+            team_inputs_df=teams_df,
+        )
+        write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
+        edge = build_live_edge_report(year, preds_df=preds)
+        write_csv(edge, os.path.join(DATA_DIR, "live_edge_report.csv"))
         # live scores
         try:
             rows = fetch_scoreboard(None)
             pd.DataFrame(rows).to_csv(os.path.join(DATA_DIR, "live_scores.csv"), index=False)
         except Exception:
             pass
-        # touch predictions file if missing (headers only; builder will populate when available)
-        pred_p = os.path.join(DATA_DIR, "upa_predictions.csv")
-        if not os.path.exists(pred_p):
-            pd.DataFrame(columns=[
-                "week","date","away_team","home_team","neutral_site","model_spread_book","market_spread_book",
-                "expected_market_spread_book","edge_points_book","value_points_book","qualified_edge_flag","game_id"
-            ]).to_csv(pred_p, index=False)
     except Exception:
         pass

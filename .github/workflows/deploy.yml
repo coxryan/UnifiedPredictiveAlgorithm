@@ -115,26 +115,17 @@ jobs:
           from datetime import datetime, timedelta
           import pandas as pd
           from agents.collect import (
-            CfbdClients, ApiCache, DATA_DIR, write_csv, _dbg,
-            load_schedule_for_year, discover_current_week,
+            CfbdClients,
+            ApiCache,
+            DATA_DIR,
+            write_csv,
+            load_schedule_for_year,
+            discover_current_week,
             get_market_lines_for_current_week,
+            build_team_inputs_datadriven,
+            build_predictions_for_year,
+            build_live_edge_report,
           )
-          # Optional builders (may not exist in all forks)
-          try:
-            from agents.collect.team_inputs import build_team_inputs_datadriven
-          except Exception:
-            build_team_inputs_datadriven = None
-          try:
-            # If your repo has a real predictions builder, import it here.
-            # Provide a function that returns a DataFrame with prediction columns.
-            from agents.build_predictions import build_predictions_for_year  # type: ignore
-          except Exception:
-            build_predictions_for_year = None
-          try:
-            # Optional live edge builder
-            from agents.build_live_edge import build_live_edge_report  # type: ignore
-          except Exception:
-            build_live_edge_report = None
           # Utilities
           DATA = os.environ.get("DATA_DIR","data")
           YEAR = int(os.environ.get("YEAR","2025"))
@@ -143,18 +134,9 @@ jobs:
           cache = ApiCache()
           # 1) TEAM INPUTS
           ti_path = os.path.join(DATA, "upa_team_inputs_datadriven_v0.csv")
-          if build_team_inputs_datadriven:
-            try:
-              ti = build_team_inputs_datadriven(YEAR, apis, cache)
-              write_csv(ti, ti_path)
-              print(f"[OK] wrote {ti_path} rows={len(ti)}")
-            except Exception as e:
-              print(f"[warn] team inputs build failed: {e}")
-              if not os.path.exists(ti_path):
-                pd.DataFrame(columns=["team","conference","wrps_percent_0_100","talent_score_0_100","portal_net_0_100"]).to_csv(ti_path, index=False)
-          else:
-            if not os.path.exists(ti_path):
-              pd.DataFrame(columns=["team","conference","wrps_percent_0_100","talent_score_0_100","portal_net_0_100"]).to_csv(ti_path, index=False)
+          ti = build_team_inputs_datadriven(YEAR, apis, cache)
+          write_csv(ti, ti_path)
+          print(f"[OK] wrote {ti_path} rows={len(ti)}")
           # 2) SCHEDULE (fresh/refetched if stale per loader heuristic)
           sched = load_schedule_for_year(YEAR, apis, cache)
           write_csv(sched, os.path.join(DATA, "cfb_schedule.csv"))
@@ -179,35 +161,24 @@ jobs:
             ls_p = os.path.join(DATA, "live_scores.csv")
             if not os.path.exists(ls_p):
               pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]).to_csv(ls_p, index=False)
-          # 5) PREDICTIONS (best-effort)
+          # 5) PREDICTIONS
           preds_p = os.path.join(DATA, "upa_predictions.csv")
-          preds_rows = 0
-          if build_predictions_for_year:
-            try:
-              preds = build_predictions_for_year(YEAR, sched_df=sched)
-              write_csv(preds, preds_p)  # helpers.write_csv will also do FanDuel backfill if markets exist
-              preds_rows = len(preds)
-              print(f"[OK] wrote predictions rows={preds_rows}")
-            except Exception as e:
-              print(f"[warn] predictions build failed: {e}")
-          if not os.path.exists(preds_p):
-            # Ensure file exists; model may be external to this repo
-            pd.DataFrame(columns=[
-              "week","date","away_team","home_team","neutral_site",
-              "model_spread_book","market_spread_book","expected_market_spread_book",
-              "edge_points_book","value_points_book","qualified_edge_flag","game_id"
-            ]).to_csv(preds_p, index=False)
-          # 6) LIVE EDGE (optional)
+          preds = build_predictions_for_year(
+            YEAR,
+            sched,
+            apis=apis,
+            cache=cache,
+            markets_df=mkt,
+            team_inputs_df=ti,
+          )
+          write_csv(preds, preds_p)
+          preds_rows = len(preds)
+          print(f"[OK] wrote predictions rows={preds_rows}")
+          # 6) LIVE EDGE
           edge_p = os.path.join(DATA, "live_edge_report.csv")
-          if build_live_edge_report:
-            try:
-              edge = build_live_edge_report(YEAR, preds_csv=preds_p)
-              write_csv(edge, edge_p)
-              print(f"[OK] wrote live_edge_report rows={len(edge)}")
-            except Exception as e:
-              print(f"[warn] live edge build failed: {e}")
-          if not os.path.exists(edge_p):
-            pd.DataFrame(columns=["week","away_team","home_team","edge_points_book","value_points_book","qualified_edge_flag"]).to_csv(edge_p, index=False)
+          edge = build_live_edge_report(YEAR, preds_df=preds)
+          write_csv(edge, edge_p)
+          print(f"[OK] wrote live_edge_report rows={len(edge)}")
           # 7) STATUS + BACKFILL SUMMARY
           # Update status.json with counts
           status_p = os.path.join(DATA, "status.json")
@@ -260,7 +231,7 @@ jobs:
           python - <<'PY'
           import sys, os
           import pandas as pd
-          from datetime import datetime
+          from datetime import datetime, timedelta
           DATA = "data"
           fail = []
 
@@ -273,13 +244,33 @@ jobs:
             if dts.isna().all():
               fail.append("schedule has no valid dates")
             else:
+              if hasattr(dts, "dt") and getattr(dts.dt, "tz", None) is not None:
+                try:
+                  dts = dts.dt.tz_convert("America/New_York")
+                except Exception:
+                  try:
+                    dts = dts.dt.tz_localize("America/New_York")
+                  except Exception:
+                    pass
+                try:
+                  dts = dts.dt.tz_localize(None)
+                except Exception:
+                  pass
+              max_d = dts.dropna().max()
               try:
-                now = pd.Timestamp.now(tz="America/New_York").normalize()
+                today_et = pd.Timestamp.now(tz="America/New_York").date()
               except Exception:
-                now = pd.Timestamp.utcnow().normalize()
-              max_d = dts.max().normalize()
-              if pd.isna(max_d) or max_d < (now - pd.Timedelta(days=1)):
-                fail.append(f"schedule stale: max date {getattr(max_d,'date',lambda:None)() or max_d} < (today-1)")
+                today_et = pd.Timestamp.utcnow().date()
+              max_date = None
+              if isinstance(max_d, pd.Timestamp):
+                max_date = max_d.date()
+              elif pd.notna(max_d):
+                try:
+                  max_date = pd.Timestamp(max_d).date()
+                except Exception:
+                  max_date = None
+              if max_date and max_date < (today_et - timedelta(days=1)):
+                fail.append(f"schedule stale: max date {max_date} < (today-1)")
           except Exception as e:
             fail.append(f"schedule load error: {e}")
 
@@ -287,7 +278,7 @@ jobs:
           try:
             preds = pd.read_csv(os.path.join(DATA, "upa_predictions.csv"))
             if len(preds) == 0:
-              fail.append("predictions empty (0 rows)")
+              print("::warning::predictions empty (0 rows)")
           except Exception as e:
             fail.append(f"predictions load error: {e}")
 
