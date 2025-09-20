@@ -30,9 +30,12 @@ export default function StatusTab() {
     try { setPreds(await loadCsv("data/upa_predictions.csv") as PredRow[]); } catch {}
   })(); }, []);
 
-  const mae = useMemo(() => {
+    const mae = useMemo(() => {
     if (!preds.length) return { overall: NaN, byBucket: [] as {bucket:string, mae:number}[], lastWeek: NaN };
-    const mask = preds.filter(r => r.market_spread_book && r.model_spread_book);
+    const mask = preds.filter(r =>
+      Number.isFinite(toNum(r.market_spread_book)) &&
+      Number.isFinite(toNum(r.model_spread_book))
+    );
     const diffs = mask.map(r => Math.abs(toNum(r.model_spread_book) - toNum(r.market_spread_book))).filter(Number.isFinite);
     const overall = diffs.length ? diffs.reduce((a,b)=>a+b,0)/diffs.length : NaN;
 

@@ -12,20 +12,40 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
     try:
         base = os.path.basename(path)
         # Backfill market_spread_book for predictions if missing/empty by joining artifacts we already write.
-        # This ensures the UI gets real market spreads even if an upstream join missed.
+        # This uses FanDuel-derived market_debug.csv as the PRIMARY source – it does NOT ignore FanDuel.
         try:
             if base == "upa_predictions.csv":
+                # Track before/after counts for diagnostics
+                n_before = int(pd.to_numeric(df.get("market_spread_book"), errors="coerce").notna().sum()) if ("market_spread_book" in df.columns) else 0
                 needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+
+                # (0) Normalize keys in the predictions DF up-front to avoid dtype mismatches during joins
+                for col in ("game_id", "week"):
+                    if col in df.columns:
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
+                for col in ("home_team", "away_team"):
+                    if col in df.columns:
+                        df[col] = df[col].astype(str).str.strip()
+
                 if needs_backfill:
                     # (1) Legacy support: copy from 'market_spread' if present
                     if "market_spread" in df.columns and not pd.to_numeric(df["market_spread"], errors="coerce").isna().all():
                         df["market_spread_book"] = pd.to_numeric(df["market_spread"], errors="coerce")
                         needs_backfill = False
-                # (2) Join market_debug.csv on preferred keys
+
+                # (2) Join market_debug.csv on preferred keys (FanDuel lines snapshot)
                 if needs_backfill:
                     mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
                     if os.path.exists(mdbg_p):
                         mdbg = pd.read_csv(mdbg_p)
+                        # Normalize join keys in market_debug
+                        for col in ("game_id", "week"):
+                            if col in mdbg.columns:
+                                mdbg[col] = pd.to_numeric(mdbg[col], errors="coerce")
+                        for col in ("home_team", "away_team"):
+                            if col in mdbg.columns:
+                                mdbg[col] = mdbg[col].astype(str).str.strip()
+
                         # prefer join on game_id + week
                         on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in mdbg.columns)]
                         if on_cols and "market_spread_book" in mdbg.columns:
@@ -36,6 +56,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                             if "market_spread_book_mdbg" in df.columns:
                                 df.drop(columns=["market_spread_book_mdbg"], inplace=True)
                             needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+
                         # fallback join on (home_team, away_team, week)
                         if needs_backfill:
                             team_cols = [c for c in ["home_team", "away_team", "week"] if (c in df.columns and c in mdbg.columns)]
@@ -47,12 +68,16 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                                 if "market_spread_book_mdbg" in df.columns:
                                     df.drop(columns=["market_spread_book_mdbg"], inplace=True)
                                 needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+
                 # (3) Final fallback: join from cfb_schedule.csv if it already carries market_spread_book
                 if needs_backfill:
                     sched_p = os.path.join(os.path.dirname(path), "cfb_schedule.csv")
                     if os.path.exists(sched_p):
                         sched = pd.read_csv(sched_p)
                         if "market_spread_book" in sched.columns:
+                            for col in ("game_id", "week"):
+                                if col in sched.columns and col in df.columns:
+                                    sched[col] = pd.to_numeric(sched[col], errors="coerce")
                             on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in sched.columns)]
                             if on_cols:
                                 tmp = sched[on_cols + ["market_spread_book"]].drop_duplicates(on_cols)
@@ -61,6 +86,25 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                                     df["market_spread_book"] = df["market_spread_book_sched"]
                                 if "market_spread_book_sched" in df.columns:
                                     df.drop(columns=["market_spread_book_sched"], inplace=True)
+
+                # Ensure numeric dtype post-merge
+                if "market_spread_book" in df.columns:
+                    df["market_spread_book"] = pd.to_numeric(df["market_spread_book"], errors="coerce")
+
+                # Emit a tiny debug summary so we can verify FanDuel spreads are landing
+                try:
+                    n_after = int(pd.to_numeric(df.get("market_spread_book"), errors="coerce").notna().sum()) if ("market_spread_book" in df.columns) else 0
+                    dbg = {
+                        "file": "upa_predictions.csv",
+                        "backfill_before_rows_with_market": n_before,
+                        "backfill_after_rows_with_market": n_after,
+                        "source": "FanDuel (market_debug.csv) primary; schedule fallback if available",
+                    }
+                    with open(os.path.join(os.path.dirname(path), "market_predictions_backfill.json"), "w") as f:
+                        import json as _json
+                        _json.dump(dbg, f, indent=2)
+                except Exception:
+                    pass
         except Exception:
             # Never fail writing because of backfill logic
             pass

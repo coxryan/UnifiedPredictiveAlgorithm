@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { loadCsv, fmtNum, toNum } from "../lib/csv";
 import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
 
+// Numeric normalization helpers
+const isNum = (v: any) => Number.isFinite(toNum(v));
+const num = (v: any) => toNum(v);
+
 type LiveRow = {
   state?: string;
   away_school?: string; home_school?: string;
@@ -47,7 +51,16 @@ export default function PredictionsTab() {
     (async () => {
       try {
         const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
-        setRows(r);
+        const norm = (x: PredRow): PredRow => ({
+          ...x,
+          // Coerce numbers so 0 stays 0 and strings/NaN don't get treated as falsy
+          model_spread_book: String(num(x.model_spread_book)),
+          market_spread_book: String(num(x.market_spread_book)),
+          expected_market_spread_book: String(num(x.expected_market_spread_book)),
+          edge_points_book: String(num(x.edge_points_book)),
+          value_points_book: String(num(x.value_points_book)),
+        });
+        setRows(r.map(norm));
         const nextWk = nextUpcomingWeek(r as any);
         // Default to upcoming if exists; otherwise to min available
         if (nextWk) setWk(nextWk);
