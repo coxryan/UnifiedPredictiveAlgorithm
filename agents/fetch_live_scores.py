@@ -20,7 +20,14 @@ def fetch_scoreboard(day: str | None = None) -> List[Dict[str, Any]]:
     If None, uses today (UTC).
     """
     if not day:
-        day = dt.datetime.utcnow().strftime("%Y%m%d")
+        try:
+            # ESPN scoreboards are most consistent with US/Eastern calendar days
+            import pytz  # type: ignore
+            et = dt.datetime.now(tz=pytz.timezone("America/New_York"))
+            day = et.strftime("%Y%m%d")
+        except Exception:
+            # Fallback to UTC if pytz isn't available
+            day = dt.datetime.utcnow().strftime("%Y%m%d")
 
     url = f"https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates={day}"
     data = _get_json(url)
