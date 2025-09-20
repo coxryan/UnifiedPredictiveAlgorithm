@@ -71,6 +71,15 @@ def market_debug_entry() -> None:
 
         _dbg(f"market_debug_entry: summary={summary}")
 
+        # Ensure unmatched CSV exists for UI link (may be empty if no unmatched rows were produced upstream)
+        try:
+            unm_csv = os.path.join(DATA_DIR, "market_unmatched.csv")
+            if not os.path.exists(unm_csv):
+                import pandas as pd  # local import to avoid top-level dependency
+                pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]).to_csv(unm_csv, index=False)
+        except Exception:
+            pass
+
     except Exception as e:
         try:
             os.makedirs(DATA_DIR, exist_ok=True)

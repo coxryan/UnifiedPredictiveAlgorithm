@@ -162,35 +162,54 @@ export default function StatusTab() {
               </div>
             </div>
 
-            <div className="subcard">
-              <div className="subcard-title">Weekly Accuracy (Model)</div>
-              {!weekly.length ? <div className="note">No completed games yet.</div> : (
-                <div className="table-wrap">
-                  <table className="tbl compact">
-                    <thead><tr><th>Week</th><th>W</th><th>L</th><th>Push</th><th>Accuracy</th></tr></thead>
-                    <tbody>
-                      {weekly.map(r => (
-                        <tr key={r.week}>
-                          <td>{r.week}</td><td>{r.wins}</td><td>{r.losses}</td><td>{r.pushes}</td><td>{fmtPct01(r.accuracy)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+          <div className="subcard">
+            <div className="subcard-title">Weekly Accuracy (Model)</div>
+            {!weekly.length ? <div className="note">No completed games yet.</div> : (
+              <div className="table-wrap">
+                <table className="tbl compact">
+                  <thead><tr><th>Week</th><th>W</th><th>L</th><th>Push</th><th>Accuracy</th></tr></thead>
+                  <tbody>
+                    {weekly.map(r => (
+                      <tr key={r.week}>
+                        <td>{r.week}</td><td>{r.wins}</td><td>{r.losses}</td><td>{r.pushes}</td><td>{fmtPct01(r.accuracy)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          <div className="subcard">
+            <div className="subcard-title">Downloads &amp; Debug</div>
+            <div className="table-wrap">
+              <table className="tbl compact">
+                <thead>
+                  <tr><th>File</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    { href: `data/upa_team_inputs_datadriven_v0.csv${v}`, label: "team inputs CSV ↗", desc: "Per-team inputs (WRPS %, talent, SRS, SOS) used by the model." },
+                    { href: `data/cfb_schedule.csv${v}`, label: "schedule CSV ↗", desc: "Season schedule with dates, teams, and results (when final)." },
+                    { href: `data/upa_predictions.csv${v}`, label: "predictions CSV ↗", desc: "Per-game model outputs including model vs. market spread and edges." },
+                    { href: `data/live_edge_report.csv${v}`, label: "live edge CSV ↗", desc: "Filtered view of current/model edges for actionable signals." },
+                    { href: `data/market_debug.json${v}`, label: "market debug (json) ↗", desc: "Summary of market source used, fallback reason, and row counts." },
+                    { href: `data/market_debug.csv${v}`, label: "market debug (csv) ↗", desc: "Resolved market lines for the latest week (book-style home spread)." },
+                    { href: `data/market_unmatched.csv${v}`, label: "unmatched market CSV ↗", desc: "FanDuel name matches that failed; use to improve alias mapping." },
+                    { href: `data/backtest_summary_2024.csv${v}`, label: "backtest summary (2024) CSV ↗", desc: "Aggregate 2024 backtest metrics by week/bucket." },
+                    { href: `data/backtest_predictions_2024.csv${v}`, label: "backtest predictions (2024) CSV ↗", desc: "Per-game 2024 backtest predictions including market/model fields." },
+                    { href: `data/live_scores.csv${v}`, label: "live scores CSV ↗", desc: "Latest ESPN scoreboard snapshot (normalized school names)." },
+                    { href: `data/diagnostics_summary.csv${v}`, label: "diagnostics summary CSV ↗", desc: "Sanity checks produced by the collector (row counts, coverage)." },
+                  ].map(item => (
+                    <tr key={item.href}>
+                      <td><a href={item.href} target="_blank" rel="noreferrer">{item.label}</a></td>
+                      <td>{item.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <div className="note" style={{ marginTop: 8 }}>
-            <a href={`data/upa_team_inputs_datadriven_v0.csv${v}`} target="_blank" rel="noreferrer">team inputs CSV ↗</a>{" • "}
-            <a href={`data/cfb_schedule.csv${v}`} target="_blank" rel="noreferrer">schedule CSV ↗</a>{" • "}
-            <a href={`data/upa_predictions.csv${v}`} target="_blank" rel="noreferrer">predictions CSV ↗</a>{" • "}
-            <a href={`data/live_edge_report.csv${v}`} target="_blank" rel="noreferrer">live edge CSV ↗</a>{" • "}
-            <a href={`data/market_unmatched.csv${v}`} target="_blank" rel="noreferrer">unmatched market CSV ↗</a>{" • "}
-            <a href={`data/2024/upa_predictions_2024_backtest.csv${v}`} target="_blank" rel="noreferrer">backtest predictions (2024) CSV ↗</a>{" • "}
-            <a href={`data/2024/backtest_summary_2024.csv${v}`} target="_blank" rel="noreferrer">backtest summary (2024) CSV ↗</a>{" • "}
-            <a href={`data/backtest_predictions_2024.csv${v}`} target="_blank" rel="noreferrer">alt: backtest predictions (2024) CSV ↗</a>
-          </div>
+        </div>
         </>
       )}
     </section>

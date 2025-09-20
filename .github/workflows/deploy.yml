@@ -15,6 +15,8 @@ env:
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
   ODDS_CACHE_DIR: .cache_odds
   ODDS_CACHE_TTL_DAYS: 2
+  # Ensure Actions cache paths match code defaults
+  CACHE_DIR: .cache_cfbd
 
 # Serialize with other Pages publishers to avoid races
 concurrency:
@@ -33,11 +35,27 @@ jobs:
         with:
           node-version: 20
 
+      - name: Verify cache path configuration (fail only on mismatch)
+        run: |
+          set -euo pipefail
+          CFBD_ENV_DIR="${CACHE_DIR:-.cache_cfbd}"
+          ODDS_ENV_DIR="${ODDS_CACHE_DIR:-.cache_odds}"
+          CFBD_EXPECT=".cache_cfbd"
+          ODDS_EXPECT=".cache_odds"
+          echo "CFBD cache (env): ${CFBD_ENV_DIR}  | expected workflow path: ${CFBD_EXPECT}"
+          echo "ODDS cache (env): ${ODDS_ENV_DIR}  | expected workflow path: ${ODDS_EXPECT}"
+          if [ "${CFBD_ENV_DIR}" != "${CFBD_EXPECT}" ] || [ "${ODDS_ENV_DIR}" != "${ODDS_EXPECT}" ]; then
+            echo "::error::Cache path mismatch detected. Update either the workflow cache paths or the env values (CACHE_DIR/ODDS_CACHE_DIR) to match."
+            echo "Details: CFBD_ENV_DIR='${CFBD_ENV_DIR}' vs EXPECT='${CFBD_EXPECT}', ODDS_ENV_DIR='${ODDS_ENV_DIR}' vs EXPECT='${ODDS_EXPECT}'"
+            exit 1
+          fi
+          echo "Cache paths are consistent."
+
       - name: Restore API caches (CFBD & Odds)
         uses: actions/cache@v4
         with:
           path: |
-            .cache_api
+            .cache_cfbd
             .cache_odds
           key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
           restore-keys: |
@@ -69,6 +87,7 @@ jobs:
           ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
           ODDS_CACHE_DIR: ${{ env.ODDS_CACHE_DIR }}
           ODDS_CACHE_TTL_DAYS: ${{ env.ODDS_CACHE_TTL_DAYS }}
+          CACHE_DIR: ${{ env.CACHE_DIR }}
           DEBUG_MARKET: 1
           REQUIRE_SCHED_MIN_ROWS: 0
           MARKET_MIN_ROWS: 1

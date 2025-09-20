@@ -89,3 +89,24 @@ __all__ = [
     # debug entry
     "market_debug_entry",
 ]
+
+
+# Minimal runner to ensure debug artifacts exist for the UI.
+# Accept --market-source/--year flags for compatibility; env drives behavior.
+if __name__ == "__main__":
+    import argparse, os
+    from agents.collect import market_debug_entry  # re-exported above
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--market-source", dest="market_source", type=str, default=os.environ.get("MARKET_SOURCE", "fanduel"))
+    p.add_argument("--year", type=int, default=None)
+    p.add_argument("--backtest", type=int, default=None)  # accepted but unused here
+    args = p.parse_args()
+
+    if args.market_source:
+        os.environ["MARKET_SOURCE"] = str(args.market_source)
+    if args.year:
+        os.environ["YEAR"] = str(args.year)
+
+    # Create data/market_debug.json and data/market_debug.csv so UI links always resolve.
+    market_debug_entry()
