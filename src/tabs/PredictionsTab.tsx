@@ -51,14 +51,18 @@ export default function PredictionsTab() {
     (async () => {
       try {
         const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+        const coerceNum = (v: any) => {
+          const n = toNum(v);
+          return Number.isFinite(n) ? n : null;
+        };
         const norm = (x: PredRow): PredRow => ({
           ...x,
-          // Coerce numbers so 0 stays 0 and strings/NaN don't get treated as falsy
-          model_spread_book: String(num(x.model_spread_book)),
-          market_spread_book: String(num(x.market_spread_book)),
-          expected_market_spread_book: String(num(x.expected_market_spread_book)),
-          edge_points_book: String(num(x.edge_points_book)),
-          value_points_book: String(num(x.value_points_book)),
+          // Keep numbers as numbers; represent missing as null (so fmtNum shows "—" instead of 0)
+          model_spread_book: coerceNum(x.model_spread_book) as any,
+          market_spread_book: coerceNum(x.market_spread_book) as any,
+          expected_market_spread_book: coerceNum(x.expected_market_spread_book) as any,
+          edge_points_book: coerceNum(x.edge_points_book) as any,
+          value_points_book: coerceNum(x.value_points_book) as any,
         });
         const normalized = r.map(norm);
         setRows(normalized);
