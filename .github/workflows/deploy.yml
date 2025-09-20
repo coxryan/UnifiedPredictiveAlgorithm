@@ -100,6 +100,13 @@ jobs:
           echo "market_debug.json (if present):"
           test -f data/market_debug.json && cat data/market_debug.json || echo "market_debug.json not found"
 
+      - name: Emit backfill summary (guarantee file)
+        run: |
+          # This will read data/upa_predictions.csv (if present) and write data/market_predictions_backfill.json
+          # so the Status page link never 404s. It won't fail the build if diagnostics fail.
+          python agents/diagnose_run.py || true
+          test -f data/market_predictions_backfill.json && echo "Backfill summary present." || echo "Backfill summary not generated."
+
       - name: Install deps
         run: |
           if [ -f package-lock.json ]; then
