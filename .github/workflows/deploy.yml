@@ -95,14 +95,13 @@ jobs:
         run: |
           # Run main collector; market_debug.json will be emitted by the script when available
           echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
-          python agents/collect_cfbd_all.py --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
+          python -m agents.collect_cfbd_all --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
           echo "Collector finished; status.json:"
           test -f data/status.json && cat data/status.json || echo "status.json not found"
           echo "market_debug.json (if present):"
           test -f data/market_debug.json && cat data/market_debug.json || echo "market_debug.json not found"
 
-
-      # New step: Build ALL site data (always regenerate)
+      # Build every artifact needed for the site (always regenerate)
       - name: Build ALL site data (always regenerate)
         env:
           CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
@@ -165,4 +164,193 @@ jobs:
           mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
           write_csv(mkt, os.path.join(DATA, "market_debug.csv"))
           print(f"[OK] wrote market_debug rows={len(mkt)} for weeks <= {wk}")
-          # Ensure unmatched CSV exists (em...
+          # Ensure unmatched CSV exists (empty if matcher didn't emit one)
+          unmatched_p = os.path.join(DATA, "market_unmatched.csv")
+          if not os.path.exists(unmatched_p):
+            pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]).to_csv(unmatched_p, index=False)
+          # 4) LIVE SCORES (Eastern day)
+          try:
+            from agents.fetch_live_scores import fetch_scoreboard
+            rows = fetch_scoreboard(None)
+            pd.DataFrame(rows).to_csv(os.path.join(DATA, "live_scores.csv"), index=False)
+            print(f"[OK] wrote live_scores rows={len(rows)}")
+          except Exception as e:
+            print(f"[warn] live scores fetch failed: {e}")
+            ls_p = os.path.join(DATA, "live_scores.csv")
+            if not os.path.exists(ls_p):
+              pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]).to_csv(ls_p, index=False)
+          # 5) PREDICTIONS (best-effort)
+          preds_p = os.path.join(DATA, "upa_predictions.csv")
+          preds_rows = 0
+          if build_predictions_for_year:
+            try:
+              preds = build_predictions_for_year(YEAR, sched_df=sched)
+              write_csv(preds, preds_p)  # helpers.write_csv will also do FanDuel backfill if markets exist
+              preds_rows = len(preds)
+              print(f"[OK] wrote predictions rows={preds_rows}")
+            except Exception as e:
+              print(f"[warn] predictions build failed: {e}")
+          if not os.path.exists(preds_p):
+            # Ensure file exists; model may be external to this repo
+            pd.DataFrame(columns=[
+              "week","date","away_team","home_team","neutral_site",
+              "model_spread_book","market_spread_book","expected_market_spread_book",
+              "edge_points_book","value_points_book","qualified_edge_flag","game_id"
+            ]).to_csv(preds_p, index=False)
+          # 6) LIVE EDGE (optional)
+          edge_p = os.path.join(DATA, "live_edge_report.csv")
+          if build_live_edge_report:
+            try:
+              edge = build_live_edge_report(YEAR, preds_csv=preds_p)
+              write_csv(edge, edge_p)
+              print(f"[OK] wrote live_edge_report rows={len(edge)}")
+            except Exception as e:
+              print(f"[warn] live edge build failed: {e}")
+          if not os.path.exists(edge_p):
+            pd.DataFrame(columns=["week","away_team","home_team","edge_points_book","value_points_book","qualified_edge_flag"]).to_csv(edge_p, index=False)
+          # 7) STATUS + BACKFILL SUMMARY
+          # Update status.json with counts
+          status_p = os.path.join(DATA, "status.json")
+          now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+          try:
+            teams = pd.read_csv(ti_path) if os.path.exists(ti_path) else pd.DataFrame()
+            games = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
+            preds = pd.read_csv(preds_p)
+            status = {}
+            if os.path.exists(status_p):
+              try:
+                status = json.load(open(status_p))
+              except Exception:
+                status = {}
+            status.update({
+              "generated_at_utc": now,
+              "year": YEAR,
+              "teams": int(len(teams)) if not teams.empty else 0,
+              "games": int(len(games)) if not games.empty else 0,
+              "pred_rows": int(len(preds)) if not preds.empty else 0,
+              "next_run_eta_utc": now,
+            })
+            json.dump(status, open(status_p,"w"), indent=2)
+            print(f"[OK] wrote status.json")
+          except Exception as e:
+            print(f"[warn] status update failed: {e}")
+          # Backfill summary for Status page link
+          try:
+            sched = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
+            preds = pd.read_csv(preds_p)
+            out = {
+              "file": "upa_predictions.csv",
+              "predictions_rows": int(len(preds)),
+              "predictions_rows_with_market": int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0,
+              "schedule_rows": int(len(sched)),
+              "schedule_rows_with_market": int(pd.to_numeric(sched.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in sched.columns else 0,
+            }
+            open(os.path.join(DATA, "market_predictions_backfill.json"),"w").write(json.dumps(out, indent=2))
+            print("[OK] wrote market_predictions_backfill.json")
+          except Exception as e:
+            print(f"[warn] unable to write backfill summary: {e}")
+          PY
+
+      # Hard validation: fail build if core artifacts are empty or stale
+      - name: Validate data completeness (hard fail)
+        env:
+          YEAR: 2025
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys, os
+          import pandas as pd
+          from datetime import datetime
+          DATA = "data"
+          fail = []
+
+          # 1) Schedule must exist, be sizeable, and extend to >= today-1 (US/Eastern)
+          try:
+            sched = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
+            if len(sched) < 200:
+              fail.append(f"schedule too small: {len(sched)} rows")
+            dts = pd.to_datetime(sched.get("date"), errors="coerce")
+            if dts.isna().all():
+              fail.append("schedule has no valid dates")
+            else:
+              try:
+                now = pd.Timestamp.now(tz="America/New_York").normalize()
+              except Exception:
+                now = pd.Timestamp.utcnow().normalize()
+              max_d = dts.max().normalize()
+              if pd.isna(max_d) or max_d < (now - pd.Timedelta(days=1)):
+                fail.append(f"schedule stale: max date {getattr(max_d,'date',lambda:None)() or max_d} < (today-1)")
+          except Exception as e:
+            fail.append(f"schedule load error: {e}")
+
+          # 2) Predictions must exist and have rows
+          try:
+            preds = pd.read_csv(os.path.join(DATA, "upa_predictions.csv"))
+            if len(preds) == 0:
+              fail.append("predictions empty (0 rows)")
+          except Exception as e:
+            fail.append(f"predictions load error: {e}")
+
+          # 3) Market debug should have at least some rows
+          try:
+            mdbg = pd.read_csv(os.path.join(DATA, "market_debug.csv"))
+            if len(mdbg) == 0:
+              fail.append("market_debug empty (0 rows)")
+          except Exception as e:
+            fail.append(f"market_debug load error: {e}")
+
+          # 4) Live scores file must be readable (row count can be 0 on non-slate days)
+          try:
+            _ = pd.read_csv(os.path.join(DATA, "live_scores.csv"))
+          except Exception as e:
+            fail.append(f"live_scores load error: {e}")
+
+          if fail:
+            print("::error::Data validation failed:")
+            for f in fail: print(" -", f)
+            sys.exit(1)
+          print("[OK] data validation passed.")
+          PY
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+
+      - name: Build UI
+        run: npm run build
+
+      - name: Copy data into dist
+        run: |
+          mkdir -p dist/data
+          if [ -d data ]; then
+            cp -R data/* dist/data/ || true
+          fi
+          if [ -d public ]; then
+            cp -R public/* dist/ || true
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Upload portable site bundle (for live workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-bundle
+          path: dist
+          retention-days: 3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
