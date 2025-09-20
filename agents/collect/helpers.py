@@ -11,6 +11,59 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
         base = os.path.basename(path)
+        # Backfill market_spread_book for predictions if missing/empty by joining artifacts we already write.
+        # This ensures the UI gets real market spreads even if an upstream join missed.
+        try:
+            if base == "upa_predictions.csv":
+                needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+                if needs_backfill:
+                    # (1) Legacy support: copy from 'market_spread' if present
+                    if "market_spread" in df.columns and not pd.to_numeric(df["market_spread"], errors="coerce").isna().all():
+                        df["market_spread_book"] = pd.to_numeric(df["market_spread"], errors="coerce")
+                        needs_backfill = False
+                # (2) Join market_debug.csv on preferred keys
+                if needs_backfill:
+                    mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
+                    if os.path.exists(mdbg_p):
+                        mdbg = pd.read_csv(mdbg_p)
+                        # prefer join on game_id + week
+                        on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in mdbg.columns)]
+                        if on_cols and "market_spread_book" in mdbg.columns:
+                            tmp = mdbg[on_cols + ["market_spread_book"]].drop_duplicates(on_cols)
+                            df = df.merge(tmp, on=on_cols, how="left", suffixes=("", "_mdbg"))
+                            if "market_spread_book_mdbg" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
+                                df["market_spread_book"] = df["market_spread_book_mdbg"]
+                            if "market_spread_book_mdbg" in df.columns:
+                                df.drop(columns=["market_spread_book_mdbg"], inplace=True)
+                            needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+                        # fallback join on (home_team, away_team, week)
+                        if needs_backfill:
+                            team_cols = [c for c in ["home_team", "away_team", "week"] if (c in df.columns and c in mdbg.columns)]
+                            if set(team_cols) == {"home_team", "away_team", "week"} and "market_spread_book" in mdbg.columns:
+                                tmp = mdbg[team_cols + ["market_spread_book"]].drop_duplicates(team_cols)
+                                df = df.merge(tmp, on=team_cols, how="left", suffixes=("", "_mdbg"))
+                                if "market_spread_book_mdbg" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
+                                    df["market_spread_book"] = df["market_spread_book_mdbg"]
+                                if "market_spread_book_mdbg" in df.columns:
+                                    df.drop(columns=["market_spread_book_mdbg"], inplace=True)
+                                needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+                # (3) Final fallback: join from cfb_schedule.csv if it already carries market_spread_book
+                if needs_backfill:
+                    sched_p = os.path.join(os.path.dirname(path), "cfb_schedule.csv")
+                    if os.path.exists(sched_p):
+                        sched = pd.read_csv(sched_p)
+                        if "market_spread_book" in sched.columns:
+                            on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in sched.columns)]
+                            if on_cols:
+                                tmp = sched[on_cols + ["market_spread_book"]].drop_duplicates(on_cols)
+                                df = df.merge(tmp, on=on_cols, how="left", suffixes=("", "_sched"))
+                                if "market_spread_book_sched" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
+                                    df["market_spread_book"] = df["market_spread_book_sched"]
+                                if "market_spread_book_sched" in df.columns:
+                                    df.drop(columns=["market_spread_book_sched"], inplace=True)
+        except Exception:
+            # Never fail writing because of backfill logic
+            pass
         if base in ("upa_predictions.csv", "backtest_predictions_2024.csv", "upa_predictions_2024_backtest.csv"):
             try:
                 df = _mirror_book_to_legacy_columns(df.copy())
