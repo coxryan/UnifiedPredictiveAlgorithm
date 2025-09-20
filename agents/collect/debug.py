@@ -75,7 +75,7 @@ def market_debug_entry() -> None:
         try:
             unm_csv = os.path.join(DATA_DIR, "market_unmatched.csv")
             if not os.path.exists(unm_csv):
-                import pandas as pd  # local import to avoid top-level dependency
+                # Use top-level pandas import; do not shadow `pd` inside this function
                 pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]).to_csv(unm_csv, index=False)
         except Exception:
             pass
