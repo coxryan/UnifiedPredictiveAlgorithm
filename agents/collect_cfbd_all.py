@@ -7,7 +7,14 @@ All functionality is split across modules in `agents/collect/` and re-exported h
 to keep existing imports working.
 """
 
-from .collect import (
+import pathlib
+import sys
+
+# Allow running as ``python agents/collect_cfbd_all.py`` where relative imports lack context.
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
+from agents.collect import (
     # config/env
     DATA_DIR,
     CACHE_DIR,
@@ -82,4 +89,3 @@ __all__ = [
     # debug entry
     "market_debug_entry",
 ]
-
