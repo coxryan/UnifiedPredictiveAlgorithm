@@ -13,10 +13,10 @@ permissions:
 env:
   MARKET_SOURCE: fanduel
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-  ODDS_CACHE_DIR: .cache_odds
+  ODDS_CACHE_DIR: .cache_odds/2025
   ODDS_CACHE_TTL_DAYS: 2
   # Ensure Actions cache paths match code defaults
-  CACHE_DIR: .cache_cfbd
+  CACHE_DIR: .cache_cfbd/2025
 
 # Serialize with other Pages publishers to avoid races
 concurrency:
@@ -38,10 +38,10 @@ jobs:
       - name: Verify cache path configuration (fail only on mismatch)
         run: |
           set -euo pipefail
-          CFBD_ENV_DIR="${CACHE_DIR:-.cache_cfbd}"
-          ODDS_ENV_DIR="${ODDS_CACHE_DIR:-.cache_odds}"
-          CFBD_EXPECT=".cache_cfbd"
-          ODDS_EXPECT=".cache_odds"
+          CFBD_ENV_DIR="${CACHE_DIR:-.cache_cfbd/2025}"
+          ODDS_ENV_DIR="${ODDS_CACHE_DIR:-.cache_odds/2025}"
+          CFBD_EXPECT=".cache_cfbd/2025"
+          ODDS_EXPECT=".cache_odds/2025"
           echo "CFBD cache (env): ${CFBD_ENV_DIR}  | expected workflow path: ${CFBD_EXPECT}"
           echo "ODDS cache (env): ${ODDS_ENV_DIR}  | expected workflow path: ${ODDS_EXPECT}"
           if [ "${CFBD_ENV_DIR}" != "${CFBD_EXPECT}" ] || [ "${ODDS_ENV_DIR}" != "${ODDS_EXPECT}" ]; then
@@ -55,10 +55,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .cache_cfbd
-            .cache_odds
-          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
+            .cache_cfbd/2025
+            .cache_odds/2025
+          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-v3-${{ hashFiles('agents/collect_cfbd_all.py') }}
           restore-keys: |
+            api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-
             api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
             api-caches-${{ runner.os }}-
 
