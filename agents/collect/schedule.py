@@ -126,17 +126,46 @@ def _is_schedule_stale(df: pd.DataFrame, year: int) -> bool:
             _dbg(f"schedule stale: too few rows ({len(df)} < {REQUIRE_SCHED_MIN_ROWS})")
             return True
         dts = pd.to_datetime(df.get("date"), errors="coerce")
+        if hasattr(dts, "dt") and getattr(dts.dt, "tz", None) is not None:
+            try:
+                dts = dts.dt.tz_convert("America/New_York")
+            except Exception:
+                try:
+                    dts = dts.dt.tz_localize("America/New_York")
+                except Exception:
+                    pass
         if dts.isna().all():
             _dbg("schedule stale: all dates NaT")
             return True
-        max_d = dts.max()
+        max_d = dts.dropna().max()
         try:
-            now_et = pd.Timestamp.now(tz="America/New_York").normalize()
+            today_et = pd.Timestamp.now(tz="America/New_York").date()
         except Exception:
-            now_et = pd.Timestamp.utcnow().normalize()
+            today_et = pd.Timestamp.utcnow().date()
+
+        max_date = None
+        if isinstance(max_d, pd.Timestamp):
+            try:
+                if max_d.tzinfo is not None:
+                    max_d = max_d.tz_convert("America/New_York")
+            except Exception:
+                try:
+                    max_d = max_d.tz_localize("America/New_York")
+                except Exception:
+                    pass
+            max_date = max_d.date()
+        elif pd.notna(max_d):
+            try:
+                max_date = pd.Timestamp(max_d).date()
+            except Exception:
+                max_date = None
+
         # Expect schedule to extend AT LEAST 2 days beyond 'today' during the season.
-        if pd.notna(max_d) and max_d < (now_et + pd.Timedelta(days=2)):
-            _dbg(f"schedule stale: max date {str(max_d.date())} < today+2 ({(now_et + pd.Timedelta(days=2)).date()})")
+        if max_date and max_date < (today_et + datetime.timedelta(days=2)):
+            _dbg(
+                "schedule stale: max date "
+                f"{max_date} < today+2 {(today_et + datetime.timedelta(days=2))}"
+            )
             return True
         # Also ensure the schedule we loaded matches the requested year (guard bad CSV)
         if not dts.dt.year.fillna(year).astype(int).eq(int(year)).any():
@@ -253,4 +282,3 @@ __all__ = [
     "_iso_datetime_str",
     "load_schedule_for_year",
 ]
-
