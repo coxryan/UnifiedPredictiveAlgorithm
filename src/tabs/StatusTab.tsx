@@ -188,6 +188,7 @@ export default function StatusTab() {
                 </thead>
                 <tbody>
                   {[
+                    { href: `data/status.json${v}`, label: "status.json ↗", desc: "Run summary including selected market source (used/requested), fallback reason, and counts." },
                     { href: `data/upa_team_inputs_datadriven_v0.csv${v}`, label: "team inputs CSV ↗", desc: "Per-team inputs (WRPS %, talent, SRS, SOS) used by the model." },
                     { href: `data/cfb_schedule.csv${v}`, label: "schedule CSV ↗", desc: "Season schedule with dates, teams, and results (when final)." },
                     { href: `data/upa_predictions.csv${v}`, label: "predictions CSV ↗", desc: "Per-game model outputs including model vs. market spread and edges." },
