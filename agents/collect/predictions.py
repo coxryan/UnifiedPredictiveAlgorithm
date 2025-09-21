@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 import logging
+import os
 import numpy as np
 import pandas as pd
 
@@ -41,20 +42,50 @@ def _rating_from_team_inputs(team_inputs: pd.DataFrame) -> pd.Series:
 
 def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
     if markets_df is None or markets_df.empty:
-        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "market_spread_book"])
+        return pd.DataFrame(columns=[
+            "game_id",
+            "week",
+            "home_team",
+            "away_team",
+            "market_spread_book",
+            "market_spread_fanduel",
+            "market_spread_cfbd",
+        ])
     df = markets_df.copy()
     if "market_spread_book" not in df.columns:
         if "spread" in df.columns:
             df["market_spread_book"] = df["spread"]
         elif "point_home_book" in df.columns:
             df["market_spread_book"] = df["point_home_book"]
+    for src, dst in (
+        ("spread_fanduel", "market_spread_fanduel"),
+        ("market_spread_fanduel", "market_spread_fanduel"),
+        ("spread_cfbd", "market_spread_cfbd"),
+        ("market_spread_cfbd", "market_spread_cfbd"),
+    ):
+        if src in df.columns:
+            df[dst] = _sanitize_numeric(df[src])
     for col in ("game_id", "week"):
         if col in df.columns:
             df[col] = _sanitize_numeric(df[col])
     for col in ("home_team", "away_team"):
         if col in df.columns:
             df[col] = df[col].astype(str).str.strip()
-    return df[[c for c in ["game_id", "week", "home_team", "away_team", "market_spread_book"] if c in df.columns]].drop_duplicates()
+    keep_cols = [
+        c
+        for c in [
+            "game_id",
+            "week",
+            "home_team",
+            "away_team",
+            "market_spread_book",
+            "market_spread_fanduel",
+            "market_spread_cfbd",
+        ]
+        if c in df.columns
+    ]
+    out = df[keep_cols].drop_duplicates()
+    return out
 
 
 def build_predictions_for_year(
@@ -172,12 +203,39 @@ def build_predictions_for_year(
         market_series = _sanitize_numeric(preds["market_spread_book"])
     else:
         market_series = pd.Series(np.nan, index=preds.index, dtype="float64")
+    if "market_spread_fanduel" in preds.columns:
+        preds["market_spread_fanduel"] = _sanitize_numeric(preds["market_spread_fanduel"])
+    else:
+        preds["market_spread_fanduel"] = pd.Series(np.nan, index=preds.index, dtype="float64")
+    if "market_spread_cfbd" in preds.columns:
+        preds["market_spread_cfbd"] = _sanitize_numeric(preds["market_spread_cfbd"])
+    else:
+        preds["market_spread_cfbd"] = pd.Series(np.nan, index=preds.index, dtype="float64")
     preds["market_spread_book"] = market_series
     market_missing = market_series.isna()
     preds["market_is_synthetic"] = market_missing.astype(int)
 
+    preds["market_spread_source"] = "model"
+    market_present = preds["market_spread_book"].notna()
+    preds.loc[market_present, "market_spread_source"] = "unknown"
+    tol = 1e-6
+    fd_mask = (
+        market_present
+        & preds["market_spread_fanduel"].notna()
+        & (preds["market_spread_book"] - preds["market_spread_fanduel"]).abs() <= tol
+    )
+    preds.loc[fd_mask, "market_spread_source"] = "fanduel"
+    cf_mask = (
+        market_present
+        & (preds["market_spread_source"] == "unknown")
+        & preds["market_spread_cfbd"].notna()
+        & (preds["market_spread_book"] - preds["market_spread_cfbd"]).abs() <= tol
+    )
+    preds.loc[cf_mask, "market_spread_source"] = "cfbd"
+
     # Use model spread as fall-back only for calculations so we avoid NaNs downstream
     market_for_calc = market_series.where(~market_missing, preds["model_spread_book"])
+    preds["market_spread_effective"] = market_for_calc.round(2)
 
     preds["expected_market_spread_book"] = (
         market_for_calc * 0.6 + preds["model_spread_book"] * 0.4
@@ -216,6 +274,10 @@ def build_predictions_for_year(
         "neutral_site",
         "model_spread_book",
         "market_spread_book",
+        "market_spread_fanduel",
+        "market_spread_cfbd",
+        "market_spread_source",
+        "market_spread_effective",
         "expected_market_spread_book",
         "edge_points_book",
         "value_points_book",
@@ -244,6 +306,23 @@ def build_predictions_for_year(
         synthetic_count,
         non_zero_edges,
     )
+    debug_market = os.environ.get("DEBUG_MARKET", "0").strip().lower() in {"1", "true", "yes"}
+    if debug_market:
+        for idx, row in out.iterrows():
+            logger.debug(
+                "market selection: week=%s game_id=%s home=%s away=%s fan_duel=%s cfbd=%s market=%s effective=%s source=%s synthetic=%s",
+                row.get("week"),
+                row.get("game_id"),
+                row.get("home_team"),
+                row.get("away_team"),
+                row.get("market_spread_fanduel"),
+                row.get("market_spread_cfbd"),
+                row.get("market_spread_book"),
+                row.get("market_spread_effective"),
+                row.get("market_spread_source"),
+                row.get("market_is_synthetic"),
+            )
+
     return out
 
 

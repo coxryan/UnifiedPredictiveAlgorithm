@@ -184,8 +184,36 @@ jobs:
           # 3) MARKET (FanDuel or CFBD per env); write CSV always, JSON already handled by debug entry
           wk = discover_current_week(sched) or 1
           mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
-          write_csv(mkt, os.path.join(DATA, "market_debug.csv"))
-          print(f"[OK] wrote market_debug rows={len(mkt)} for weeks <= {wk}")
+          market_path = os.path.join(DATA, "market_debug.csv")
+          combined_mkt = mkt
+          if os.path.exists(market_path):
+            try:
+              existing = pd.read_csv(market_path)
+              combined_mkt = pd.concat([existing, mkt], ignore_index=True)
+              key_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined_mkt.columns]
+              if key_cols:
+                combined_mkt = combined_mkt.drop_duplicates(subset=key_cols, keep="last")
+              else:
+                combined_mkt = combined_mkt.drop_duplicates()
+            except Exception as e:
+              print(f"[warn] unable to merge existing market_debug: {e}")
+              combined_mkt = mkt
+          if "market_spread_book" not in combined_mkt.columns and "spread" in combined_mkt.columns:
+            combined_mkt = combined_mkt.assign(market_spread_book=combined_mkt["spread"])
+          write_csv(combined_mkt, market_path)
+
+          def _spread_count(df):
+            for col in ("spread", "market_spread_book"):
+              if col in df.columns:
+                try:
+                  return int(pd.to_numeric(df.get(col), errors="coerce").notna().sum())
+                except Exception:
+                  return 0
+            return 0
+
+          new_non_null = _spread_count(mkt)
+          combined_non_null = _spread_count(combined_mkt)
+          print(f"[OK] wrote market_debug rows={len(combined_mkt)} (combined, weeks <= {wk}; new rows={len(mkt)}, new spreads={new_non_null}, total spreads={combined_non_null})")
           # Ensure unmatched CSV exists (empty if matcher didn't emit one)
           unmatched_p = os.path.join(DATA, "market_unmatched.csv")
           if not os.path.exists(unmatched_p):
@@ -208,7 +236,7 @@ jobs:
             sched,
             apis=apis,
             cache=cache,
-            markets_df=mkt,
+            markets_df=combined_mkt,
             team_inputs_df=ti,
           )
           write_csv(preds, preds_p)

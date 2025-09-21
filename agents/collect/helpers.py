@@ -81,6 +81,8 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                     mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
                     if os.path.exists(mdbg_p):
                         mdbg = pd.read_csv(mdbg_p)
+                        if "market_spread_book" not in mdbg.columns and "spread" in mdbg.columns:
+                            mdbg = mdbg.rename(columns={"spread": "market_spread_book"})
                         for col in ("game_id", "week"):
                             if col in mdbg.columns:
                                 mdbg[col] = pd.to_numeric(mdbg[col], errors="coerce")

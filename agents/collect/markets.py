@@ -124,6 +124,8 @@ def get_market_lines_for_current_week(
     used = requested
     fb_reason = ""
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    fanduel_norm = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    cfbd_norm = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
     market_extra: Dict[str, Any] = {}
 
     current_week = int(week)
@@ -150,8 +152,9 @@ def get_market_lines_for_current_week(
                 market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
                 # keep only <= current week
                 fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
-                if len(fanduel_df) >= MARKET_MIN_ROWS:
-                    out_df = _normalize_market_df(fanduel_df)
+                fanduel_norm = _normalize_market_df(fanduel_df)
+                if len(fanduel_norm) >= MARKET_MIN_ROWS:
+                    out_df = fanduel_norm.copy()
                     used = "fanduel"
                 else:
                     used = "cfbd"
@@ -163,20 +166,33 @@ def get_market_lines_for_current_week(
     # CFBD branch (either requested or fallback)
     if used != "fanduel":
         cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
-        out_df = _normalize_market_df(cfbd_df)
+        cfbd_norm = _normalize_market_df(cfbd_df)
+        out_df = cfbd_norm.copy()
         _dbg(f"get_market_lines_for_current_week: CFBD-only rows={len(out_df)}")
         if out_df.empty and not fb_reason:
             fb_reason = "CFBD lines API unavailable or returned no rows"
     else:
         cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
-        if not cfbd_df.empty:
+        cfbd_norm = _normalize_market_df(cfbd_df)
+        if not cfbd_norm.empty:
             before_rows = len(out_df)
-            out_df = _combine_market_sources(out_df, cfbd_df)
+            out_df = _combine_market_sources(out_df, cfbd_norm)
             added = len(out_df) - before_rows
             market_extra["cfbd_fallback_added"] = added
             _dbg(f"get_market_lines_for_current_week: merged CFBD fallback rows added={added}")
         else:
             _dbg("get_market_lines_for_current_week: CFBD fallback empty")
+
+    key_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in out_df.columns]
+    if key_cols:
+        if not fanduel_norm.empty:
+            fd = fanduel_norm[key_cols + ["spread"]].drop_duplicates(subset=key_cols, keep="last")
+            fd = fd.rename(columns={"spread": "market_spread_fanduel"})
+            out_df = out_df.merge(fd, on=key_cols, how="left")
+        if not cfbd_norm.empty:
+            cf = cfbd_norm[key_cols + ["spread"]].drop_duplicates(subset=key_cols, keep="last")
+            cf = cf.rename(columns={"spread": "market_spread_cfbd"})
+            out_df = out_df.merge(cf, on=key_cols, how="left")
 
     # Record status
     _upsert_status_market_source(used, requested, fb_reason, DATA_DIR, extra=market_extra or None)
