@@ -170,7 +170,14 @@ if __name__ == "__main__":
         )
         from agents.fetch_live_scores import fetch_scoreboard
         year = int(os.environ.get("YEAR", "2025"))
-        apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
+        raw_token = os.environ.get("CFBD_BEARER_TOKEN", "")
+        masked = f"len={len(raw_token)}" if raw_token else "len=0"
+        logger.debug("collect_cfbd_all: CFBD_BEARER_TOKEN %s", masked)
+        apis = CfbdClients(bearer_token=raw_token)
+        logger.debug(
+            "collect_cfbd_all: CFBD clients availability -> games_api=%s lines_api=%s",
+            bool(apis.games_api), bool(apis.lines_api)
+        )
         cache = ApiCache()
         os.makedirs(DATA_DIR, exist_ok=True)
         _configure_file_logging(DATA_DIR)

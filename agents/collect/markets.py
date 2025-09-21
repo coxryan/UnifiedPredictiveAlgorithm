@@ -49,13 +49,15 @@ def _combine_market_sources(primary: pd.DataFrame, secondary: pd.DataFrame) -> p
 
 def _fetch_cfbd_lines(year: int, weeks: List[int], apis: CfbdClients) -> pd.DataFrame:
     if not apis.lines_api:
+        _dbg("_fetch_cfbd_lines: lines_api unavailable; skipping CFBD odds fetch")
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
     rows: List[Dict[str, Any]] = []
     for w in weeks:
         try:
             ls = apis.lines_api.get_lines(year=year, week=w, season_type="both")
-        except Exception:
+        except Exception as exc:
+            _dbg(f"_fetch_cfbd_lines: CFBD fetch error week={w}: {exc}")
             continue
         for ln in ls or []:
             rows.append(
@@ -73,6 +75,7 @@ def _fetch_cfbd_lines(year: int, weeks: List[int], apis: CfbdClients) -> pd.Data
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
     df = pd.DataFrame(rows)
+    _dbg(f"_fetch_cfbd_lines: raw rows collected={len(df)}")
     df = _cfbd_lines_to_bookstyle(df)
     df = df.rename(columns={"market_spread_book": "spread"})
     return _normalize_market_df(df)
@@ -141,6 +144,7 @@ def get_market_lines_for_current_week(
     if used != "fanduel":
         cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
         out_df = _normalize_market_df(cfbd_df)
+        _dbg(f"get_market_lines_for_current_week: CFBD-only rows={len(out_df)}")
         if out_df.empty and not fb_reason:
             fb_reason = "CFBD lines API unavailable or returned no rows"
     else:
@@ -148,7 +152,11 @@ def get_market_lines_for_current_week(
         if not cfbd_df.empty:
             before_rows = len(out_df)
             out_df = _combine_market_sources(out_df, cfbd_df)
-            market_extra["cfbd_fallback_added"] = len(out_df) - before_rows
+            added = len(out_df) - before_rows
+            market_extra["cfbd_fallback_added"] = added
+            _dbg(f"get_market_lines_for_current_week: merged CFBD fallback rows added={added}")
+        else:
+            _dbg("get_market_lines_for_current_week: CFBD fallback empty")
 
     # Record status
     _upsert_status_market_source(used, requested, fb_reason, DATA_DIR, extra=market_extra or None)
