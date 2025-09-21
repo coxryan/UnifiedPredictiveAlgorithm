@@ -1,9 +1,9 @@
 {
   "year": 2025,
   "stats": {
-    "raw": 95,
+    "raw": 100,
     "mapped": 85,
-    "unmatched": 5
+    "unmatched": 10
   },
   "unmatched": [
     {
@@ -20,17 +20,17 @@
       "away_qnorm": "fresno state bulldogs"
     },
     {
-      "fd_home": "Hawaii Rainbow Warriors",
-      "fd_away": "Fresno State Bulldogs",
-      "cdate": "2025-09-21",
-      "home_resolved": null,
-      "away_resolved": "Fresno State",
-      "home_fuzzy": "Hawai'i",
-      "away_fuzzy": "Fresno State",
-      "home_fuzzy_score": 0.4,
-      "away_fuzzy_score": 1.0,
-      "home_qnorm": "hawaii rainbow warriors",
-      "away_qnorm": "fresno state bulldogs"
+      "fd_home": "Missouri Tigers",
+      "fd_away": "UMass Minutemen",
+      "cdate": "2025-09-27",
+      "home_resolved": "Missouri",
+      "away_resolved": null,
+      "home_fuzzy": "Missouri",
+      "away_fuzzy": "Washington",
+      "home_fuzzy_score": 1.0,
+      "away_fuzzy_score": 0.48,
+      "home_qnorm": "missouri tigers",
+      "away_qnorm": "umass minutemen"
     },
     {
       "fd_home": "Hawaii Rainbow Warriors",
@@ -46,17 +46,17 @@
       "away_qnorm": "fresno state bulldogs"
     },
     {
-      "fd_home": "Hawaii Rainbow Warriors",
-      "fd_away": "Fresno State Bulldogs",
-      "cdate": "2025-09-21",
-      "home_resolved": null,
-      "away_resolved": "Fresno State",
-      "home_fuzzy": "Hawai'i",
-      "away_fuzzy": "Fresno State",
-      "home_fuzzy_score": 0.4,
-      "away_fuzzy_score": 1.0,
-      "home_qnorm": "hawaii rainbow warriors",
-      "away_qnorm": "fresno state bulldogs"
+      "fd_home": "Missouri Tigers",
+      "fd_away": "UMass Minutemen",
+      "cdate": "2025-09-27",
+      "home_resolved": "Missouri",
+      "away_resolved": null,
+      "home_fuzzy": "Missouri",
+      "away_fuzzy": "Washington",
+      "home_fuzzy_score": 1.0,
+      "away_fuzzy_score": 0.48,
+      "home_qnorm": "missouri tigers",
+      "away_qnorm": "umass minutemen"
     },
     {
       "fd_home": "Hawaii Rainbow Warriors",
@@ -70,6 +70,71 @@
       "away_fuzzy_score": 1.0,
       "home_qnorm": "hawaii rainbow warriors",
       "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Missouri Tigers",
+      "fd_away": "UMass Minutemen",
+      "cdate": "2025-09-27",
+      "home_resolved": "Missouri",
+      "away_resolved": null,
+      "home_fuzzy": "Missouri",
+      "away_fuzzy": "Washington",
+      "home_fuzzy_score": 1.0,
+      "away_fuzzy_score": 0.48,
+      "home_qnorm": "missouri tigers",
+      "away_qnorm": "umass minutemen"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Missouri Tigers",
+      "fd_away": "UMass Minutemen",
+      "cdate": "2025-09-27",
+      "home_resolved": "Missouri",
+      "away_resolved": null,
+      "home_fuzzy": "Missouri",
+      "away_fuzzy": "Washington",
+      "home_fuzzy_score": 1.0,
+      "away_fuzzy_score": 0.48,
+      "home_qnorm": "missouri tigers",
+      "away_qnorm": "umass minutemen"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Missouri Tigers",
+      "fd_away": "UMass Minutemen",
+      "cdate": "2025-09-27",
+      "home_resolved": "Missouri",
+      "away_resolved": null,
+      "home_fuzzy": "Missouri",
+      "away_fuzzy": "Washington",
+      "home_fuzzy_score": 1.0,
+      "away_fuzzy_score": 0.48,
+      "home_qnorm": "missouri tigers",
+      "away_qnorm": "umass minutemen"
     }
   ]
 }
