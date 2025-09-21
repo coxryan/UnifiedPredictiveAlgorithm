@@ -1,44 +1,34 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import os
-import time
 from typing import Any, Optional, Tuple
 
 from .config import ODDS_CACHE_DIR, ODDS_CACHE_TTL_DAYS, CACHE_DIR, CACHE_TTL_DAYS
+from agents.storage.sqlite_store import (
+    write_cache_entry,
+    read_cache_entry,
+    purge_cache_entry,
+)
 
 
 class ApiCache:
-    """Simple JSON file-backed cache with time-based expiry."""
+    """SQLite-backed cache with TTL semantics."""
 
     def __init__(self, root: str = CACHE_DIR, days_to_live: int = CACHE_TTL_DAYS):
-        self.root = root
         self.ttl = max(1, int(days_to_live)) * 86400
-        os.makedirs(self.root, exist_ok=True)
-
-    def _path(self, key: str) -> str:
-        h = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        sub = os.path.join(self.root, h[:2], h[2:4])
-        os.makedirs(sub, exist_ok=True)
-        return os.path.join(sub, f"{h}.json")
+        root = root or CACHE_DIR
+        os.makedirs(root, exist_ok=True)
+        self.db_path = os.path.join(root, "cache.sqlite")
 
     def get(self, key: str) -> Tuple[bool, Any]:
-        p = self._path(key)
-        if not os.path.exists(p):
-            return False, None
-        try:
-            if (time.time() - os.path.getmtime(p)) > self.ttl:
-                return False, None
-            with open(p, "r") as f:
-                return True, json.load(f)
-        except Exception:
-            return False, None
+        payload = read_cache_entry(key, db_path=self.db_path)
+        return (True, payload) if payload is not None else (False, None)
 
     def set(self, key: str, value: Any) -> None:
-        p = self._path(key)
-        with open(p, "w") as f:
-            json.dump(value, f)
+        write_cache_entry(key, value, self.ttl, db_path=self.db_path)
+
+    def purge(self, key: str) -> None:
+        purge_cache_entry(key, db_path=self.db_path)
 
 
 _odds_cache_singleton: Optional[ApiCache] = None
@@ -52,4 +42,3 @@ def get_odds_cache() -> ApiCache:
 
 
 __all__ = ["ApiCache", "get_odds_cache"]
-

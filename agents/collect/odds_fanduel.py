@@ -10,6 +10,7 @@ import requests
 from .cache import ApiCache
 from .config import ODDS_API_KEY, CACHE_ONLY, DATA_DIR, _dbg
 from .status import _upsert_status_market_source
+from agents.storage.sqlite_store import read_json_blob, write_json_blob
 
 
 def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> List[Dict[str, Any]]:
@@ -748,19 +749,12 @@ def _autofix_aliases_from_unmatched(
 ) -> Dict[str, str]:
     """Auto-generate alias entries for FanDuel names that had strong fuzzy matches."""
     try:
-        if not os.path.exists(unmatched_json_path):
+        payload = read_json_blob(unmatched_json_path) or {}
+        if not payload:
             return {}
-        with open(unmatched_json_path, "r") as f:
-            payload = json.load(f) or {}
         items = payload.get("unmatched", payload) or []
 
-        alias_map: Dict[str, str] = {}
-        if os.path.exists(alias_json_path):
-            try:
-                with open(alias_json_path, "r") as af:
-                    alias_map = json.load(af) or {}
-            except Exception:
-                alias_map = {}
+        alias_map: Dict[str, str] = read_json_blob(alias_json_path) or {}
         added: Dict[str, str] = {}
 
         def _norm_for_alias(s: str) -> str:
@@ -800,9 +794,7 @@ def _autofix_aliases_from_unmatched(
                     added[k] = v
 
         if added:
-            os.makedirs(os.path.dirname(alias_json_path), exist_ok=True)
-            with open(alias_json_path, "w") as af:
-                json.dump(alias_map, af, indent=2, sort_keys=True)
+            write_json_blob(alias_json_path, alias_map)
             _dbg(f"autofix_aliases_from_unmatched: added {len(added)} alias entries -> {alias_json_path}")
         else:
             _dbg("autofix_aliases_from_unmatched: no strong fuzzy candidates to add")
@@ -947,8 +939,10 @@ def get_market_lines_fanduel_for_weeks(
     # Write unmatched details for alias improvement workflow
     try:
         os.makedirs(DATA_DIR, exist_ok=True)
-        with open(os.path.join(DATA_DIR, "market_unmatched.json"), "w") as f:
-            json.dump({"year": year, "stats": stats, "unmatched": unmatched_details}, f, indent=2)
+        write_json_blob(
+            os.path.join(DATA_DIR, "market_unmatched.json"),
+            {"year": year, "stats": stats, "unmatched": unmatched_details},
+        )
     except Exception:
         pass
 

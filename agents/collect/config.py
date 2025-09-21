@@ -8,10 +8,12 @@ from typing import Any
 # Config / Env
 # ======================================================
 DATA_DIR = os.environ.get("DATA_DIR", "data").strip() or "data"
+DATA_DB_PATH = os.environ.get("DATA_DB_PATH", os.path.join(DATA_DIR, "upa_data.sqlite"))
 
 # Generic API cache (CFBD + other)
 CACHE_DIR = os.environ.get("CFBD_CACHE_DIR", os.environ.get("CACHE_DIR", ".cache_cfbd"))
 CACHE_TTL_DAYS = int(os.environ.get("CACHE_TTL_DAYS", "90"))
+CACHE_DB_PATH = os.environ.get("CACHE_DB_PATH", os.path.join(DATA_DIR, "upa_cache.sqlite"))
 
 # If set, do not hit any external APIs; use cache only (write empty on miss)
 CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes")
@@ -42,7 +44,6 @@ def _dbg(msg: str) -> None:
 
 
 __all__ = [
-    "DATA_DIR","CACHE_DIR","CACHE_TTL_DAYS","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE",
+    "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_DB_PATH","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE",
     "ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET","MARKET_MIN_ROWS","_dbg",
 ]
-

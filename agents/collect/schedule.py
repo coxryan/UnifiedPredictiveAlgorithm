@@ -8,6 +8,7 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .config import DATA_DIR, CACHE_ONLY, _dbg, REQUIRE_SCHED_MIN_ROWS
+from agents.storage.sqlite_store import read_table_from_path
 
 
 def discover_current_week(schedule: pd.DataFrame) -> Optional[int]:
@@ -207,8 +208,8 @@ def load_schedule_for_year(
     # Try reading existing CSV (created by prior builds)
     try:
         p = os.path.join(DATA_DIR, "cfb_schedule.csv")
-        if os.path.exists(p):
-            df = pd.read_csv(p)
+        df = read_table_from_path(p)
+        if not df.empty:
             if "date" in df.columns:
                 df = df[df["date"].astype(str).str.startswith(str(year))].copy()
             if "neutral_site" not in df.columns:
@@ -228,7 +229,7 @@ def load_schedule_for_year(
             ]
             df = df[[c for c in keep if c in df.columns]]
             if _is_schedule_stale(df, year):
-                _dbg("csv schedule deemed stale → will fetch from CFBD API")
+                _dbg("cached schedule deemed stale → will fetch from CFBD API")
             else:
                 cache.set(key, df.to_dict(orient="records"))
                 return df

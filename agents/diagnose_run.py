@@ -2,6 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 import pandas as pd
 
+from agents.storage.sqlite_store import read_table_from_path, write_json_blob
+
 DATA = Path("data")
 
 def _head(df: pd.DataFrame, n: int = 5) -> str:
@@ -9,12 +11,12 @@ def _head(df: pd.DataFrame, n: int = 5) -> str:
         return df.head(n).to_string(index=False)
 
 def main() -> None:
-    teams = pd.read_csv(DATA / "upa_team_inputs_datadriven_v0.csv")
+    teams = read_table_from_path(str(DATA / "upa_team_inputs_datadriven_v0.csv"))
     print(f"[OK] team inputs rows={len(teams)}")
     print("[HEAD] team inputs (5 rows):")
     print(_head(teams))
 
-    sched = pd.read_csv(DATA / "cfb_schedule.csv")
+    sched = read_table_from_path(str(DATA / "cfb_schedule.csv"))
     print(f"[OK] schedule rows={len(sched)}")
     has_real_market = 0
     if {"market_spread_book","market_is_synthetic"}.issubset(sched.columns):
@@ -25,7 +27,7 @@ def main() -> None:
     print("[HEAD] schedule (5 rows):")
     print(_head(sched[cols]))
 
-    preds = pd.read_csv(DATA / "upa_predictions.csv")
+    preds = read_table_from_path(str(DATA / "upa_predictions.csv"))
     print(f"[OK] predictions rows={len(preds)}")
     with_market = 0
     if {"market_spread_book","market_is_synthetic"}.issubset(preds.columns):
@@ -44,7 +46,7 @@ def main() -> None:
         print("[DIAG] top nan_reason counts:")
         print(preds["nan_reason"].value_counts(dropna=False).head(10).to_string())
 
-    edge = pd.read_csv(DATA / "live_edge_report.csv")
+    edge = read_table_from_path(str(DATA / "live_edge_report.csv"))
     print(f"[OK] live edge rows={len(edge)}")
 
     # ---- Write a compact backfill summary JSON for the Status page link
@@ -56,8 +58,8 @@ def main() -> None:
             "schedule_rows": int(len(sched)),
             "schedule_rows_with_market": int(pd.to_numeric(sched.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in sched.columns else 0,
         }
-        (DATA / "market_predictions_backfill.json").write_text(__import__("json").dumps(out, indent=2))
-        print(f"[OK] wrote {DATA / 'market_predictions_backfill.json'}")
+        write_json_blob(str(DATA / "market_predictions_backfill.json"), out)
+        print(f"[OK] wrote market_predictions_backfill.json record")
     except Exception as e:
         print(f"[warn] unable to write backfill summary: {e}")
 

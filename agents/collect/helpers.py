@@ -7,11 +7,16 @@ import logging
 import numpy as np
 import pandas as pd
 
+from agents.storage.sqlite_store import (
+    write_table_from_path,
+    read_table_from_path,
+    write_json_blob,
+)
+
 logger = logging.getLogger(__name__)
 
 
 def write_csv(df: pd.DataFrame, path: str) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
         base = os.path.basename(path)
         # Backfill market_spread_book for predictions if missing/empty by joining artifacts we already write.
@@ -79,8 +84,8 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 # Step 2: backfill from market_debug snapshot (FanDuel)
                 if missing_mask.any():
                     mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
-                    if os.path.exists(mdbg_p):
-                        mdbg = pd.read_csv(mdbg_p)
+                    mdbg = read_table_from_path(mdbg_p)
+                    if not mdbg.empty:
                         if "market_spread_book" not in mdbg.columns and "spread" in mdbg.columns:
                             mdbg = mdbg.rename(columns={"spread": "market_spread_book"})
                         for col in ("game_id", "week"):
@@ -96,8 +101,8 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 # Step 3: fall back to schedule-derived spreads if present
                 if missing_mask.any():
                     sched_p = os.path.join(os.path.dirname(path), "cfb_schedule.csv")
-                    if os.path.exists(sched_p):
-                        sched = pd.read_csv(sched_p)
+                    sched = read_table_from_path(sched_p)
+                    if not sched.empty:
                         if "market_spread_book" in sched.columns:
                             for col in ("game_id", "week"):
                                 if col in sched.columns:
@@ -136,9 +141,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                         "backfill_after_rows_with_market": n_after,
                         "source": "FanDuel (market_debug.csv) primary; schedule fallback if available",
                     }
-                    with open(os.path.join(os.path.dirname(path), "market_predictions_backfill.json"), "w") as f:
-                        import json as _json
-                        _json.dump(dbg, f, indent=2)
+                    write_json_blob(os.path.join(os.path.dirname(path), "market_predictions_backfill.json"), dbg)
                 except Exception:
                     pass
                 logger.debug(
@@ -162,7 +165,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 pass
     except Exception:
         pass
-    df.to_csv(path, index=False)
+    write_table_from_path(df, path)
 
 
 def _safe_float(x, default=None):

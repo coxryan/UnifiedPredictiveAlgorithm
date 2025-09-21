@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import json
-import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
 from .config import DATA_DIR
+from agents.storage.sqlite_store import read_json_blob, write_json_blob
 
 
 def _upsert_status_market_source(
@@ -26,17 +25,8 @@ def _upsert_status_market_source(
     Keeps other fields intact if present; creates the file if missing.
     """
     try:
-        os.makedirs(data_dir, exist_ok=True)
         p = os.path.join(data_dir, "status.json")
-        payload: Dict[str, Any]
-        if os.path.exists(p):
-            try:
-                with open(p, "r") as f:
-                    payload = json.load(f) or {}
-            except Exception:
-                payload = {}
-        else:
-            payload = {}
+        payload: Dict[str, Any] = read_json_blob(p) or {}
 
         used_lc = (market_used or "cfbd").strip().lower()
         payload["market_source_used"] = used_lc
@@ -64,12 +54,10 @@ def _upsert_status_market_source(
         if extra:
             payload.update(extra)
 
-        with open(p, "w") as f:
-            json.dump(payload, f, indent=2)
+        write_json_blob(p, payload)
     except Exception:
         # never crash on status writing
         pass
 
 
 __all__ = ["_upsert_status_market_source"]
-

@@ -1,20 +1,12 @@
-export async function loadText(path: string) {
-  const r = await fetch(path, { cache: "no-store" });
-  if (!r.ok) throw new Error(`Failed to fetch ${path}: ${r.status}`);
-  return r.text();
-}
+import { loadTableFromPath, loadJsonBlob } from "./db";
 
 export async function loadCsv(path: string) {
-  const txt = await loadText(path);
-  const lines = txt.trim().split(/\r?\n/).filter(Boolean);
-  if (!lines.length) return [];
-  const cols = lines[0].split(",").map((c) => c.trim());
-  return lines.slice(1).map((line) => {
-    const cells = line.split(",");
-    const o: Record<string, string> = {};
-    cols.forEach((c, i) => (o[c] = (cells[i] ?? "").trim()));
-    return o;
-  });
+  return loadTableFromPath(path);
+}
+
+export async function loadJson(path: string) {
+  const payload = await loadJsonBlob(path);
+  return payload ?? {};
 }
 
 export function toNum(v: any) {

@@ -4,6 +4,8 @@ from typing import Optional
 
 import pandas as pd
 
+from agents.storage.sqlite_store import read_table_from_path
+
 
 def build_live_edge_report(
     year: int,
@@ -27,7 +29,7 @@ def build_live_edge_report(
                 ]
             )
         try:
-            preds_df = pd.read_csv(preds_csv)
+            preds_df = read_table_from_path(preds_csv)
         except Exception:
             return pd.DataFrame(
                 columns=[

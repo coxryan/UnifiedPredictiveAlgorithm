@@ -1,7 +1,9 @@
 from .config import (
     DATA_DIR,
+    DATA_DB_PATH,
     CACHE_DIR,
     CACHE_TTL_DAYS,
+    CACHE_DB_PATH,
     CACHE_ONLY,
     ENABLE_SHEETS,
     ODDS_API_KEY,
@@ -50,7 +52,7 @@ from .debug import market_debug_entry
 
 __all__ = [
     # config
-    "DATA_DIR","CACHE_DIR","CACHE_TTL_DAYS","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY",
+    "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_DB_PATH","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY",
     "MARKET_SOURCE","ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET",
     "MARKET_MIN_ROWS","_dbg",
     # core utils

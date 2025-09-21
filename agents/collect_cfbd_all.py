@@ -55,6 +55,7 @@ def _maybe_stage_files(paths: list[str]) -> None:
 from agents.collect import (
     # config/env
     DATA_DIR,
+    DATA_DB_PATH,
     CACHE_DIR,
     CACHE_TTL_DAYS,
     CACHE_ONLY,
@@ -105,10 +106,11 @@ from agents.collect import (
     # debug entry
     market_debug_entry,
 )
+from agents.storage.sqlite_store import read_table_from_path
 
 __all__ = [
     # config/env
-    "DATA_DIR","CACHE_DIR","CACHE_TTL_DAYS","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE",
+    "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE",
     "ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET","MARKET_MIN_ROWS","_dbg",
     # status
     "_upsert_status_market_source",
@@ -205,16 +207,16 @@ if __name__ == "__main__":
         )
         market_path = os.path.join(DATA_DIR, "market_debug.csv")
         combined_lines = lines
-        if os.path.exists(market_path):
-            try:
-                existing = pd.read_csv(market_path)
+        try:
+            existing = read_table_from_path(market_path)
+            if not existing.empty:
                 combined_lines = pd.concat([existing, lines], ignore_index=True)
                 keep_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined_lines.columns]
                 if keep_cols:
                     combined_lines = combined_lines.drop_duplicates(subset=keep_cols, keep="last")
-            except Exception:
-                logger.exception("collect_cfbd_all: unable to merge with existing market_debug.csv; using fresh snapshot only")
-                combined_lines = lines
+        except Exception:
+            logger.exception("collect_cfbd_all: unable to merge with existing market_debug snapshot; using fresh data only")
+            combined_lines = lines
         write_csv(combined_lines, market_path)
         try:
             combined_non_null = int(pd.to_numeric(combined_lines.get("spread"), errors="coerce").notna().sum()) if "spread" in combined_lines.columns else 0
@@ -251,25 +253,15 @@ if __name__ == "__main__":
             "event_id","date","state","detail","clock","period","venue",
             "home_team","away_team","home_school","away_school","home_points","away_points"
         ]
+        live_scores_path = os.path.join(DATA_DIR, "live_scores.csv")
         try:
             rows = fetch_scoreboard(None)
-            pd.DataFrame(rows, columns=live_scores_columns).to_csv(
-                os.path.join(DATA_DIR, "live_scores.csv"), index=False
-            )
+            write_csv(pd.DataFrame(rows, columns=live_scores_columns), live_scores_path)
         except Exception:
-            pd.DataFrame(columns=live_scores_columns).to_csv(
-                os.path.join(DATA_DIR, "live_scores.csv"), index=False
-            )
+            write_csv(pd.DataFrame(columns=live_scores_columns), live_scores_path)
+
         generated_paths = [
-            os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"),
-            os.path.join(DATA_DIR, "cfb_schedule.csv"),
-            os.path.join(DATA_DIR, "market_debug.csv"),
-            os.path.join(DATA_DIR, "market_debug.json"),
-            os.path.join(DATA_DIR, "upa_predictions.csv"),
-            os.path.join(DATA_DIR, "live_edge_report.csv"),
-            os.path.join(DATA_DIR, "status.json"),
-            os.path.join(DATA_DIR, "market_predictions_backfill.json"),
-            os.path.join(DATA_DIR, "live_scores.csv"),
+            DATA_DB_PATH,
             os.path.join(DATA_DIR, "debug", "collector.log"),
         ]
         _maybe_stage_files(generated_paths)

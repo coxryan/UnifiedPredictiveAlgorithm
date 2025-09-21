@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 from datetime import datetime
 
@@ -12,6 +11,7 @@ from .cache import ApiCache
 from .schedule import load_schedule_for_year, discover_current_week
 from .markets import get_market_lines_for_current_week
 from .helpers import write_csv
+from agents.storage.sqlite_store import read_json_blob, write_json_blob, read_table_from_path
 
 
 def market_debug_entry() -> None:
@@ -48,13 +48,7 @@ def market_debug_entry() -> None:
         write_csv(lines, debug_csv)
 
         status_path = os.path.join(DATA_DIR, "status.json")
-        status_payload = {}
-        if os.path.exists(status_path):
-            try:
-                with open(status_path, "r") as f:
-                    status_payload = json.load(f) or {}
-            except Exception:
-                status_payload = {}
+        status_payload = read_json_blob(status_path) or {}
 
         summary = {
             "year": year,
@@ -66,37 +60,33 @@ def market_debug_entry() -> None:
             "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
         }
 
-        with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as f:
-            json.dump(summary, f, indent=2)
+        write_json_blob(os.path.join(DATA_DIR, "market_debug.json"), summary)
 
         _dbg(f"market_debug_entry: summary={summary}")
 
         # Ensure unmatched CSV exists for UI link (may be empty if no unmatched rows were produced upstream)
         try:
             unm_csv = os.path.join(DATA_DIR, "market_unmatched.csv")
-            if not os.path.exists(unm_csv):
-                # Use top-level pandas import; do not shadow `pd` inside this function
-                pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]).to_csv(unm_csv, index=False)
+            existing_df = read_table_from_path(unm_csv)
+            if existing_df.empty:
+                write_csv(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), unm_csv)
         except Exception:
             pass
 
     except Exception as e:
         try:
             os.makedirs(DATA_DIR, exist_ok=True)
-            with open(os.path.join(DATA_DIR, 'market_debug.json'), 'w') as f:
-                json.dump(
-                    {
-                        "error": str(e),
-                        "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-                        "requested_market": (MARKET_SOURCE or "cfbd"),
-                    },
-                    f,
-                    indent=2,
-                )
+            write_json_blob(
+                os.path.join(DATA_DIR, "market_debug.json"),
+                {
+                    "error": str(e),
+                    "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                    "requested_market": (MARKET_SOURCE or "cfbd"),
+                },
+            )
         except Exception:
             pass
         raise
 
 
 __all__ = ["market_debug_entry"]
-

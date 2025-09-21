@@ -100,6 +100,7 @@
 
 **Configuration surface**
 - `MARKET_SOURCE` (default `fanduel`), `YEAR`, κ, λ, α-weights, thresholds (`τ_points`, `τ_conf`), cache TTLs.
+- `DATA_DB_PATH` (default `data/upa_data.sqlite`) stores all generated tables; `CACHE_DB_PATH` (default `data/upa_cache.sqlite`) backs collector caches.
 - All tunables defined in Python constants or env vars; changes must be reflected in `development.md`.
 
 ### Deploy workflow controls (GitHub Actions)
@@ -508,7 +509,18 @@ cp data/status.json "$dest/" || true
 
 ## Output Files: Generation, Paths, and UI Usage
 
-This section describes **every artifact we emit**, **where/how it is generated**, and **how the UI consumes it**. The goals are: (1) make it easy to trace a broken UI value back to its source file and generator, and (2) ensure CI regenerates *all* of them every run.
+This section describes **every artifact we emit**, **where/how it is generated**, and **how the UI consumes it**. The goals are: (1) make it easy to trace a broken UI value back to its source table and generator, and (2) ensure CI regenerates *all* of them every run.
+
+### Primary data store (SQLite)
+- All generated datasets now live in a single SQLite database: `data/upa_data.sqlite` (configurable via `DATA_DB_PATH`).
+- Legacy path names (`data/upa_predictions.csv`, `data/cfb_schedule.csv`, etc.) map to tables inside the DB via `path -> table` normalization:
+  - Strip the `data/` prefix and file extension, replace `/` with `__`, `-` with `_`, and `.` with `_`.
+  - Examples: `data/upa_predictions.csv` → table `upa_predictions`; `data/market_unmatched.csv` → `market_unmatched`; `data/2024/backtest_predictions_2024.csv` → `2024__backtest_predictions_2024`.
+- JSON artifacts are stored in table `data_json(path TEXT PRIMARY KEY, payload TEXT, updated_at REAL)` keyed by their legacy path (e.g., `data/status.json`).
+- Caches live in `CACHE_DB_PATH` (`data/upa_cache.sqlite` by default) using table `api_cache(cache_key TEXT PRIMARY KEY, payload TEXT, expires_at REAL)`.
+- The UI loads tables via `sql.js` (WebAssembly SQLite) and queries directly in the browser.
+
+The subsections below retain the legacy filenames for familiarity, but each refers to its corresponding table within `upa_data.sqlite`.
 
 > **Generation context**: Unless otherwise noted, these files are generated during the GitHub Actions workflow step **“Build ALL site data (always regenerate)”** in `.github/workflows/deploy.yml`. Local dev runs can generate them by running `python agents/collect_cfbd_all.py --year 2025` with the appropriate secrets.
 
@@ -523,7 +535,7 @@ This section describes **every artifact we emit**, **where/how it is generated**
 - **Notes**
 - Pacific timezone alignment is critical for week detection and slate boundaries.
 
-### 2) `data/upa_team_inputs_datadriven_v0.csv`
+### 2) Table `upa_team_inputs_datadriven_v0` *(legacy path `data/upa_team_inputs_datadriven_v0.csv`)*
 - **Purpose / UI usage**
   - Not directly rendered in UI, but drives *model features* (WRPS, Talent, SRS, SOS).
   - Status page may reference its row count for health checks.
@@ -531,7 +543,7 @@ This section describes **every artifact we emit**, **where/how it is generated**
   - `agents.collect.team_inputs.build_team_inputs_datadriven(YEAR, apis, cache)` (if available), then `write_csv`.
   - If the builder is unavailable, CI writes a **header-only** file so the UI doesn’t 404.
 
-### 3) `data/market_debug.csv` and `data/market_debug.json`
+### 3) Tables `market_debug` & JSON blob `data/market_debug.json`
 - **Purpose / UI usage**
   - Primary **market snapshot**. Status page links a **Market Spread Debug** view to inspect raw lines and mapping.
   - Used in backfill to populate `market_spread_book` in predictions if missing.
@@ -551,9 +563,9 @@ This section describes **every artifact we emit**, **where/how it is generated**
   - During market normalization/join steps; emitted by the matcher with `reason` and fuzzy scores.
   - If file didn’t get created, CI writes a header-only placeholder to avoid 404s.
 
-### 5) `data/upa_predictions.csv`
+### 5) Table `upa_predictions`
 - **Purpose / UI usage**
-  - **Predictions tab** consumes this file. Columns include:
+  - **Predictions tab** consumes this table. Columns include:
     - `model_spread_book`, `market_spread_book`, `market_spread_fanduel`, `market_spread_cfbd`, `market_spread_source`, `market_spread_effective`,
     - `expected_market_spread_book`, `edge_points_book`, `value_points_book`, `qualified_edge_flag`, `game_id`, `week`, `date`, `home_team`, `away_team`, `neutral_site`.
   - The table sorts by `value_points_book` (desc) and displays `—` for NaN values.
@@ -563,7 +575,7 @@ This section describes **every artifact we emit**, **where/how it is generated**
   - Backfill steps pull from `market_debug.csv` (and `cfb_schedule.csv` last-resort) to populate `market_spread_book`.
   - All spreads are coerced to **bookmaker sign** (negative = home favored).
 
-### 6) `data/live_scores.csv`
+### 6) Table `live_scores`
 - **Purpose / UI usage**
   - Optional Status page element; used for validation that day’s ESPN scoreboard fetch is healthy.
   - Can power a “Live” ribbon or slate awareness in the UI if desired.
@@ -578,7 +590,7 @@ This section describes **every artifact we emit**, **where/how it is generated**
   - If available: `agents.build_live_edge.build_live_edge_report(YEAR, preds_csv=...)` → `write_csv`.
   - Else: CI writes header-only placeholder.
 
-### 8) `data/status.json`
+### 8) JSON blob `data/status.json`
 - **Purpose / UI usage**
   - **Status tab** summary (counts, timestamps, market source/fallback notes).
   - Powers quick health checks without parsing large CSVs in the browser.
@@ -608,18 +620,19 @@ This section describes **every artifact we emit**, **where/how it is generated**
 
 ### Summary Table
 
-| File                                | Where Generated                                          | Who Generates It                                                            | UI Consumers / Links                                                     | CI Validation |
-|-------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------------------------|--------------|
-| `data/cfb_schedule.csv`             | ALL step (and collector runner)                          | `load_schedule_for_year` → `write_csv`                                      | Status, week logic; optional fallback spreads                            | ✅ stale/size |
-| `data/upa_team_inputs_datadriven_v0.csv` | ALL step                                                 | `build_team_inputs_datadriven` → `write_csv` (or header-only)               | Counts on Status (optional)                                              | —            |
-| `data/market_debug.csv` / `.json`   | Collector + ALL step                                     | Odds→normalize→CSV/JSON                                                      | Status link (Market Debug), backfill source                               | ✅ non-empty |
-| `data/market_unmatched.csv`         | During market normalization                              | Name matcher writes reasons/scores                                           | Status link; analysts fix aliases                                         | — (placeholder ok) |
-| `data/upa_predictions.csv`          | ALL step (if builder present)                            | `build_predictions_for_year` → `write_csv` (+ backfill)                     | **Predictions tab**                                                       | ✅ non-empty |
-| `data/live_scores.csv`              | ALL step                                                 | `fetch_scoreboard(None)`                                                     | Status checks; optional live indicators                                   | ✅ readable  |
-| `data/live_edge_report.csv`         | ALL step (if builder present)                            | `build_live_edge_report` → `write_csv`                                      | Status link; optional live value table                                    | — (placeholder ok) |
-| `data/status.json`                  | ALL step + collector logging                             | Compose counts/timestamps + write JSON                                       | **Status tab** counts & metadata                                          | —            |
-| `data/market_predictions_backfill.json` | ALL step or diagnostics                                 | Compose from predictions/schedule coverage                                   | Status link (Backfill Summary)                                            | —            |
-| `dist/data/*`                       | After UI build (copy step)                               | Shell `cp -R data/* dist/data/`                                              | **All UI fetches**                                                        | —            |
+| Table / JSON key (legacy path)            | Where Generated                         | Who Generates It                                           | UI Consumers / Links                                                | CI Validation |
+|-------------------------------------------|-----------------------------------------|-----------------------------------------------------------|----------------------------------------------------------------------|--------------|
+| `cfb_schedule` (`data/cfb_schedule.csv`)   | Collector + ALL step                    | `load_schedule_for_year` → `write_csv`                     | Status, week logic; optional fallback spreads                       | ✅ stale/size |
+| `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_csv`               | Status counts (optional)                                            | —            |
+| `market_debug` (`data/market_debug.csv`)  | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_csv`          | Status (Market Debug), backfill source                              | ✅ non-empty |
+| `data_json` → `data/market_debug.json`    | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
+| `market_unmatched` (`data/market_unmatched.csv`) | During market normalization       | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
+| `upa_predictions` (`data/upa_predictions.csv`) | Collector + ALL step                 | `build_predictions_for_year` → `write_csv` + backfill      | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
+| `live_edge_report`                        | ALL step                                | `build_live_edge_report`                                    | Optional live edge table                                             | — (placeholder ok) |
+| `live_scores` (`data/live_scores.csv`)     | ALL step                                | `fetch_scoreboard(None)`                                   | Status checks; optional live indicators                              | ✅ readable  |
+| `data_json` → `data/status.json`           | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
+| `data_json` → `data/market_predictions_backfill.json` | ALL step / diagnostics           | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
+| `upa_data.sqlite` (copied to `dist/data/`) | After ALL step + copy to `dist/data/`   | Shell `cp data/upa_data.sqlite dist/data/`                  | **All UI SQL queries (via sql.js)**                                  | —            |
 
 
 **Key Guarantee:** Every CI run **regenerates** these artifacts. If a critical file is empty/stale, the **validation step fails** the build, preventing accidental deployment.
