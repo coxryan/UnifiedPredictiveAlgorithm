@@ -4,6 +4,14 @@ game_id,week,home_team,away_team,spread
 401760373,4,Colorado State,UTSA,10.5
 401756897,4,Colorado,Wyoming,-20.5
 401754540,4,San Diego State,California,3.5
+401752939,5,Oregon State,Houston,10.5
+401754545,5,Syracuse,Duke,7.5
+401754546,5,Wake Forest,Georgia Tech,15.5
+401754547,5,Pittsburgh,Louisville,6.5
+401752724,5,Texas A&M,Auburn,-7.5
+401756904,5,Iowa State,Arizona,-6.5
+401752718,5,Georgia,Alabama,-3.5
+401752854,5,Penn State,Oregon,-3.5
 401756847,1,Kansas,Fresno State,
 401757218,1,Western Kentucky,Sam Houston,
 401754516,1,Hawai'i,Stanford,
@@ -428,6 +436,7 @@ game_id,week,home_team,away_team,spread
 401767132,4,Sacramento State,Central Arkansas,
 401767160,4,Weber State,Butler,
 401762468,4,Charlotte,Rice,
+401767157,4,UC Davis,Southern Utah,
 401760376,4,Miami (OH),UNLV,
 401762469,4,Army,North Texas,
 401761610,4,Eastern Michigan,Louisiana,
@@ -458,3 +467,48 @@ game_id,week,home_team,away_team,spread
 401757263,4,Louisiana Tech,Southern Miss,
 401752723,4,Texas,Sam Houston,
 401757267,4,UTEP,UL Monroe,
+401752852,5,Washington,Ohio State,
+401752719,5,Ole Miss,LSU,
+401752717,5,Arkansas,Notre Dame,
+401754543,5,Virginia,Florida State,
+401756902,5,Arizona State,TCU,
+401752720,5,Mississippi State,Tennessee,
+401752853,5,Iowa,Indiana,
+401752850,5,Illinois,USC,
+401756908,5,West Virginia,Utah,
+401762828,5,Western Michigan,Rhode Island,
+401757273,5,Missouri State,Western Kentucky,
+401762824,5,Toledo,Akron,
+401752722,5,South Carolina,Kentucky,
+401762473,5,Navy,Rice,
+401760380,5,Northern Illinois,San Diego State,
+401756905,5,Kansas,Cincinnati,
+401754548,5,NC State,Virginia Tech,
+401760378,5,Air Force,Hawai'i,
+401762827,5,Miami (OH),Lindenwood,
+401754544,5,Boston College,California,
+401756906,5,Kansas State,UCF,
+401761614,5,James Madison,Georgia Southern,
+401760379,5,Boise State,App State,
+401756907,5,Oklahoma State,Baylor,
+401761615,5,Louisiana,Marshall,
+401757269,5,Southern Miss,Jacksonville State,
+401762825,5,Ohio,Bowling Green,
+401752725,5,Vanderbilt,Utah State,
+401757270,5,Kennesaw State,Middle Tennessee,
+401752721,5,Missouri,Massachusetts,
+401757170,5,Buffalo,UConn,
+401762472,5,Florida Atlantic,Memphis,
+401752849,5,Minnesota,Rutgers,
+401756903,5,Colorado,BYU,
+401762474,5,Tulsa,Tulane,
+401762826,5,Central Michigan,Eastern Michigan,
+401752950,5,Colorado State,Washington State,
+401761616,5,UL Monroe,Arkansas State,
+401757272,5,UTEP,Louisiana Tech,
+401752851,5,Northwestern,UCLA,
+401754549,5,Stanford,San José State,
+401757274,5,New Mexico,New Mexico State,
+401762471,5,East Carolina,Army,
+401761617,5,North Texas,South Alabama,
+401757271,5,Old Dominion,Liberty,

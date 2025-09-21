@@ -1,13 +1,20 @@
-2025-09-21 05:17:33,819 __main__ DEBUG File logging initialised at data/debug/collector.log
-2025-09-21 05:17:33,964 __main__ DEBUG collect_cfbd_all: wrote team inputs rows=137
-2025-09-21 05:17:34,028 __main__ DEBUG collect_cfbd_all: wrote schedule rows=753
-2025-09-21 05:17:34,881 __main__ DEBUG collect_cfbd_all: wrote market_debug rows=459 (new=459)
-2025-09-21 05:17:34,881 agents.collect.predictions DEBUG build_predictions_for_year:start year=2025 sched_rows=753 markets_rows=459 team_inputs_rows=137
-2025-09-21 05:17:34,884 agents.collect.predictions DEBUG build_predictions_for_year: team ratings available for 136 teams
-2025-09-21 05:17:34,887 agents.collect.predictions DEBUG build_predictions_for_year: markets rows=459 unique games=459
-2025-09-21 05:17:34,889 agents.collect.predictions DEBUG build_predictions_for_year: post-market-merge rows=753 market_non_null=5
-2025-09-21 05:17:34,896 agents.collect.predictions DEBUG build_predictions_for_year:end synthetic_rows=748 edge_nonzero=5
-2025-09-21 05:17:34,898 agents.collect.helpers DEBUG write_csv: initial market gaps=748 file=data/upa_predictions.csv
-2025-09-21 05:17:34,903 agents.collect.helpers DEBUG write_csv: completed market backfill file=data/upa_predictions.csv before=5 after=753 synthetic_rows=748
-2025-09-21 05:17:34,914 __main__ DEBUG collect_cfbd_all: wrote predictions rows=753 synthetic=748
-2025-09-21 05:17:34,918 __main__ DEBUG collect_cfbd_all: wrote live_edge rows=100
+2025-09-21 05:34:41,185 __main__ DEBUG File logging initialised at data/debug/collector.log
+2025-09-21 05:34:41,185 __main__ DEBUG collect_cfbd_all: building team inputs
+2025-09-21 05:34:41,486 __main__ DEBUG collect_cfbd_all: wrote team inputs rows=137
+2025-09-21 05:34:41,486 __main__ DEBUG collect_cfbd_all: loading schedule
+2025-09-21 05:34:41,610 __main__ DEBUG collect_cfbd_all: wrote schedule rows=753
+2025-09-21 05:34:41,612 __main__ DEBUG collect_cfbd_all: fetching market lines for week=4
+2025-09-21 05:34:42,769 __main__ DEBUG collect_cfbd_all: fetched market lines rows=513 non_null=13
+2025-09-21 05:34:42,773 __main__ DEBUG collect_cfbd_all: wrote market_debug rows=513 non_null=13 (new=513)
+2025-09-21 05:34:42,773 __main__ DEBUG collect_cfbd_all: building predictions
+2025-09-21 05:34:42,773 agents.collect.predictions DEBUG build_predictions_for_year:start year=2025 sched_rows=753 markets_rows=513 team_inputs_rows=137
+2025-09-21 05:34:42,776 agents.collect.predictions DEBUG build_predictions_for_year: team ratings available for 136 teams
+2025-09-21 05:34:42,779 agents.collect.predictions DEBUG build_predictions_for_year: markets rows=513 unique games=513
+2025-09-21 05:34:42,781 agents.collect.predictions DEBUG build_predictions_for_year: post-market-merge rows=753 market_non_null=13
+2025-09-21 05:34:42,789 agents.collect.predictions DEBUG build_predictions_for_year:end synthetic_rows=740 edge_nonzero=13
+2025-09-21 05:34:42,790 agents.collect.helpers DEBUG write_csv: initial market gaps=740 file=data/upa_predictions.csv
+2025-09-21 05:34:42,796 agents.collect.helpers DEBUG write_csv: completed market backfill file=data/upa_predictions.csv before=13 after=753 synthetic_rows=740
+2025-09-21 05:34:42,807 __main__ DEBUG collect_cfbd_all: wrote predictions rows=753 synthetic=740 market_non_null=753
+2025-09-21 05:34:42,807 __main__ DEBUG collect_cfbd_all: building live edge report
+2025-09-21 05:34:42,811 __main__ DEBUG collect_cfbd_all: wrote live_edge rows=100
+2025-09-21 05:34:42,812 __main__ DEBUG collect_cfbd_all: fetching live scores
