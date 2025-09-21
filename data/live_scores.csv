@@ -1,9 +1,9 @@
 event_id,date,state,detail,clock,period,venue,home_team,away_team,home_school,away_school,home_points,away_points
-401760373,2025-09-21T01:30Z,in,4:49 - 4th Quarter,4:49,4,Canvas Stadium,Colorado State Rams,UTSA Roadrunners,Colorado State,UTSA,10,16
-401756897,2025-09-21T02:25Z,in,1:57 - 3rd Quarter,1:57,3,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,28,13
-401754540,2025-09-21T02:30Z,in,4:16 - 3rd Quarter,4:16,3,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,27,0
+401760373,2025-09-21T01:30Z,in,1:58 - 4th Quarter,1:58,4,Canvas Stadium,Colorado State Rams,UTSA Roadrunners,Colorado State,UTSA,10,17
+401756897,2025-09-21T02:25Z,in,14:55 - 4th Quarter,14:55,4,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,30,13
+401754540,2025-09-21T02:30Z,in,0:28 - 3rd Quarter,0:28,3,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,27,0
 401752847,2025-09-21T03:00Z,in,Halftime,0:00,2,Los Angeles Memorial Coliseum,USC Trojans,Michigan State Spartans,USC,Michigan State,24,10
-401760374,2025-09-21T03:59Z,in,2:38 - 2nd Quarter,2:38,2,Clarence T.C. Ching Athletics Complex,Hawai'i Rainbow Warriors,Fresno State Bulldogs,Hawai'i,Fresno State,2,0
+401760374,2025-09-21T03:59Z,in,1:47 - 2nd Quarter,1:47,2,Clarence T.C. Ching Athletics Complex,Hawai'i Rainbow Warriors,Fresno State Bulldogs,Hawai'i,Fresno State,9,0
 401752710,2025-09-20T23:45Z,post,Final,0:00,4,Tiger Stadium (LA),LSU Tigers,SE Louisiana Lions,LSU,SE Louisiana,56,10
 401752709,2025-09-20T23:30Z,post,Final,0:00,4,Hard Rock Stadium,Miami Hurricanes,Florida Gators,Miami,Florida,26,7
 401752841,2025-09-20T19:00Z,post,Final,0:00,4,Autzen Stadium,Oregon Ducks,Oregon State Beavers,Oregon,Oregon State,41,7
