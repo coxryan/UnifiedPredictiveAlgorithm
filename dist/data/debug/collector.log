@@ -43,3 +43,18 @@
 2025-09-21 04:50:13,427 __main__ DEBUG collect_cfbd_all: wrote live_edge rows=100
 2025-09-21 04:50:13,429 urllib3.connectionpool DEBUG Starting new HTTPS connection (1): site.api.espn.com:443
 2025-09-21 04:50:13,677 urllib3.connectionpool DEBUG https://site.api.espn.com:443 "GET /apis/site/v2/sports/football/college-football/scoreboard?dates=20250920 HTTP/1.1" 200 64748
+2025-09-21 05:02:10,305 __main__ DEBUG File logging initialised at data/debug/collector.log
+2025-09-21 05:02:10,310 __main__ DEBUG collect_cfbd_all: wrote team inputs rows=6
+2025-09-21 05:02:10,317 __main__ DEBUG collect_cfbd_all: wrote schedule rows=753
+2025-09-21 05:02:10,550 __main__ DEBUG collect_cfbd_all: wrote market_debug rows=5 (new=25)
+2025-09-21 05:02:10,550 agents.collect.predictions DEBUG build_predictions_for_year:start year=2025 sched_rows=753 markets_rows=5 team_inputs_rows=6
+2025-09-21 05:02:10,553 agents.collect.predictions DEBUG build_predictions_for_year: team ratings available for 6 teams
+2025-09-21 05:02:10,556 agents.collect.predictions DEBUG build_predictions_for_year: markets rows=5 unique games=5
+2025-09-21 05:02:10,558 agents.collect.predictions DEBUG build_predictions_for_year: post-market-merge rows=753 market_non_null=5
+2025-09-21 05:02:10,566 agents.collect.predictions DEBUG build_predictions_for_year:end synthetic_rows=748 edge_nonzero=5
+2025-09-21 05:02:10,568 agents.collect.helpers DEBUG write_csv: initial market gaps=748 file=data/upa_predictions.csv
+2025-09-21 05:02:10,573 agents.collect.helpers DEBUG write_csv: completed market backfill file=data/upa_predictions.csv before=5 after=753 synthetic_rows=748
+2025-09-21 05:02:10,590 __main__ DEBUG collect_cfbd_all: wrote predictions rows=753 synthetic=748
+2025-09-21 05:02:10,595 __main__ DEBUG collect_cfbd_all: wrote live_edge rows=100
+2025-09-21 05:02:10,597 urllib3.connectionpool DEBUG Starting new HTTPS connection (1): site.api.espn.com:443
+2025-09-21 05:02:10,766 urllib3.connectionpool DEBUG https://site.api.espn.com:443 "GET /apis/site/v2/sports/football/college-football/scoreboard?dates=20250920 HTTP/1.1" 200 65167
