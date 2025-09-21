@@ -7,12 +7,21 @@ All functionality is split across modules in `agents/collect/` and re-exported h
 to keep existing imports working.
 """
 
+import logging
+import os
 import pathlib
 import sys
 
 # Allow running as ``python agents/collect_cfbd_all.py`` where relative imports lack context.
 if __package__ in {None, ""}:
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
+logging.basicConfig(
+    level=os.environ.get("UPA_LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+logger.debug("collect_cfbd_all bootstrap complete")
 
 from agents.collect import (
     # config/env
@@ -98,7 +107,7 @@ __all__ = [
 # Minimal runner to ensure debug artifacts exist for the UI.
 # Accept --market-source/--year flags for compatibility; env drives behavior.
 if __name__ == "__main__":
-    import argparse, os
+    import argparse
     from agents.collect import market_debug_entry  # re-exported above
 
     p = argparse.ArgumentParser()
@@ -117,7 +126,6 @@ if __name__ == "__main__":
 
     # Also ensure schedule, market CSV, and live scores are materialized so the UI never 404s after a clean checkout.
     try:
-        import os
         import pandas as pd
         from agents.collect import (
             CfbdClients,
@@ -139,13 +147,16 @@ if __name__ == "__main__":
         # team inputs
         teams_df = build_team_inputs_datadriven(year, apis, cache)
         write_csv(teams_df, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
+        logger.debug("collect_cfbd_all: wrote team inputs rows=%s", len(teams_df))
         # schedule
         sched = load_schedule_for_year(year, apis, cache)
         write_csv(sched, os.path.join(DATA_DIR, "cfb_schedule.csv"))
+        logger.debug("collect_cfbd_all: wrote schedule rows=%s", len(sched))
         # market CSV redundancy (if debug step failed, ensure CSV exists)
         wk = discover_current_week(sched) or 1
         lines = get_market_lines_for_current_week(year, wk, sched, apis, cache)
         write_csv(lines, os.path.join(DATA_DIR, "market_debug.csv"))
+        logger.debug("collect_cfbd_all: wrote market_debug rows=%s", len(lines))
         # predictions + live edge
         preds = build_predictions_for_year(
             year,
@@ -156,8 +167,10 @@ if __name__ == "__main__":
             team_inputs_df=teams_df,
         )
         write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
+        logger.debug("collect_cfbd_all: wrote predictions rows=%s synthetic=%s", len(preds), int(preds.get("market_is_synthetic", pd.Series(dtype=int)).sum() if "market_is_synthetic" in preds.columns else 0))
         edge = build_live_edge_report(year, preds_df=preds)
         write_csv(edge, os.path.join(DATA_DIR, "live_edge_report.csv"))
+        logger.debug("collect_cfbd_all: wrote live_edge rows=%s", len(edge))
         # live scores
         try:
             rows = fetch_scoreboard(None)
@@ -165,4 +178,4 @@ if __name__ == "__main__":
         except Exception:
             pass
     except Exception:
-        pass
+        logger.exception("collect_cfbd_all: data preparation failed")

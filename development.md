@@ -123,11 +123,116 @@
 
 ## Roadmap (High Confidence Next Steps)
 
-- Implement real **portal_net_0_100** from transfer portal data.
-- Finalize in-repo **build_predictions_for_year** with confidence model.
-- Add **build_live_edge_report** and formalize edge/value distribution checks.
-- Expand **validation** to require minimum **coverage** on slate days.
-- Add **alerting** on validation failures (GitHub Issue/Slack webhook).
+  - Implement real **portal_net_0_100** from transfer portal data.
+  - Finalize in-repo **build_predictions_for_year** with confidence model.
+  - Add **build_live_edge_report** and formalize edge/value distribution checks.
+  - Expand **validation** to require minimum **coverage** on slate days.
+  - Add **alerting** on validation failures (GitHub Issue/Slack webhook).
+  - Introduce expanded **statistical feature library**:
+    - Offensive efficiency metrics (points per possession, yards per play, EPA/play).
+    - Defensive efficiency metrics (points allowed per possession, success rate allowed, havoc rate).
+    - Position vs. position matchups (OL vs DL strength, WR vs CB grades, RB vs LB coverage).
+    - Tempo & pace indicators (plays per game, seconds per play).
+    - Explosiveness and chunk-play rates.
+    - Red-zone efficiency (offense vs defense).
+    - 3rd/4th down conversion rates (offense and defense).
+    - Special teams impact (field position value, kicker accuracy).
+  - Build **positional ranking model**:
+    - Rank units (QB, RB, WR, OL, DL, LB, CB, S, ST) vs national distribution.
+    - Create composite team ratings from position-weighted sums.
+    - Track unit-level injuries and replacements.
+  - Integrate **advanced statistical databases** (CFB Stats, PFF-style sources if available) into feature ingestion.
+  - Add **historical baselines** and moving averages to track trends in team/position performance.
+  - Build automated **feature importance reports** to surface which stats are driving edge.
+  - Enhance **explainability layer** in the UI: when showing an edge, highlight which statistical categories most contributed.
+
+### Data Availability via CFBD
+
+Many of the statistical features and positional metrics planned in the roadmap can be sourced or proxied via the **CollegeFootballData (CFBD) API**. Below is a mapping of roadmap items → CFBD endpoints:
+
+- **Offensive efficiency metrics**  
+  - CFBD endpoint: `/stats/season` (with `team`, `category=offense`)  
+  - Provides: yards/play, points/play, success rate, EPA/play (if available).
+
+- **Defensive efficiency metrics**  
+  - CFBD endpoint: `/stats/season` (with `team`, `category=defense`)  
+  - Provides: opponent yards/play, points allowed/play, defensive success rate.
+
+- **Tempo & pace indicators**  
+  - CFBD endpoint: `/stats/season` (category=offense) includes plays per game, seconds/play.
+
+- **Explosiveness & chunk plays**  
+  - CFBD endpoint: `/stats/season` with advanced metrics flags.
+
+- **Red-zone efficiency**  
+  - CFBD endpoint: `/stats/season` (scoring opportunities vs conversions).
+
+- **3rd/4th down conversion rates**  
+  - CFBD endpoint: `/stats/season` or `/teams/matchup` with situational filters.
+
+- **Special teams impact**  
+  - CFBD endpoint: `/stats/season` (category=specialTeams) includes field position value, kicking efficiency.
+
+- **Position vs position matchups & positional rankings**  
+  - CFBD does not directly expose OL vs DL or WR vs CB.  
+  - Partial data can be approximated via `/teams/roster` (player positions, experience) and `/stats/season` (sack rate, pass protection metrics).  
+  - Full position grades likely require external data (e.g., PFF, custom scraping).
+
+- **Transfer portal / roster changes**  
+  - CFBD endpoint: `/player/portal` and `/teams/roster`.  
+  - Provides portal entries, incoming/outgoing players, positions.
+
+- **Historical baselines**  
+  - CFBD endpoint: `/stats/season` with `year` parameter.  
+  - Enables building rolling averages or multi-year trends.
+
+**Note**:  
+- CFBD’s `/stats/season` endpoint is the workhorse for most team-level efficiency metrics.  
+- Some advanced stats (EPA/play, explosiveness, havoc rate) may only be partially covered or require derived calculations from play-by-play endpoints (`/plays`).  
+- Positional matchups will need augmentation from external databases; CFBD provides roster and play-level context but not graded position-vs-position ratings.
+
+### How Statistical Features Influence the Model’s Predicted Spread
+
+Incorporating the expanded statistical library is not just about adding raw numbers—it is about **shaping the predicted spread (model_spread_book)** in ways that reflect both fundamental strengths and matchup-specific edges.
+
+**Key Integration Principles**
+- **Feature weighting**: Stats should not be 1-to-1 inputs; they must be normalized, weighted, and blended into composite scores (offense, defense, tempo, etc.).
+- **Contextual adjustment**: Some features matter more in certain matchups (e.g., OL vs DL strength when predicting rushing success).
+- **Stability vs signal**: Use rolling averages or multi-week samples to smooth volatility while preserving recent trends.
+
+**Examples of Influence**
+- **Offensive efficiency (yards/play, EPA/play)** → raises the baseline power score for the team’s offense, making spreads more favorable toward them.
+- **Defensive efficiency (points allowed/play, havoc rate)** → reduces opponent expected scoring, making spreads more favorable to defense-strong teams.
+- **Tempo/pace** → high tempo inflates variance; the model can adjust expected margin distribution (wider spreads and higher uncertainty).
+- **Explosiveness** → increases weight of potential blowouts; model may lean toward larger spreads if one side generates more chunk plays.
+- **Red-zone efficiency** → adjusts conversion of drives to points; poor red-zone efficiency tempers expected scoring despite strong yardage stats.
+- **3rd/4th down conversions** → influences sustained drives; strong conversion rates support model favoring that team in close spreads.
+- **Special teams** → affects hidden yardage; good ST shifts expected field position, improving team’s modeled efficiency.
+- **Position vs position matchups** → specific unit ratings (e.g., WR vs CB) adjust spread incrementally depending on mismatch severity.
+- **Transfer portal and roster changes** → significant player losses or gains shift baseline power ratings up or down, especially if affecting QB, OL, or secondary depth.
+
+**Mathematical Form (conceptual)**
+- Let $S_{off}$ = offensive composite (efficiency + explosiveness + tempo adj).
+- Let $S_{def}$ = defensive composite (efficiency + havoc + red-zone stops).
+- Let $S_{st}$ = special teams composite.
+- Let $S_{pos}$ = positional matchup adjustments (sum of unit mismatch deltas).
+- Then **team strength score**:
+  $$
+  S_{team} = \alpha_{off} S_{off} + \alpha_{def} S_{def} + \alpha_{st} S_{st} + S_{pos}
+  $$
+- Spread prediction:
+  $$
+  M_{model} = -(\kappa (S_{home} - S_{away}) + HFA)
+  $$
+  where $HFA$ = home field adjustment.
+
+**Guidance**
+- Weights ($\alpha$) should be learned or tuned empirically.
+- Early season: shrink toward priors (talent, returning production).
+- Late season: rely more on in-season stats (efficiency, matchups).
+- Always run feature importance analysis to confirm which stats drive edge.
+
+This ensures the model’s spreads are not just generic power ratings but **context-aware predictions** grounded in the statistical profile of each team and matchup.
 
 ---
 
@@ -477,7 +582,7 @@ We try, in order:
 
 ### Confidence & Synthetic Flag
 - `market_is_synthetic=false` for lines sourced from FanDuel/CFBD joins.
-- `market_is_synthetic=true` for backfilled lines (legacy schedule column or heuristic fallback).
+- `market_is_synthetic = 1` whenever we had to fall back to a non-book value (legacy schedule, model fill, etc.).
 - Confidence `Conf` is reduced when:
   - line is synthetic,
   - line is older than 48h on an active slate,
@@ -485,15 +590,16 @@ We try, in order:
   - team features are incomplete (early season / API gaps).
 
 ### Backfill Hierarchy inside Predictions
-When writing `data/upa_predictions.csv`, the CSV writer enforces this merge/backfill order:
-1) Keep existing numeric `market_spread_book` if present (never overwrite real book lines).
-2) If NaN, copy from legacy `market_spread` (mark `market_is_synthetic=true`).
-3) Join from `data/market_debug.csv` by `(game_id, week)` then `(home, away, week)`.
-4) As last resort, merge from `data/cfb_schedule.csv` if it contains a spread column.
+When writing `data/upa_predictions.csv`, the CSV writer enforces this per-row merge/backfill order:
+1) Preserve any existing numeric `market_spread_book` (never overwrite sourced book lines).
+2) For rows still NaN, copy from legacy `market_spread` if present and flag `market_is_synthetic`.
+3) Still NaN → join against `data/market_debug.csv` (FanDuel) first on `(game_id, week)`, then `(home_team, away_team, week)`.
+4) Still NaN → join `data/cfb_schedule.csv` if it carries a `market_spread_book` column (rare CFBD fallback).
+5) Rows that remain NaN after all joins get `market_spread_book = model_spread_book` and `market_is_synthetic = 1` so the UI stays populated but clearly marked synthetic.
 After backfill:
-- compute `expected_market_spread_book = λ*market + (1-λ)*model` (default `λ=0.7`),
-- compute `edge_points_book = model - market`,
-- compute `value_points_book = |edge| * confidence`.
+- `expected_market_spread_book = 0.6 * market + 0.4 * model` (dampened expectation).
+- `edge_points_book = model - market` (positive = model likes away).
+- `value_points_book = market - expected` (how far the book is from the dampened expectation).
 
 ### What the UI Shows (FanDuel vs “Market”)
 - **Predictions tab**:
@@ -797,6 +903,15 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 - **Configuration**: Use YAML/JSON config files for all parameters; avoid hardcoding.
 - **Data Separation**: Never commit raw or processed data to git.
 - **Secrets**: Use environment variables or CI/CD secrets for credentials.
+
+### Automated Tests (Pytest)
+- **Location**: Unit tests live under `tests/collect/` and focus on collectors, backfill logic, and data shaping.
+- **Execution in CI**: The deploy workflow runs `pytest` after the "Validate data completeness" step. Builds fail if any test fails.
+- **Local run**: `pip install -r agents/requirements.txt` (includes `pytest`) then run `pytest` from repo root. Tests rely only on local fixtures—no external API calls.
+
+### Debug Logging
+- Core collectors (`predictions`, `helpers`, `collect_cfbd_all`) emit structured `logging` debug messages. Set `UPA_LOG_LEVEL=DEBUG` (or run with a custom `logging.basicConfig`) to surface them locally.
+- CI captures these logs automatically—inspect job logs for market join counts, synthetic fallbacks, or schedule freshness issues.
 
 ---
 

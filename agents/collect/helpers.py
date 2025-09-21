@@ -3,8 +3,11 @@ from __future__ import annotations
 import os
 from typing import Any, Optional
 
+import logging
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def write_csv(df: pd.DataFrame, path: str) -> None:
@@ -15,11 +18,9 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
         # This uses FanDuel-derived market_debug.csv as the PRIMARY source – it does NOT ignore FanDuel.
         try:
             if base == "upa_predictions.csv":
-                # Track before/after counts for diagnostics
                 n_before = int(pd.to_numeric(df.get("market_spread_book"), errors="coerce").notna().sum()) if ("market_spread_book" in df.columns) else 0
-                needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
 
-                # (0) Normalize keys in the predictions DF up-front to avoid dtype mismatches during joins
+                # Normalize keys for downstream joins
                 for col in ("game_id", "week"):
                     if col in df.columns:
                         df[col] = pd.to_numeric(df[col], errors="coerce")
@@ -27,18 +28,59 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                     if col in df.columns:
                         df[col] = df[col].astype(str).str.strip()
 
-                if needs_backfill:
-                    # (1) Legacy support: copy from 'market_spread' if present
-                    if "market_spread" in df.columns and not pd.to_numeric(df["market_spread"], errors="coerce").isna().all():
-                        df["market_spread_book"] = pd.to_numeric(df["market_spread"], errors="coerce")
-                        needs_backfill = False
+                if "market_spread_book" not in df.columns:
+                    df["market_spread_book"] = np.nan
 
-                # (2) Join market_debug.csv on preferred keys (FanDuel lines snapshot)
-                if needs_backfill:
+                def _numeric_series(name: str) -> pd.Series:
+                    return pd.to_numeric(df[name], errors="coerce") if name in df.columns else pd.Series([], dtype="float64")
+
+                market_numeric = _numeric_series("market_spread_book")
+                missing_mask = market_numeric.isna()
+                logger.debug(
+                    "write_csv: initial market gaps=%s file=%s",
+                    int(missing_mask.sum()),
+                    path,
+                )
+
+                # Step 1: copy from legacy column when available
+                if missing_mask.any() and "market_spread" in df.columns:
+                    candidate = pd.to_numeric(df["market_spread"], errors="coerce")
+                    df.loc[missing_mask, "market_spread_book"] = candidate.loc[missing_mask]
+                    market_numeric = _numeric_series("market_spread_book")
+                    missing_mask = market_numeric.isna()
+
+                def _fill_from_source(source_df: pd.DataFrame, join_cols: list[str], label: str) -> None:
+                    nonlocal market_numeric, missing_mask
+                    if not missing_mask.any() or not join_cols:
+                        return
+                    if "market_spread_book" not in source_df.columns:
+                        return
+                    if not set(join_cols).issubset(source_df.columns):
+                        return
+                    idx = df.index[missing_mask]
+                    if idx.empty:
+                        return
+                    prev_missing = int(missing_mask.sum())
+                    subset = df.loc[idx, join_cols].copy().reset_index().rename(columns={"index": "__idx"})
+                    tmp = source_df[join_cols + ["market_spread_book"]].drop_duplicates(join_cols)
+                    merged = subset.merge(tmp, on=join_cols, how="left")
+                    df.loc[merged["__idx"], "market_spread_book"] = merged["market_spread_book"].values
+                    market_numeric = _numeric_series("market_spread_book")
+                    missing_mask = market_numeric.isna()
+                    filled = prev_missing - int(missing_mask.sum())
+                    logger.debug(
+                        "write_csv: filled %s rows via %s join=%s for file=%s",
+                        filled,
+                        label,
+                        join_cols,
+                        path,
+                    )
+
+                # Step 2: backfill from market_debug snapshot (FanDuel)
+                if missing_mask.any():
                     mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
                     if os.path.exists(mdbg_p):
                         mdbg = pd.read_csv(mdbg_p)
-                        # Normalize join keys in market_debug
                         for col in ("game_id", "week"):
                             if col in mdbg.columns:
                                 mdbg[col] = pd.to_numeric(mdbg[col], errors="coerce")
@@ -46,50 +88,42 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                             if col in mdbg.columns:
                                 mdbg[col] = mdbg[col].astype(str).str.strip()
 
-                        # prefer join on game_id + week
-                        on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in mdbg.columns)]
-                        if on_cols and "market_spread_book" in mdbg.columns:
-                            tmp = mdbg[on_cols + ["market_spread_book"]].drop_duplicates(on_cols)
-                            df = df.merge(tmp, on=on_cols, how="left", suffixes=("", "_mdbg"))
-                            if "market_spread_book_mdbg" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
-                                df["market_spread_book"] = df["market_spread_book_mdbg"]
-                            if "market_spread_book_mdbg" in df.columns:
-                                df.drop(columns=["market_spread_book_mdbg"], inplace=True)
-                            needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
+                        _fill_from_source(mdbg, [c for c in ["game_id", "week"] if c in df.columns], "market_debug:game_week")
+                        _fill_from_source(mdbg, [c for c in ["home_team", "away_team", "week"] if c in df.columns], "market_debug:matchup")
 
-                        # fallback join on (home_team, away_team, week)
-                        if needs_backfill:
-                            team_cols = [c for c in ["home_team", "away_team", "week"] if (c in df.columns and c in mdbg.columns)]
-                            if set(team_cols) == {"home_team", "away_team", "week"} and "market_spread_book" in mdbg.columns:
-                                tmp = mdbg[team_cols + ["market_spread_book"]].drop_duplicates(team_cols)
-                                df = df.merge(tmp, on=team_cols, how="left", suffixes=("", "_mdbg"))
-                                if "market_spread_book_mdbg" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
-                                    df["market_spread_book"] = df["market_spread_book_mdbg"]
-                                if "market_spread_book_mdbg" in df.columns:
-                                    df.drop(columns=["market_spread_book_mdbg"], inplace=True)
-                                needs_backfill = ("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()
-
-                # (3) Final fallback: join from cfb_schedule.csv if it already carries market_spread_book
-                if needs_backfill:
+                # Step 3: fall back to schedule-derived spreads if present
+                if missing_mask.any():
                     sched_p = os.path.join(os.path.dirname(path), "cfb_schedule.csv")
                     if os.path.exists(sched_p):
                         sched = pd.read_csv(sched_p)
                         if "market_spread_book" in sched.columns:
                             for col in ("game_id", "week"):
-                                if col in sched.columns and col in df.columns:
+                                if col in sched.columns:
                                     sched[col] = pd.to_numeric(sched[col], errors="coerce")
-                            on_cols = [c for c in ["game_id", "week"] if (c in df.columns and c in sched.columns)]
-                            if on_cols:
-                                tmp = sched[on_cols + ["market_spread_book"]].drop_duplicates(on_cols)
-                                df = df.merge(tmp, on=on_cols, how="left", suffixes=("", "_sched"))
-                                if "market_spread_book_sched" in df.columns and (("market_spread_book" not in df.columns) or pd.to_numeric(df["market_spread_book"], errors="coerce").isna().all()):
-                                    df["market_spread_book"] = df["market_spread_book_sched"]
-                                if "market_spread_book_sched" in df.columns:
-                                    df.drop(columns=["market_spread_book_sched"], inplace=True)
+                            for col in ("home_team", "away_team"):
+                                if col in sched.columns:
+                                    sched[col] = sched[col].astype(str).str.strip()
+                            _fill_from_source(sched, [c for c in ["game_id", "week"] if c in df.columns], "schedule:game_week")
+                            _fill_from_source(sched, [c for c in ["home_team", "away_team", "week"] if c in df.columns], "schedule:matchup")
 
-                # Ensure numeric dtype post-merge
+                # Final safety: convert dtype and fall back to model numbers only where still empty
                 if "market_spread_book" in df.columns:
                     df["market_spread_book"] = pd.to_numeric(df["market_spread_book"], errors="coerce")
+                    market_numeric = df["market_spread_book"]
+                    missing_mask = market_numeric.isna()
+
+                if missing_mask.any() and "model_spread_book" in df.columns:
+                    model_vals = pd.to_numeric(df["model_spread_book"], errors="coerce")
+                    df.loc[missing_mask, "market_spread_book"] = model_vals.loc[missing_mask]
+                    if "market_is_synthetic" in df.columns:
+                        df.loc[:, "market_is_synthetic"] = df["market_is_synthetic"].astype(int)
+                        df.loc[missing_mask, "market_is_synthetic"] = 1
+                        df.loc[~missing_mask, "market_is_synthetic"] = 0
+                else:
+                    if "market_is_synthetic" in df.columns:
+                        df.loc[:, "market_is_synthetic"] = df["market_is_synthetic"].astype(int)
+                        df.loc[missing_mask, "market_is_synthetic"] = 1
+                        df.loc[~missing_mask, "market_is_synthetic"] = 0
 
                 # Emit a tiny debug summary so we can verify FanDuel spreads are landing
                 try:
@@ -105,6 +139,13 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                         _json.dump(dbg, f, indent=2)
                 except Exception:
                     pass
+                logger.debug(
+                    "write_csv: completed market backfill file=%s before=%s after=%s synthetic_rows=%s",
+                    path,
+                    n_before,
+                    n_after,
+                    int(df.get("market_is_synthetic", pd.Series(dtype=int)).sum()) if "market_is_synthetic" in df.columns else None,
+                )
         except Exception:
             # Never fail writing because of backfill logic
             pass
@@ -266,4 +307,3 @@ __all__ = [
     "_normalize_percent",
     "_scale_0_100",
 ]
-

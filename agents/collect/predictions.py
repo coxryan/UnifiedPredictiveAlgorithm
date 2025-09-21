@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+import logging
 import numpy as np
 import pandas as pd
 
@@ -10,6 +11,8 @@ from .schedule import discover_current_week
 from .team_inputs import build_team_inputs_datadriven
 from .markets import get_market_lines_for_current_week
 from .cfbd_clients import CfbdClients
+
+logger = logging.getLogger(__name__)
 
 
 def _sanitize_numeric(series: pd.Series) -> pd.Series:
@@ -88,6 +91,14 @@ def build_predictions_for_year(
             ]
         )
 
+    logger.debug(
+        "build_predictions_for_year:start year=%s sched_rows=%s markets_rows=%s team_inputs_rows=%s",
+        year,
+        len(sched_df),
+        0 if markets_df is None else len(markets_df),
+        0 if team_inputs_df is None else len(team_inputs_df),
+    )
+
     sched = sched_df.copy()
     sched["week"] = _sanitize_numeric(sched["week"]) if "week" in sched.columns else 0
     for team_col in ("home_team", "away_team"):
@@ -100,12 +111,20 @@ def build_predictions_for_year(
     if team_inputs_df is None:
         team_inputs_df = build_team_inputs_datadriven(year, apis, cache)
     team_ratings = _rating_from_team_inputs(team_inputs_df)
+    logger.debug("build_predictions_for_year: team ratings available for %s teams", len(team_ratings))
 
     if markets_df is None:
         current_week = discover_current_week(sched) or int(_sanitize_numeric(sched["week"]).max() or 1)
         markets_df = get_market_lines_for_current_week(year, int(current_week), sched, apis, cache)
 
     markets = _market_lookup(markets_df)
+    logger.debug(
+        "build_predictions_for_year: markets rows=%s unique games=%s",
+        len(markets),
+        markets[[c for c in ["game_id", "week"] if c in markets.columns]].drop_duplicates().shape[0]
+        if not markets.empty
+        else 0,
+    )
 
     # Merge markets by game_id when available, else week + teams fallback
     preds = sched.copy()
@@ -126,6 +145,13 @@ def build_predictions_for_year(
                     suffixes=("", "_m"),
                 )
         preds = merged
+    logger.debug(
+        "build_predictions_for_year: post-market-merge rows=%s market_non_null=%s",
+        len(preds),
+        int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum())
+        if "market_spread_book" in preds.columns
+        else 0,
+    )
 
     if "neutral_site" in preds.columns:
         preds["neutral_site"] = preds["neutral_site"].fillna(0).astype(int)
@@ -142,20 +168,26 @@ def build_predictions_for_year(
     home_field = np.where(preds["neutral_site"] == 1, 0.0, 1.5)
     preds["model_spread_book"] = (base_diff + home_field).round(2)
 
-    preds["market_spread_book"] = _sanitize_numeric(preds.get("market_spread_book"))
-    preds["market_is_synthetic"] = preds["market_spread_book"].isna()
-    preds.loc[preds["market_is_synthetic"], "market_spread_book"] = preds.loc[
-        preds["market_is_synthetic"], "model_spread_book"
-    ].round(2)
+    if "market_spread_book" in preds.columns:
+        market_series = _sanitize_numeric(preds["market_spread_book"])
+    else:
+        market_series = pd.Series(np.nan, index=preds.index, dtype="float64")
+    preds["market_spread_book"] = market_series
+    market_missing = market_series.isna()
+    preds["market_is_synthetic"] = market_missing.astype(int)
 
-    # Expected market = smoothed blend of model + historical market (here just a dampened model)
+    # Use model spread as fall-back only for calculations so we avoid NaNs downstream
+    market_for_calc = market_series.where(~market_missing, preds["model_spread_book"])
+
     preds["expected_market_spread_book"] = (
-        preds["market_spread_book"] * 0.6 + preds["model_spread_book"] * 0.4
+        market_for_calc * 0.6 + preds["model_spread_book"] * 0.4
     ).round(2)
 
-    preds["edge_points_book"] = (preds["model_spread_book"] - preds["market_spread_book"]).round(2)
+    preds["edge_points_book"] = (
+        preds["model_spread_book"] - market_for_calc
+    ).round(2)
     preds["value_points_book"] = (
-        preds["market_spread_book"] - preds["expected_market_spread_book"]
+        market_for_calc - preds["expected_market_spread_book"]
     ).round(2)
 
     qualified_mask = (
@@ -199,6 +231,19 @@ def build_predictions_for_year(
 
     out = preds[cols].copy()
     out.sort_values(["week", "date", "home_team"], inplace=True, ignore_index=True)
+
+    synthetic_count = (
+        int(out.get("market_is_synthetic", pd.Series(dtype=int)).sum())
+        if "market_is_synthetic" in out.columns
+        else 0
+    )
+    edge_series = pd.to_numeric(out.get("edge_points_book"), errors="coerce") if "edge_points_book" in out.columns else pd.Series(dtype="float64")
+    non_zero_edges = int(edge_series.fillna(0).abs().gt(1e-9).sum())
+    logger.debug(
+        "build_predictions_for_year:end synthetic_rows=%s edge_nonzero=%s",
+        synthetic_count,
+        non_zero_edges,
+    )
     return out
 
 

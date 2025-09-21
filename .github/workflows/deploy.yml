@@ -303,6 +303,9 @@ jobs:
           print("[OK] data validation passed.")
           PY
 
+      - name: Run Python unit tests
+        run: pytest
+
       - name: Install deps
         run: |
           if [ -f package-lock.json ]; then
