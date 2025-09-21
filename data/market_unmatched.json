@@ -1,8 +1,8 @@
 {
   "year": 2025,
   "stats": {
-    "raw": 75,
-    "mapped": 65,
+    "raw": 95,
+    "mapped": 85,
     "unmatched": 5
   },
   "unmatched": [

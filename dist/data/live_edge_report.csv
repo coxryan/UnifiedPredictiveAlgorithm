@@ -1,17 +1,21 @@
 week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_book,value_points_book,qualified_edge_flag,model_pick_side
-4,2025-09-21,Wyoming,Colorado,1.03,-20.5,21.53,-8.61,1,AWAY
+4,2025-09-21,California,San Diego State,2.26,-33.5,35.76,-14.3,1,AWAY
+4,2025-09-21,Michigan State,USC,2.39,-22.5,24.89,-9.96,1,AWAY
 5,2025-09-27,Georgia Tech,Wake Forest,-3.75,15.5,-19.25,7.7,1,HOME
-4,2025-09-21,Michigan State,USC,2.39,-13.5,15.89,-6.36,1,AWAY
-4,2025-09-21,UTSA,Colorado State,-2.25,10.5,-12.75,5.1,1,HOME
+5,2025-09-27,Memphis,Florida Atlantic,0.18,15.5,-15.32,6.13,1,HOME
 5,2025-09-27,Auburn,Texas A&M,4.88,-7.5,12.38,-4.95,1,AWAY
-5,2025-09-27,Houston,Oregon State,0.78,10.5,-9.72,3.89,1,HOME
+4,2025-09-21,Wyoming,Colorado,1.03,-10.5,11.53,-4.61,1,AWAY
+5,2025-09-27,Houston,Oregon State,0.78,11.5,-10.72,4.29,1,HOME
+5,2025-09-27,Ohio State,Washington,-0.11,9.5,-9.61,3.84,1,HOME
 5,2025-09-27,Arizona,Iowa State,2.56,-6.5,9.06,-3.62,1,AWAY
 5,2025-09-27,Oregon,Penn State,4.22,-3.5,7.72,-3.09,1,AWAY
+5,2025-09-26,Florida State,Virginia,0.88,8.5,-7.62,3.05,1,HOME
+5,2025-09-27,Notre Dame,Arkansas,0.4,7.5,-7.1,2.84,1,HOME
+5,2025-09-27,Indiana,Iowa,-0.06,6.5,-6.56,2.62,1,HOME
 5,2025-09-27,Alabama,Georgia,1.97,-3.5,5.47,-2.19,1,AWAY
 5,2025-09-27,Duke,Syracuse,2.27,7.5,-5.23,2.09,1,HOME
 5,2025-09-27,Louisville,Pittsburgh,2.82,6.5,-3.68,1.47,1,HOME
-4,2025-09-20,Marshall,Middle Tennessee,0.12,2.5,-2.38,0.95,0,HOME
-4,2025-09-21,California,San Diego State,2.26,3.5,-1.24,0.5,0,HOME
+5,2025-09-27,LSU,Ole Miss,-2.39,-1.5,-0.89,0.36,0,HOME
 4,2025-09-20,Boise State,Air Force,-1.63,-1.63,0.0,0.0,0,
 4,2025-09-20,Arizona State,Baylor,1.84,1.84,0.0,0.0,0,
 4,2025-09-20,Troy,Buffalo,1.61,1.61,0.0,0.0,0,
@@ -27,6 +31,7 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 4,2025-09-20,James Madison,Liberty,2.01,2.01,0.0,0.0,0,
 4,2025-09-20,Southern Miss,Louisiana Tech,2.98,2.98,0.0,0.0,0,
 4,2025-09-20,Florida,Miami,0.23,0.23,0.0,0.0,0,
+4,2025-09-20,Marshall,Middle Tennessee,0.12,0.12,0.0,0.0,0,
 4,2025-09-20,Northern Illinois,Mississippi State,3.19,3.19,0.0,0.0,0,
 4,2025-09-20,South Carolina,Missouri,-0.59,-0.59,0.0,0.0,0,
 4,2025-09-20,Michigan,Nebraska,2.85,2.85,0.0,0.0,0,
@@ -40,22 +45,19 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 4,2025-09-20,Washington,Washington State,-0.95,-0.95,0.0,0.0,0,
 4,2025-09-20,Nevada,Western Kentucky,0.46,0.46,0.0,0.0,0,
 4,2025-09-20,Toledo,Western Michigan,2.24,2.24,0.0,0.0,0,
+4,2025-09-21,UTSA,Colorado State,-2.25,-2.25,0.0,0.0,0,
 4,2025-09-21,Fresno State,Hawai'i,2.48,2.48,0.0,0.0,0,
 4,2025-09-21,Sam Houston,Texas,4.51,4.51,0.0,0.0,0,
 4,2025-09-21,UL Monroe,UTEP,2.97,2.97,0.0,0.0,0,
 5,2025-09-25,Army,East Carolina,6.68,6.68,0.0,0.0,0,
-5,2025-09-26,Florida State,Virginia,0.88,0.88,0.0,0.0,0,
 5,2025-09-27,Hawai'i,Air Force,1.19,1.19,0.0,0.0,0,
 5,2025-09-27,TCU,Arizona State,1.64,1.64,0.0,0.0,0,
-5,2025-09-27,Notre Dame,Arkansas,0.4,0.4,0.0,0.0,0,
 5,2025-09-27,App State,Boise State,6.09,6.09,0.0,0.0,0,
 5,2025-09-27,California,Boston College,3.32,3.32,0.0,0.0,0,
 5,2025-09-27,UConn,Buffalo,-0.48,-0.48,0.0,0.0,0,
 5,2025-09-27,Eastern Michigan,Central Michigan,0.82,0.82,0.0,0.0,0,
 5,2025-09-27,Washington State,Colorado State,2.07,2.07,0.0,0.0,0,
-5,2025-09-27,Memphis,Florida Atlantic,0.18,0.18,0.0,0.0,0,
 5,2025-09-27,USC,Illinois,1.74,1.74,0.0,0.0,0,
-5,2025-09-27,Indiana,Iowa,-0.06,-0.06,0.0,0.0,0,
 5,2025-09-27,Georgia Southern,James Madison,0.3,0.3,0.0,0.0,0,
 5,2025-09-27,Cincinnati,Kansas,-0.02,-0.02,0.0,0.0,0,
 5,2025-09-27,UCF,Kansas State,4.52,4.52,0.0,0.0,0,
@@ -73,7 +75,6 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 5,2025-09-27,Bowling Green,Ohio,5.04,5.04,0.0,0.0,0,
 5,2025-09-27,Baylor,Oklahoma State,-2.04,-2.04,0.0,0.0,0,
 5,2025-09-27,Liberty,Old Dominion,1.34,1.34,0.0,0.0,0,
-5,2025-09-27,LSU,Ole Miss,-2.39,-2.39,0.0,0.0,0,
 5,2025-09-27,Kentucky,South Carolina,4.51,4.51,0.0,0.0,0,
 5,2025-09-27,Jacksonville State,Southern Miss,-3.31,-3.31,0.0,0.0,0,
 5,2025-09-27,San José State,Stanford,-1.22,-1.22,0.0,0.0,0,
@@ -81,7 +82,6 @@ week,date,away_team,home_team,model_spread_book,market_spread_book,edge_points_b
 5,2025-09-27,Tulane,Tulsa,4.03,4.03,0.0,0.0,0,
 5,2025-09-27,Arkansas State,UL Monroe,-0.12,-0.12,0.0,0.0,0,
 5,2025-09-27,Utah State,Vanderbilt,3.09,3.09,0.0,0.0,0,
-5,2025-09-27,Ohio State,Washington,-0.11,-0.11,0.0,0.0,0,
 5,2025-09-27,Utah,West Virginia,1.94,1.94,0.0,0.0,0,
 5,2025-09-28,BYU,Colorado,-3.06,-3.06,0.0,0.0,0,
 5,2025-09-28,Marshall,Louisiana,0.37,0.37,0.0,0.0,0,

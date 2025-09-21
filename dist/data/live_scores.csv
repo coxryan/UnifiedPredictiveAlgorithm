@@ -1,7 +1,7 @@
 event_id,date,state,detail,clock,period,venue,home_team,away_team,home_school,away_school,home_points,away_points
-401756897,2025-09-21T02:25Z,in,4:32 - 4th Quarter,4:32,4,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,30,20
-401754540,2025-09-21T02:30Z,in,7:22 - 4th Quarter,7:22,4,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,34,0
-401752847,2025-09-21T03:00Z,in,10:38 - 3rd Quarter,10:38,3,Los Angeles Memorial Coliseum,USC Trojans,Michigan State Spartans,USC,Michigan State,31,10
+401756897,2025-09-21T02:25Z,in,1:54 - 4th Quarter,1:54,4,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,30,20
+401754540,2025-09-21T02:30Z,in,2:23 - 4th Quarter,2:23,4,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,34,0
+401752847,2025-09-21T03:00Z,in,6:02 - 3rd Quarter,6:02,3,Los Angeles Memorial Coliseum,USC Trojans,Michigan State Spartans,USC,Michigan State,31,10
 401760374,2025-09-21T03:59Z,in,End of 2nd Quarter,0:00,2,Clarence T.C. Ching Athletics Complex,Hawai'i Rainbow Warriors,Fresno State Bulldogs,Hawai'i,Fresno State,9,7
 401752710,2025-09-20T23:45Z,post,Final,0:00,4,Tiger Stadium (LA),LSU Tigers,SE Louisiana Lions,LSU,SE Louisiana,56,10
 401752709,2025-09-20T23:30Z,post,Final,0:00,4,Hard Rock Stadium,Miami Hurricanes,Florida Gators,Miami,Florida,26,7
