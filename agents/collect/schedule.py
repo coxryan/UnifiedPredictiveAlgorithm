@@ -13,9 +13,9 @@ from .config import DATA_DIR, CACHE_ONLY, _dbg, REQUIRE_SCHED_MIN_ROWS
 def discover_current_week(schedule: pd.DataFrame) -> Optional[int]:
     if "week" not in schedule or "date" not in schedule:
         return None
-    # Use US/Eastern for week rollovers so Saturday games on the same date are considered "current"
+    # Use US/Pacific for week rollovers so Saturday games on the same date are considered "current"
     try:
-        now = pd.Timestamp.now(tz="America/New_York").date()
+        now = pd.Timestamp.now(tz="America/Los_Angeles").date()
     except Exception:
         now = pd.Timestamp.utcnow().date()
     sched = schedule.copy()
@@ -23,7 +23,7 @@ def discover_current_week(schedule: pd.DataFrame) -> Optional[int]:
         sched["d"] = pd.to_datetime(sched["date"], errors="coerce").dt.date
     except Exception:
         return None
-    # Include all games on or before today's date (Eastern) as "completed/current"
+    # Include all games on or before today's date (Pacific) as "completed/current"
     valid = sched.dropna(subset=["d"]).loc[lambda d: d["d"] <= now]
     if valid.empty:
         w = pd.to_numeric(sched["week"], errors="coerce").dropna()
@@ -116,7 +116,7 @@ import datetime
 def _is_schedule_stale(df: pd.DataFrame, year: int) -> bool:
     """
     Heuristic: a healthy season schedule from CFBD should include future dates well beyond 'today'.
-    If the max date in the file is not at least within the next 2 days (Eastern), consider it stale.
+    If the max date in the file is not at least within the next 2 days (Pacific), consider it stale.
     Also treat tiny schedules as stale if below REQUIRE_SCHED_MIN_ROWS when set (>0).
     """
     try:
@@ -128,10 +128,10 @@ def _is_schedule_stale(df: pd.DataFrame, year: int) -> bool:
         dts = pd.to_datetime(df.get("date"), errors="coerce")
         if hasattr(dts, "dt") and getattr(dts.dt, "tz", None) is not None:
             try:
-                dts = dts.dt.tz_convert("America/New_York")
+                dts = dts.dt.tz_convert("America/Los_Angeles")
             except Exception:
                 try:
-                    dts = dts.dt.tz_localize("America/New_York")
+                    dts = dts.dt.tz_localize("America/Los_Angeles")
                 except Exception:
                     pass
         if dts.isna().all():
@@ -139,18 +139,18 @@ def _is_schedule_stale(df: pd.DataFrame, year: int) -> bool:
             return True
         max_d = dts.dropna().max()
         try:
-            today_et = pd.Timestamp.now(tz="America/New_York").date()
+            today_pt = pd.Timestamp.now(tz="America/Los_Angeles").date()
         except Exception:
-            today_et = pd.Timestamp.utcnow().date()
+            today_pt = pd.Timestamp.utcnow().date()
 
         max_date = None
         if isinstance(max_d, pd.Timestamp):
             try:
                 if max_d.tzinfo is not None:
-                    max_d = max_d.tz_convert("America/New_York")
+                    max_d = max_d.tz_convert("America/Los_Angeles")
             except Exception:
                 try:
-                    max_d = max_d.tz_localize("America/New_York")
+                    max_d = max_d.tz_localize("America/Los_Angeles")
                 except Exception:
                     pass
             max_date = max_d.date()
@@ -161,10 +161,10 @@ def _is_schedule_stale(df: pd.DataFrame, year: int) -> bool:
                 max_date = None
 
         # Expect schedule to extend AT LEAST 2 days beyond 'today' during the season.
-        if max_date and max_date < (today_et + datetime.timedelta(days=2)):
+        if max_date and max_date < (today_pt + datetime.timedelta(days=2)):
             _dbg(
                 "schedule stale: max date "
-                f"{max_date} < today+2 {(today_et + datetime.timedelta(days=2))}"
+                f"{max_date} < today+2 {(today_pt + datetime.timedelta(days=2))}"
             )
             return True
         # Also ensure the schedule we loaded matches the requested year (guard bad CSV)

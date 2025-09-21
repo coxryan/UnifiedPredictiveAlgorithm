@@ -55,7 +55,7 @@ type PredRow = {
   return b * p - (1 - p); // expected ROI per $1 staked
  }
 
-// Extract kickoff hour (Eastern Time) from a date string; robustly handles date-only and timezones
+// Extract kickoff hour (Pacific Time) from a date string; robustly handles date-only and timezones
 function kickoffLabelET(dateStr?: string): string {
   if (!dateStr) return '';
   const s = dateStr.toString().trim();
@@ -70,7 +70,7 @@ function kickoffLabelET(dateStr?: string): string {
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       try {
-        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
         return `${t} ET`;
       } catch {}
     }
@@ -83,7 +83,7 @@ function kickoffLabelET(dateStr?: string): string {
   const d = new Date(s);
   if (!isNaN(d.getTime())) {
     try {
-      const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+      const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
       return `${t} ET`;
     } catch {}
   }
@@ -100,7 +100,7 @@ function kickoffHourET(dateStr?: string): number | null {
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       try {
-        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
         const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
         return Number(hh);
       } catch {}
@@ -111,7 +111,7 @@ function kickoffHourET(dateStr?: string): number | null {
   const d = new Date(s);
   if (isNaN(d.getTime())) return null;
   try {
-    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
     const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
     return Number(hh);
   } catch { return null; }

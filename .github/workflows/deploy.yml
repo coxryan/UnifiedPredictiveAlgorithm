@@ -237,7 +237,7 @@ jobs:
           DATA = "data"
           fail = []
 
-          # 1) Schedule must exist, be sizeable, and extend to >= today-1 (US/Eastern)
+          # 1) Schedule must exist, be sizeable, and extend to >= today-1 (US/Pacific)
           try:
             sched = pd.read_csv(os.path.join(DATA, "cfb_schedule.csv"))
             if len(sched) < 200:
@@ -248,10 +248,10 @@ jobs:
             else:
               if hasattr(dts, "dt") and getattr(dts.dt, "tz", None) is not None:
                 try:
-                  dts = dts.dt.tz_convert("America/New_York")
+                  dts = dts.dt.tz_convert("America/Los_Angeles")
                 except Exception:
                   try:
-                    dts = dts.dt.tz_localize("America/New_York")
+                    dts = dts.dt.tz_localize("America/Los_Angeles")
                   except Exception:
                     pass
                 try:
@@ -260,9 +260,9 @@ jobs:
                   pass
               max_d = dts.dropna().max()
               try:
-                today_et = pd.Timestamp.now(tz="America/New_York").date()
+                today_pt = pd.Timestamp.now(tz="America/Los_Angeles").date()
               except Exception:
-                today_et = pd.Timestamp.utcnow().date()
+                today_pt = pd.Timestamp.utcnow().date()
               max_date = None
               if isinstance(max_d, pd.Timestamp):
                 max_date = max_d.date()
@@ -271,7 +271,7 @@ jobs:
                   max_date = pd.Timestamp(max_d).date()
                 except Exception:
                   max_date = None
-              if max_date and max_date < (today_et - timedelta(days=1)):
+              if max_date and max_date < (today_pt - timedelta(days=1)):
                 fail.append(f"schedule stale: max date {max_date} < (today-1)")
           except Exception as e:
             fail.append(f"schedule load error: {e}")

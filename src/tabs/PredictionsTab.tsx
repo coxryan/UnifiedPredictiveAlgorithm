@@ -161,10 +161,10 @@ export default function PredictionsTab() {
       const d = new Date(s);
       if (!isNaN(d.getTime())) {
         try {
-          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
           const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
           const mm = parts.find(p=>p.type==='minute')?.value ?? '00';
-          const day = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: '2-digit', day: '2-digit' }).format(d);
+          const day = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', month: '2-digit', day: '2-digit' }).format(d);
           return Number(hh);
         } catch {}
       }
@@ -174,7 +174,7 @@ export default function PredictionsTab() {
     const d = new Date(s);
     if (isNaN(d.getTime())) return null;
     try {
-      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
       const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
       return Number(hh);
     } catch { return null; }
@@ -197,7 +197,7 @@ export default function PredictionsTab() {
       const d = new Date(s);
       if (!isNaN(d.getTime())) {
         try {
-          const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+          const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
           return `${t} ET`;
         } catch {}
       }
@@ -212,7 +212,7 @@ export default function PredictionsTab() {
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       try {
-        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(d);
+        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
         return `${t} ET`;
       } catch {}
     }

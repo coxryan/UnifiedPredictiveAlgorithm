@@ -202,11 +202,19 @@ if __name__ == "__main__":
         write_csv(edge, os.path.join(DATA_DIR, "live_edge_report.csv"))
         logger.debug("collect_cfbd_all: wrote live_edge rows=%s", len(edge))
         # live scores
+        live_scores_columns = [
+            "event_id","date","state","detail","clock","period","venue",
+            "home_team","away_team","home_school","away_school","home_points","away_points"
+        ]
         try:
             rows = fetch_scoreboard(None)
-            pd.DataFrame(rows).to_csv(os.path.join(DATA_DIR, "live_scores.csv"), index=False)
+            pd.DataFrame(rows, columns=live_scores_columns).to_csv(
+                os.path.join(DATA_DIR, "live_scores.csv"), index=False
+            )
         except Exception:
-            pass
+            pd.DataFrame(columns=live_scores_columns).to_csv(
+                os.path.join(DATA_DIR, "live_scores.csv"), index=False
+            )
         generated_paths = [
             os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"),
             os.path.join(DATA_DIR, "cfb_schedule.csv"),

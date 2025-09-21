@@ -21,10 +21,10 @@ def fetch_scoreboard(day: str | None = None) -> List[Dict[str, Any]]:
     """
     if not day:
         try:
-            # ESPN scoreboards are most consistent with US/Eastern calendar days
+            # Align to US/Pacific calendar days to match our processing window
             import pytz  # type: ignore
-            et = dt.datetime.now(tz=pytz.timezone("America/New_York"))
-            day = et.strftime("%Y%m%d")
+            pt = dt.datetime.now(tz=pytz.timezone("America/Los_Angeles"))
+            day = pt.strftime("%Y%m%d")
         except Exception:
             # Fallback to UTC if pytz isn't available
             day = dt.datetime.utcnow().strftime("%Y%m%d")
