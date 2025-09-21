@@ -1,10 +1,9 @@
 event_id,date,state,detail,clock,period,venue,home_team,away_team,home_school,away_school,home_points,away_points
-401757264,2025-09-20T23:00Z,in,3:34 - 4th Quarter,3:34,4,"Johnny ""Red"" Floyd Stadium",Middle Tennessee Blue Raiders,Marshall Thundering Herd,Middle Tennessee,Marshall,28,42
-401757267,2025-09-21T01:00Z,in,2:08 - 4th Quarter,2:08,4,Sun Bowl,UTEP Miners,UL Monroe Warhawks,UTEP,UL Monroe,25,31
-401760373,2025-09-21T01:30Z,in,4:05 - 3rd Quarter,4:05,3,Canvas Stadium,Colorado State Rams,UTSA Roadrunners,Colorado State,UTSA,3,10
-401756897,2025-09-21T02:25Z,in,Halftime,0:00,2,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,21,3
-401754540,2025-09-21T02:30Z,in,Halftime,0:00,2,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,13,0
-401752847,2025-09-21T03:00Z,in,7:53 - 2nd Quarter,7:53,2,Los Angeles Memorial Coliseum,USC Trojans,Michigan State Spartans,USC,Michigan State,17,7
+401760373,2025-09-21T01:30Z,in,13:10 - 4th Quarter,13:10,4,Canvas Stadium,Colorado State Rams,UTSA Roadrunners,Colorado State,UTSA,3,10
+401756897,2025-09-21T02:25Z,in,12:15 - 3rd Quarter,12:15,3,Folsom Field,Colorado Buffaloes,Wyoming Cowboys,Colorado,Wyoming,28,10
+401754540,2025-09-21T02:30Z,in,11:03 - 3rd Quarter,11:03,3,Snapdragon Stadium,San Diego State Aztecs,California Golden Bears,San Diego State,California,20,0
+401752847,2025-09-21T03:00Z,in,1:00 - 2nd Quarter,1:00,2,Los Angeles Memorial Coliseum,USC Trojans,Michigan State Spartans,USC,Michigan State,17,10
+401760374,2025-09-21T03:59Z,in,12:38 - 2nd Quarter,12:38,2,Clarence T.C. Ching Athletics Complex,Hawai'i Rainbow Warriors,Fresno State Bulldogs,Hawai'i,Fresno State,0,0
 401752710,2025-09-20T23:45Z,post,Final,0:00,4,Tiger Stadium (LA),LSU Tigers,SE Louisiana Lions,LSU,SE Louisiana,56,10
 401752709,2025-09-20T23:30Z,post,Final,0:00,4,Hard Rock Stadium,Miami Hurricanes,Florida Gators,Miami,Florida,26,7
 401752841,2025-09-20T19:00Z,post,Final,0:00,4,Autzen Stadium,Oregon Ducks,Oregon State Beavers,Oregon,Oregon State,41,7
@@ -45,6 +44,7 @@ event_id,date,state,detail,clock,period,venue,home_team,away_team,home_school,aw
 401757261,2025-09-20T22:00Z,post,Final,0:00,4,Fifth Third Stadium,Kennesaw State Owls,Arkansas State Red Wolves,Kennesaw State,Arkansas State,28,21
 401762821,2025-09-20T22:00Z,post,Final,0:00,4,InfoCision Stadium,Akron Zips,Duquesne Dukes,Akron,Duquesne,51,7
 401757260,2025-09-20T23:00Z,post,Final,0:00,4,AmFirst Stadium,Jacksonville State Gamecocks,Murray State Racers,Jacksonville State,Murray State,45,10
+401757264,2025-09-20T23:00Z,post,Final,0:00,4,"Johnny ""Red"" Floyd Stadium",Middle Tennessee Blue Raiders,Marshall Thundering Herd,Middle Tennessee,Marshall,28,42
 401757265,2025-09-20T23:00Z,post,Final,0:00,4,Robert W. Plaster Stadium,Missouri State Bears,UT Martin Skyhawks,Missouri State,UT Martin,42,10
 401757268,2025-09-20T23:00Z,post,Final,0:00,4,Houchens Industries-L.T. Smith Stadium,Western Kentucky Hilltoppers,Nevada Wolf Pack,Western Kentucky,Nevada,31,16
 401760372,2025-09-20T23:00Z,post,Final,0:00,4,Falcon Stadium,Air Force Falcons,Boise State Broncos,Air Force,Boise State,37,49
@@ -57,4 +57,4 @@ event_id,date,state,detail,clock,period,venue,home_team,away_team,home_school,aw
 401757263,2025-09-20T23:30Z,post,Final,0:00,4,Joe Aillet Stadium,Louisiana Tech Bulldogs,Southern Miss Golden Eagles,Louisiana Tech,Southern Miss,30,20
 401760377,2025-09-21T00:00Z,post,Final,0:00,4,Maverik Stadium,Utah State Aggies,McNeese Cowboys,Utah State,McNeese,48,7
 401761612,2025-09-21T00:00Z,post,Final,0:00,4,UFCU Stadium,Texas State Bobcats,Nicholls Colonels,Texas State,Nicholls,35,3
-401760374,2025-09-21T03:59Z,in,7:50 - 1st Quarter,7:50,1,Clarence T.C. Ching Athletics Complex,Hawai'i Rainbow Warriors,Fresno State Bulldogs,Hawai'i,Fresno State,0,0
+401757267,2025-09-21T01:00Z,post,Final,0:00,4,Sun Bowl,UTEP Miners,UL Monroe Warhawks,UTEP,UL Monroe,25,31
