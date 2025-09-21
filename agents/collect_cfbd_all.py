@@ -185,15 +185,27 @@ if __name__ == "__main__":
         # market CSV redundancy (if debug step failed, ensure CSV exists)
         wk = discover_current_week(sched) or 1
         lines = get_market_lines_for_current_week(year, wk, sched, apis, cache)
-        write_csv(lines, os.path.join(DATA_DIR, "market_debug.csv"))
-        logger.debug("collect_cfbd_all: wrote market_debug rows=%s", len(lines))
+        market_path = os.path.join(DATA_DIR, "market_debug.csv")
+        combined_lines = lines
+        if os.path.exists(market_path):
+            try:
+                existing = pd.read_csv(market_path)
+                combined_lines = pd.concat([existing, lines], ignore_index=True)
+                keep_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined_lines.columns]
+                if keep_cols:
+                    combined_lines = combined_lines.drop_duplicates(subset=keep_cols, keep="last")
+            except Exception:
+                logger.exception("collect_cfbd_all: unable to merge with existing market_debug.csv; using fresh snapshot only")
+                combined_lines = lines
+        write_csv(combined_lines, market_path)
+        logger.debug("collect_cfbd_all: wrote market_debug rows=%s (new=%s)", len(combined_lines), len(lines))
         # predictions + live edge
         preds = build_predictions_for_year(
             year,
             sched,
             apis=apis,
             cache=cache,
-            markets_df=lines,
+            markets_df=combined_lines,
             team_inputs_df=teams_df,
         )
         write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
