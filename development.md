@@ -617,6 +617,7 @@ This section explains **how we use FanDuel vs other market sources**, how the da
    - Controlled by `MARKET_SOURCE=fanduel`.
    - Cached under `.cache_odds/<year>` (TTL ~2 days).
    - Written to `data/market_debug.csv` and `data/market_debug.json`.
+   - After fetching, we merge in CFBD spreads for any games missing a FanDuel line so finished games retain a market value the rest of the week.
 2. **CFBD odds** — fallback when FanDuel is unavailable or token/limits block retrieval.
    - Same normalization/sign convention as FanDuel (bookmaker sign: negative = home favored).
    - Written into `market_debug.*` with metadata noting `source=cfbd`.

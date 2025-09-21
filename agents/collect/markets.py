@@ -11,6 +11,73 @@ from .cache import ApiCache, get_odds_cache
 from .odds_fanduel import get_market_lines_fanduel_for_weeks
 
 
+def _normalize_market_df(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    out = df.copy()
+    if "market_spread_book" in out.columns:
+        out = out.rename(columns={"market_spread_book": "spread"})
+    for col in ("spread", "week", "game_id"):
+        if col in out.columns:
+            out[col] = pd.to_numeric(out[col], errors="coerce")
+    for col in ("home_team", "away_team"):
+        if col in out.columns:
+            out[col] = out[col].astype(str).str.strip()
+    keep = [c for c in ["game_id", "week", "home_team", "away_team", "spread"] if c in out.columns]
+    return out[keep]
+
+
+def _combine_market_sources(primary: pd.DataFrame, secondary: pd.DataFrame) -> pd.DataFrame:
+    prim = _normalize_market_df(primary).copy()
+    if not prim.empty:
+        prim["__source_priority"] = 0
+    sec = _normalize_market_df(secondary).copy()
+    if not sec.empty:
+        sec["__source_priority"] = 1
+
+    combined = pd.concat([prim, sec], ignore_index=True)
+    if combined.empty:
+        return combined
+
+    combined["__spread_null"] = combined["spread"].isna().astype(int)
+    combined.sort_values(by=["__spread_null", "__source_priority"], inplace=True, ignore_index=True)
+    key_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined.columns]
+    combined = combined.drop_duplicates(subset=key_cols, keep="first")
+    combined = combined.drop(columns=[col for col in ["__source_priority", "__spread_null"] if col in combined.columns])
+    return combined
+
+
+def _fetch_cfbd_lines(year: int, weeks: List[int], apis: CfbdClients) -> pd.DataFrame:
+    if not apis.lines_api:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+
+    rows: List[Dict[str, Any]] = []
+    for w in weeks:
+        try:
+            ls = apis.lines_api.get_lines(year=year, week=w, season_type="both")
+        except Exception:
+            continue
+        for ln in ls or []:
+            rows.append(
+                {
+                    "game_id": getattr(ln, "id", None) or getattr(ln, "game_id", None),
+                    "week": w,
+                    "home_team": getattr(ln, "home_team", None),
+                    "away_team": getattr(ln, "away_team", None),
+                    "favorite": getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None),
+                    "spread": getattr(ln, "spread", None),
+                }
+            )
+
+    if not rows:
+        return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+
+    df = pd.DataFrame(rows)
+    df = _cfbd_lines_to_bookstyle(df)
+    df = df.rename(columns={"market_spread_book": "spread"})
+    return _normalize_market_df(df)
+
+
 def _cfbd_lines_to_bookstyle(df: pd.DataFrame) -> pd.DataFrame:
     # Normalize CFBD lines to a book-style home-line spread
     if df.empty:
@@ -47,6 +114,8 @@ def get_market_lines_for_current_week(
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
     market_extra: Dict[str, Any] = {}
 
+    weeks = list(range(1, int(week) + 1))
+
     # If FanDuel requested
     if requested == "fanduel":
         try:
@@ -54,13 +123,12 @@ def get_market_lines_for_current_week(
                 used = "cfbd"
                 fb_reason = "FanDuel requested but ODDS_API_KEY missing"
             else:
-                weeks = list(range(1, int(week) + 1))
                 fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
                 market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
                 # keep only <= current week
                 fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= int(week)].copy()
                 if len(fanduel_df) >= MARKET_MIN_ROWS:
-                    out_df = fanduel_df
+                    out_df = _normalize_market_df(fanduel_df)
                     used = "fanduel"
                 else:
                     used = "cfbd"
@@ -71,43 +139,16 @@ def get_market_lines_for_current_week(
 
     # CFBD branch (either requested or fallback)
     if used != "fanduel":
-        try:
-            if not apis.lines_api:
-                fb_reason = fb_reason or "CFBD lines API unavailable"
-            else:
-                lines_rows: List[pd.DataFrame] = []
-                for w in range(1, int(week) + 1):
-                    try:
-                        ls = apis.lines_api.get_lines(year=year, week=w, season_type="both")
-                        rows = []
-                        for ln in ls or []:
-                            game_id = getattr(ln, "id", None) or getattr(ln, "game_id", None)
-                            home = getattr(ln, "home_team", None)
-                            away = getattr(ln, "away_team", None)
-                            fav = getattr(ln, "home_team", None) if getattr(ln, "home_favorite", False) else getattr(ln, "away_team", None)
-                            spread = getattr(ln, "spread", None)
-                            rows.append(
-                                {
-                                    "game_id": game_id,
-                                    "week": w,
-                                    "home_team": home,
-                                    "away_team": away,
-                                    "favorite": fav,
-                                    "spread": spread,
-                                }
-                            )
-                        dfl = pd.DataFrame(rows)
-                        if not dfl.empty:
-                            dfl = _cfbd_lines_to_bookstyle(dfl)
-                            lines_rows.append(dfl)
-                    except Exception:
-                        continue
-                if lines_rows:
-                    out_df = pd.concat(lines_rows, ignore_index=True)
-                else:
-                    out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
-        except Exception as e:
-            fb_reason = fb_reason or f"CFBD fetch error: {e}"
+        cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
+        out_df = _normalize_market_df(cfbd_df)
+        if out_df.empty and not fb_reason:
+            fb_reason = "CFBD lines API unavailable or returned no rows"
+    else:
+        cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
+        if not cfbd_df.empty:
+            before_rows = len(out_df)
+            out_df = _combine_market_sources(out_df, cfbd_df)
+            market_extra["cfbd_fallback_added"] = len(out_df) - before_rows
 
     # Record status
     _upsert_status_market_source(used, requested, fb_reason, DATA_DIR, extra=market_extra or None)
@@ -115,4 +156,3 @@ def get_market_lines_for_current_week(
 
 
 __all__ = ["_cfbd_lines_to_bookstyle", "get_market_lines_for_current_week"]
-
