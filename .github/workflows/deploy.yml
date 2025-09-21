@@ -85,6 +85,7 @@ jobs:
 
       - name: Run collector (live + backtest)
         env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
           ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
