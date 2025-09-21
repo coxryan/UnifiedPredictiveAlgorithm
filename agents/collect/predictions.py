@@ -40,6 +40,11 @@ def _market_lookup(markets: pd.DataFrame) -> pd.DataFrame:
     if markets is None or markets.empty:
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "market_spread_book"])
     df = markets.copy()
+    if "market_spread_book" not in df.columns:
+        if "spread" in df.columns:
+            df["market_spread_book"] = df["spread"]
+        elif "point_home_book" in df.columns:
+            df["market_spread_book"] = df["point_home_book"]
     for col in ("game_id", "week"):
         if col in df.columns:
             df[col] = _sanitize_numeric(df[col])
@@ -122,7 +127,10 @@ def build_predictions_for_year(
                 )
         preds = merged
 
-    preds["neutral_site"] = preds.get("neutral_site", 0).fillna(0).astype(int)
+    if "neutral_site" in preds.columns:
+        preds["neutral_site"] = preds["neutral_site"].fillna(0).astype(int)
+    else:
+        preds["neutral_site"] = 0
     preds["home_points"] = _sanitize_numeric(preds.get("home_points"))
     preds["away_points"] = _sanitize_numeric(preds.get("away_points"))
 
