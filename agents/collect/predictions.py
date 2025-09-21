@@ -39,10 +39,10 @@ def _rating_from_team_inputs(team_inputs: pd.DataFrame) -> pd.Series:
     return rating
 
 
-def _market_lookup(markets: pd.DataFrame) -> pd.DataFrame:
-    if markets is None or markets.empty:
+def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
+    if markets_df is None or markets_df.empty:
         return pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "market_spread_book"])
-    df = markets.copy()
+    df = markets_df.copy()
     if "market_spread_book" not in df.columns:
         if "spread" in df.columns:
             df["market_spread_book"] = df["spread"]

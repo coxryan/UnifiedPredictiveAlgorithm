@@ -30,7 +30,7 @@ def _configure_file_logging(data_dir: str) -> None:
         os.makedirs(data_dir, exist_ok=True)
         log_path = os.path.join(data_dir, "debug", "collector.log")
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        fh = logging.FileHandler(log_path)
+        fh = logging.FileHandler(log_path, mode="w")
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
         logging.getLogger().addHandler(fh)
