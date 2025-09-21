@@ -10,16 +10,12 @@ from typing import Any, Optional
 
 import pandas as pd
 
-from agents.collect.config import DATA_DIR
-
-
 def _env_path(name: str, default: str) -> str:
     p = os.environ.get(name, default)
     p = os.path.abspath(p)
     os.makedirs(os.path.dirname(p), exist_ok=True)
     return p
-
-
+DATA_DIR = os.environ.get("DATA_DIR", "data").strip() or "data"
 DATA_DB_PATH = _env_path("DATA_DB_PATH", os.path.join(DATA_DIR, "upa_data.sqlite"))
 CACHE_DB_PATH = _env_path("CACHE_DB_PATH", os.path.join(DATA_DIR, "upa_cache.sqlite"))
 
