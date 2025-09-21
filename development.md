@@ -1,5 +1,10 @@
 # UPA-F Development Manual (Expanded)
 
+> **Assistant Instructions**
+> - Always read this document in full when a new session starts.
+> - Follow the processes, test requirements, and logging expectations described here before making changes.
+> - Keep this document up to date with any code or workflow changes during your session.
+
 ---
 
 ## Product Overview: Purpose, Audience & Goals
@@ -9,6 +14,7 @@
   - Synthesizes **team fundamentals** (WRPS, Talent, SRS, SOS) with **market lines** (FanDuel preferred) and **live context** (scores).
   - Produces **actionable, auditable predictions** (model vs. market) with quantified **edge** and **confidence**.
   - Publishes results to a **static site** (GitHub Pages) with accompanying **debug artifacts** so issues can be diagnosed quickly.
+  - Explicitly generate our own **model spreads** for FBS games, grounded in and calibrated against FanDuel’s market spreads, rather than attempting to mirror raw bookmaker lines.
 - Operate under **deterministic, reproducible** workflows: every CI run **rebuilds all data**, validates freshness, and **fails hard** on emptiness/staleness.
 
 **Who we are doing it for (audience & stakeholders)**
@@ -20,6 +26,7 @@
 - Betting markets move; **staleness** and **missing markets** silently destroy value. We explicitly defend against both with **freshness guards**, **backfill**, and **validation gates**.
 - Most failures are plumbing, not math. By shipping **debug files** (schedule, market_debug, unmatched, backfill summary) we shorten MTTD/MTTR.
 - Static hosting + CI keeps ops simple, secure, and cheap while still giving near-real-time updates on every push.
+- We ignore games featuring **non-FBS opponents** to ensure consistency with market availability and to avoid mismatched data coverage.
 
 ---
 
@@ -123,6 +130,7 @@
 
 ## Roadmap (High Confidence Next Steps)
 
+  - Ensure all collectors and predictions builders filter out **non-FBS matchups**; predictions and edges should only be computed for FBS vs FBS games.
   - Implement real **portal_net_0_100** from transfer portal data.
   - Finalize in-repo **build_predictions_for_year** with confidence model.
   - Add **build_live_edge_report** and formalize edge/value distribution checks.
@@ -192,6 +200,8 @@ Many of the statistical features and positional metrics planned in the roadmap c
 - Positional matchups will need augmentation from external databases; CFBD provides roster and play-level context but not graded position-vs-position ratings.
 
 ### How Statistical Features Influence the Model’s Predicted Spread
+
+The purpose of this model is to **calculate our own expected spread** for each FBS matchup, grounded in FanDuel’s lines but adjusted by team statistical profiles.
 
 Incorporating the expanded statistical library is not just about adding raw numbers—it is about **shaping the predicted spread (model_spread_book)** in ways that reflect both fundamental strengths and matchup-specific edges.
 
@@ -908,7 +918,14 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 
 ### Debug Logging
 - Core collectors (`predictions`, `helpers`, `collect_cfbd_all`) emit structured `logging` debug messages. Set `UPA_LOG_LEVEL=DEBUG` (or run with a custom `logging.basicConfig`) to surface them locally.
-- CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_csv: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues.
+- CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_csv: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues. The deploy workflow sets `UPA_LOG_LEVEL=DEBUG` by default, so production runs already emit the detailed traces.
+- All runs also write a rolling log file to `data/debug/collector.log`; inspect or stage this file when sharing artifacts or diagnosing CI failures.
+
+### Git Auto-Staging (optional)
+- Set `UPA_AUTO_GIT_ADD=1` before running the collector to automatically `git add` the regenerated data artifacts (CSV/JSON plus `data/debug/collector.log`).
+- This only stages changes (no commit); review and commit manually to keep history intentional.
+- The CI workflow also stages `data/` and `dist/` after tests so the generated artifacts can be inspected or uploaded from the job workspace.
+- After staging, the workflow commits and pushes those changes automatically using the repository `GITHUB_TOKEN` with the message `chore: update generated data [skip ci]`, so fresh data is always written back to the repo without retriggering the workflow.
 
 ---
 
@@ -987,3 +1004,58 @@ output_path: artifacts/models/upa-f
 report_path: artifacts/reports/eval.json
 timezone: US/Eastern
 ```
+
+## Assistant Rules for Codex
+
+These rules guide Codex/Copilot when reading this document and editing the repository. They ensure consistent logic, validation, and observability across the project.
+
+### Coding & Implementation Rules
+- Always normalize spreads to bookmaker sign (negative = home favored) before arithmetic.
+- Missing values must remain `NaN`, not `0`. Zero is a valid spread.
+- Use `.cache_cfbd/<year>` (90d TTL) and `.cache_odds/<year>` (2d TTL). Only refresh when forced (`FORCE_REFRESH_*`) or when freshness checks fail.
+- All tunables (κ, λ, α-weights, thresholds, cache TTLs, year) must come from env vars or constants. Do not hardcode.
+- Secrets (`CFBD_BEARER_TOKEN`, `ODDS_API_KEY`) must come from environment or `.env` and never be committed.
+
+### Data Handling & Validation Rules
+- Abort if `cfb_schedule.csv` has <200 rows or `max(date) < today+2 ET`.
+- CI fails if `market_debug.csv` is empty or `upa_predictions.csv` has 0 rows.
+- Backfill order: FanDuel → CFBD → legacy `market_spread` → schedule → model fallback. Flag synthetic rows.
+- Every artifact must be regenerated on CI run; never rely on committed data files.
+- Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
+- Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
+
+### Modeling Rules
+- Features must be blended into composite scores, not raw. Default α-weights: 0.35 WRPS, 0.35 Talent, 0.20 SRS, 0.10 SOS.
+- Spread formula:
+  ```
+  M_model = - (κ * (S_home - S_away) + HFA)
+  ```
+- Expected market spread:
+  ```
+  M_expected = λ * M_market + (1-λ) * M_model
+  ```
+- Edge/value:
+  ```
+  Edge = M_model - M_market
+  Value = |Edge| * Conf
+  ```
+- Confidence weighted by feature completeness, market freshness, schedule certainty, sample depth.
+
+### UI/Presentation Rules
+- Status tab must link to all debug files and show MAE, coverage, synthetic rate.
+- Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
+- Status tab table must include descriptions of each file.
+
+### Dev Workflow Rules
+- Use structured logging with consistent tags (e.g., `build_predictions_for_year`).
+- Add unit tests for collector logic, backfill, sign convention, NaN handling.
+- Update `development.md` and tests whenever columns or artifacts change.
+- Fail early on critical data gaps; do not silently continue.
+
+### Codex-specific Guidance
+- Always reference `development.md` before edits.
+- Extend both code and docs when adding features.
+- If a change affects validation, update `.github/workflows/deploy.yml`.
+- Use `Data Availability via CFBD` before inventing new endpoints.
+- Never remove debug artifacts; they are required for observability.
+- Provide explicit, patch-style edits instead of abstract refactors.

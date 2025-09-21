@@ -10,6 +10,7 @@ to keep existing imports working.
 import logging
 import os
 import pathlib
+import subprocess
 import sys
 
 # Allow running as ``python agents/collect_cfbd_all.py`` where relative imports lack context.
@@ -22,6 +23,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.debug("collect_cfbd_all bootstrap complete")
+
+
+def _configure_file_logging(data_dir: str) -> None:
+    try:
+        os.makedirs(data_dir, exist_ok=True)
+        log_path = os.path.join(data_dir, "debug", "collector.log")
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
+        logging.getLogger().addHandler(fh)
+        logger.debug("File logging initialised at %s", log_path)
+    except Exception:
+        logger.exception("Failed to set up file logging")
+
+
+def _maybe_stage_files(paths: list[str]) -> None:
+    flag = os.environ.get("UPA_AUTO_GIT_ADD", "0").strip().lower()
+    if flag not in {"1", "true", "yes", "y"}:
+        return
+    try:
+        cmd = ["git", "add"] + paths
+        subprocess.run(cmd, check=True)
+        logger.debug("Auto-staged generated files: %s", paths)
+    except subprocess.CalledProcessError as exc:
+        logger.error("Auto git add failed: %s", exc)
+    except FileNotFoundError:
+        logger.error("git executable not found; unable to auto-stage files")
 
 from agents.collect import (
     # config/env
@@ -144,6 +173,7 @@ if __name__ == "__main__":
         apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
         cache = ApiCache()
         os.makedirs(DATA_DIR, exist_ok=True)
+        _configure_file_logging(DATA_DIR)
         # team inputs
         teams_df = build_team_inputs_datadriven(year, apis, cache)
         write_csv(teams_df, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
@@ -177,5 +207,18 @@ if __name__ == "__main__":
             pd.DataFrame(rows).to_csv(os.path.join(DATA_DIR, "live_scores.csv"), index=False)
         except Exception:
             pass
+        generated_paths = [
+            os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"),
+            os.path.join(DATA_DIR, "cfb_schedule.csv"),
+            os.path.join(DATA_DIR, "market_debug.csv"),
+            os.path.join(DATA_DIR, "market_debug.json"),
+            os.path.join(DATA_DIR, "upa_predictions.csv"),
+            os.path.join(DATA_DIR, "live_edge_report.csv"),
+            os.path.join(DATA_DIR, "status.json"),
+            os.path.join(DATA_DIR, "market_predictions_backfill.json"),
+            os.path.join(DATA_DIR, "live_scores.csv"),
+            os.path.join(DATA_DIR, "debug", "collector.log"),
+        ]
+        _maybe_stage_files(generated_paths)
     except Exception:
         logger.exception("collect_cfbd_all: data preparation failed")

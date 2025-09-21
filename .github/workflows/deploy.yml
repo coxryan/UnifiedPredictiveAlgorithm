@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -17,6 +17,8 @@ env:
   ODDS_CACHE_TTL_DAYS: 2
   # Ensure Actions cache paths match code defaults
   CACHE_DIR: .cache_cfbd/2025
+  UPA_LOG_LEVEL: DEBUG
+  UPA_AUTO_GIT_ADD: 0
 
 # Serialize with other Pages publishers to avoid races
 concurrency:
@@ -305,6 +307,24 @@ jobs:
 
       - name: Run Python unit tests
         run: python -m pytest --maxfail=1 --disable-warnings
+
+      - name: Stage generated data artifacts
+        run: |
+          set -euo pipefail
+          git add data/ dist/
+          git status --short
+
+      - name: Commit and push generated artifacts
+        run: |
+          set -euo pipefail
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git commit -m "chore: update generated data [skip ci]"
+            git push
+          fi
 
       - name: Install deps
         run: |
