@@ -308,24 +308,6 @@ jobs:
       - name: Run Python unit tests
         run: python -m pytest --maxfail=1 --disable-warnings
 
-      - name: Stage generated data artifacts
-        run: |
-          set -euo pipefail
-          git add data/ dist/
-          git status --short
-
-      - name: Commit and push generated artifacts
-        run: |
-          set -euo pipefail
-          if git diff --cached --quiet; then
-            echo "No generated changes to commit."
-          else
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-            git commit -m "chore: update generated data [skip ci]"
-            git push
-          fi
-
       - name: Install deps
         run: |
           if [ -f package-lock.json ]; then
@@ -345,6 +327,29 @@ jobs:
           fi
           if [ -d public ]; then
             cp -R public/* dist/ || true
+          fi
+
+      - name: Stage generated data artifacts
+        run: |
+          set -euo pipefail
+          if [ -d data ]; then
+            git add data/
+          fi
+          if [ -d dist ]; then
+            git add dist/
+          fi
+          git status --short
+
+      - name: Commit and push generated artifacts
+        run: |
+          set -euo pipefail
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git commit -m "chore: update generated data [skip ci]"
+            git push
           fi
 
       - name: Upload Pages artifact

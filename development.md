@@ -924,7 +924,7 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 ### Git Auto-Staging (optional)
 - Set `UPA_AUTO_GIT_ADD=1` before running the collector to automatically `git add` the regenerated data artifacts (CSV/JSON plus `data/debug/collector.log`).
 - This only stages changes (no commit); review and commit manually to keep history intentional.
-- The CI workflow also stages `data/` and `dist/` after tests so the generated artifacts can be inspected or uploaded from the job workspace.
+- The CI workflow stages `data/` and `dist/` after the build/copy steps so the generated artifacts can be inspected or uploaded from the job workspace.
 - After staging, the workflow commits and pushes those changes automatically using the repository `GITHUB_TOKEN` with the message `chore: update generated data [skip ci]`, so fresh data is always written back to the repo without retriggering the workflow.
 
 ---
