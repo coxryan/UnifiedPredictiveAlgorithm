@@ -9,21 +9,49 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .helpers import _normalize_percent, _scale_0_100
+from agents.storage.sqlite_store import read_named_table, write_named_table, delete_rows
 
 
 def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     # conference map
     team_conf: Dict[str, str] = {}
-    if apis.teams_api:
+    teams_table = read_named_table("raw_cfbd_fbs_teams")
+    if not teams_table.empty:
+        tbl = teams_table.loc[teams_table.get("year") == year]
+        if not tbl.empty:
+            team_conf = {
+                str(row["team"]): (row.get("conference") or "FBS")
+                for _, row in tbl.iterrows()
+                if row.get("team")
+            }
+    if not team_conf and apis.teams_api:
         try:
             fbs = apis.teams_api.get_fbs_teams(year=year)
-            team_conf = {t.school: (t.conference or "FBS") for t in fbs}
+            team_conf = {t.school: (t.conference or "FBS") for t in (fbs or []) if getattr(t, "school", None)}
+            if team_conf:
+                df_store = pd.DataFrame(
+                    [
+                        {
+                            "team": getattr(t, "school", None),
+                            "conference": getattr(t, "conference", None),
+                            "year": year,
+                            "team_id": getattr(t, "id", None),
+                        }
+                        for t in (fbs or [])
+                        if getattr(t, "school", None)
+                    ]
+                )
+                delete_rows("raw_cfbd_fbs_teams", "year", year)
+                write_named_table(df_store, "raw_cfbd_fbs_teams", if_exists="append")
         except Exception as e:
             print(f"[warn] fbs teams fetch failed: {e}", file=sys.stderr)
 
     # Returning Production (Connelly via CFBD)
-    rp_rows: List[Dict[str, Any]] = []
-    if apis.players_api and team_conf:
+    rp_df = read_named_table("raw_cfbd_returning_production")
+    if not rp_df.empty:
+        rp_df = rp_df.loc[rp_df.get("year") == year].copy()
+    if rp_df.empty and apis.players_api and team_conf:
+        rp_rows: List[Dict[str, Any]] = []
         conferences = sorted({c for c in team_conf.values() if c})
         for conf in conferences:
             key = f"rp:{year}:{conf}"
@@ -70,7 +98,15 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                         "_ppa_def": it.get("total_defense_ppa"),
                     }
                 )
-    rp_df = pd.DataFrame(rp_rows).drop_duplicates(subset=["team"])
+        rp_df = pd.DataFrame(rp_rows).drop_duplicates(subset=["team"])
+        if not rp_df.empty:
+            rp_df["year"] = year
+            rp_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+            delete_rows("raw_cfbd_returning_production", "year", year)
+            write_named_table(rp_df, "raw_cfbd_returning_production", if_exists="append")
+            rp_df = rp_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+    elif not rp_df.empty:
+        rp_df = rp_df.drop(columns=["year", "retrieved_at"], errors="ignore")
 
     for _col in ["_overall", "_offense", "_defense", "_ppa_tot", "_ppa_off", "_ppa_def"]:
         if _col in rp_df.columns:
@@ -92,8 +128,10 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         rp_df["wrps_percent_0_100"] = rp_df["wrps_percent_0_100"].round(1)
 
     # Team Talent
-    talent_df = pd.DataFrame({"team": [], "talent_score_0_100": []})
-    if apis.teams_api:
+    talent_df = read_named_table("raw_cfbd_talent")
+    if not talent_df.empty:
+        talent_df = talent_df.loc[talent_df.get("year") == year].copy()
+    if talent_df.empty and apis.teams_api:
         key = f"talent:{year}"
         ok, data = cache.get(key)
         if ok:
@@ -112,35 +150,65 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                 df["talent_score_0_100"] = 50.0
             else:
                 df["talent_score_0_100"] = ((df["talent"] - mn) / (mx - mn) * 100.0).round(1)
-            talent_df = df[["team", "talent_score_0_100"]]
+            df["year"] = year
+            df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+            delete_rows("raw_cfbd_talent", "year", year)
+            write_named_table(df, "raw_cfbd_talent", if_exists="append")
+            talent_df = df
+        else:
+            talent_df = pd.DataFrame()
+    if not talent_df.empty:
+        talent_df = talent_df.drop(columns=["year", "retrieved_at", "talent"], errors="ignore")
+        talent_df = talent_df[[c for c in ["team", "talent_score_0_100"] if c in talent_df.columns]]
 
     # Current season SRS ratings → rank and rank-score
-    srs_cur_df = pd.DataFrame({"team": [], "srs_rating": [], "srs_rank_1_133": [], "srs_score_0_100": []})
-    try:
-        if apis.ratings_api:
-            srs = apis.ratings_api.get_srs(year=year)
-            df = pd.DataFrame([
-                {"team": x.team, "srs_rating": getattr(x, "rating", None), "srs_rank_1_133": getattr(x, "rank", None)} for x in (srs or [])
-            ])
-            if not df.empty:
-                mn, mx = pd.to_numeric(df["srs_rating"], errors="coerce").min(), pd.to_numeric(df["srs_rating"], errors="coerce").max()
-                if pd.isna(mn) or pd.isna(mx) or mx == mn:
-                    df["srs_score_0_100"] = 50.0
-                else:
-                    df["srs_score_0_100"] = ((pd.to_numeric(df["srs_rating"], errors="coerce") - mn) / (mx - mn) * 100.0).round(1)
-                srs_cur_df = df
-    except Exception as e:
-        print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
+    srs_cur_df = read_named_table("raw_cfbd_srs")
+    if not srs_cur_df.empty:
+        srs_cur_df = srs_cur_df.loc[srs_cur_df.get("year") == year].copy()
+    if srs_cur_df.empty:
+        try:
+            if apis.ratings_api:
+                srs = apis.ratings_api.get_srs(year=year)
+                df = pd.DataFrame([
+                    {"team": x.team, "srs_rating": getattr(x, "rating", None), "srs_rank_1_133": getattr(x, "rank", None)} for x in (srs or [])
+                ])
+                if not df.empty:
+                    mn, mx = pd.to_numeric(df["srs_rating"], errors="coerce").min(), pd.to_numeric(df["srs_rating"], errors="coerce").max()
+                    if pd.isna(mn) or pd.isna(mx) or mx == mn:
+                        df["srs_score_0_100"] = 50.0
+                    else:
+                        df["srs_score_0_100"] = ((pd.to_numeric(df["srs_rating"], errors="coerce") - mn) / (mx - mn) * 100.0).round(1)
+                    df["year"] = year
+                    df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                    delete_rows("raw_cfbd_srs", "year", year)
+                    write_named_table(df, "raw_cfbd_srs", if_exists="append")
+                    srs_cur_df = df
+        except Exception as e:
+            print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
+            srs_cur_df = pd.DataFrame({"team": [], "srs_rating": [], "srs_rank_1_133": [], "srs_score_0_100": []})
+    if not srs_cur_df.empty:
+        srs_cur_df = srs_cur_df.drop(columns=["year", "retrieved_at"], errors="ignore")
 
     # Previous season SOS rank
-    sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
-    try:
-        if apis.ratings_api:
-            sos = apis.ratings_api.get_sos(year=year - 1)
-            df = pd.DataFrame([{ "team": x.team, "prev_season_sos_rank_1_133": getattr(x, "rank", None)} for x in (sos or [])])
-            sos_df = df
-    except Exception:
-        pass
+    sos_df = read_named_table("raw_cfbd_sos")
+    prev_season = year - 1
+    if not sos_df.empty:
+        sos_df = sos_df.loc[sos_df.get("season") == prev_season].copy()
+    if sos_df.empty:
+        try:
+            if apis.ratings_api:
+                sos = apis.ratings_api.get_sos(year=prev_season)
+                df = pd.DataFrame([{ "team": x.team, "prev_season_sos_rank_1_133": getattr(x, "rank", None)} for x in (sos or [])])
+                if not df.empty:
+                    df["season"] = prev_season
+                    df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                    delete_rows("raw_cfbd_sos", "season", prev_season)
+                    write_named_table(df, "raw_cfbd_sos", if_exists="append")
+                    sos_df = df
+        except Exception:
+            sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
+    if not sos_df.empty:
+        sos_df = sos_df.drop(columns=["season", "retrieved_at"], errors="ignore")
 
     # Transfer portal net score (placeholder: unavailable via CFBD in this context)
     portal_df = pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
@@ -199,4 +267,3 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
 
 
 __all__ = ["build_team_inputs_datadriven"]
-

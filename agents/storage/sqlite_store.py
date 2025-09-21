@@ -88,6 +88,36 @@ def read_table_from_path(path: str) -> pd.DataFrame:
             return pd.DataFrame()
 
 
+def write_named_table(df: pd.DataFrame, table: str, *, if_exists: str = "replace", kind: str = "table") -> None:
+    with get_data_connection() as conn:
+        df.to_sql(table, conn, if_exists=if_exists, index=False)
+        _ensure_artifact_table(conn)
+        conn.execute(
+            "INSERT OR REPLACE INTO data_artifacts(path, table_name, kind, updated_at) VALUES(?,?,?,?)",
+            (f"table:{table}", table, kind, time.time()),
+        )
+
+
+def read_named_table(table: str) -> pd.DataFrame:
+    with get_data_connection() as conn:
+        try:
+            return pd.read_sql_query(f"SELECT * FROM {table}", conn)
+        except Exception:
+            return pd.DataFrame()
+
+
+def delete_rows(table: str, column: Optional[str] = None, value: Any = None) -> None:
+    with get_data_connection() as conn:
+        try:
+            if column is None:
+                conn.execute(f"DELETE FROM {table}")
+            else:
+                conn.execute(f"DELETE FROM {table} WHERE {column} = ?", (value,))
+        except sqlite3.OperationalError:
+            # table may not exist yet; ignore
+            pass
+
+
 def write_json_blob(path: str, payload: Any) -> None:
     with get_data_connection() as conn:
         conn.execute(

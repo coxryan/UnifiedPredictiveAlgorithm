@@ -109,6 +109,24 @@
 - Setting `enable_cache=true` restores the Actions cache and re-enables optional purge; `enable_backtest=true` passes `--backtest <backtest_year>` to the collector.
 - Leave inputs untouched to run the live-only pipeline; toggle them explicitly when you need cached data or historical reruns.
 
+### External APIs & Endpoints
+- **CollegeFootballData (CFBD)** via the official Python client (`cfbd`):
+  - `GamesApi.get_games(...)` for the master schedule.
+  - `BettingApi/LlinesApi.get_lines(...)` for CFBD odds fallback.
+  - `TeamsApi.get_fbs_teams(...)` and `TeamsApi.get_talent(...)` for team metadata/talent.
+  - `PlayersApi.get_returning_production(...)` for Connelly returning production metrics.
+  - `RatingsApi.get_srs(...)` and `RatingsApi.get_sos(...)` for SRS/SOS inputs.
+- **The Odds API** (`https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds`) for FanDuel market lines (spread market, paginated via `requests.get`).
+- **ESPN Scoreboard** (`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=YYYYMMDD`) for live scores/clock state.
+
+### Data Collection Workflows
+To decouple raw data ingestion from model generation, GitHub Actions now refresh the SQLite datastore independently:
+- `refresh-cfbd-weekly` (`.github/workflows/fetch_cfbd_weekly.yml`): runs every Monday 10:00 UTC (and on demand). Calls `python -m agents.jobs.refresh_cfbd_weekly` to update team metadata (FBS teams, returning production, talent, SRS, SOS) and commits `data/upa_data.sqlite` back to `main`.
+- `refresh-cfbd-daily` (`.github/workflows/fetch_cfbd_daily.yml`): runs daily at 09:00 UTC. Executes `python -m agents.jobs.refresh_cfbd_daily`, pulling the latest CFBD schedule and CFBD lines fallback into the relational tables.
+- `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes. Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard, storing results in `raw_fanduel_lines`, `raw_cfbd_lines`, and `raw_espn_scoreboard`. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
+
+The downstream collector (`collect_cfbd_all`) and model builders now read exclusively from `upa_data.sqlite`, so the deploy workflow can focus on transformation, validation, and publishing without re-hitting upstream APIs.
+
 ---
 
 ## Release, Deploy & Change Management
@@ -622,6 +640,15 @@ The subsections below retain the legacy filenames for familiarity, but each refe
 
 | Table / JSON key (legacy path)            | Where Generated                         | Who Generates It                                           | UI Consumers / Links                                                | CI Validation |
 |-------------------------------------------|-----------------------------------------|-----------------------------------------------------------|----------------------------------------------------------------------|--------------|
+| `raw_cfbd_games`                          | Collector schedule fetch                | `load_schedule_for_year` (CFBD games API)                  | Source-of-truth for schedule reconciliation, cross-source joins      | —            |
+| `raw_fanduel_lines`                       | Collector odds fetch                    | `get_market_lines_for_current_week` (FanDuel/Odds API)     | Market reconciliation, debugging                                     | —            |
+| `raw_cfbd_lines`                          | Collector odds fallback                 | `get_market_lines_for_current_week` (CFBD lines API)       | Market reconciliation, debugging                                     | —            |
+| `raw_cfbd_fbs_teams`                      | Team metadata fetch                     | `build_team_inputs_datadriven` (CFBD teams API)            | Team dimension/alias mapping                                        | —            |
+| `raw_cfbd_returning_production`           | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD players API)          | Team inputs, feature engineering                                     | —            |
+| `raw_cfbd_talent`                         | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD teams API)            | Team inputs, feature engineering                                     | —            |
+| `raw_cfbd_srs`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
+| `raw_cfbd_sos`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
+| `raw_espn_scoreboard`                     | Live scoreboard fetch                   | `collect_cfbd_all` (ESPN scoreboard)                       | Live monitoring, status                                              | —            |
 | `cfb_schedule` (`data/cfb_schedule.csv`)   | Collector + ALL step                    | `load_schedule_for_year` → `write_csv`                     | Status, week logic; optional fallback spreads                       | ✅ stale/size |
 | `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_csv`               | Status counts (optional)                                            | —            |
 | `market_debug` (`data/market_debug.csv`)  | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_csv`          | Status (Market Debug), backfill source                              | ✅ non-empty |

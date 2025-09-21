@@ -9,6 +9,7 @@ from .status import _upsert_status_market_source
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache, get_odds_cache
 from .odds_fanduel import get_market_lines_fanduel_for_weeks
+from agents.storage.sqlite_store import read_named_table, write_named_table, delete_rows
 
 
 def _normalize_market_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -141,33 +142,78 @@ def get_market_lines_for_current_week(
         weeks.append(next_week)
     weeks = sorted(set(int(w) for w in weeks if pd.notna(w)))
 
+    def _load_cached_lines(table: str) -> pd.DataFrame:
+        cached = read_named_table(table)
+        if cached.empty:
+            return cached
+        cached = cached.loc[cached.get("season") == year].copy()
+        if cached.empty:
+            return cached
+        cached["week"] = pd.to_numeric(cached.get("week"), errors="coerce")
+        cached = cached.loc[cached["week"].notna()]
+        cached = cached.loc[cached["week"] <= next_week]
+        if cached.empty:
+            return cached
+        dup_keys = [c for c in ["game_id", "week", "home_team", "away_team"] if c in cached.columns]
+        if dup_keys:
+            cached = cached.sort_values(by=["retrieved_at"] if "retrieved_at" in cached.columns else dup_keys)
+            cached = cached.drop_duplicates(subset=dup_keys, keep="last")
+        return cached
+
+    # Attempt to use cached FanDuel lines first
+    cached_fanduel = _load_cached_lines("raw_fanduel_lines")
+    if requested == "fanduel" and not cached_fanduel.empty and len(cached_fanduel) >= MARKET_MIN_ROWS:
+        out_df = _normalize_market_df(cached_fanduel)
+        used = "fanduel"
+        _dbg(f"get_market_lines_for_current_week: using cached FanDuel rows={len(out_df)}")
+    else:
+        out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+
     # If FanDuel requested
     if requested == "fanduel":
         try:
-            if not ODDS_API_KEY:
-                used = "cfbd"
-                fb_reason = "FanDuel requested but ODDS_API_KEY missing"
-            else:
-                fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
-                market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
-                # keep only <= current week
-                fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
-                fanduel_norm = _normalize_market_df(fanduel_df)
-                if len(fanduel_norm) >= MARKET_MIN_ROWS:
-                    out_df = fanduel_norm.copy()
-                    used = "fanduel"
-                else:
+            if used != "fanduel":
+                if not ODDS_API_KEY:
                     used = "cfbd"
-                    fb_reason = f"FanDuel available but returned too few rows ({len(fanduel_df)})"
+                    fb_reason = "FanDuel requested but ODDS_API_KEY missing"
+                else:
+                    fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                    market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
+                    fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
+                    fanduel_norm = _normalize_market_df(fanduel_df)
+                    if len(fanduel_norm) >= MARKET_MIN_ROWS:
+                        out_df = fanduel_norm.copy()
+                        used = "fanduel"
+                        store_df = out_df.copy()
+                        store_df["season"] = year
+                        store_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                        delete_rows("raw_fanduel_lines", "season", year)
+                        write_named_table(store_df, "raw_fanduel_lines", if_exists="append")
+                    else:
+                        used = "cfbd"
+                        fb_reason = f"FanDuel available but returned too few rows ({len(fanduel_df)})"
         except Exception as e:
             used = "cfbd"
             fb_reason = f"FanDuel fetch error: {e}"
 
     # CFBD branch (either requested or fallback)
     if used != "fanduel":
-        cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
-        cfbd_norm = _normalize_market_df(cfbd_df)
-        out_df = cfbd_norm.copy()
+        if out_df.empty:
+            cached_cfbd = _load_cached_lines("raw_cfbd_lines")
+            if not cached_cfbd.empty:
+                out_df = _normalize_market_df(cached_cfbd)
+                used = "cfbd"
+        if out_df.empty:
+            cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
+            cfbd_norm = _normalize_market_df(cfbd_df)
+            out_df = cfbd_norm.copy()
+            if not cfbd_norm.empty:
+                store_cfbd = cfbd_norm.copy()
+                store_cfbd["season"] = year
+                store_cfbd["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                delete_rows("raw_cfbd_lines", "season", year)
+                write_named_table(store_cfbd, "raw_cfbd_lines", if_exists="append")
+                used = "cfbd"
         _dbg(f"get_market_lines_for_current_week: CFBD-only rows={len(out_df)}")
         if out_df.empty and not fb_reason:
             fb_reason = "CFBD lines API unavailable or returned no rows"

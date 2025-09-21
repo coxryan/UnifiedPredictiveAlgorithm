@@ -8,6 +8,12 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .config import DATA_DIR, CACHE_ONLY, _dbg, REQUIRE_SCHED_MIN_ROWS
+from agents.storage.sqlite_store import (
+    read_table_from_path,
+    read_named_table,
+    write_named_table,
+    delete_rows,
+)
 from agents.storage.sqlite_store import read_table_from_path
 
 
@@ -194,6 +200,33 @@ def load_schedule_for_year(
         except Exception:
             norm_fbs = None
 
+    # Try raw relational store first
+    try:
+        raw_sched = read_named_table("raw_cfbd_games")
+        if not raw_sched.empty:
+            df_raw = raw_sched.loc[raw_sched.get("season") == year].copy()
+            if not df_raw.empty:
+                df_raw["week"] = pd.to_numeric(df_raw.get("week"), errors="coerce")
+                schedule_cols = [
+                    "game_id",
+                    "week",
+                    "date",
+                    "kickoff_utc",
+                    "away_team",
+                    "home_team",
+                    "neutral_site",
+                    "home_points",
+                    "away_points",
+                ]
+                df = df_raw[schedule_cols].copy()
+                if norm_fbs:
+                    df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
+                if not _is_schedule_stale(df, year):
+                    cache.set(f"sched:{year}", df.to_dict(orient="records"))
+                    return df
+    except Exception:
+        pass
+
     key = f"sched:{year}"
     ok, data = cache.get(key)
     if ok:
@@ -263,6 +296,12 @@ def load_schedule_for_year(
                 }
             )
         df = pd.DataFrame(rows)
+        if not df.empty:
+            df_raw = df.copy()
+            df_raw["season"] = year
+            df_raw["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+            delete_rows("raw_cfbd_games", "season", year)
+            write_named_table(df_raw, "raw_cfbd_games", if_exists="append")
         if norm_fbs:
             df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
         cache.set(key, df.to_dict(orient="records"))

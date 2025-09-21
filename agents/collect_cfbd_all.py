@@ -106,7 +106,7 @@ from agents.collect import (
     # debug entry
     market_debug_entry,
 )
-from agents.storage.sqlite_store import read_table_from_path
+from agents.storage.sqlite_store import read_table_from_path, write_named_table, delete_rows
 
 __all__ = [
     # config/env
@@ -256,7 +256,14 @@ if __name__ == "__main__":
         live_scores_path = os.path.join(DATA_DIR, "live_scores.csv")
         try:
             rows = fetch_scoreboard(None)
-            write_csv(pd.DataFrame(rows, columns=live_scores_columns), live_scores_path)
+            ls_df = pd.DataFrame(rows, columns=live_scores_columns)
+            write_csv(ls_df, live_scores_path)
+            if not ls_df.empty:
+                store_ls = ls_df.copy()
+                store_ls["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                store_ls["season"] = year
+                delete_rows("raw_espn_scoreboard", "season", year)
+                write_named_table(store_ls, "raw_espn_scoreboard", if_exists="append")
         except Exception:
             write_csv(pd.DataFrame(columns=live_scores_columns), live_scores_path)
 
