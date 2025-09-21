@@ -9,6 +9,18 @@ on:
         description: 'Delete cached API data before run (true/false)'
         required: false
         default: 'false'
+      enable_cache:
+        description: 'Use cached API data (true/false)'
+        required: false
+        default: 'false'
+      enable_backtest:
+        description: 'Run collector backtest pass (true/false)'
+        required: false
+        default: 'false'
+      backtest_year:
+        description: 'Backtest season to run when enabled'
+        required: false
+        default: '2024'
 
 permissions:
   contents: write
@@ -25,6 +37,9 @@ env:
   UPA_LOG_LEVEL: DEBUG
   UPA_AUTO_GIT_ADD: 0
   CACHE_VERSION: v6
+  CACHE_ENABLED: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.enable_cache == 'true' && 'true' || 'false' }}
+  BACKTEST_ENABLED: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.enable_backtest == 'true' && 'true' || 'false' }}
+  BACKTEST_YEAR: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.backtest_year || '2024' }}
 
 # Serialize with other Pages publishers to avoid races
 concurrency:
@@ -60,13 +75,14 @@ jobs:
           echo "Cache paths are consistent."
 
       - name: Purge caches (optional)
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.purge_caches == 'true' }}
+        if: ${{ env.CACHE_ENABLED == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.purge_caches == 'true' }}
         run: |
           set -euo pipefail
           rm -rf .cache_cfbd/2025 .cache_odds/2025
           echo "Caches purged per workflow_dispatch input."
 
       - name: Restore API caches (CFBD & Odds)
+        if: ${{ env.CACHE_ENABLED == 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -97,7 +113,7 @@ jobs:
             echo "CFBD_BEARER_TOKEN is present."
           fi
 
-      - name: Run collector (live + backtest)
+      - name: Run collector (live + optional backtest)
         env:
           CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
@@ -111,8 +127,15 @@ jobs:
           MARKET_MIN_ROWS: 1
         run: |
           # Run main collector; market_debug.json will be emitted by the script when available
+          BACKTEST_ARGS=""
+          if [ "${BACKTEST_ENABLED}" = "true" ]; then
+            echo "Backtest enabled for season ${BACKTEST_YEAR}"
+            BACKTEST_ARGS="--backtest ${BACKTEST_YEAR}"
+          else
+            echo "Backtest disabled for this run."
+          fi
           echo "MARKET_SOURCE (requested): ${MARKET_SOURCE}"
-          python -m agents.collect_cfbd_all --market-source "${MARKET_SOURCE}" --year 2025 --backtest 2024
+          python -m agents.collect_cfbd_all --market-source "${MARKET_SOURCE}" --year 2025 ${BACKTEST_ARGS}
           echo "Collector finished; status.json:"
           test -f data/status.json && cat data/status.json || echo "status.json not found"
           echo "market_debug.json (if present):"
