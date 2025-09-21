@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      purge_caches:
+        description: 'Delete cached API data before run (true/false)'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -19,6 +24,7 @@ env:
   CACHE_DIR: .cache_cfbd/2025
   UPA_LOG_LEVEL: DEBUG
   UPA_AUTO_GIT_ADD: 0
+  CACHE_VERSION: v6
 
 # Serialize with other Pages publishers to avoid races
 concurrency:
@@ -53,14 +59,22 @@ jobs:
           fi
           echo "Cache paths are consistent."
 
+      - name: Purge caches (optional)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.purge_caches == 'true' }}
+        run: |
+          set -euo pipefail
+          rm -rf .cache_cfbd/2025 .cache_odds/2025
+          echo "Caches purged per workflow_dispatch input."
+
       - name: Restore API caches (CFBD & Odds)
         uses: actions/cache@v4
         with:
           path: |
             .cache_cfbd/2025
             .cache_odds/2025
-          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-v3-${{ hashFiles('agents/collect_cfbd_all.py') }}
+          key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-${{ env.CACHE_VERSION }}-${{ hashFiles('agents/collect_cfbd_all.py') }}
           restore-keys: |
+            api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-${{ env.CACHE_VERSION }}-
             api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-
             api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
             api-caches-${{ runner.os }}-

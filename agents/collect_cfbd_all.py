@@ -182,16 +182,27 @@ if __name__ == "__main__":
         os.makedirs(DATA_DIR, exist_ok=True)
         _configure_file_logging(DATA_DIR)
         # team inputs
+        logger.debug("collect_cfbd_all: building team inputs")
         teams_df = build_team_inputs_datadriven(year, apis, cache)
         write_csv(teams_df, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
         logger.debug("collect_cfbd_all: wrote team inputs rows=%s", len(teams_df))
         # schedule
+        logger.debug("collect_cfbd_all: loading schedule")
         sched = load_schedule_for_year(year, apis, cache)
         write_csv(sched, os.path.join(DATA_DIR, "cfb_schedule.csv"))
         logger.debug("collect_cfbd_all: wrote schedule rows=%s", len(sched))
         # market CSV redundancy (if debug step failed, ensure CSV exists)
         wk = discover_current_week(sched) or 1
+        logger.debug("collect_cfbd_all: fetching market lines for week=%s", wk)
         lines = get_market_lines_for_current_week(year, wk, sched, apis, cache)
+        try:
+            non_null_lines = int(pd.to_numeric(lines.get("spread"), errors="coerce").notna().sum()) if "spread" in lines.columns else 0
+        except Exception:
+            non_null_lines = 0
+        logger.debug(
+            "collect_cfbd_all: fetched market lines rows=%s non_null=%s",
+            len(lines), non_null_lines
+        )
         market_path = os.path.join(DATA_DIR, "market_debug.csv")
         combined_lines = lines
         if os.path.exists(market_path):
@@ -205,8 +216,16 @@ if __name__ == "__main__":
                 logger.exception("collect_cfbd_all: unable to merge with existing market_debug.csv; using fresh snapshot only")
                 combined_lines = lines
         write_csv(combined_lines, market_path)
-        logger.debug("collect_cfbd_all: wrote market_debug rows=%s (new=%s)", len(combined_lines), len(lines))
+        try:
+            combined_non_null = int(pd.to_numeric(combined_lines.get("spread"), errors="coerce").notna().sum()) if "spread" in combined_lines.columns else 0
+        except Exception:
+            combined_non_null = 0
+        logger.debug(
+            "collect_cfbd_all: wrote market_debug rows=%s non_null=%s (new=%s)",
+            len(combined_lines), combined_non_null, len(lines)
+        )
         # predictions + live edge
+        logger.debug("collect_cfbd_all: building predictions")
         preds = build_predictions_for_year(
             year,
             sched,
@@ -216,11 +235,18 @@ if __name__ == "__main__":
             team_inputs_df=teams_df,
         )
         write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
-        logger.debug("collect_cfbd_all: wrote predictions rows=%s synthetic=%s", len(preds), int(preds.get("market_is_synthetic", pd.Series(dtype=int)).sum() if "market_is_synthetic" in preds.columns else 0))
+        synthetic_count = int(preds.get("market_is_synthetic", pd.Series(dtype=int)).sum()) if "market_is_synthetic" in preds.columns else 0
+        non_null_predictions = int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0
+        logger.debug(
+            "collect_cfbd_all: wrote predictions rows=%s synthetic=%s market_non_null=%s",
+            len(preds), synthetic_count, non_null_predictions
+        )
+        logger.debug("collect_cfbd_all: building live edge report")
         edge = build_live_edge_report(year, preds_df=preds)
         write_csv(edge, os.path.join(DATA_DIR, "live_edge_report.csv"))
         logger.debug("collect_cfbd_all: wrote live_edge rows=%s", len(edge))
         # live scores
+        logger.debug("collect_cfbd_all: fetching live scores")
         live_scores_columns = [
             "event_id","date","state","detail","clock","period","venue",
             "home_team","away_team","home_school","away_school","home_points","away_points"

@@ -44,6 +44,15 @@ def _combine_market_sources(primary: pd.DataFrame, secondary: pd.DataFrame) -> p
     key_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined.columns]
     combined = combined.drop_duplicates(subset=key_cols, keep="first")
     combined = combined.drop(columns=[col for col in ["__source_priority", "__spread_null"] if col in combined.columns])
+    try:
+        primary_non_null = int(prim["spread"].notna().sum()) if not prim.empty else 0
+    except Exception:
+        primary_non_null = 0
+    try:
+        secondary_non_null = int(sec["spread"].notna().sum()) if not sec.empty else 0
+    except Exception:
+        secondary_non_null = 0
+    _dbg(f"_combine_market_sources: combined rows={len(combined)} primary_non_null={primary_non_null} secondary_non_null={secondary_non_null}")
     return combined
 
 
@@ -117,7 +126,18 @@ def get_market_lines_for_current_week(
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
     market_extra: Dict[str, Any] = {}
 
-    weeks = list(range(1, int(week) + 1))
+    current_week = int(week)
+    try:
+        max_sched_week = int(pd.to_numeric(schedule_df.get("week"), errors="coerce").max())
+    except Exception:
+        max_sched_week = current_week
+    next_week = current_week + 1
+    if pd.notna(max_sched_week):
+        next_week = min(next_week, max_sched_week)
+    weeks = list(range(1, current_week + 1))
+    if next_week not in weeks and next_week >= 1:
+        weeks.append(next_week)
+    weeks = sorted(set(int(w) for w in weeks if pd.notna(w)))
 
     # If FanDuel requested
     if requested == "fanduel":
@@ -129,7 +149,7 @@ def get_market_lines_for_current_week(
                 fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
                 market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
                 # keep only <= current week
-                fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= int(week)].copy()
+                fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
                 if len(fanduel_df) >= MARKET_MIN_ROWS:
                     out_df = _normalize_market_df(fanduel_df)
                     used = "fanduel"
