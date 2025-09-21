@@ -1,0 +1,17 @@
+{
+  "market_source_used": "fanduel",
+  "market_source": "fanduel",
+  "market_source_config": "fanduel",
+  "requested_market": "fanduel",
+  "market_requested": "fanduel",
+  "market_source_requested": "fanduel",
+  "generated_at_utc": "2025-09-21T04:19:17Z",
+  "market_raw": 75,
+  "market_mapped": 65,
+  "market_unmatched": 5,
+  "year": 2025,
+  "teams": 137,
+  "games": 753,
+  "pred_rows": 753,
+  "next_run_eta_utc": "2025-09-21T04:19:17Z"
+}

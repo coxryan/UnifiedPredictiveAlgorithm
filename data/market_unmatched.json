@@ -1,0 +1,75 @@
+{
+  "year": 2025,
+  "stats": {
+    "raw": 75,
+    "mapped": 65,
+    "unmatched": 5
+  },
+  "unmatched": [
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    },
+    {
+      "fd_home": "Hawaii Rainbow Warriors",
+      "fd_away": "Fresno State Bulldogs",
+      "cdate": "2025-09-21",
+      "home_resolved": null,
+      "away_resolved": "Fresno State",
+      "home_fuzzy": "Hawai'i",
+      "away_fuzzy": "Fresno State",
+      "home_fuzzy_score": 0.4,
+      "away_fuzzy_score": 1.0,
+      "home_qnorm": "hawaii rainbow warriors",
+      "away_qnorm": "fresno state bulldogs"
+    }
+  ]
+}
