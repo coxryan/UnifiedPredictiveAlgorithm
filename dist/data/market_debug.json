@@ -4,6 +4,6 @@
   "requested_market": "fanduel",
   "status_market_used": "fanduel",
   "fallback_reason": null,
-  "rows_returned": 25,
-  "generated_at_utc": "2025-09-21T05:10:59Z"
+  "rows_returned": 459,
+  "generated_at_utc": "2025-09-21T05:17:33Z"
 }
