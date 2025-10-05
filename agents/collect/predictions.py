@@ -10,6 +10,8 @@ import pandas as pd
 from .cache import ApiCache
 from .schedule import discover_current_week
 from .team_inputs import build_team_inputs_datadriven
+from .spread_model import load_linear_model
+from .model_dataset import FEATURE_COLUMNS
 from .markets import get_market_lines_for_current_week
 from .cfbd_clients import CfbdClients
 
@@ -284,10 +286,30 @@ def build_predictions_for_year(
     home_rating = preds["home_team"].map(team_ratings).fillna(0.5)
     away_rating = preds["away_team"].map(team_ratings).fillna(0.5)
 
-    # Convert ratings into point-spread with modest home-field bump
     base_diff = (home_rating - away_rating) * 15.0
     home_field = np.where(preds["neutral_site"] == 1, 0.0, 1.5)
-    preds["model_spread_book"] = (base_diff + home_field).round(2)
+    baseline_model = base_diff + home_field
+
+    model = load_linear_model()
+    if model is not None:
+        deltas: Dict[str, float] = {}
+        for base in FEATURE_COLUMNS:
+            home_col = f"{base}_home"
+            away_col = f"{base}_away"
+            if home_col in preds.columns and away_col in preds.columns:
+                deltas[f"delta_{base}"] = (
+                    pd.to_numeric(preds[home_col], errors="coerce").fillna(0.0)
+                    - pd.to_numeric(preds[away_col], errors="coerce").fillna(0.0)
+                )
+        modeled = baseline_model.copy()
+        for name, series in deltas.items():
+            coef = model.coefficients.get(name, 0.0)
+            if coef:
+                modeled = modeled + coef * series
+        modeled = modeled + model.intercept
+        preds["model_spread_book"] = modeled.round(2)
+    else:
+        preds["model_spread_book"] = (baseline_model).round(2)
 
     if "market_spread_book" in preds.columns:
         market_series = _sanitize_numeric(preds["market_spread_book"])
