@@ -13,31 +13,31 @@ from .stats_cfbd import build_team_stat_features
 from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 
-_LETTER_THRESHOLDS: List[Tuple[float, str]] = [
-    (97.0, "A+"),
-    (93.0, "A"),
+_PERCENTILE_THRESHOLDS: List[Tuple[float, str]] = [
+    (99.0, "A+"),
+    (95.0, "A"),
     (90.0, "A-"),
-    (87.0, "B+"),
-    (83.0, "B"),
-    (80.0, "B-"),
-    (77.0, "C+"),
-    (73.0, "C"),
-    (70.0, "C-"),
-    (67.0, "D+"),
-    (63.0, "D"),
-    (60.0, "D-"),
+    (80.0, "B+"),
+    (70.0, "B"),
+    (60.0, "B-"),
+    (50.0, "C+"),
+    (40.0, "C"),
+    (30.0, "C-"),
+    (20.0, "D+"),
+    (10.0, "D"),
+    (0.0, "D-"),
 ]
 
 
-def _letter_grade(score: Any) -> str:
+def _letter_from_percentile(value: Any) -> str:
     try:
-        val = float(score)
+        pct = float(value)
     except Exception:
         return ""
-    if pd.isna(val):
+    if pd.isna(pct):
         return ""
-    for threshold, grade in _LETTER_THRESHOLDS:
-        if val >= threshold:
+    for threshold, grade in _PERCENTILE_THRESHOLDS:
+        if pct >= threshold:
             return grade
     return "F"
 
@@ -300,41 +300,36 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             return series.clip(lower=0.0, upper=100.0)
 
         df["grade_qb_score"] = _blend(
-            0.45 * off_idx + 0.25 * wrps_off + 0.20 * talent + 0.10 * srs
+            0.30 * off_idx + 0.25 * wrps_off + 0.25 * talent + 0.20 * srs
         )
         df["grade_wr_score"] = _blend(
-            0.40 * off_idx + 0.35 * off_expl + 0.15 * wrps_off + 0.10 * talent
+            0.35 * off_idx + 0.30 * off_expl + 0.20 * wrps_off + 0.15 * talent
         )
         df["grade_rb_score"] = _blend(
-            0.40 * off_idx + 0.40 * off_success + 0.10 * wrps_off + 0.10 * talent
+            0.35 * off_idx + 0.35 * off_success + 0.15 * wrps_off + 0.15 * talent
         )
         df["grade_ol_score"] = _blend(
-            0.35 * off_idx + 0.35 * off_success + 0.20 * talent + 0.10 * srs
+            0.30 * off_idx + 0.35 * off_success + 0.20 * talent + 0.15 * srs
         )
         df["grade_dl_score"] = _blend(
-            0.45 * def_idx + 0.30 * def_expl + 0.15 * wrps_def + 0.10 * srs
+            0.35 * def_idx + 0.30 * def_expl + 0.20 * wrps_def + 0.15 * srs
         )
         df["grade_lb_score"] = _blend(
-            0.40 * def_idx + 0.35 * def_success + 0.15 * wrps_def + 0.10 * srs
+            0.35 * def_idx + 0.35 * def_success + 0.15 * wrps_def + 0.15 * srs
         )
         df["grade_db_score"] = _blend(
-            0.35 * def_idx + 0.40 * def_success + 0.15 * def_expl + 0.10 * wrps_def
+            0.30 * def_idx + 0.40 * def_success + 0.20 * def_expl + 0.10 * wrps_def
         )
-        df["grade_st_score"] = _blend(0.80 * st_idx + 0.20 * talent)
+        df["grade_st_score"] = _blend(0.60 * st_idx + 0.20 * talent + 0.20 * wrps_off)
 
-        for key in [
-            "qb",
-            "wr",
-            "rb",
-            "ol",
-            "dl",
-            "lb",
-            "db",
-            "st",
-        ]:
+        grade_keys = ["qb", "wr", "rb", "ol", "dl", "lb", "db", "st"]
+        for key in grade_keys:
             score_col = f"grade_{key}_score"
+            pct_col = f"grade_{key}_percentile"
             letter_col = f"grade_{key}_letter"
-            df[letter_col] = df[score_col].map(_letter_grade)
+            pct = df[score_col].rank(pct=True, ascending=True) * 100.0
+            df[pct_col] = pct.round(1)
+            df[letter_col] = df[pct_col].map(_letter_from_percentile)
 
     for col in [
         "team",
@@ -361,20 +356,28 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_def_index_0_100",
         "stat_st_index_0_100",
         "grade_qb_score",
+        "grade_qb_percentile",
         "grade_qb_letter",
         "grade_wr_score",
+        "grade_wr_percentile",
         "grade_wr_letter",
         "grade_rb_score",
+        "grade_rb_percentile",
         "grade_rb_letter",
         "grade_ol_score",
+        "grade_ol_percentile",
         "grade_ol_letter",
         "grade_dl_score",
+        "grade_dl_percentile",
         "grade_dl_letter",
         "grade_lb_score",
+        "grade_lb_percentile",
         "grade_lb_letter",
         "grade_db_score",
+        "grade_db_percentile",
         "grade_db_letter",
         "grade_st_score",
+        "grade_st_percentile",
         "grade_st_letter",
         "portal_net_0_100",
         "portal_net_count",
