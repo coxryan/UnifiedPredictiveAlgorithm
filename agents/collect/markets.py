@@ -409,6 +409,17 @@ def get_market_lines_for_current_week(
                     & (out_df["spread"] - out_df["market_spread_cfbd"]).abs() <= tol
                 )
                 source_series.loc[(source_series == "unknown") & cf_match] = "cfbd"
+            if "market_spread_cfbd" in out_df.columns:
+                if "market_spread_fanduel" in out_df.columns:
+                    fd_missing = out_df["market_spread_fanduel"].isna()
+                else:
+                    fd_missing = pd.Series(True, index=out_df.index)
+                cf_only = (
+                    (source_series == "unknown")
+                    & out_df["market_spread_cfbd"].notna()
+                    & fd_missing
+                )
+                source_series.loc[cf_only] = "cfbd"
             source_series.loc[out_df["spread"].isna()] = "none"
             out_df["market_spread_source"] = source_series
             market_extra["fanduel_games"] = int((source_series == "fanduel").sum())
