@@ -18,6 +18,7 @@ class CfbdClients:
     games_api: Any = None
     lines_api: Any = None
     rankings_api: Any = None
+    stats_api: Any = None
 
     def __post_init__(self):
         if cfbd and self.bearer_token:
@@ -29,7 +30,8 @@ class CfbdClients:
             self.games_api = cfbd.GamesApi(cli)
             self.lines_api = cfbd.BettingApi(cli) if hasattr(cfbd, 'BettingApi') else cfbd.LinesApi(cli)
             self.rankings_api = cfbd.RankingsApi(cli)
+            if hasattr(cfbd, 'StatsApi'):
+                self.stats_api = cfbd.StatsApi(cli)
 
 
 __all__ = ["CfbdClients"]
-

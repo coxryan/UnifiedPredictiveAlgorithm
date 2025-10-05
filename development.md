@@ -173,21 +173,18 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
   - Add **build_live_edge_report** and formalize edge/value distribution checks.
   - Expand **validation** to require minimum **coverage** on slate days.
   - Add **alerting** on validation failures (GitHub Issue/Slack webhook).
-  - Introduce expanded **statistical feature library**:
-    - Offensive efficiency metrics (points per possession, yards per play, EPA/play).
-    - Defensive efficiency metrics (points allowed per possession, success rate allowed, havoc rate).
-    - Position vs. position matchups (OL vs DL strength, WR vs CB grades, RB vs LB coverage).
-    - Tempo & pace indicators (plays per game, seconds per play).
-    - Explosiveness and chunk-play rates.
-    - Red-zone efficiency (offense vs defense).
-    - 3rd/4th down conversion rates (offense and defense).
-    - Special teams impact (field position value, kicker accuracy).
-  - Build **positional ranking model**:
-    - Rank units (QB, RB, WR, OL, DL, LB, CB, S, ST) vs national distribution.
-    - Create composite team ratings from position-weighted sums.
-    - Track unit-level injuries and replacements.
+  - **In flight – Statistical feature library**
+    - ✅ `agents.collect.stats_cfbd.build_team_stat_features` fetches CFBD season stats (offense/defense/special teams), normalizes them to 0–100, and persists both raw + feature tables.
+    - ✅ `build_team_inputs_datadriven` now merges efficiency features (`stat_off_ppg`, `stat_def_ppg`, etc.) for downstream modeling.
+    - ☐ Add situational splits (3rd/4th down, red zone) and rolling four-week deltas.
+    - ☐ Expand tests covering payload parsing and normalization edge cases.
+  - **In flight – Positional ranking model**
+    - ☐ Design positional metric schema leveraging the new stat library plus roster/usage inputs.
+    - ☐ Produce `raw_positional_ratings` dataset with per-unit scores and integrate into team inputs/predictions.
+  - **In flight – Historical baselines & drift monitoring**
+    - ☐ Snapshot pre-kick predictions weekly (using frozen spreads) into a longitudinal table for MAE/cover tracking.
+    - ☐ Expose rolling baseline metrics and alerts on the Status tab.
   - Integrate **advanced statistical databases** (CFB Stats, PFF-style sources if available) into feature ingestion.
-  - Add **historical baselines** and moving averages to track trends in team/position performance.
   - Build automated **feature importance reports** to surface which stats are driving edge.
   - Enhance **explainability layer** in the UI: when showing an edge, highlight which statistical categories most contributed.
 

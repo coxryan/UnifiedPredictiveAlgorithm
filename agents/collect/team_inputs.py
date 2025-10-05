@@ -9,6 +9,7 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .helpers import _normalize_percent, _scale_0_100
+from .stats_cfbd import build_team_stat_features
 from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 
@@ -211,6 +212,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
     if not sos_df.empty:
         sos_df = sos_df.drop(columns=["season", "retrieved_at"], errors="ignore")
 
+    # Statistical feature library (offense/defense/special teams efficiency)
+    stats_df = build_team_stat_features(year, apis, cache)
+
     # Transfer portal net score (placeholder: unavailable via CFBD in this context)
     portal_df = pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
 
@@ -222,6 +226,8 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
     if not df.empty:
         df = df.merge(srs_cur_df, on="team", how="left")
         df = df.merge(sos_df, on="team", how="left")
+        if not stats_df.empty:
+            df = df.merge(stats_df, on="team", how="left")
         df = df.merge(portal_df, on="team", how="left")
     else:
         seed = [
@@ -252,6 +258,15 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "srs_rank_1_133",
         "srs_score_0_100",
         "prev_season_sos_rank_1_133",
+        "stat_off_ppg",
+        "stat_off_ypp",
+        "stat_off_success",
+        "stat_off_explosiveness",
+        "stat_def_ppg",
+        "stat_def_ypp",
+        "stat_def_success",
+        "stat_def_explosiveness",
+        "stat_st_points_per_play",
         "portal_net_0_100",
         "portal_net_count",
         "portal_net_value",

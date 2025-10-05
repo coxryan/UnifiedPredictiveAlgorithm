@@ -36,6 +36,7 @@ from .schedule import (
     load_schedule_for_year,
 )
 from .team_inputs import build_team_inputs_datadriven
+from .stats_cfbd import build_team_stat_features
 from .predictions import build_predictions_for_year
 from .live_edge import build_live_edge_report
 from .odds_fanduel import (
@@ -64,6 +65,7 @@ __all__ = [
     "discover_current_week","_dummy_schedule","_date_only","_iso_datetime_str","load_schedule_for_year",
     # teams
     "build_team_inputs_datadriven",
+    "build_team_stat_features",
     "build_predictions_for_year",
     "build_live_edge_report",
     # odds/fanduel + name resolution
