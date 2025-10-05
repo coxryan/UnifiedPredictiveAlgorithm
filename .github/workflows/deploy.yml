@@ -146,7 +146,7 @@ jobs:
           fi
 
       # Build every artifact needed for the site (always regenerate)
-      - name: Build ALL site data (always regenerate)
+      - name: Build ALL site data (initial)
         env:
           CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
@@ -154,203 +154,34 @@ jobs:
           CACHE_DIR: ${{ env.CACHE_DIR }}
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import os, sys
-          import json
-          from datetime import datetime, timedelta
-          import pandas as pd
-          from agents.collect import (
-            CfbdClients,
-            ApiCache,
-            DATA_DIR,
-            DATA_DB_PATH,
-            write_dataset,
-            load_schedule_for_year,
-            discover_current_week,
-            get_market_lines_for_current_week,
-            build_team_inputs_datadriven,
-            build_predictions_for_year,
-            build_live_edge_report,
-          )
-          from agents.storage.sqlite_store import read_dataset, write_json_blob, read_json_blob
-          # Utilities
-          DATA = os.environ.get("DATA_DIR","data")
-          YEAR = int(os.environ.get("YEAR","2025"))
-          os.makedirs(DATA, exist_ok=True)
-          apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
-          cache = ApiCache()
-          # 1) TEAM INPUTS
-          ti = build_team_inputs_datadriven(YEAR, apis, cache)
-          write_dataset(ti, "upa_team_inputs_datadriven_v0")
-          print(f"[OK] wrote upa_team_inputs_datadriven_v0 rows={len(ti)}")
-          # 2) SCHEDULE (fresh/refetched if stale per loader heuristic)
-          sched = load_schedule_for_year(YEAR, apis, cache)
-          write_dataset(sched, "cfb_schedule")
-          print(f"[OK] wrote schedule rows={len(sched)}")
-          # 3) MARKET (FanDuel primary, CFBD fallback)
-          wk = discover_current_week(sched) or int(pd.to_numeric(sched.get("week"), errors="coerce").max() or 1)
-          combined_mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
-          write_dataset(combined_mkt, "market_debug")
-
-          def _spread_count(df):
-            for col in ("spread", "market_spread_book"):
-              if col in df.columns:
-                try:
-                  return int(pd.to_numeric(df.get(col), errors="coerce").notna().sum())
-                except Exception:
-                  return 0
-            return 0
-
-          print(f"[OK] wrote market_debug rows={len(combined_mkt)} (week <= {wk}; spreads={_spread_count(combined_mkt)})")
-          if read_dataset("market_unmatched").empty:
-            write_dataset(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), "market_unmatched")
-          # 4) LIVE SCORES (Eastern day)
-          try:
-            from agents.fetch_live_scores import fetch_scoreboard
-            rows = fetch_scoreboard(None)
-            write_dataset(pd.DataFrame(rows), "live_scores")
-            print(f"[OK] wrote live_scores rows={len(rows)}")
-          except Exception as e:
-            print(f"[warn] live scores fetch failed: {e}")
-            if read_dataset("live_scores").empty:
-              write_dataset(pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]), "live_scores")
-          # 5) PREDICTIONS
-          preds = build_predictions_for_year(
-            YEAR,
-            sched,
-            apis=apis,
-            cache=cache,
-            markets_df=combined_mkt,
-            team_inputs_df=ti,
-          )
-          write_dataset(preds, "upa_predictions")
-          preds_rows = len(preds)
-          print(f"[OK] wrote predictions rows={preds_rows}")
-          # 6) LIVE EDGE
-          edge = build_live_edge_report(YEAR, preds_df=preds)
-          write_dataset(edge, "live_edge_report")
-          print(f"[OK] wrote live_edge_report rows={len(edge)}")
-          # 7) STATUS + BACKFILL SUMMARY
-          now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-          try:
-            teams = read_dataset("upa_team_inputs_datadriven_v0")
-            games = read_dataset("cfb_schedule")
-            preds = read_dataset("upa_predictions")
-            status = read_json_blob("status") or {}
-            status.update({
-              "generated_at_utc": now,
-              "year": YEAR,
-              "teams": int(len(teams)) if not teams.empty else 0,
-              "games": int(len(games)) if not games.empty else 0,
-              "pred_rows": int(len(preds)) if not preds.empty else 0,
-              "next_run_eta_utc": now,
-            })
-            write_json_blob("status", status)
-            with open(os.path.join(DATA, "status.json"), "w") as fh:
-              json.dump(status, fh, indent=2)
-            print("[OK] updated status metadata")
-          except Exception as e:
-            print(f"[warn] status update failed: {e}")
-          # Backfill summary for Status page link
-          try:
-            sched = read_dataset("cfb_schedule")
-            preds = read_dataset("upa_predictions")
-            out = {
-              "dataset": "upa_predictions",
-              "predictions_rows": int(len(preds)),
-              "predictions_rows_with_market": int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0,
-              "schedule_rows": int(len(sched)),
-              "schedule_rows_with_market": int(pd.to_numeric(sched.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in sched.columns else 0,
-            }
-            write_json_blob("market_predictions_backfill", out)
-            with open(os.path.join(DATA, "market_predictions_backfill.json"), "w") as fh:
-              json.dump(out, fh, indent=2)
-            print("[OK] wrote market_predictions_backfill summary")
-          except Exception as e:
-            print(f"[warn] unable to write backfill summary: {e}")
-          PY
+          python tools/build_site_data.py --year 2025
 
       # Hard validation: fail build if core artifacts are empty or stale
-      - name: Validate data completeness (hard fail)
-        env:
-          YEAR: 2025
+      - name: Validate data completeness (initial)
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import sys, os
-          import pandas as pd
-          from datetime import datetime, timedelta
-          from agents.storage.sqlite_store import read_dataset
-          DATA = "data"
-          fail = []
+          python tools/validate_site_data.py --year 2025
 
-          # 1) Schedule must exist, be sizeable, and extend to >= today-1 (US/Pacific)
-          try:
-            sched = read_dataset("cfb_schedule")
-            if len(sched) < 200:
-              fail.append(f"schedule too small: {len(sched)} rows")
-            dts = pd.to_datetime(sched.get("date"), errors="coerce")
-            if dts.isna().all():
-              fail.append("schedule has no valid dates")
-            else:
-              if hasattr(dts, "dt") and getattr(dts.dt, "tz", None) is not None:
-                try:
-                  dts = dts.dt.tz_convert("America/Los_Angeles")
-                except Exception:
-                  try:
-                    dts = dts.dt.tz_localize("America/Los_Angeles")
-                  except Exception:
-                    pass
-                try:
-                  dts = dts.dt.tz_localize(None)
-                except Exception:
-                  pass
-              max_d = dts.dropna().max()
-              try:
-                today_pt = pd.Timestamp.now(tz="America/Los_Angeles").date()
-              except Exception:
-                today_pt = pd.Timestamp.utcnow().date()
-              max_date = None
-              if isinstance(max_d, pd.Timestamp):
-                max_date = max_d.date()
-              elif pd.notna(max_d):
-                try:
-                  max_date = pd.Timestamp(max_d).date()
-                except Exception:
-                  max_date = None
-              if max_date and max_date < (today_pt - timedelta(days=1)):
-                fail.append(f"schedule stale: max date {max_date} < (today-1)")
-          except Exception as e:
-            fail.append(f"schedule load error: {e}")
+      - name: Train residual model
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+        run: |
+          python -m agents.jobs.train_spread_model
 
-          # 2) Predictions must exist and have rows
-          try:
-            preds = read_dataset("upa_predictions")
-            if len(preds) == 0:
-              print("::warning::predictions empty (0 rows)")
-          except Exception as e:
-            fail.append(f"predictions load error: {e}")
+      - name: Build ALL site data (post-train)
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          MARKET_SOURCE: ${{ env.MARKET_SOURCE }}
+          ODDS_API_KEY: ${{ env.ODDS_API_KEY }}
+          CACHE_DIR: ${{ env.CACHE_DIR }}
+        run: |
+          set -euo pipefail
+          python tools/build_site_data.py --year 2025
 
-          # 3) Market debug should have at least some rows
-          try:
-            mdbg = read_dataset("market_debug")
-            if len(mdbg) == 0:
-              fail.append("market_debug empty (0 rows)")
-          except Exception as e:
-            fail.append(f"market_debug load error: {e}")
-
-          # 4) Live scores file must be readable (row count can be 0 on non-slate days)
-          try:
-            _ = read_dataset("live_scores")
-          except Exception as e:
-            fail.append(f"live_scores load error: {e}")
-
-          if fail:
-            print("::error::Data validation failed:")
-            for f in fail: print(" -", f)
-            sys.exit(1)
-          print("[OK] data validation passed.")
-          PY
+      - name: Validate data completeness (post-train)
+        run: |
+          set -euo pipefail
+          python tools/validate_site_data.py --year 2025
 
       - name: Run Python unit tests
         run: python -m pytest --maxfail=1 --disable-warnings

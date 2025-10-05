@@ -69,7 +69,11 @@ def _prepare_training_frame(df: pd.DataFrame) -> pd.DataFrame:
         delta_columns.append(delta_name)
 
     market = pd.to_numeric(frame.get("market_spread_book"), errors="coerce").fillna(0.0)
-    actual = pd.to_numeric(frame.get("actual_margin"), errors="coerce").fillna(0.0)
+    actual_raw = frame.get("actual_margin")
+    if isinstance(actual_raw, pd.Series):
+        actual = pd.to_numeric(actual_raw, errors="coerce").fillna(0.0)
+    else:
+        actual = pd.Series(0.0, index=frame.index)
     frame["target"] = actual - market
 
     keep = delta_columns + ["target"]
