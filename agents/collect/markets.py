@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from .config import MARKET_SOURCE, ODDS_API_KEY, MARKET_MIN_ROWS, DATA_DIR, _dbg
+from .config import MARKET_SOURCE, ODDS_API_KEY, MARKET_MIN_ROWS, DATA_DIR, DEBUG_MARKET, _dbg
 from .status import _upsert_status_market_source
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache, get_odds_cache
@@ -254,6 +254,7 @@ def get_market_lines_for_current_week(
     fb_reason = ""
     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
     fanduel_norm = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+    fanduel_raw_debug = pd.DataFrame()
     cfbd_norm = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
     market_extra: Dict[str, Any] = {}
 
@@ -310,6 +311,10 @@ def get_market_lines_for_current_week(
                     out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
                 else:
                     fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
+                    if isinstance(fanduel_df, pd.DataFrame):
+                        fanduel_raw_debug = fanduel_df.copy()
+                    else:
+                        fanduel_raw_debug = pd.DataFrame()
                     market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
                     fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
                     fanduel_norm = _normalize_market_df(fanduel_df)
@@ -375,9 +380,111 @@ def get_market_lines_for_current_week(
             cf = cf.rename(columns={"spread": "market_spread_cfbd"})
             out_df = out_df.merge(cf, on=key_cols, how="left")
 
+    _log_fanduel_nan_debug(out_df, fanduel_norm, fanduel_raw_debug, requested)
+
     # Record status
     _upsert_status_market_source(used, requested, fb_reason, DATA_DIR, extra=market_extra or None)
     return out_df
+
+
+def _log_fanduel_nan_debug(
+    out_df: pd.DataFrame,
+    fanduel_norm: pd.DataFrame,
+    fanduel_raw: pd.DataFrame,
+    requested_source: str,
+) -> None:
+    if not DEBUG_MARKET or (requested_source or "").lower() != "fanduel":
+        return
+
+    if out_df is None or out_df.empty:
+        return
+
+    if "market_spread_fanduel" in out_df.columns:
+        try:
+            missing_mask = pd.to_numeric(out_df["market_spread_fanduel"], errors="coerce").isna()
+        except Exception:
+            missing_mask = pd.Series(True, index=out_df.index)
+    else:
+        # No FanDuel column present; treat all rows as missing to aid debugging.
+        missing_mask = pd.Series(True, index=out_df.index)
+
+    if not bool(missing_mask.any()):
+        return
+
+    cols = [c for c in ["game_id", "week", "home_team", "away_team", "market_spread_cfbd", "market_spread_book"] if c in out_df.columns]
+    missing_rows = out_df.loc[missing_mask, cols]
+    _dbg(
+        f"get_market_lines_for_current_week: fanduel_missing rows={len(missing_rows)} (showing up to 10)"
+    )
+
+    for _, row in missing_rows.head(10).iterrows():
+        detail: Dict[str, Any] = {
+            "game_id": row.get("game_id"),
+            "week": row.get("week"),
+            "home_team": row.get("home_team"),
+            "away_team": row.get("away_team"),
+            "cfbd": row.get("market_spread_cfbd"),
+            "book": row.get("market_spread_book"),
+        }
+
+        norm_match = _match_market_row(fanduel_norm, row)
+        if not norm_match.empty:
+            detail["fanduel_norm"] = norm_match.head(1).iloc[0].to_dict()
+        elif fanduel_norm is not None and isinstance(fanduel_norm, pd.DataFrame) and not fanduel_norm.empty:
+            detail["fanduel_norm"] = {"candidates": int(len(fanduel_norm))}
+        else:
+            detail["fanduel_norm"] = None
+
+        raw_match = _match_market_row(fanduel_raw, row)
+        if not raw_match.empty:
+            detail["fanduel_raw"] = raw_match.head(1).iloc[0].to_dict()
+        elif fanduel_raw is not None and isinstance(fanduel_raw, pd.DataFrame) and not fanduel_raw.empty:
+            detail["fanduel_raw"] = {"candidates": int(len(fanduel_raw))}
+        else:
+            detail["fanduel_raw"] = None
+
+        _dbg(f"get_market_lines_for_current_week: fanduel_missing_detail {detail}")
+
+
+def _match_market_row(df: pd.DataFrame, row: pd.Series) -> pd.DataFrame:
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return pd.DataFrame()
+
+    candidates = df
+
+    def _normalize_numeric(series: pd.Series) -> pd.Series:
+        try:
+            return pd.to_numeric(series, errors="coerce")
+        except Exception:
+            return series
+
+    gid = row.get("game_id")
+    if pd.notna(gid) and "game_id" in candidates.columns:
+        norm_gid = _normalize_numeric(candidates["game_id"])
+        try:
+            candidates = candidates.loc[norm_gid == float(gid)]
+        except Exception:
+            pass
+
+    if candidates.empty and "week" in df.columns and pd.notna(row.get("week")):
+        norm_week = _normalize_numeric(df["week"])
+        try:
+            candidates = df.loc[norm_week == float(row.get("week"))]
+        except Exception:
+            candidates = df.loc[norm_week == row.get("week")]
+
+    def _match_team(col: str, value: Any, frame: pd.DataFrame) -> pd.DataFrame:
+        if frame.empty or col not in frame.columns or pd.isna(value):
+            return frame
+        try:
+            target = str(value).strip().casefold()
+            return frame.loc[frame[col].astype(str).str.strip().str.casefold() == target]
+        except Exception:
+            return frame
+
+    candidates = _match_team("home_team", row.get("home_team"), candidates)
+    candidates = _match_team("away_team", row.get("away_team"), candidates)
+    return candidates
 
 
 __all__ = ["_cfbd_lines_to_bookstyle", "get_market_lines_for_current_week"]

@@ -209,3 +209,71 @@ def test_get_market_lines_falls_back_to_cached_cfbd(monkeypatch, tmp_path):
     assert status_updates[-1][0] == "cfbd"
     assert status_updates[-1][1] == "fanduel"
     assert status_updates[-1][2] == "FanDuel available but returned too few rows (0)"
+
+
+def test_fanduel_nan_logging_includes_raw(monkeypatch, tmp_path):
+    logs: list[str] = []
+    monkeypatch.setattr(markets, "_dbg", lambda msg: logs.append(msg), raising=False)
+    monkeypatch.setattr(markets, "DEBUG_MARKET", True, raising=False)
+    monkeypatch.setattr(markets, "DATA_DIR", str(tmp_path), raising=False)
+    monkeypatch.setattr(markets, "MARKET_SOURCE", "fanduel", raising=False)
+    monkeypatch.setattr(markets, "ODDS_API_KEY", "token", raising=False)
+
+    monkeypatch.setattr(markets, "read_dataset", lambda *_args, **_kwargs: pd.DataFrame(), raising=False)
+    monkeypatch.setattr(markets, "storage_write_dataset", lambda *_args, **_kwargs: None, raising=False)
+    monkeypatch.setattr(markets, "delete_rows", lambda *_args, **_kwargs: None, raising=False)
+    monkeypatch.setattr(markets, "get_odds_cache", lambda: None, raising=False)
+
+    fanduel_raw = pd.DataFrame(
+        [
+            {
+                "game_id": 30,
+                "week": 5,
+                "home_team": "Home",
+                "away_team": "Away",
+                "spread": None,
+                "provider": "FanDuel",
+            }
+        ]
+    )
+
+    def bad_fanduel_fetch(year, weeks, sched_df, cache):
+        return fanduel_raw.copy(), {"raw": 1, "mapped": 0, "unmatched": 1}
+
+    monkeypatch.setattr(markets, "get_market_lines_fanduel_for_weeks", bad_fanduel_fetch, raising=False)
+
+    cfbd_df = pd.DataFrame(
+        [
+            {"game_id": 30, "week": 5, "home_team": "Home", "away_team": "Away", "spread": -6.5}
+        ]
+    )
+
+    monkeypatch.setattr(markets, "_fetch_cfbd_lines", lambda *args, **kwargs: cfbd_df.copy(), raising=False)
+
+    status_updates = []
+    monkeypatch.setattr(
+        markets,
+        "_upsert_status_market_source",
+        lambda used, req, reason, *_args, **_kwargs: status_updates.append((used, req, reason)),
+        raising=False,
+    )
+
+    schedule = pd.DataFrame(
+        [
+            {"game_id": 30, "week": 5, "home_team": "Home", "away_team": "Away"}
+        ]
+    )
+
+    result = markets.get_market_lines_for_current_week(
+        2025,
+        5,
+        schedule,
+        apis=SimpleNamespace(lines_api=None),
+        cache=SimpleNamespace(),
+    )
+
+    assert not result.empty
+    assert result.loc[result["game_id"] == 30, "market_spread_cfbd"].iloc[0] == pytest.approx(-6.5)
+    assert any("fanduel_missing_detail" in msg for msg in logs)
+    detail_line = next(msg for msg in logs if "fanduel_missing_detail" in msg)
+    assert "'provider': 'FanDuel'" in detail_line or '"provider": "FanDuel"' in detail_line
