@@ -256,6 +256,10 @@ def build_predictions_for_year(
         market_present & ~preds["market_spread_source"].isin(["fanduel", "cfbd"]),
         "market_spread_source",
     ] = "unknown"
+    # Authoritative check: any row with a FanDuel numeric value should always tag as FanDuel.
+    if "market_spread_fanduel" in preds.columns:
+        fanduel_available = preds["market_spread_fanduel"].notna()
+        preds.loc[fanduel_available, "market_spread_source"] = "fanduel"
     tol = 1e-6
     fd_mask = (
         market_present
@@ -331,6 +335,10 @@ def build_predictions_for_year(
 
     out = preds[cols].copy()
     out.sort_values(["week", "date", "home_team"], inplace=True, ignore_index=True)
+    if "market_spread_fanduel" in out.columns and "market_spread_source" in out.columns:
+        fd_available = pd.to_numeric(out["market_spread_fanduel"], errors="coerce").notna()
+        if fd_available.any():
+            out.loc[fd_available, "market_spread_source"] = "fanduel"
 
     synthetic_count = (
         int(out.get("market_is_synthetic", pd.Series(dtype=int)).sum())
