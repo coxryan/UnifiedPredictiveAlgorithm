@@ -1,0 +1,50 @@
+name: train-spread-model
+
+on:
+  schedule:
+    - cron: '0 11 * * 2'  # Tuesdays 11:00 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: train-spread-model
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agents/requirements.txt
+
+      - name: Train spread model
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+        run: |
+          python -m agents.jobs.train_spread_model
+
+      - name: Commit SQLite database
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          if git diff --quiet data/upa_data.sqlite; then
+            echo "No database changes to commit."
+            exit 0
+          fi
+          git add data/upa_data.sqlite
+          git commit -m "chore: train spread model [skip ci]"
+          git push
