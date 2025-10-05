@@ -271,8 +271,12 @@ def build_predictions_for_year(
         for col, series in grade_lookup.items():
             home_col = f"home_{col}"
             away_col = f"away_{col}"
-            preds[home_col] = preds["home_team"].map(series)
-            preds[away_col] = preds["away_team"].map(series)
+            try:
+                preds[home_col] = preds.set_index("home_team")[[]].join(series, how="left").iloc[:, 0].values
+                preds[away_col] = preds.set_index("away_team")[[]].join(series, how="left").iloc[:, 0].values
+            except Exception:
+                preds[home_col] = preds["home_team"].map(series)
+                preds[away_col] = preds["away_team"].map(series)
 
     home_rating = preds["home_team"].map(team_ratings).fillna(0.5)
     away_rating = preds["away_team"].map(team_ratings).fillna(0.5)
