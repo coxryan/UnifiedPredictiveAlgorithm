@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2025-10-05T03:02:03Z",
-  "year": 2025,
-  "teams": 137,
   "games": 753,
+  "generated_at_utc": "2025-10-05T03:25:53Z",
+  "next_run_eta_utc": "2025-10-05T03:25:53Z",
   "pred_rows": 753,
-  "next_run_eta_utc": "2025-10-05T03:02:03Z"
+  "teams": 137,
+  "year": 2025
 }
