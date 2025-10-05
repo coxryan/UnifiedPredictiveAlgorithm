@@ -29,5 +29,8 @@ export function fmtPct01(n: number | string | undefined) {
 }
 
 export function playedBool(v: any) {
-  return v === true || v === "True" || v === "true";
+  if (v === true || v === "True" || v === "true") return true;
+  if (v === false || v === "False" || v === "false") return false;
+  const n = Number(v);
+  return Number.isFinite(n) ? n !== 0 : false;
 }
