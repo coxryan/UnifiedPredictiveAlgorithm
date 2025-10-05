@@ -1,8 +1,16 @@
 import pandas as pd
+import pytest
 
 from types import SimpleNamespace
 
-from agents.collect.markets import _combine_market_sources, _cfbd_line_to_home_spread, _normalize_market_df
+import agents.collect.markets as markets
+from agents.collect.markets import (
+    _combine_market_sources,
+    _cfbd_line_to_home_spread,
+    _normalize_market_df,
+)
+import agents.storage as storage
+import agents.storage.sqlite_store as sqlite_store
 
 
 def test_combine_market_sources_adds_missing_games():
@@ -83,3 +91,121 @@ def test_normalize_market_df_drops_nan_spread():
     normalized = _normalize_market_df(df)
     assert len(normalized) == 1
     assert normalized.iloc[0]["game_id"] == 2
+
+
+def _patch_data_db(monkeypatch, tmp_path):
+    db_path = tmp_path / "test_upa.sqlite"
+    monkeypatch.setattr(sqlite_store, "DATA_DB_PATH", str(db_path), raising=False)
+    monkeypatch.setattr(storage, "DATA_DB_PATH", str(db_path), raising=False)
+    return db_path
+
+
+def test_get_market_lines_prefers_cached_fanduel(monkeypatch, tmp_path):
+    _patch_data_db(monkeypatch, tmp_path)
+    monkeypatch.setattr(markets, "DATA_DIR", str(tmp_path), raising=False)
+    monkeypatch.setattr(markets, "MARKET_SOURCE", "fanduel", raising=False)
+    monkeypatch.setattr(markets, "ODDS_API_KEY", "token", raising=False)
+
+    def fail_fetch(*_args, **_kwargs):
+        raise AssertionError("should not fetch FanDuel when cache available")
+
+    monkeypatch.setattr(markets, "get_market_lines_fanduel_for_weeks", fail_fetch, raising=False)
+
+    status_updates = []
+    monkeypatch.setattr(
+        markets,
+        "_upsert_status_market_source",
+        lambda used, req, reason, *_args, **_kwargs: status_updates.append((used, req, reason)),
+        raising=False,
+    )
+
+    raw_fanduel = pd.DataFrame(
+        [
+            {
+                "season": 2025,
+                "week": 5,
+                "game_id": 10,
+                "home_team": "Home",
+                "away_team": "Away",
+                "spread": -3.5,
+                "retrieved_at": "2025-10-05T00:00:00Z",
+            }
+        ]
+    )
+    storage.write_dataset(raw_fanduel, "raw_fanduel_lines")
+
+    schedule = pd.DataFrame(
+        [
+            {"game_id": 10, "week": 5, "home_team": "Home", "away_team": "Away"}
+        ]
+    )
+
+    result = markets.get_market_lines_for_current_week(
+        2025,
+        5,
+        schedule,
+        apis=SimpleNamespace(lines_api=None),
+        cache=SimpleNamespace(),
+    )
+
+    assert not result.empty
+    assert result.loc[result["game_id"] == 10, "market_spread_fanduel"].iloc[0] == pytest.approx(-3.5)
+    assert status_updates[-1][0] == "fanduel"
+    assert status_updates[-1][1] == "fanduel"
+    assert status_updates[-1][2] in ("", None)
+
+
+def test_get_market_lines_falls_back_to_cached_cfbd(monkeypatch, tmp_path):
+    _patch_data_db(monkeypatch, tmp_path)
+    monkeypatch.setattr(markets, "DATA_DIR", str(tmp_path), raising=False)
+    monkeypatch.setattr(markets, "MARKET_SOURCE", "fanduel", raising=False)
+    monkeypatch.setattr(markets, "ODDS_API_KEY", "token", raising=False)
+
+    def empty_fanduel_fetch(year, weeks, sched_df, cache):
+        cols = ["game_id", "week", "home_team", "away_team", "spread"]
+        return pd.DataFrame(columns=cols), {"raw": 0, "mapped": 0, "unmatched": 0}
+
+    monkeypatch.setattr(markets, "get_market_lines_fanduel_for_weeks", empty_fanduel_fetch, raising=False)
+
+    status_updates = []
+    monkeypatch.setattr(
+        markets,
+        "_upsert_status_market_source",
+        lambda used, req, reason, *_args, **_kwargs: status_updates.append((used, req, reason)),
+        raising=False,
+    )
+
+    raw_cfbd = pd.DataFrame(
+        [
+            {
+                "season": 2025,
+                "week": 5,
+                "game_id": 20,
+                "home_team": "Home",
+                "away_team": "Away",
+                "spread": -7.0,
+                "retrieved_at": "2025-10-05T00:00:00Z",
+            }
+        ]
+    )
+    storage.write_dataset(raw_cfbd, "raw_cfbd_lines")
+
+    schedule = pd.DataFrame(
+        [
+            {"game_id": 20, "week": 5, "home_team": "Home", "away_team": "Away"}
+        ]
+    )
+
+    result = markets.get_market_lines_for_current_week(
+        2025,
+        5,
+        schedule,
+        apis=SimpleNamespace(lines_api=None),
+        cache=SimpleNamespace(),
+    )
+
+    assert not result.empty
+    assert result.loc[result["game_id"] == 20, "market_spread_cfbd"].iloc[0] == pytest.approx(-7.0)
+    assert status_updates[-1][0] == "cfbd"
+    assert status_updates[-1][1] == "fanduel"
+    assert status_updates[-1][2] == "FanDuel available but returned too few rows (0)"

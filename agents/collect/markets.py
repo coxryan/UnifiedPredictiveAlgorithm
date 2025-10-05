@@ -292,18 +292,22 @@ def get_market_lines_for_current_week(
     cached_fanduel = _load_cached_lines("raw_fanduel_lines")
     if requested == "fanduel" and not cached_fanduel.empty and len(cached_fanduel) >= MARKET_MIN_ROWS:
         out_df = _normalize_market_df(cached_fanduel)
+        fanduel_norm = out_df.copy()
         used = "fanduel"
+        market_extra["fanduel_cached_rows"] = int(len(out_df))
         _dbg(f"get_market_lines_for_current_week: using cached FanDuel rows={len(out_df)}")
     else:
-        out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
+        if requested != "fanduel":
+            out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
     # If FanDuel requested
     if requested == "fanduel":
         try:
-            if used != "fanduel":
+            if used != "fanduel" or out_df.empty:
                 if not ODDS_API_KEY:
                     used = "cfbd"
                     fb_reason = "FanDuel requested but ODDS_API_KEY missing"
+                    out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
                 else:
                     fanduel_df, stats = get_market_lines_fanduel_for_weeks(year, weeks, schedule_df, get_odds_cache())
                     market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
@@ -320,9 +324,11 @@ def get_market_lines_for_current_week(
                     else:
                         used = "cfbd"
                         fb_reason = f"FanDuel available but returned too few rows ({len(fanduel_df)})"
+                        out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
         except Exception as e:
             used = "cfbd"
             fb_reason = f"FanDuel fetch error: {e}"
+            out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
 
     # CFBD branch (either requested or fallback)
     if used != "fanduel":
@@ -330,6 +336,7 @@ def get_market_lines_for_current_week(
             cached_cfbd = _load_cached_lines("raw_cfbd_lines")
             if not cached_cfbd.empty:
                 out_df = _normalize_market_df(cached_cfbd)
+                cfbd_norm = out_df.copy()
                 used = "cfbd"
         if out_df.empty:
             cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
