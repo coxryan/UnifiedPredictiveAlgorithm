@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react"
-import { fetchCSV, toObjects, num } from "../lib/csv"
+import { loadTable, toNum } from "../lib/csv"
 
 type TeamRow = {
   team: string
@@ -20,9 +20,8 @@ export default function TeamsTable() {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetchCSV("data/upa_team_inputs_datadriven_v0.csv")
-        const objs = toObjects(r) as TeamRow[]
-        setRows(objs)
+        const obs = (await loadTable("upa_team_inputs_datadriven_v0")) as TeamRow[]
+        setRows(obs)
         setError(null)
       } catch (e: any) {
         setError(e?.message || "Failed to load team inputs")
@@ -64,9 +63,9 @@ export default function TeamsTable() {
           </thead>
           <tbody>
             {filtered.map(r => {
-              const wrps = num(r.wrps_percent_0_100, NaN)
-              const tal = num(r.talent_score_0_100, NaN)
-              const por = num(r.portal_net_0_100, NaN)
+              const wrps = toNum(r.wrps_percent_0_100)
+              const tal = toNum(r.talent_score_0_100)
+              const por = toNum(r.portal_net_0_100)
               const sosrk = r.prev_season_sos_rank_1_133 || ""
               return (
                 <tr key={r.team}>

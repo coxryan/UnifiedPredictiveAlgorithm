@@ -44,13 +44,11 @@ function HealthLight({ minutes }: { minutes: number }) {
 export default function StatusPanel() {
   const [status, setStatus] = useState<StatusPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [csvLastMod, setCsvLastMod] = useState<string | null>(null);
   const [now, setNow] = useState<number>(Date.now());
   const timerRef = useRef<number | null>(null);
   const pollRef  = useRef<number | null>(null);
 
   const STATUS_URL = "data/status.json";
-  const CSV_URL = "data/upa_team_inputs_datadriven_v0.csv";
   const WORKFLOW_URL = "https://github.com/coxryan/UnifiedPredictiveAlgorithm/actions/workflows/collect-all.yml";
 
   useEffect(() => {
@@ -70,28 +68,13 @@ export default function StatusPanel() {
     }
   }, []);
 
-  const fetchCsvLastModified = useCallback(async () => {
-    try {
-      const head = await fetch(CSV_URL, { method: "HEAD", cache: "no-store" });
-      let lm = head.headers.get("Last-Modified");
-      if (!lm) {
-        const res = await fetch(CSV_URL, { cache: "no-store" });
-        lm = res.headers.get("Last-Modified");
-      }
-      if (lm) setCsvLastMod(new Date(lm).toLocaleString());
-    } catch (_) {}
-  }, []);
-
   useEffect(() => {
     fetchStatus();
     pollRef.current = window.setInterval(fetchStatus, 15000);
-    const csvTimer = window.setInterval(fetchCsvLastModified, 60000);
-    fetchCsvLastModified();
     return () => {
       if (pollRef.current) window.clearInterval(pollRef.current);
-      window.clearInterval(csvTimer);
     };
-  }, [fetchStatus, fetchCsvLastModified]);
+  }, [fetchStatus]);
 
   const etaMs = useMemo(() => {
     if (!status?.next_run_eta_utc) return null;
@@ -141,8 +124,8 @@ export default function StatusPanel() {
           <div>{status?.teams ?? "—"}</div>
         </div>
         <div className="mono cardlet">
-          <div style={{fontSize:12,color:"#6b7280"}}>CSV last modified</div>
-          <div>{csvLastMod ?? "—"}</div>
+          <div style={{fontSize:12,color:"#6b7280"}}>Pred rows</div>
+          <div>{status?.pred_rows ?? "—"}</div>
         </div>
       </div>
     </div>

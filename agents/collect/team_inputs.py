@@ -9,13 +9,13 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .helpers import _normalize_percent, _scale_0_100
-from agents.storage.sqlite_store import read_named_table, write_named_table, delete_rows
+from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 
 def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     # conference map
     team_conf: Dict[str, str] = {}
-    teams_table = read_named_table("raw_cfbd_fbs_teams")
+    teams_table = read_dataset("raw_cfbd_fbs_teams")
     if not teams_table.empty:
         tbl = teams_table.loc[teams_table.get("year") == year]
         if not tbl.empty:
@@ -42,12 +42,12 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                     ]
                 )
                 delete_rows("raw_cfbd_fbs_teams", "year", year)
-                write_named_table(df_store, "raw_cfbd_fbs_teams", if_exists="append")
+                storage_write_dataset(df_store, "raw_cfbd_fbs_teams", if_exists="append")
         except Exception as e:
             print(f"[warn] fbs teams fetch failed: {e}", file=sys.stderr)
 
     # Returning Production (Connelly via CFBD)
-    rp_df = read_named_table("raw_cfbd_returning_production")
+    rp_df = read_dataset("raw_cfbd_returning_production")
     if not rp_df.empty:
         rp_df = rp_df.loc[rp_df.get("year") == year].copy()
     if rp_df.empty and apis.players_api and team_conf:
@@ -103,7 +103,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             rp_df["year"] = year
             rp_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
             delete_rows("raw_cfbd_returning_production", "year", year)
-            write_named_table(rp_df, "raw_cfbd_returning_production", if_exists="append")
+            storage_write_dataset(rp_df, "raw_cfbd_returning_production", if_exists="append")
             rp_df = rp_df.drop(columns=["year", "retrieved_at"], errors="ignore")
     elif not rp_df.empty:
         rp_df = rp_df.drop(columns=["year", "retrieved_at"], errors="ignore")
@@ -128,7 +128,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         rp_df["wrps_percent_0_100"] = rp_df["wrps_percent_0_100"].round(1)
 
     # Team Talent
-    talent_df = read_named_table("raw_cfbd_talent")
+    talent_df = read_dataset("raw_cfbd_talent")
     if not talent_df.empty:
         talent_df = talent_df.loc[talent_df.get("year") == year].copy()
     if talent_df.empty and apis.teams_api:
@@ -153,7 +153,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             df["year"] = year
             df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
             delete_rows("raw_cfbd_talent", "year", year)
-            write_named_table(df, "raw_cfbd_talent", if_exists="append")
+            storage_write_dataset(df, "raw_cfbd_talent", if_exists="append")
             talent_df = df
         else:
             talent_df = pd.DataFrame()
@@ -162,7 +162,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         talent_df = talent_df[[c for c in ["team", "talent_score_0_100"] if c in talent_df.columns]]
 
     # Current season SRS ratings → rank and rank-score
-    srs_cur_df = read_named_table("raw_cfbd_srs")
+    srs_cur_df = read_dataset("raw_cfbd_srs")
     if not srs_cur_df.empty:
         srs_cur_df = srs_cur_df.loc[srs_cur_df.get("year") == year].copy()
     if srs_cur_df.empty:
@@ -181,7 +181,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                     df["year"] = year
                     df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                     delete_rows("raw_cfbd_srs", "year", year)
-                    write_named_table(df, "raw_cfbd_srs", if_exists="append")
+                    storage_write_dataset(df, "raw_cfbd_srs", if_exists="append")
                     srs_cur_df = df
         except Exception as e:
             print(f"[warn] srs fetch failed: {e}", file=sys.stderr)
@@ -190,7 +190,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         srs_cur_df = srs_cur_df.drop(columns=["year", "retrieved_at"], errors="ignore")
 
     # Previous season SOS rank
-    sos_df = read_named_table("raw_cfbd_sos")
+    sos_df = read_dataset("raw_cfbd_sos")
     prev_season = year - 1
     if not sos_df.empty:
         sos_df = sos_df.loc[sos_df.get("season") == prev_season].copy()
@@ -203,7 +203,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                     df["season"] = prev_season
                     df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                     delete_rows("raw_cfbd_sos", "season", prev_season)
-                    write_named_table(df, "raw_cfbd_sos", if_exists="append")
+                    storage_write_dataset(df, "raw_cfbd_sos", if_exists="append")
                     sos_df = df
         except Exception:
             sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})

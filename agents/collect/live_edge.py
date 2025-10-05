@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from agents.storage.sqlite_store import read_table_from_path
+from agents.storage import read_dataset
 
 
 def build_live_edge_report(
@@ -29,7 +29,7 @@ def build_live_edge_report(
                 ]
             )
         try:
-            preds_df = read_table_from_path(preds_csv)
+            preds_df = read_dataset("upa_predictions")
         except Exception:
             return pd.DataFrame(
                 columns=[

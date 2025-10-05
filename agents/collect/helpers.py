@@ -1,28 +1,26 @@
 from __future__ import annotations
 
-import os
 from typing import Any, Optional
 
 import logging
 import numpy as np
 import pandas as pd
 
-from agents.storage.sqlite_store import (
-    write_table_from_path,
-    read_table_from_path,
+from agents.storage import (
+    write_dataset as storage_write_dataset,
+    read_dataset,
     write_json_blob,
 )
 
 logger = logging.getLogger(__name__)
 
 
-def write_csv(df: pd.DataFrame, path: str) -> None:
+def write_dataset(df: pd.DataFrame, dataset: str) -> None:
     try:
-        base = os.path.basename(path)
         # Backfill market_spread_book for predictions if missing/empty by joining artifacts we already write.
-        # This uses FanDuel-derived market_debug.csv as the PRIMARY source – it does NOT ignore FanDuel.
+        # This uses FanDuel-derived markets as the PRIMARY source – it does NOT ignore FanDuel.
         try:
-            if base == "upa_predictions.csv":
+            if dataset == "upa_predictions":
                 n_before = int(pd.to_numeric(df.get("market_spread_book"), errors="coerce").notna().sum()) if ("market_spread_book" in df.columns) else 0
 
                 # Normalize keys for downstream joins
@@ -42,9 +40,9 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 market_numeric = _numeric_series("market_spread_book")
                 missing_mask = market_numeric.isna()
                 logger.debug(
-                    "write_csv: initial market gaps=%s file=%s",
+                    "write_dataset: initial market gaps=%s dataset=%s",
                     int(missing_mask.sum()),
-                    path,
+                    dataset,
                 )
 
                 # Step 1: copy from legacy column when available
@@ -74,17 +72,16 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                     missing_mask = market_numeric.isna()
                     filled = prev_missing - int(missing_mask.sum())
                     logger.debug(
-                        "write_csv: filled %s rows via %s join=%s for file=%s",
+                        "write_dataset: filled %s rows via %s join=%s for dataset=%s",
                         filled,
                         label,
                         join_cols,
-                        path,
+                        dataset,
                     )
 
                 # Step 2: backfill from market_debug snapshot (FanDuel)
                 if missing_mask.any():
-                    mdbg_p = os.path.join(os.path.dirname(path), "market_debug.csv")
-                    mdbg = read_table_from_path(mdbg_p)
+                    mdbg = read_dataset("market_debug")
                     if not mdbg.empty:
                         if "market_spread_book" not in mdbg.columns and "spread" in mdbg.columns:
                             mdbg = mdbg.rename(columns={"spread": "market_spread_book"})
@@ -100,8 +97,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
 
                 # Step 3: fall back to schedule-derived spreads if present
                 if missing_mask.any():
-                    sched_p = os.path.join(os.path.dirname(path), "cfb_schedule.csv")
-                    sched = read_table_from_path(sched_p)
+                    sched = read_dataset("cfb_schedule")
                     if not sched.empty:
                         if "market_spread_book" in sched.columns:
                             for col in ("game_id", "week"):
@@ -136,17 +132,17 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 try:
                     n_after = int(pd.to_numeric(df.get("market_spread_book"), errors="coerce").notna().sum()) if ("market_spread_book" in df.columns) else 0
                     dbg = {
-                        "file": "upa_predictions.csv",
+                        "dataset": "upa_predictions",
                         "backfill_before_rows_with_market": n_before,
                         "backfill_after_rows_with_market": n_after,
-                        "source": "FanDuel (market_debug.csv) primary; schedule fallback if available",
+                        "source": "FanDuel (market_debug) primary; schedule fallback if available",
                     }
-                    write_json_blob(os.path.join(os.path.dirname(path), "market_predictions_backfill.json"), dbg)
+                    write_json_blob("market_predictions_backfill", dbg)
                 except Exception:
                     pass
                 logger.debug(
-                    "write_csv: completed market backfill file=%s before=%s after=%s synthetic_rows=%s",
-                    path,
+                    "write_dataset: completed market backfill dataset=%s before=%s after=%s synthetic_rows=%s",
+                    dataset,
                     n_before,
                     n_after,
                     int(df.get("market_is_synthetic", pd.Series(dtype=int)).sum()) if "market_is_synthetic" in df.columns else None,
@@ -154,7 +150,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
         except Exception:
             # Never fail writing because of backfill logic
             pass
-        if base in ("upa_predictions.csv", "backtest_predictions_2024.csv", "upa_predictions_2024_backtest.csv"):
+        if dataset in {"upa_predictions", "backtest_predictions_2024", "upa_predictions_2024_backtest"}:
             try:
                 df = _mirror_book_to_legacy_columns(df.copy())
             except Exception:
@@ -165,7 +161,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
                 pass
     except Exception:
         pass
-    write_table_from_path(df, path)
+    storage_write_dataset(df, dataset)
 
 
 def _safe_float(x, default=None):
@@ -304,7 +300,7 @@ def _scale_0_100(series: pd.Series) -> pd.Series:
 
 
 __all__ = [
-    "write_csv",
+    "write_dataset",
     "_safe_float",
     "_grade_pick_result",
     "_apply_book_grades",

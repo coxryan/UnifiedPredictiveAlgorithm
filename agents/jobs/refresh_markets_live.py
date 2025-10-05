@@ -12,8 +12,8 @@ from agents.collect import (
     discover_current_week,
     get_market_lines_for_current_week,
 )
-from agents.collect.helpers import write_csv
-from agents.storage.sqlite_store import write_named_table, delete_rows
+from agents.collect.helpers import write_dataset
+from agents.storage import write_dataset as storage_write_dataset, delete_rows
 from agents.fetch_live_scores import fetch_scoreboard
 
 
@@ -42,13 +42,13 @@ def main() -> None:
         "home_team","away_team","home_school","away_school","home_points","away_points"
     ]
     ls_df = pd.DataFrame(rows, columns=live_scores_columns)
-    write_csv(ls_df, os.path.join(os.environ.get("DATA_DIR", "data"), "live_scores.csv"))
+    write_dataset(ls_df, "live_scores")
     if not ls_df.empty:
         store_ls = ls_df.copy()
         store_ls["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
         store_ls["season"] = year
         delete_rows("raw_espn_scoreboard", "season", year)
-        write_named_table(store_ls, "raw_espn_scoreboard", if_exists="append")
+        storage_write_dataset(store_ls, "raw_espn_scoreboard", if_exists="append")
 
 
 if __name__ == "__main__":

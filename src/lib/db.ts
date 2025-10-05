@@ -6,8 +6,8 @@ let dbPromise: Promise<Database> | null = null;
 function normalizeTableName(path: string): string {
   let p = path.replace(/\\/g, "/").trim();
   if (p.startsWith("data/")) p = p.slice(5);
-  if (p.endsWith(".csv") || p.endsWith(".json")) {
-    p = p.slice(0, -4);
+  if (p.endsWith(".json")) {
+    p = p.slice(0, -5);
   }
   p = p.replace(/\/+/g, "/");
   p = p.replace(/\//g, "__").replace(/-/g, "_").replace(/\./g, "_");

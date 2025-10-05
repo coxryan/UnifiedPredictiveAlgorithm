@@ -1,13 +1,12 @@
 import pandas as pd
 
-from agents.collect.helpers import write_csv
+from agents.collect.helpers import write_dataset
 from agents.storage import sqlite_store
-from agents.storage.sqlite_store import write_table_from_path, read_table_from_path
+from agents.storage import write_dataset as storage_write_dataset, read_dataset
 
 
-def test_write_csv_backfills_from_market_debug(tmp_path):
+def test_write_dataset_backfills_from_market_debug(tmp_path):
     sqlite_store.DATA_DB_PATH = str(tmp_path / "data.sqlite")
-    data_dir = tmp_path
     market_debug = pd.DataFrame(
         [
             {
@@ -19,7 +18,7 @@ def test_write_csv_backfills_from_market_debug(tmp_path):
             }
         ]
     )
-    write_table_from_path(market_debug, str(data_dir / "market_debug.csv"))
+    storage_write_dataset(market_debug, "market_debug")
 
     df = pd.DataFrame(
         [
@@ -35,15 +34,14 @@ def test_write_csv_backfills_from_market_debug(tmp_path):
         ]
     )
 
-    out_path = data_dir / "upa_predictions.csv"
-    write_csv(df.copy(), str(out_path))
+    write_dataset(df.copy(), "upa_predictions")
 
-    result = read_table_from_path(str(out_path))
+    result = read_dataset("upa_predictions")
     assert float(result.loc[0, "market_spread_book"]) == -7.0
     assert int(result.loc[0, "market_is_synthetic"]) == 0
 
 
-def test_write_csv_marks_synthetic_when_still_missing(tmp_path):
+def test_write_dataset_marks_synthetic_when_still_missing(tmp_path):
     sqlite_store.DATA_DB_PATH = str(tmp_path / "data.sqlite")
     df = pd.DataFrame(
         [
@@ -59,8 +57,7 @@ def test_write_csv_marks_synthetic_when_still_missing(tmp_path):
         ]
     )
 
-    out_path = tmp_path / "upa_predictions.csv"
-    write_csv(df.copy(), str(out_path))
+    write_dataset(df.copy(), "upa_predictions")
 
-    result = read_table_from_path(str(out_path))
+    result = read_dataset("upa_predictions")
     assert int(result.loc[0, "market_is_synthetic"]) == 1

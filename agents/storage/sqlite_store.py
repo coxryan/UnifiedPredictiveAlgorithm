@@ -10,11 +10,14 @@ from typing import Any, Optional
 
 import pandas as pd
 
+
 def _env_path(name: str, default: str) -> str:
     p = os.environ.get(name, default)
     p = os.path.abspath(p)
     os.makedirs(os.path.dirname(p), exist_ok=True)
     return p
+
+
 DATA_DIR = os.environ.get("DATA_DIR", "data").strip() or "data"
 DATA_DB_PATH = _env_path("DATA_DB_PATH", os.path.join(DATA_DIR, "upa_data.sqlite"))
 CACHE_DB_PATH = _env_path("CACHE_DB_PATH", os.path.join(DATA_DIR, "upa_cache.sqlite"))
@@ -41,17 +44,12 @@ def get_data_connection():
     return _connect(DATA_DB_PATH, _DATA_LOCK)
 
 
-def path_to_table_name(path: str) -> str:
-    path = path.replace("\\", "/").strip()
-    if path.startswith("data/"):
-        path = path[5:]
-    if path.endswith(".csv") or path.endswith(".json"):
-        path = path.rsplit(".", 1)[0]
-    path = path.strip("/")
-    path = path.replace("/", "__").replace("-", "_").replace(".", "_")
-    if not path:
-        path = "dataset"
-    return path
+def _normalize_name(name: str) -> str:
+    norm = name.strip().lower().replace(" ", "_")
+    norm = norm.replace("/", "__").replace("-", "_")
+    if not norm:
+        norm = "dataset"
+    return norm
 
 
 def _ensure_artifact_table(conn: sqlite3.Connection) -> None:
@@ -67,20 +65,20 @@ def _ensure_artifact_table(conn: sqlite3.Connection) -> None:
     )
 
 
-def write_table_from_path(df: pd.DataFrame, path: str, *, if_exists: str = "replace") -> str:
-    table = path_to_table_name(path)
+def write_dataset(df: pd.DataFrame, name: str, *, if_exists: str = "replace", kind: str = "table") -> str:
+    table = _normalize_name(name)
     with get_data_connection() as conn:
         df.to_sql(table, conn, if_exists=if_exists, index=False)
         _ensure_artifact_table(conn)
         conn.execute(
             "INSERT OR REPLACE INTO data_artifacts(path, table_name, kind, updated_at) VALUES(?,?,?,?)",
-            (path, table, "table", time.time()),
+            (name, table, kind, time.time()),
         )
     return table
 
 
-def read_table_from_path(path: str) -> pd.DataFrame:
-    table = path_to_table_name(path)
+def read_dataset(name: str) -> pd.DataFrame:
+    table = _normalize_name(name)
     with get_data_connection() as conn:
         try:
             return pd.read_sql_query(f"SELECT * FROM {table}", conn)
@@ -88,25 +86,8 @@ def read_table_from_path(path: str) -> pd.DataFrame:
             return pd.DataFrame()
 
 
-def write_named_table(df: pd.DataFrame, table: str, *, if_exists: str = "replace", kind: str = "table") -> None:
-    with get_data_connection() as conn:
-        df.to_sql(table, conn, if_exists=if_exists, index=False)
-        _ensure_artifact_table(conn)
-        conn.execute(
-            "INSERT OR REPLACE INTO data_artifacts(path, table_name, kind, updated_at) VALUES(?,?,?,?)",
-            (f"table:{table}", table, kind, time.time()),
-        )
-
-
-def read_named_table(table: str) -> pd.DataFrame:
-    with get_data_connection() as conn:
-        try:
-            return pd.read_sql_query(f"SELECT * FROM {table}", conn)
-        except Exception:
-            return pd.DataFrame()
-
-
-def delete_rows(table: str, column: Optional[str] = None, value: Any = None) -> None:
+def delete_rows(name: str, column: Optional[str] = None, value: Any = None) -> None:
+    table = _normalize_name(name)
     with get_data_connection() as conn:
         try:
             if column is None:
@@ -114,29 +95,28 @@ def delete_rows(table: str, column: Optional[str] = None, value: Any = None) -> 
             else:
                 conn.execute(f"DELETE FROM {table} WHERE {column} = ?", (value,))
         except sqlite3.OperationalError:
-            # table may not exist yet; ignore
             pass
 
 
-def write_json_blob(path: str, payload: Any) -> None:
+def write_json_blob(name: str, payload: Any) -> None:
     with get_data_connection() as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS data_json (path TEXT PRIMARY KEY, payload TEXT, updated_at REAL NOT NULL)"
         )
         conn.execute(
             "INSERT OR REPLACE INTO data_json(path, payload, updated_at) VALUES(?,?,?)",
-            (path, json.dumps(payload, sort_keys=True), time.time()),
+            (name, json.dumps(payload, sort_keys=True), time.time()),
         )
         _ensure_artifact_table(conn)
         conn.execute(
             "INSERT OR REPLACE INTO data_artifacts(path, table_name, kind, updated_at) VALUES(?,?,?,?)",
-            (path, path_to_table_name(path), "json", time.time()),
+            (name, _normalize_name(name), "json", time.time()),
         )
 
 
-def read_json_blob(path: str) -> Optional[Any]:
+def read_json_blob(name: str) -> Optional[Any]:
     with get_data_connection() as conn:
-        cursor = conn.execute("SELECT payload FROM data_json WHERE path = ?", (path,))
+        cursor = conn.execute("SELECT payload FROM data_json WHERE path = ?", (name,))
         row = cursor.fetchone()
         if not row:
             return None

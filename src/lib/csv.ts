@@ -1,11 +1,11 @@
 import { loadTableFromPath, loadJsonBlob } from "./db";
 
-export async function loadCsv(path: string) {
-  return loadTableFromPath(path);
+export async function loadTable(name: string) {
+  return loadTableFromPath(name);
 }
 
-export async function loadJson(path: string) {
-  const payload = await loadJsonBlob(path);
+export async function loadJson(key: string) {
+  const payload = await loadJsonBlob(key);
   return payload ?? {};
 }
 

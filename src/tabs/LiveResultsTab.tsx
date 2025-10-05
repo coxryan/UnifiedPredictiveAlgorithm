@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, toNum } from "../lib/csv";
+import { loadTable, fmtNum, toNum } from "../lib/csv";
 import { Badge } from "../lib/ui";
 
 // Join ESPN live scores with our predictions by (away_school, home_school)
@@ -45,10 +45,10 @@ export default function LiveResultsTab() {
 
   useEffect(() => {
     (async () => {
-      try { setLive((await loadCsv("data/live_scores.csv")) as LiveRow[]); } catch { setLive([]); }
-      try { setPreds((await loadCsv("data/upa_predictions.csv")) as PredRow[]); } catch { setPreds([]); }
+      try { setLive((await loadTable("live_scores")) as LiveRow[]); } catch { setLive([]); }
+      try { setPreds((await loadTable("upa_predictions")) as PredRow[]); } catch { setPreds([]); }
       try {
-        const t = (await loadCsv("data/upa_team_inputs_datadriven_v0.csv")) as TeamInput[];
+        const t = (await loadTable("upa_team_inputs_datadriven_v0")) as TeamInput[];
         setFbs(new Set((t || []).map((x:any)=> (x.team||"").toString().trim())));
       } catch { setFbs(new Set()); }
     })();
@@ -123,7 +123,7 @@ export default function LiveResultsTab() {
         Live Results <Badge tone="muted">Updated {lastUpdatedLabel}</Badge>
       </div>
       {!live.length && (
-        <div className="note">No live rows found. Expecting <code>data/live_scores.csv</code>.</div>
+        <div className="note">No live rows found. Expecting dataset <code>live_scores</code>.</div>
       )}
       <div className="grid">
         {cards.map((g:any, i:number)=> (

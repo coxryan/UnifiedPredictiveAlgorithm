@@ -102,18 +102,16 @@ def fetch_scoreboard(day: str | None = None) -> List[Dict[str, Any]]:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--year", type=int, default=dt.datetime.utcnow().year)
-    p.add_argument("--out", type=str, default="data/live_scores.csv")
+    p.add_argument("--out", type=str, default="live_scores", help="Dataset name to store results")
     p.add_argument("--day", type=str, help="YYYYMMDD (UTC)")
     args = p.parse_args()
 
     rows = fetch_scoreboard(args.day)
     df = pd.DataFrame(rows)
-    # Ensure output directory exists when a folder is provided.
-    out_dir = os.path.dirname(args.out)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-    df.to_csv(args.out, index=False)
-    print(f"Wrote {args.out} with {len(df)} rows")
+    from agents.collect.helpers import write_dataset
+    destination = args.out.strip() or "live_scores"
+    write_dataset(df, destination)
+    print(f"Stored dataset '{destination}' with {len(df)} rows")
 
 if __name__ == "__main__":
     main()

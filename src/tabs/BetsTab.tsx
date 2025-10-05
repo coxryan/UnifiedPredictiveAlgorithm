@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, toNum, playedBool } from "../lib/csv";
-import { Badge, TeamLabel, downloadCsv, nextUpcomingWeek } from "../lib/ui";
+import { loadTable, fmtNum, toNum, playedBool } from "../lib/csv";
+import { Badge, TeamLabel, downloadDataset, nextUpcomingWeek } from "../lib/ui";
 import { EDGE_MIN, VALUE_MIN } from "./constants";
 
 // -----------------------------
@@ -143,12 +143,12 @@ export default function BetsTab() {
   useEffect(() => {
    (async () => {
     try {
-      const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+      const r = (await loadTable("upa_predictions")) as PredRow[];
       setRows(r);
       const nextWk = nextUpcomingWeek(r as any);
       setWk(nextWk);
       try {
-        const sched = (await loadCsv("data/cfb_schedule.csv")) as any[];
+        const sched = (await loadTable("cfb_schedule")) as any[];
         const byKey: Record<string, string> = {};
         const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? "").toString().trim();
@@ -527,8 +527,8 @@ export default function BetsTab() {
           className="btn"
           disabled={!unionStaked.length}
           onClick={() =>
-            downloadCsv(
-              `week_${wk ?? "NA"}_bets.csv`,
+            downloadDataset(
+              `week_${wk ?? "NA"}_bets.data`,
               unionStaked.map((r: any) => ({
                 week: r.week,
                 date: r.date,
@@ -548,7 +548,7 @@ export default function BetsTab() {
             )
           }
         >
-          Download betslip CSV
+          Download betslip
         </button>
       </div>
 

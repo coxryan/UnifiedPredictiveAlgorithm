@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, toNum, playedBool } from "../lib/csv";
+import { loadTable, fmtNum, toNum, playedBool } from "../lib/csv";
 import { Badge, TeamLabel, scoreText } from "../lib/ui";
 
 type TeamRow = { team: string; conference: string; };
@@ -22,8 +22,8 @@ export default function TeamTab() {
   const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
 
   useEffect(() => { (async () => {
-    try { setTeams(await loadCsv("data/upa_team_inputs_datadriven_v0.csv") as TeamRow[]); } catch { setTeams([]); }
-    try { setRows(await loadCsv("data/upa_predictions.csv") as PredRow[]); } catch { setRows([]); }
+    try { setTeams(await loadTable("upa_team_inputs_datadriven_v0") as TeamRow[]); } catch { setTeams([]); }
+    try { setRows(await loadTable("upa_predictions") as PredRow[]); } catch { setRows([]); }
   })(); }, []);
 
   const gamesByTeam = useMemo(() => {

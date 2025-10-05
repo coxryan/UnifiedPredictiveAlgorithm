@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import Any, Dict, Iterable, Optional
 
 import pandas as pd
@@ -8,14 +7,12 @@ import pandas as pd
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .config import DATA_DIR, CACHE_ONLY, _dbg, REQUIRE_SCHED_MIN_ROWS
-from agents.storage.sqlite_store import (
-    read_table_from_path,
-    read_named_table,
-    write_named_table,
+from agents.storage import (
+    read_dataset,
+    read_dataset as read_named_table,  # alias for clarity
+    write_dataset as storage_write_dataset,
     delete_rows,
 )
-from agents.storage.sqlite_store import read_table_from_path
-
 
 def discover_current_week(schedule: pd.DataFrame) -> Optional[int]:
     if "week" not in schedule or "date" not in schedule:
@@ -238,37 +235,6 @@ def load_schedule_for_year(
       else:
           return df
 
-    # Try reading existing CSV (created by prior builds)
-    try:
-        p = os.path.join(DATA_DIR, "cfb_schedule.csv")
-        df = read_table_from_path(p)
-        if not df.empty:
-            if "date" in df.columns:
-                df = df[df["date"].astype(str).str.startswith(str(year))].copy()
-            if "neutral_site" not in df.columns:
-                df["neutral_site"] = 0
-            if norm_fbs:
-                df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
-            keep = [
-                "game_id",
-                "week",
-                "date",
-                "kickoff_utc",
-                "away_team",
-                "home_team",
-                "neutral_site",
-                "home_points",
-                "away_points",
-            ]
-            df = df[[c for c in keep if c in df.columns]]
-            if _is_schedule_stale(df, year):
-                _dbg("cached schedule deemed stale → will fetch from CFBD API")
-            else:
-                cache.set(key, df.to_dict(orient="records"))
-                return df
-    except Exception:
-        pass
-
     # If no CFBD api, fall back to dummy when nothing else is present
     if not apis.games_api or CACHE_ONLY:
         df = _dummy_schedule(year)
@@ -301,7 +267,7 @@ def load_schedule_for_year(
             df_raw["season"] = year
             df_raw["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
             delete_rows("raw_cfbd_games", "season", year)
-            write_named_table(df_raw, "raw_cfbd_games", if_exists="append")
+            storage_write_dataset(df_raw, "raw_cfbd_games", if_exists="append")
         if norm_fbs:
             df = df.loc[df["home_team"].isin(norm_fbs) & df["away_team"].isin(norm_fbs)].reset_index(drop=True)
         cache.set(key, df.to_dict(orient="records"))

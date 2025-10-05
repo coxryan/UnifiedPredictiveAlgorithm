@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
+import { loadTable, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
 import { Badge, TeamLabel } from "../lib/ui";
 
 type PredRow = {
@@ -16,10 +16,10 @@ type PredRow = {
   home_points?: string; away_points?: string;
 };
 
-async function loadFirst(paths: string[]) {
-  for (const p of paths) {
+async function loadFirst(datasets: string[]) {
+  for (const p of datasets) {
     try {
-      const rows = await loadCsv(p);
+      const rows = await loadTable(p);
       if (rows && rows.length) return rows;
     } catch {}
   }
@@ -42,8 +42,8 @@ export default function BacktestTab() {
   useEffect(() => { (async () => {
     try {
       const summaryRows = await loadFirst([
-        "data/2024/backtest_summary_2024.csv",
-        "data/backtest_summary_2024.csv",
+        "backtest_summary_2024",
+        "backtest_summary",
       ]);
       setSummary(summaryRows);
     } catch (e:any) {
@@ -52,9 +52,8 @@ export default function BacktestTab() {
 
     try {
       const predRows = await loadFirst([
-        "data/2024/upa_predictions_2024_backtest.csv",
-        "data/2024/backtest_predictions_2024.csv",
-        "data/backtest_predictions_2024.csv",
+        "upa_predictions_2024_backtest",
+        "backtest_predictions_2024",
       ]) as PredRow[];
       setPreds(predRows);
     } catch (e:any) {
@@ -128,7 +127,7 @@ export default function BacktestTab() {
 
       {!preds.length && (
         <div className="note" style={{marginBottom:8}}>
-          No backtest data found. Looking for: <code>data/2024/upa_predictions_2024_backtest.csv</code> or <code>data/backtest_predictions_2024.csv</code>.
+          No backtest data found. Expected datasets: <code>upa_predictions_2024_backtest</code> or <code>backtest_predictions_2024</code>.
         </div>
       )}
 

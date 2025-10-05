@@ -4,9 +4,9 @@
 This repo bundles:
 - **Dashboard** (Vite + React + TS) with tabs: **Status**, **Teams**, **Predictions**, **Live Edge**
 - **Collector** (Python via GitHub Actions) that writes:
-  - `data/upa_team_inputs_datadriven_v0.csv`
+  - `upa_team_inputs_datadriven_v0` dataset
   - `data/status.json`
-  - (if `data/cfb_schedule.csv` exists) `data/upa_predictions.csv` and `data/live_edge_report.csv`
+  - (if `cfb_schedule` dataset exists) `upa_predictions` dataset and `live_edge_report` dataset
 - **Pages deploy** integrated into the same workflow
 
 ## One-time setup
@@ -27,11 +27,11 @@ This repo bundles:
    - *(Optional)* Variable **SHEET_ID** = your Sheet ID
 
 ## Provide a schedule (optional but recommended)
-Place `data/cfb_schedule.csv` with columns such as:
+Place `cfb_schedule` dataset with columns such as:
 ```
 week,date,home_team,away_team,neutral_site,market_spread
 ```
-If present, the collector will emit `data/upa_predictions.csv` + `data/live_edge_report.csv` every run.
+If present, the collector will emit `upa_predictions` dataset + `live_edge_report` dataset every run.
 
 ## Run
 - Go to **Actions → Agent Collect & Update CSVs (All FBS) → Run workflow**.

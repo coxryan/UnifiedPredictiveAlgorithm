@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, toNum, playedBool } from "../lib/csv";
+import { loadTable, fmtNum, toNum, playedBool } from "../lib/csv";
 import { Badge, TeamLabel } from "../lib/ui";
 import { EDGE_MIN, VALUE_MIN } from "./constants";
 
@@ -29,7 +29,7 @@ export default function LiveEdgeTab() {
   useEffect(() => {
     (async () => {
       try {
-        const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+        const r = (await loadTable("upa_predictions")) as PredRow[];
         setRows(r);
       } catch {
         setRows([]);

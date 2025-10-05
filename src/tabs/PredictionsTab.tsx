@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadCsv, fmtNum, toNum } from "../lib/csv";
+import { loadTable, fmtNum, toNum } from "../lib/csv";
 import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
 
 // Numeric normalization helpers
@@ -50,7 +50,7 @@ export default function PredictionsTab() {
   useEffect(() => {
     (async () => {
       try {
-        const r = (await loadCsv("data/upa_predictions.csv")) as PredRow[];
+        const r = (await loadTable("upa_predictions")) as PredRow[];
         const coerceNum = (v: any) => {
           const n = toNum(v);
           return Number.isFinite(n) ? n : null;
@@ -81,14 +81,14 @@ export default function PredictionsTab() {
       }
 
       try {
-        const l = (await loadCsv("data/live_scores.csv")) as LiveRow[];
+        const l = (await loadTable("live_scores")) as LiveRow[];
         setLiveRows(l || []);
       } catch {
         setLiveRows([]);
       }
 
       try {
-        const sched = (await loadCsv("data/cfb_schedule.csv")) as any[];
+        const sched = (await loadTable("cfb_schedule")) as any[];
         const byKey: Record<string, string> = {};
         const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? '').toString().trim();
@@ -134,7 +134,7 @@ export default function PredictionsTab() {
     return w as number[];
   }, [rows]);
 
-  // map of live scores keyed by "away|home" using normalized school names from live CSV
+  // map of live scores keyed by "away|home" using normalized school names from the live_scores dataset
   const liveMap = useMemo(() => {
     const m = new Map<string, { hp: number | null; ap: number | null; state: string }>();
     for (const r of liveRows || []) {
@@ -324,7 +324,7 @@ export default function PredictionsTab() {
       </div>
 
       {!rows.length && (
-        <div className="note" style={{marginBottom:8}}>No predictions found. Expecting <code>data/upa_predictions.csv</code>.</div>
+        <div className="note" style={{marginBottom:8}}>No predictions found. Expecting dataset <code>upa_predictions</code>.</div>
       )}
 
       <div className="table-wrap">

@@ -18,7 +18,7 @@ export function TeamLabel({ home, team, neutral }: { home: boolean, team: string
   );
 }
 
-export function downloadCsv(filename: string, rows: Record<string, any>[]) {
+export function downloadDataset(filename: string, rows: Record<string, any>[]) {
   if (!rows.length) return;
   const cols = Object.keys(rows[0]);
   const body = rows.map(r => cols.map(c => (r[c] ?? "")).join(",")).join("\n");

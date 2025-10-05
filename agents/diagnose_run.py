@@ -2,7 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import pandas as pd
 
-from agents.storage.sqlite_store import read_table_from_path, write_json_blob
+from agents.storage import read_dataset, write_json_blob
 
 DATA = Path("data")
 
@@ -11,12 +11,12 @@ def _head(df: pd.DataFrame, n: int = 5) -> str:
         return df.head(n).to_string(index=False)
 
 def main() -> None:
-    teams = read_table_from_path(str(DATA / "upa_team_inputs_datadriven_v0.csv"))
+    teams = read_dataset("upa_team_inputs_datadriven_v0")
     print(f"[OK] team inputs rows={len(teams)}")
     print("[HEAD] team inputs (5 rows):")
     print(_head(teams))
 
-    sched = read_table_from_path(str(DATA / "cfb_schedule.csv"))
+    sched = read_dataset("cfb_schedule")
     print(f"[OK] schedule rows={len(sched)}")
     has_real_market = 0
     if {"market_spread_book","market_is_synthetic"}.issubset(sched.columns):
@@ -27,7 +27,7 @@ def main() -> None:
     print("[HEAD] schedule (5 rows):")
     print(_head(sched[cols]))
 
-    preds = read_table_from_path(str(DATA / "upa_predictions.csv"))
+    preds = read_dataset("upa_predictions")
     print(f"[OK] predictions rows={len(preds)}")
     with_market = 0
     if {"market_spread_book","market_is_synthetic"}.issubset(preds.columns):
@@ -46,13 +46,13 @@ def main() -> None:
         print("[DIAG] top nan_reason counts:")
         print(preds["nan_reason"].value_counts(dropna=False).head(10).to_string())
 
-    edge = read_table_from_path(str(DATA / "live_edge_report.csv"))
+    edge = read_dataset("live_edge_report")
     print(f"[OK] live edge rows={len(edge)}")
 
     # ---- Write a compact backfill summary JSON for the Status page link
     try:
         out = {
-            "file": "upa_predictions.csv",
+            "dataset": "upa_predictions",
             "predictions_rows": int(len(preds)),
             "predictions_rows_with_market": int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0,
             "schedule_rows": int(len(sched)),

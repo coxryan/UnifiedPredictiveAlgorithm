@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import json
 from datetime import datetime
 
 import pandas as pd
@@ -10,8 +11,8 @@ from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .schedule import load_schedule_for_year, discover_current_week
 from .markets import get_market_lines_for_current_week
-from .helpers import write_csv
-from agents.storage.sqlite_store import read_json_blob, write_json_blob, read_table_from_path
+from .helpers import write_dataset
+from agents.storage import read_json_blob, write_json_blob, read_dataset
 
 
 def market_debug_entry() -> None:
@@ -22,7 +23,7 @@ def market_debug_entry() -> None:
       * fetches market lines for all weeks up to current week,
       * writes small debug artefacts into DATA_DIR:
           - market_debug.json (summary + market-source bookkeeping)
-          - market_debug.csv  (resolved market lines)
+          - market_debug  (resolved market lines)
     Notes:
       - Reads configuration exclusively from environment variables consumed in config.py
     """
@@ -44,8 +45,7 @@ def market_debug_entry() -> None:
 
         os.makedirs(DATA_DIR, exist_ok=True)
 
-        debug_csv = os.path.join(DATA_DIR, "market_debug.csv")
-        write_csv(lines, debug_csv)
+        write_dataset(lines, "market_debug")
 
         status_path = os.path.join(DATA_DIR, "status.json")
         status_payload = read_json_blob(status_path) or {}
@@ -60,16 +60,20 @@ def market_debug_entry() -> None:
             "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
         }
 
-        write_json_blob(os.path.join(DATA_DIR, "market_debug.json"), summary)
+        write_json_blob("market_debug", summary)
+        try:
+            with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as fh:
+                json.dump(summary, fh, indent=2)
+        except Exception:
+            pass
 
         _dbg(f"market_debug_entry: summary={summary}")
 
-        # Ensure unmatched CSV exists for UI link (may be empty if no unmatched rows were produced upstream)
+        # Ensure unmatched dataset exists for UI link (may be empty if no unmatched rows were produced upstream)
         try:
-            unm_csv = os.path.join(DATA_DIR, "market_unmatched.csv")
-            existing_df = read_table_from_path(unm_csv)
+            existing_df = read_dataset("market_unmatched")
             if existing_df.empty:
-                write_csv(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), unm_csv)
+                write_dataset(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), "market_unmatched")
         except Exception:
             pass
 
@@ -77,13 +81,26 @@ def market_debug_entry() -> None:
         try:
             os.makedirs(DATA_DIR, exist_ok=True)
             write_json_blob(
-                os.path.join(DATA_DIR, "market_debug.json"),
+                "market_debug",
                 {
                     "error": str(e),
                     "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
                     "requested_market": (MARKET_SOURCE or "cfbd"),
                 },
             )
+            try:
+                with open(os.path.join(DATA_DIR, "market_debug.json"), "w") as fh:
+                    json.dump(
+                        {
+                            "error": str(e),
+                            "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                            "requested_market": (MARKET_SOURCE or "cfbd"),
+                        },
+                        fh,
+                        indent=2,
+                    )
+            except Exception:
+                pass
         except Exception:
             pass
         raise

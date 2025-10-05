@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react"
-import { fetchCSV, toObjects, num } from "../lib/csv"
+import { loadTable, toNum } from "../lib/csv"
 
 type GameRow = {
   week?: string
@@ -24,9 +24,8 @@ export default function GamesTable() {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetchCSV("data/upa_predictions.csv")
-        const objs = toObjects(r) as GameRow[]
-        setRows(objs)
+        const obs = (await loadTable("upa_predictions")) as GameRow[]
+        setRows(obs)
         setError(null)
       } catch (e: any) {
         setError(e?.message || "Failed to load predictions")
@@ -70,9 +69,9 @@ export default function GamesTable() {
           </thead>
           <tbody>
             {filtered.map((r, idx) => {
-              const model = num(r.model_spread_home, NaN)
-              const market = num(r.market_spread_home, NaN)
-              const edge = num(r.edge_points, NaN)
+              const model = toNum(r.model_spread_home)
+              const market = toNum(r.market_spread_home)
+              const edge = toNum(r.edge_points)
               const hot = Number.isFinite(edge) && Math.abs(edge) >= 3.0
               return (
                 <tr key={idx} style={{background: hot ? "#fffbeb" : undefined}}>

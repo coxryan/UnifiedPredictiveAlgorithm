@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadJson, loadCsv, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
+import { loadJson, loadTable, fmtNum, fmtPct01, toNum, playedBool } from "../lib/csv";
 import { Badge } from "../lib/ui";
 
 type Status = {
@@ -27,7 +27,7 @@ export default function StatusTab() {
   useEffect(() => { (async () => {
     try { setStatus((await loadJson("data/status.json")) as Status); }
     catch (e: any) { setErr(String(e?.message || e)); }
-    try { setPreds(await loadCsv("data/upa_predictions.csv") as PredRow[]); } catch {}
+    try { setPreds(await loadTable("upa_predictions") as PredRow[]); } catch {}
   })(); }, []);
 
   const mae = useMemo(() => {

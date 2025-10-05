@@ -20,7 +20,7 @@ from .status import _upsert_status_market_source
 from .cache import ApiCache, get_odds_cache
 from .cfbd_clients import CfbdClients
 from .helpers import (
-    write_csv,
+    write_dataset,
     _safe_float,
     _grade_pick_result,
     _apply_book_grades,
@@ -56,7 +56,7 @@ __all__ = [
     "MARKET_SOURCE","ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET",
     "MARKET_MIN_ROWS","_dbg",
     # core utils
-    "ApiCache","get_odds_cache","CfbdClients","write_csv",
+    "ApiCache","get_odds_cache","CfbdClients","write_dataset",
     # helpers
     "_safe_float","_grade_pick_result","_apply_book_grades","_mirror_book_to_legacy_columns",
     "_normalize_percent","_scale_0_100",

@@ -74,7 +74,7 @@ from agents.collect import (
     ApiCache,
     get_odds_cache,
     CfbdClients,
-    write_csv,
+    write_dataset,
     # helpers
     _safe_float,
     _grade_pick_result,
@@ -106,7 +106,7 @@ from agents.collect import (
     # debug entry
     market_debug_entry,
 )
-from agents.storage.sqlite_store import read_table_from_path, write_named_table, delete_rows
+from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 __all__ = [
     # config/env
@@ -115,7 +115,7 @@ __all__ = [
     # status
     "_upsert_status_market_source",
     # core
-    "ApiCache","get_odds_cache","CfbdClients","write_csv",
+    "ApiCache","get_odds_cache","CfbdClients","write_dataset",
     # helpers
     "_safe_float","_grade_pick_result","_apply_book_grades","_mirror_book_to_legacy_columns",
     "_normalize_percent","_scale_0_100",
@@ -152,10 +152,10 @@ if __name__ == "__main__":
     if args.year:
         os.environ["YEAR"] = str(args.year)
 
-    # Create data/market_debug.json and data/market_debug.csv so UI links always resolve.
+    # Create market debug artifacts so UI links always resolve.
     market_debug_entry()
 
-    # Also ensure schedule, market CSV, and live scores are materialized so the UI never 404s after a clean checkout.
+    # Also ensure schedule, market data, and live scores are materialized so the UI never 404s after a clean checkout.
     try:
         import pandas as pd
         from agents.collect import (
@@ -168,7 +168,7 @@ if __name__ == "__main__":
             build_predictions_for_year,
             build_live_edge_report,
             DATA_DIR,
-            write_csv,
+            write_dataset,
         )
         from agents.fetch_live_scores import fetch_scoreboard
         year = int(os.environ.get("YEAR", "2025"))
@@ -186,12 +186,12 @@ if __name__ == "__main__":
         # team inputs
         logger.debug("collect_cfbd_all: building team inputs")
         teams_df = build_team_inputs_datadriven(year, apis, cache)
-        write_csv(teams_df, os.path.join(DATA_DIR, "upa_team_inputs_datadriven_v0.csv"))
+        write_dataset(teams_df, "upa_team_inputs_datadriven_v0")
         logger.debug("collect_cfbd_all: wrote team inputs rows=%s", len(teams_df))
         # schedule
         logger.debug("collect_cfbd_all: loading schedule")
         sched = load_schedule_for_year(year, apis, cache)
-        write_csv(sched, os.path.join(DATA_DIR, "cfb_schedule.csv"))
+        write_dataset(sched, "cfb_schedule")
         logger.debug("collect_cfbd_all: wrote schedule rows=%s", len(sched))
         # market CSV redundancy (if debug step failed, ensure CSV exists)
         wk = discover_current_week(sched) or 1
@@ -205,10 +205,9 @@ if __name__ == "__main__":
             "collect_cfbd_all: fetched market lines rows=%s non_null=%s",
             len(lines), non_null_lines
         )
-        market_path = os.path.join(DATA_DIR, "market_debug.csv")
         combined_lines = lines
         try:
-            existing = read_table_from_path(market_path)
+            existing = read_dataset("market_debug")
             if not existing.empty:
                 combined_lines = pd.concat([existing, lines], ignore_index=True)
                 keep_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined_lines.columns]
@@ -217,7 +216,7 @@ if __name__ == "__main__":
         except Exception:
             logger.exception("collect_cfbd_all: unable to merge with existing market_debug snapshot; using fresh data only")
             combined_lines = lines
-        write_csv(combined_lines, market_path)
+        write_dataset(combined_lines, "market_debug")
         try:
             combined_non_null = int(pd.to_numeric(combined_lines.get("spread"), errors="coerce").notna().sum()) if "spread" in combined_lines.columns else 0
         except Exception:
@@ -236,7 +235,7 @@ if __name__ == "__main__":
             markets_df=combined_lines,
             team_inputs_df=teams_df,
         )
-        write_csv(preds, os.path.join(DATA_DIR, "upa_predictions.csv"))
+        write_dataset(preds, "upa_predictions")
         synthetic_count = int(preds.get("market_is_synthetic", pd.Series(dtype=int)).sum()) if "market_is_synthetic" in preds.columns else 0
         non_null_predictions = int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0
         logger.debug(
@@ -245,7 +244,7 @@ if __name__ == "__main__":
         )
         logger.debug("collect_cfbd_all: building live edge report")
         edge = build_live_edge_report(year, preds_df=preds)
-        write_csv(edge, os.path.join(DATA_DIR, "live_edge_report.csv"))
+        write_dataset(edge, "live_edge_report")
         logger.debug("collect_cfbd_all: wrote live_edge rows=%s", len(edge))
         # live scores
         logger.debug("collect_cfbd_all: fetching live scores")
@@ -253,19 +252,18 @@ if __name__ == "__main__":
             "event_id","date","state","detail","clock","period","venue",
             "home_team","away_team","home_school","away_school","home_points","away_points"
         ]
-        live_scores_path = os.path.join(DATA_DIR, "live_scores.csv")
         try:
             rows = fetch_scoreboard(None)
             ls_df = pd.DataFrame(rows, columns=live_scores_columns)
-            write_csv(ls_df, live_scores_path)
+            write_dataset(ls_df, "live_scores")
             if not ls_df.empty:
                 store_ls = ls_df.copy()
                 store_ls["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                 store_ls["season"] = year
                 delete_rows("raw_espn_scoreboard", "season", year)
-                write_named_table(store_ls, "raw_espn_scoreboard", if_exists="append")
+                storage_write_dataset(store_ls, "raw_espn_scoreboard", if_exists="append")
         except Exception:
-            write_csv(pd.DataFrame(columns=live_scores_columns), live_scores_path)
+            write_dataset(pd.DataFrame(columns=live_scores_columns), "live_scores")
 
         generated_paths = [
             DATA_DB_PATH,

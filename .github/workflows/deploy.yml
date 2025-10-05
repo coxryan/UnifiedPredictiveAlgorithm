@@ -156,6 +156,7 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           import os, sys
+          import json
           from datetime import datetime, timedelta
           import pandas as pd
           from agents.collect import (
@@ -163,7 +164,7 @@ jobs:
             ApiCache,
             DATA_DIR,
             DATA_DB_PATH,
-            write_csv,
+            write_dataset,
             load_schedule_for_year,
             discover_current_week,
             get_market_lines_for_current_week,
@@ -171,7 +172,7 @@ jobs:
             build_predictions_for_year,
             build_live_edge_report,
           )
-          from agents.storage.sqlite_store import read_table_from_path, write_json_blob, read_json_blob
+          from agents.storage.sqlite_store import read_dataset, write_json_blob, read_json_blob
           # Utilities
           DATA = os.environ.get("DATA_DIR","data")
           YEAR = int(os.environ.get("YEAR","2025"))
@@ -179,34 +180,17 @@ jobs:
           apis = CfbdClients(bearer_token=os.environ.get("CFBD_BEARER_TOKEN",""))
           cache = ApiCache()
           # 1) TEAM INPUTS
-          ti_path = os.path.join(DATA, "upa_team_inputs_datadriven_v0.csv")
           ti = build_team_inputs_datadriven(YEAR, apis, cache)
-          write_csv(ti, ti_path)
-          print(f"[OK] wrote {ti_path} rows={len(ti)}")
+          write_dataset(ti, "upa_team_inputs_datadriven_v0")
+          print(f"[OK] wrote upa_team_inputs_datadriven_v0 rows={len(ti)}")
           # 2) SCHEDULE (fresh/refetched if stale per loader heuristic)
           sched = load_schedule_for_year(YEAR, apis, cache)
-          write_csv(sched, os.path.join(DATA, "cfb_schedule.csv"))
+          write_dataset(sched, "cfb_schedule")
           print(f"[OK] wrote schedule rows={len(sched)}")
-          # 3) MARKET (FanDuel or CFBD per env); write CSV always, JSON already handled by debug entry
-          wk = discover_current_week(sched) or 1
-          mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
-          market_path = os.path.join(DATA, "market_debug.csv")
-          combined_mkt = mkt
-          try:
-            existing = read_table_from_path(market_path)
-            if not existing.empty:
-              combined_mkt = pd.concat([existing, mkt], ignore_index=True)
-              key_cols = [c for c in ["game_id", "week", "home_team", "away_team"] if c in combined_mkt.columns]
-              if key_cols:
-                combined_mkt = combined_mkt.drop_duplicates(subset=key_cols, keep="last")
-              else:
-                combined_mkt = combined_mkt.drop_duplicates()
-          except Exception as e:
-            print(f"[warn] unable to merge existing market_debug: {e}")
-            combined_mkt = mkt
-          if "market_spread_book" not in combined_mkt.columns and "spread" in combined_mkt.columns:
-            combined_mkt = combined_mkt.assign(market_spread_book=combined_mkt["spread"])
-          write_csv(combined_mkt, market_path)
+          # 3) MARKET (FanDuel primary, CFBD fallback)
+          wk = discover_current_week(sched) or int(pd.to_numeric(sched.get("week"), errors="coerce").max() or 1)
+          combined_mkt = get_market_lines_for_current_week(YEAR, wk, sched, apis, cache)
+          write_dataset(combined_mkt, "market_debug")
 
           def _spread_count(df):
             for col in ("spread", "market_spread_book"):
@@ -217,26 +201,20 @@ jobs:
                   return 0
             return 0
 
-          new_non_null = _spread_count(mkt)
-          combined_non_null = _spread_count(combined_mkt)
-          print(f"[OK] wrote market_debug rows={len(combined_mkt)} (combined, weeks <= {wk}; new rows={len(mkt)}, new spreads={new_non_null}, total spreads={combined_non_null})")
-          # Ensure unmatched CSV exists (empty if matcher didn't emit one)
-          unmatched_p = os.path.join(DATA, "market_unmatched.csv")
-          if read_table_from_path(unmatched_p).empty:
-            write_csv(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), unmatched_p)
+          print(f"[OK] wrote market_debug rows={len(combined_mkt)} (week <= {wk}; spreads={_spread_count(combined_mkt)})")
+          if read_dataset("market_unmatched").empty:
+            write_dataset(pd.DataFrame(columns=["date","home_name","away_name","reason","h_best","h_score","a_best","a_score"]), "market_unmatched")
           # 4) LIVE SCORES (Eastern day)
           try:
             from agents.fetch_live_scores import fetch_scoreboard
             rows = fetch_scoreboard(None)
-            write_csv(pd.DataFrame(rows), os.path.join(DATA, "live_scores.csv"))
+            write_dataset(pd.DataFrame(rows), "live_scores")
             print(f"[OK] wrote live_scores rows={len(rows)}")
           except Exception as e:
             print(f"[warn] live scores fetch failed: {e}")
-            ls_p = os.path.join(DATA, "live_scores.csv")
-            if read_table_from_path(ls_p).empty:
-              write_csv(pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]), ls_p)
+            if read_dataset("live_scores").empty:
+              write_dataset(pd.DataFrame(columns=["event_id","date","state","detail","clock","period","venue","home_team","away_team","home_school","away_school","home_points","away_points"]), "live_scores")
           # 5) PREDICTIONS
-          preds_p = os.path.join(DATA, "upa_predictions.csv")
           preds = build_predictions_for_year(
             YEAR,
             sched,
@@ -245,23 +223,20 @@ jobs:
             markets_df=combined_mkt,
             team_inputs_df=ti,
           )
-          write_csv(preds, preds_p)
+          write_dataset(preds, "upa_predictions")
           preds_rows = len(preds)
           print(f"[OK] wrote predictions rows={preds_rows}")
           # 6) LIVE EDGE
-          edge_p = os.path.join(DATA, "live_edge_report.csv")
           edge = build_live_edge_report(YEAR, preds_df=preds)
-          write_csv(edge, edge_p)
+          write_dataset(edge, "live_edge_report")
           print(f"[OK] wrote live_edge_report rows={len(edge)}")
           # 7) STATUS + BACKFILL SUMMARY
-          # Update status.json with counts
-          status_p = os.path.join(DATA, "status.json")
           now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
           try:
-            teams = read_table_from_path(ti_path)
-            games = read_table_from_path(os.path.join(DATA, "cfb_schedule.csv"))
-            preds = read_table_from_path(preds_p)
-            status = read_json_blob(status_p) or {}
+            teams = read_dataset("upa_team_inputs_datadriven_v0")
+            games = read_dataset("cfb_schedule")
+            preds = read_dataset("upa_predictions")
+            status = read_json_blob("status") or {}
             status.update({
               "generated_at_utc": now,
               "year": YEAR,
@@ -270,23 +245,27 @@ jobs:
               "pred_rows": int(len(preds)) if not preds.empty else 0,
               "next_run_eta_utc": now,
             })
-            write_json_blob(status_p, status)
-            print(f"[OK] wrote status.json")
+            write_json_blob("status", status)
+            with open(os.path.join(DATA, "status.json"), "w") as fh:
+              json.dump(status, fh, indent=2)
+            print("[OK] updated status metadata")
           except Exception as e:
             print(f"[warn] status update failed: {e}")
           # Backfill summary for Status page link
           try:
-            sched = read_table_from_path(os.path.join(DATA, "cfb_schedule.csv"))
-            preds = read_table_from_path(preds_p)
+            sched = read_dataset("cfb_schedule")
+            preds = read_dataset("upa_predictions")
             out = {
-              "file": "upa_predictions.csv",
+              "dataset": "upa_predictions",
               "predictions_rows": int(len(preds)),
               "predictions_rows_with_market": int(pd.to_numeric(preds.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in preds.columns else 0,
               "schedule_rows": int(len(sched)),
               "schedule_rows_with_market": int(pd.to_numeric(sched.get("market_spread_book"), errors="coerce").notna().sum()) if "market_spread_book" in sched.columns else 0,
             }
-            write_json_blob(os.path.join(DATA, "market_predictions_backfill.json"), out)
-            print("[OK] wrote market_predictions_backfill.json")
+            write_json_blob("market_predictions_backfill", out)
+            with open(os.path.join(DATA, "market_predictions_backfill.json"), "w") as fh:
+              json.dump(out, fh, indent=2)
+            print("[OK] wrote market_predictions_backfill summary")
           except Exception as e:
             print(f"[warn] unable to write backfill summary: {e}")
           PY
@@ -301,13 +280,13 @@ jobs:
           import sys, os
           import pandas as pd
           from datetime import datetime, timedelta
-          from agents.storage.sqlite_store import read_table_from_path
+          from agents.storage.sqlite_store import read_dataset
           DATA = "data"
           fail = []
 
           # 1) Schedule must exist, be sizeable, and extend to >= today-1 (US/Pacific)
           try:
-            sched = read_table_from_path(os.path.join(DATA, "cfb_schedule.csv"))
+            sched = read_dataset("cfb_schedule")
             if len(sched) < 200:
               fail.append(f"schedule too small: {len(sched)} rows")
             dts = pd.to_datetime(sched.get("date"), errors="coerce")
@@ -346,7 +325,7 @@ jobs:
 
           # 2) Predictions must exist and have rows
           try:
-            preds = read_table_from_path(os.path.join(DATA, "upa_predictions.csv"))
+            preds = read_dataset("upa_predictions")
             if len(preds) == 0:
               print("::warning::predictions empty (0 rows)")
           except Exception as e:
@@ -354,7 +333,7 @@ jobs:
 
           # 3) Market debug should have at least some rows
           try:
-            mdbg = read_table_from_path(os.path.join(DATA, "market_debug.csv"))
+            mdbg = read_dataset("market_debug")
             if len(mdbg) == 0:
               fail.append("market_debug empty (0 rows)")
           except Exception as e:
@@ -362,7 +341,7 @@ jobs:
 
           # 4) Live scores file must be readable (row count can be 0 on non-slate days)
           try:
-            _ = read_table_from_path(os.path.join(DATA, "live_scores.csv"))
+            _ = read_dataset("live_scores")
           except Exception as e:
             fail.append(f"live_scores load error: {e}")
 

@@ -9,7 +9,7 @@ from .status import _upsert_status_market_source
 from .cfbd_clients import CfbdClients
 from .cache import ApiCache, get_odds_cache
 from .odds_fanduel import get_market_lines_fanduel_for_weeks
-from agents.storage.sqlite_store import read_named_table, write_named_table, delete_rows
+from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 
 def _normalize_market_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -143,7 +143,7 @@ def get_market_lines_for_current_week(
     weeks = sorted(set(int(w) for w in weeks if pd.notna(w)))
 
     def _load_cached_lines(table: str) -> pd.DataFrame:
-        cached = read_named_table(table)
+        cached = read_dataset(table)
         if cached.empty:
             return cached
         cached = cached.loc[cached.get("season") == year].copy()
@@ -188,7 +188,7 @@ def get_market_lines_for_current_week(
                         store_df["season"] = year
                         store_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                         delete_rows("raw_fanduel_lines", "season", year)
-                        write_named_table(store_df, "raw_fanduel_lines", if_exists="append")
+                        storage_write_dataset(store_df, "raw_fanduel_lines", if_exists="append")
                     else:
                         used = "cfbd"
                         fb_reason = f"FanDuel available but returned too few rows ({len(fanduel_df)})"
@@ -212,7 +212,7 @@ def get_market_lines_for_current_week(
                 store_cfbd["season"] = year
                 store_cfbd["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                 delete_rows("raw_cfbd_lines", "season", year)
-                write_named_table(store_cfbd, "raw_cfbd_lines", if_exists="append")
+                storage_write_dataset(store_cfbd, "raw_cfbd_lines", if_exists="append")
                 used = "cfbd"
         _dbg(f"get_market_lines_for_current_week: CFBD-only rows={len(out_df)}")
         if out_df.empty and not fb_reason:

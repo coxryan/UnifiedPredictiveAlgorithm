@@ -20,7 +20,7 @@
 **Who we are doing it for (audience & stakeholders)**
 - **Primary users:** UPA maintainers/analysts who need trustworthy edges to guide selections and quickly debug data issues when things look off.
 - **Secondary users:** Technical contributors who evolve the model, add features, maintain integrations, and improve deployment/observability.
-- **Tertiary consumers:** Potential downstream dashboards/bots that ingest `data/*.csv` to trigger alerts or produce external views.
+- **Tertiary consumers:** Potential downstream dashboards/bots that ingest `data/upa_data.sqlite` tables to trigger alerts or produce external views.
 
 **Why this approach**
 - Betting markets move; **staleness** and **missing markets** silently destroy value. We explicitly defend against both with **freshness guards**, **backfill**, and **validation gates**.
@@ -40,8 +40,8 @@
 
 **Use Cases**
 1. **Daily update**: Kick CI; regenerate schedule/markets/predictions; validate; publish.
-2. **Slate review**: Sort by `value_points_book`; inspect `qualified_edge_flag`; drill into `market_unmatched.csv` if coverage drops.
-3. **Debug a mismatch**: Compare `market_debug.csv` vs `upa_predictions.csv` join keys; inspect `nan_reason` and `status.json`.
+2. **Slate review**: Sort by `value_points_book`; inspect `qualified_edge_flag`; drill into the `market_unmatched` dataset if coverage drops.
+3. **Debug a mismatch**: Compare `market_debug` vs `upa_predictions` join keys; inspect `nan_reason` and `status` JSON.
 4. **Model tuning**: Adjust κ, λ, α-weights; re-run; compare MAE/RMSE and realized error on completed games.
 5. **Incident response**: Validation fails → halt deploy; use debug artifacts to locate source (schedule stale, market empty, token missing).
 
@@ -50,18 +50,18 @@
 ## Success Criteria & KPIs
 
 **Reliability KPIs**
-- **Data freshness**: `cfb_schedule.csv` extends ≥ today+2 (PT); FanDuel lines < 48h old on active slates.
+- **Data freshness**: `cfb_schedule` extends ≥ today+2 (PT); FanDuel lines < 48h old on active slates.
 - **Coverage**: ≥ 90% predictions with numeric `market_spread_book` in-season.
 - **Build health**: 100% of deploy runs pass validation or fail early; no “green” deploys with empty data.
 
 **Quality KPIs**
 - **MAE(model, market)**: monitored weekly; aim for stability with improvements after feature releases.
-- **Unmatched rate**: `market_unmatched.csv`/total market rows ≤ 3%; spikes trigger alias review.
+- **Unmatched rate**: `market_unmatched`/total market rows ≤ 3%; spikes trigger alias review.
 - **Synthetic market rate**: ≤ 5% during normal operation (outside emergencies).
 
 **Velocity KPIs**
 - CI end-to-end duration: target &lt; 10 minutes with warm caches.
-- Time to debug: &lt; 30 minutes to root-cause via `status.json` + debug CSVs.
+- Time to debug: &lt; 30 minutes to root-cause via `status JSON` + debug CSVs.
 
 ---
 
@@ -96,7 +96,7 @@
 
 - **Local**: Developers can run `collect_cfbd_all.py` with tokens to reproduce CI outputs into local `data/`.
 - **CI (build)**: Always regenerates all artifacts; hard validation blocks deploy on failure.
-- **Prod (Pages)**: Static site; data shipped alongside UI as `dist/data/*.csv|.json`.
+- **Prod (Pages)**: Static site; data shipped alongside UI as ``dist/data/upa_data.sqlite` plus JSON keys`.
 
 **Configuration surface**
 - `MARKET_SOURCE` (default `fanduel`), `YEAR`, κ, λ, α-weights, thresholds (`τ_points`, `τ_conf`), cache TTLs.
@@ -135,19 +135,19 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
 - **Validation gate**: Build fails if schedule stale, predictions empty, or market debug empty.
 - **Observability**: Status page shows counts, MAE, coverage, synthetic rate, and links to debug artifacts.
 - **Rollbacks**: Revert commit; CI redeploys with restored data generation.
-- **Market persistence**: Deploy workflow appends new market pulls to the committed `data/market_debug.csv` before writing, then feeds the combined history into predictions so previously played games retain bookmaker spreads.
+- **Market persistence**: Deploy workflow appends new market pulls to the committed `data/market_debug` before writing, then feeds the combined history into predictions so previously played games retain bookmaker spreads.
 
 ---
 
 ## Ops Runbook (MTTD/MTTR)
 
 1. **UI shows zeros / 404s**  
-   - Check GitHub Action logs for **validation failure**; open `status.json`, `market_debug.json`.
+   - Check GitHub Action logs for **validation failure**; open `status JSON`, `market_debug.json`.
    - Verify `data/` contents in artifact; ensure files exist in `dist/data/`.
 2. **Schedule stuck at old date**  
    - Freshness guard should refetch; if not, confirm `CFBD_BEARER_TOKEN` present; inspect `.cache_cfbd/<year>`.
 3. **Markets missing**  
-   - Confirm `ODDS_API_KEY`; check `market_unmatched.csv`; review team alias normalizer.
+   - Confirm `ODDS_API_KEY`; check `market_unmatched`; review team alias normalizer.
 4. **Predictions empty**  
    - Ensure predictions builder is present; verify joins; check `nan_reason` distribution.
 5. **Frequent cache misses or API throttling**  
@@ -157,7 +157,7 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
 
 ## Current Issues & Focus Areas *(updated 2025-09-21)*
 
-- **Week 5 market coverage**: FanDuel returns limited spreads early in the week. We now merge new pulls with existing `market_debug.csv`; monitor `market_predictions_backfill.json` to ensure previously played games retain bookmaker lines and synthetic rate stays ≤ 5%.
+- **Week 5 market coverage**: FanDuel returns limited spreads early in the week. We now merge new pulls with existing `market_debug`; monitor `market_predictions_backfill.json` to ensure previously played games retain bookmaker lines and synthetic rate stays ≤ 5%.
 - **Manual workflow toggles**: Caching and backtest are disabled by default. When re-enabled for investigations, confirm toggle values in the workflow run summary and reset them to `false` afterwards.
 - **Schedule freshness**: Early-week runs can lag if CFBD throttles. Keep an eye on the validation check (`schedule stale`) and bump `FORCE_REFRESH_*` envs for a one-off retry if needed.
 
@@ -285,8 +285,8 @@ This ensures the model’s spreads are not just generic power ratings but **cont
 
 ## Risks & Mitigations
 
-- **Upstream API instability** → Cache with sane TTLs, retry with backoff, and clear fallbacks; surface via `status.json`.
-- **Name/alias drift** → Centralize canonicalization; unit tests for alias tables; monitor `market_unmatched.csv`.
+- **Upstream API instability** → Cache with sane TTLs, retry with backoff, and clear fallbacks; surface via `status JSON`.
+- **Name/alias drift** → Centralize canonicalization; unit tests for alias tables; monitor `market_unmatched`.
 - **Sign convention mistakes** → Enforce conversions at ingress; unit tests for edge/expected calculations.
 - **Silent partial data** → Hard validation in CI; visible coverage metrics on Status page; never deploy empty headers only (except explicit placeholders).
 
@@ -364,7 +364,7 @@ We use **two distinct cache layers**:
 
 - **Odds/FanDuel (`.cache_odds/<year>`)**
   - **TTL:** 2 days (configurable via `ODDS_CACHE_TTL_DAYS`, default 2).
-  - We prefer **fresh lines** (< 48 hours) on active slates; CI validation requires that `market_debug.csv` is **non-empty**; if empty due to staleness, the build fails.
+  - We prefer **fresh lines** (< 48 hours) on active slates; CI validation requires that `market_debug` is **non-empty**; if empty due to staleness, the build fails.
   - **Reset events:** book availability changes, mapping logic updates, or alias table revisions.
 
 > **Backtest note:** Backtest caches can be retained far longer since historical endpoints are immutable; favor **year-scoped dirs** to isolate them from live-season caches.
@@ -376,7 +376,7 @@ We use **two distinct cache layers**:
 Reset caches when any of the following happens:
 
 - **Stale schedule symptoms**: UI shows “stuck” week; last predictions date is 10–15 days old; CI warns schedule stale → **reset CFBD cache**.
-- **FanDuel mismatch**: `market_debug.csv` empty while lines are clearly live; `market_unmatched.csv` spikes → **reset Odds cache**.
+- **FanDuel mismatch**: `market_debug` empty while lines are clearly live; `market_unmatched` spikes → **reset Odds cache**.
 - **Alias/table updates**: You change canonicalization/regex rules → reset **both** Odds + any derived joins.
 - **Schema changes**: You add/remove columns in loaders → bump Actions cache **version suffix**.
 - **Season rollover**: Start of a new season (July/August) → create **new year directories** and **new Actions cache keys**.
@@ -451,7 +451,7 @@ restore-keys: |
 - **CI logs** print:
   - “MARKET_SOURCE (requested): …”
   - Cache directories used (env `CACHE_DIR`, `ODDS_CACHE_DIR`).
-  - Snippets of `status.json` and presence/rows of `market_debug.json/csv`.
+  - Snippets of `status JSON` and presence/rows of `market_debug.json/csv`.
 - **Alarms** (future): on validation failure, open a GitHub Issue or ping a webhook.
 
 ---
@@ -478,14 +478,13 @@ We keep immutable snapshots of **past weeks' predictions** for retrospective ana
 
 **Archive Pathing**
 - Root: `archive/predictions/`
-- Structure: `archive/predictions/{year}/week_{week}/upa_predictions.csv`
+- Structure: `archive/predictions/{year}/week_{week}/upa_predictions`
 - Optional extras per week (if present):
-  - `market_debug.csv` (book lines snapshot)
-  - `cfb_schedule.csv` (week slice)
-  - `status.json` (run metadata)
+  - `market_debug` (book lines snapshot)
+  - `cfb_schedule` (week slice)
+  - `status JSON` (run metadata)
 
 **When archived**
-- On every CI run **after** `data/upa_predictions.csv` is written and validated non-empty, the workflow copies the current week's files into the archive path.
 - If the same `{year, week}` already exists, we **do not overwrite** by default; instead, write a timestamped subfolder: `week_{week}/run_{YYYYMMDD_HHMMSSZ}/...` (configurable via `ARCHIVE_OVERWRITE=1`).
 
 **Intended Use**
@@ -497,144 +496,12 @@ We keep immutable snapshots of **past weeks' predictions** for retrospective ana
 ```bash
 YEAR=${YEAR:-2025}
 # Determine WEEK (auto-detected earlier in the pipeline) and pass into env
-mkdir -p archive/predictions/${YEAR}/week_${WEEK}
-ts=$(date -u +%Y%m%d_%H%M%SZ)
-dest=archive/predictions/${YEAR}/week_${WEEK}
-if [ -z "$ARCHIVE_OVERWRITE" ]; then
-  dest="$dest/run_${ts}"
-fi
-mkdir -p "$dest"
-cp data/upa_predictions.csv "$dest/" || true
-cp data/market_debug.csv "$dest/" || true
-cp data/cfb_schedule.csv "$dest/" || true
-cp data/status.json "$dest/" || true
-```
 
-**Discovery in UI (optional)**
-- The Status page can include an **Archive** section linking to `archive/predictions/{year}/` to browse historical weeks.
-- Avoid heavy client-side loads; only list weeks and defer CSV loads until clicked.
-
----
-
-## File Generation Logic
-- **During CI/CD**, files are generated in ephemeral workspaces:
-  - Data artifacts (processed data, models, reports) are created during pipeline runs and stored in `data/processed/` and `artifacts/`.
-  - Logs are written to `logs/` for troubleshooting.
-  - File paths are parameterized by environment variables or config files.
-  - Artifacts are uploaded as CI/CD outputs for downstream jobs or manual review.
-
----
-
-## Output Files: Generation, Paths, and UI Usage
-
-This section describes **every artifact we emit**, **where/how it is generated**, and **how the UI consumes it**. The goals are: (1) make it easy to trace a broken UI value back to its source table and generator, and (2) ensure CI regenerates *all* of them every run.
-
-### Primary data store (SQLite)
-- All generated datasets now live in a single SQLite database: `data/upa_data.sqlite` (configurable via `DATA_DB_PATH`).
-- Legacy path names (`data/upa_predictions.csv`, `data/cfb_schedule.csv`, etc.) map to tables inside the DB via `path -> table` normalization:
-  - Strip the `data/` prefix and file extension, replace `/` with `__`, `-` with `_`, and `.` with `_`.
-  - Examples: `data/upa_predictions.csv` → table `upa_predictions`; `data/market_unmatched.csv` → `market_unmatched`; `data/2024/backtest_predictions_2024.csv` → `2024__backtest_predictions_2024`.
-- JSON artifacts are stored in table `data_json(path TEXT PRIMARY KEY, payload TEXT, updated_at REAL)` keyed by their legacy path (e.g., `data/status.json`).
-- Caches live in `CACHE_DB_PATH` (`data/upa_cache.sqlite` by default) using table `api_cache(cache_key TEXT PRIMARY KEY, payload TEXT, expires_at REAL)`.
-- The UI loads tables via `sql.js` (WebAssembly SQLite) and queries directly in the browser.
-
-The subsections below retain the legacy filenames for familiarity, but each refers to its corresponding table within `upa_data.sqlite`.
-
-> **Generation context**: Unless otherwise noted, these files are generated during the GitHub Actions workflow step **“Build ALL site data (always regenerate)”** in `.github/workflows/deploy.yml`. Local dev runs can generate them by running `python agents/collect_cfbd_all.py --year 2025` with the appropriate secrets.
-
-### 1) `data/cfb_schedule.csv`
-- **Purpose / UI usage**
-  - Backbone of season context (dates, weeks, teams, venue flags).
-  - Used by UI to anchor *current week* logic and (optionally) to show schedule metadata on the Status page.
-  - Can serve as fallback source for spreads if market joins are missing.
-- **Generated by**
-  - `agents.collect.load_schedule_for_year(YEAR, apis, cache)` → `agents.collect.write_csv(...)`.
-  - Enforced by CI freshness guard: rows ≥ 200 and `max(date) ≥ today-1 (PT)`; otherwise build fails.
-- **Notes**
-- Pacific timezone alignment is critical for week detection and slate boundaries.
-
-### 2) Table `upa_team_inputs_datadriven_v0` *(legacy path `data/upa_team_inputs_datadriven_v0.csv`)*
-- **Purpose / UI usage**
-  - Not directly rendered in UI, but drives *model features* (WRPS, Talent, SRS, SOS).
-  - Status page may reference its row count for health checks.
-- **Generated by**
-  - `agents.collect.team_inputs.build_team_inputs_datadriven(YEAR, apis, cache)` (if available), then `write_csv`.
-  - If the builder is unavailable, CI writes a **header-only** file so the UI doesn’t 404.
-
-### 3) Tables `market_debug` & JSON blob `data/market_debug.json`
-- **Purpose / UI usage**
-  - Primary **market snapshot**. Status page links a **Market Spread Debug** view to inspect raw lines and mapping.
-  - Used in backfill to populate `market_spread_book` in predictions if missing.
-- **Generated by**
-- Core collector fetches FanDuel (via Odds API) or CFBD odds → normalized → written as CSV/JSON.
-- In the ALL step: `get_market_lines_for_current_week(...)` + `write_csv`.
-- **Notes**
-  - The collector now merges freshly fetched lines with any existing `market_debug.csv` entries so completed games remain available for predictions the rest of the week.
-  - Columns include `market_spread_fanduel` and `market_spread_cfbd` alongside the normalized `market_spread_book`, making it obvious which source supplied each row.
-  - If empty, CI **fails** the build (hard validation).
-
-### 4) `data/market_unmatched.csv`
-- **Purpose / UI usage**
-  - Diagnostics for **name mapping**: rows the matcher could not confidently map to an FBS game/team.
-  - Status page links this file; analysts use it to fix aliases and spot non-FBS leakage.
-- **Generated by**
-  - During market normalization/join steps; emitted by the matcher with `reason` and fuzzy scores.
-  - If file didn’t get created, CI writes a header-only placeholder to avoid 404s.
-
-### 5) Table `upa_predictions`
-- **Purpose / UI usage**
-  - **Predictions tab** consumes this table. Columns include:
-    - `model_spread_book`, `market_spread_book`, `market_spread_fanduel`, `market_spread_cfbd`, `market_spread_source`, `market_spread_effective`,
-    - `expected_market_spread_book`, `edge_points_book`, `value_points_book`, `qualified_edge_flag`, `game_id`, `week`, `date`, `home_team`, `away_team`, `neutral_site`.
-  - The table sorts by `value_points_book` (desc) and displays `—` for NaN values.
-- **Generated by**
-  - `agents.collect.predictions.build_predictions_for_year(...)` → `write_csv` (which also performs **market backfill**).
-- **Notes**
-  - Backfill steps pull from `market_debug.csv` (and `cfb_schedule.csv` last-resort) to populate `market_spread_book`.
-  - All spreads are coerced to **bookmaker sign** (negative = home favored).
-
-### 6) Table `live_scores`
-- **Purpose / UI usage**
-  - Optional Status page element; used for validation that day’s ESPN scoreboard fetch is healthy.
-  - Can power a “Live” ribbon or slate awareness in the UI if desired.
-- **Generated by**
-- `agents.fetch_live_scores.fetch_scoreboard(None)` (defaults to **today in PT**), then saved as CSV.
-  - CI validation requires the file to be **readable** (row count may be 0 on non-slate days).
-
-### 7) `data/live_edge_report.csv`
-- **Purpose / UI usage**
-  - Optional “live” drilldown of edges/values for quick screening; not required by the UI to render but linked from Status when present.
-- **Generated by**
-  - If available: `agents.build_live_edge.build_live_edge_report(YEAR, preds_csv=...)` → `write_csv`.
-  - Else: CI writes header-only placeholder.
-
-### 8) JSON blob `data/status.json`
-- **Purpose / UI usage**
-  - **Status tab** summary (counts, timestamps, market source/fallback notes).
-  - Powers quick health checks without parsing large CSVs in the browser.
-- **Generated by**
-  - The ALL step composes counts from schedule, team inputs, predictions and writes JSON:
-    - `generated_at_utc`, `year`, `teams`, `games`, `pred_rows`, `next_run_eta_utc`.
-  - The collector prints it to CI logs for transparency.
-
-### 9) `data/market_predictions_backfill.json`
-- **Purpose / UI usage**
-  - Linked on the Status page to show **how many predictions gained a market** during backfill.
-- **Generated by**
-  - `agents.diagnose_run.main()` or the ALL step after writing predictions and schedule.
-  - Contains keys like: `predictions_rows`, `predictions_rows_with_market`, `schedule_rows`, `schedule_rows_with_market`.
-
-### 10) `dist/data/*` (published copies)
-- **Purpose / UI usage**
-  - The browser fetches from `dist/data/` on GitHub Pages. The build pipeline copies **everything under `data/`** into `dist/data/` so no file is referenced directly from the repo root during runtime.
-- **Generated by / Copied in**
-  - CI step **“Copy data into dist”**:
-    ```
     mkdir -p dist/data
-    cp -R data/* dist/data/ || true
+    cp data/upa_data.sqlite dist/data/ || true
     cp -R public/* dist/ || true
     ```
-  - If a file is missing from `data/`, it will naturally 404 in the UI unless a header-only placeholder was written earlier.
+  - If a dataset is empty, the UI surfaces an empty state; we write structural placeholders where necessary to keep links valid.
 
 ### Summary Table
 
@@ -649,16 +516,16 @@ The subsections below retain the legacy filenames for familiarity, but each refe
 | `raw_cfbd_srs`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
 | `raw_cfbd_sos`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
 | `raw_espn_scoreboard`                     | Live scoreboard fetch                   | `collect_cfbd_all` (ESPN scoreboard)                       | Live monitoring, status                                              | —            |
-| `cfb_schedule` (`data/cfb_schedule.csv`)   | Collector + ALL step                    | `load_schedule_for_year` → `write_csv`                     | Status, week logic; optional fallback spreads                       | ✅ stale/size |
-| `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_csv`               | Status counts (optional)                                            | —            |
-| `market_debug` (`data/market_debug.csv`)  | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_csv`          | Status (Market Debug), backfill source                              | ✅ non-empty |
-| `data_json` → `data/market_debug.json`    | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
-| `market_unmatched` (`data/market_unmatched.csv`) | During market normalization       | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
-| `upa_predictions` (`data/upa_predictions.csv`) | Collector + ALL step                 | `build_predictions_for_year` → `write_csv` + backfill      | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
-| `live_edge_report`                        | ALL step                                | `build_live_edge_report`                                    | Optional live edge table                                             | — (placeholder ok) |
-| `live_scores` (`data/live_scores.csv`)     | ALL step                                | `fetch_scoreboard(None)`                                   | Status checks; optional live indicators                              | ✅ readable  |
-| `data_json` → `data/status.json`           | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
-| `data_json` → `data/market_predictions_backfill.json` | ALL step / diagnostics           | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
+| `cfb_schedule`                             | Collector + ALL step                    | `load_schedule_for_year` → `write_dataset`                 | Status, week logic; optional fallback spreads                       | ✅ stale/size |
+| `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_dataset`           | Status counts (optional)                                            | —            |
+| `market_debug`                             | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_dataset`      | Status (Market Debug), backfill source                              | ✅ non-empty |
+| `market_debug` (JSON summary)             | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
+| `market_unmatched`                        | During market normalization             | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
+| `upa_predictions`                         | Collector + ALL step                    | `build_predictions_for_year` → `write_dataset` + backfill  | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
+| `live_edge_report`                        | ALL step                                | `build_live_edge_report` → `write_dataset`                  | Optional live edge table                                             | — (placeholder ok) |
+| `live_scores`                              | ALL step                                | `fetch_scoreboard(None)` → `write_dataset`                 | Status checks; optional live indicators                              | ✅ readable  |
+| `status` (JSON)                            | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
+| `market_predictions_backfill` (JSON)      | ALL step / diagnostics                  | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
 | `upa_data.sqlite` (copied to `dist/data/`) | After ALL step + copy to `dist/data/`   | Shell `cp data/upa_data.sqlite dist/data/`                  | **All UI SQL queries (via sql.js)**                                  | —            |
 
 
@@ -672,7 +539,7 @@ This section explains **how we use FanDuel vs other market sources**, how the da
 1. **FanDuel (Odds API)** — primary source for bookmaker lines.
    - Controlled by `MARKET_SOURCE=fanduel`.
    - Cached under `.cache_odds/<year>` (TTL ~2 days).
-   - Written to `data/market_debug.csv` and `data/market_debug.json`.
+   - Written to `data/market_debug` and `data/market_debug.json`.
    - After fetching, we merge in CFBD spreads for any games missing a FanDuel line so finished games retain a market value the rest of the week.
     - FanDuel fetch now requests data through **current week + 1**, so upcoming games in the next week are captured alongside the current slate.
     - Debug logs: look for `get_market_lines_for_current_week` and `_fetch_cfbd_lines` messages to verify FanDuel coverage and CFBD fallback counts.
@@ -689,7 +556,7 @@ We try, in order:
 - `(home_team_norm, away_team_norm, week)` exact
 - Fuzzy: `(home_team_norm, date)` within ±1 day and fuzzy title ≥ θ (default 0.92)
 
-**Week alignment**: we align FanDuel slates to **CFBD week numbers**. If FanDuel posts events with off-cycle “week” labeling, we trust schedule week from `cfb_schedule.csv` and match on date ±1 day.
+**Week alignment**: we align FanDuel slates to **CFBD week numbers**. If FanDuel posts events with off-cycle “week” labeling, we trust schedule week from `cfb_schedule` and match on date ±1 day.
 
 ### Sign Convention & Coercion
 - All book lines are normalized to **bookmaker sign** for the **home** team (negative favors home).
@@ -706,11 +573,11 @@ We try, in order:
   - team features are incomplete (early season / API gaps).
 
 ### Backfill Hierarchy inside Predictions
-When writing `data/upa_predictions.csv`, the CSV writer enforces this per-row merge/backfill order:
+When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
 1) Preserve any existing numeric `market_spread_book` (never overwrite sourced book lines).
 2) For rows still NaN, copy from legacy `market_spread` if present and flag `market_is_synthetic`.
-3) Still NaN → join against `data/market_debug.csv` (FanDuel) first on `(game_id, week)`, then `(home_team, away_team, week)`.
-4) Still NaN → join `data/cfb_schedule.csv` if it carries a `market_spread_book` column (rare CFBD fallback).
+3) Still NaN → join against `market_debug` (FanDuel) first on `(game_id, week)`, then `(home_team, away_team, week)`.
+4) Still NaN → join `cfb_schedule` if it carries a `market_spread_book` column (rare CFBD fallback).
 5) Rows that remain NaN after all joins get `market_spread_book = model_spread_book` and `market_is_synthetic = 1` so the UI stays populated but clearly marked synthetic.
 After backfill:
 - `expected_market_spread_book = 0.6 * market + 0.4 * model` (dampened expectation).
@@ -724,17 +591,17 @@ After backfill:
   - `Edge` and `Value` computed from the above.
 - **Status tab**:
   - Shows which source was used (`fanduel` or `cfbd`) and the **synthetic rate** for transparency.
-  - Links to `market_debug.csv` for inspection and `market_unmatched.csv` for mapping issues.
+  - Links to `market_debug` for inspection and `market_unmatched` for mapping issues.
 
 ### Validation Rules Related to Markets
-- CI **fails** if `data/market_debug.csv` is empty (non-slate days excepted only if we explicitly allow).
+- CI **fails** if `data/market_debug` is empty (non-slate days excepted only if we explicitly allow).
 - Predictions must have **> 0 rows**; if the builder is missing or the joins produce 0, the build fails.
 - Schedule must not be stale; otherwise FanDuel joins may appear “empty” due to date drift.
 
 ### Troubleshooting FanDuel vs CFBD Discrepancies
-1. Open `dist/data/market_debug.csv` in the deployed site (or `data/market_debug.csv` in the artifact).
+1. Query the `market_debug` dataset in the deployed site (or from the workflow artifact).
 2. Verify sign and team names (canonical forms).
-3. Check `market_unmatched.csv` for join failures or non-FBS leakage.
+3. Check `market_unmatched` for join failures or non-FBS leakage.
 4. Confirm week/date alignment (FanDuel listings vs CFBD schedule week; date ±1 day).
 5. Inspect CI logs for “Market Source” lines and cache paths (`.cache_odds/<year>`).
 6. If CFBD is in use unexpectedly:
@@ -822,7 +689,7 @@ def run_pipeline(config):
 ### Core Parameters
 | Parameter         | Description                              | Example                   |
 |-------------------|------------------------------------------|---------------------------|
-| data_source       | Path/URI to input data                   | `data/raw/input.csv`      |
+| data_source       | Path/URI to input data                   | `data/raw/input_dataset`      |
 | preprocessing     | Dict of preprocessing ops                | `{normalize: True}`       |
 | features          | Feature engineering steps                | `['rolling_mean', ...]`   |
 | model_params      | Model hyperparameters                    | `{max_depth: 6, ...}`     |
@@ -906,7 +773,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | **RMSE (optional)**                     | float   | Root mean square error: `RMSE = sqrt( mean( (M_model - M_market)^2 ) )`.                                                                      | Penalizes large deviations more than MAE; useful to detect outlier disagreements.                        |
 | **Coverage (with market)**              | float%  | Share of rows with numeric `market_spread_book`: `coverage = count_numeric / total`.                                                           | Data completeness; low coverage often points to mapping or feed outages.                                 |
 | **Realized error (if scores present)**  | float   | Optional: `mean( | (home_points - away_points) - sign_to_margin(M_model) | )` on completed games.                                             | Out-of-sample calibration vs final scores; not always computed.                                          |
-| **Unmatched market rows**               | int     | Count of entries written to `market_unmatched.csv` (with reasons).                                                                             | Health of name matching and FBS filters; should be small.                                                |
+| **Unmatched market rows**               | int     | Count of entries written to `market_unmatched` (with reasons).                                                                             | Health of name matching and FBS filters; should be small.                                                |
 | **Synthetic market rate**               | float%  | `% of rows where market_is_synthetic == true`.                                                                                                 | Measures reliance on fallbacks; high values reduce trust in edge/value.                                  |
 
 > **Note:** Status page MAE uses **only finite numeric** spreads, excluding synthetic markets if configured.
@@ -961,7 +828,7 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 
 - Avoid comparing raw numbers when sign conventions differ; **normalize to bookmaker sign first**.
 - Treat `expected_market_spread_book` as a **stabilizer**—don’t overfit to early-release lines.
-- Watch `market_unmatched.csv`; rising counts usually mean alias drift or non-FBS leakage.
+- Watch `market_unmatched`; rising counts usually mean alias drift or non-FBS leakage.
 - In early season, expect lower `Conf` and higher variance; edges should clear higher bars.
 - **Zero** is a valid spread; missing values must remain **NaN**, not `0`, to avoid inflating coverage and skewing MAE.
 
@@ -989,7 +856,7 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 
 ## File Generation Logic
 
-- **`data/` directory**: All collector outputs land here (`cfb_schedule.csv`, `upa_predictions.csv`, etc.). The CI workflow copies this directory into `dist/data/` for GitHub Pages.
+- **`data/` directory**: All collector outputs land here (`cfb_schedule`, `upa_predictions`, etc.). The CI workflow copies this directory into `dist/data/` for GitHub Pages.
 - **`dist/` directory**: Built UI plus copied data files; this is the deployable artifact.
 - **Workflow artifacts**: The GitHub Actions job uploads `dist/` (site bundle) and the Pages artifact for downstream steps.
 
@@ -1025,11 +892,11 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 - **Location**: Unit tests live under `tests/collect/` and focus on collectors, backfill logic, and data shaping.
 - **Execution in CI**: The deploy workflow runs `python -m pytest --maxfail=1 --disable-warnings` after the "Validate data completeness" step. Builds fail if any test fails.
 - **Local run**: `pip install -r agents/requirements.txt` (includes `pytest`) then run `pytest` from repo root. Tests rely only on local fixtures—no external API calls.
-- **Current coverage**: `test_predictions.py` verifies that real market spreads override model fallbacks and that synthetic rows stay marked; `test_write_csv.py` ensures `write_csv` backfills from `market_debug.csv` and flags synthetic gaps correctly.
+- **Current coverage**: `test_predictions.py` verifies that real market spreads override model fallbacks and that synthetic rows stay marked; `test_write_dataset.py` ensures `write_dataset` backfills from `market_debug` and flags synthetic gaps correctly.
 
 ### Debug Logging
 - Core collectors (`predictions`, `helpers`, `collect_cfbd_all`) emit structured `logging` debug messages. Set `UPA_LOG_LEVEL=DEBUG` (or run with a custom `logging.basicConfig`) to surface them locally.
-- CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_csv: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues. The deploy workflow sets `UPA_LOG_LEVEL=DEBUG` by default, so production runs already emit the detailed traces.
+- CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_dataset: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues. The deploy workflow sets `UPA_LOG_LEVEL=DEBUG` by default, so production runs already emit the detailed traces.
 - Set `DEBUG_MARKET=1` to emit a per-game line (`market selection: ...`) detailing FanDuel vs CFBD spreads and the effective spread used; invaluable when chasing missing bookmaker lines.
 - All runs also write a rolling log file to `data/debug/collector.log`; inspect or stage this file when sharing artifacts or diagnosing CI failures.
 
@@ -1097,7 +964,7 @@ pytest tests/
 
 ## Appendix: Example Config (YAML)
 ```yaml
-data_source: data/raw/input.csv
+data_source: data/raw/input_dataset
 preprocessing:
   normalize: true
   fillna: median
@@ -1129,8 +996,8 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Secrets (`CFBD_BEARER_TOKEN`, `ODDS_API_KEY`) must come from environment or `.env` and never be committed.
 
 ### Data Handling & Validation Rules
-- Abort if `cfb_schedule.csv` has <200 rows or `max(date) < today+2 PT`.
-- CI fails if `market_debug.csv` is empty or `upa_predictions.csv` has 0 rows.
+- Abort if `cfb_schedule` has <200 rows or `max(date) < today+2 PT`.
+- CI fails if `market_debug` is empty or `upa_predictions` has 0 rows.
 - Backfill order: FanDuel → CFBD → legacy `market_spread` → schedule → model fallback. Flag synthetic rows.
 - Every artifact must be regenerated on CI run; never rely on committed data files.
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
