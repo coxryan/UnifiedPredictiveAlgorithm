@@ -9,16 +9,28 @@ from .cfbd_clients import CfbdClients
 from .config import _dbg
 from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
-_STAT_FEATURE_MAP: Dict[Tuple[str, str], str] = {
-    ("offense", "pointsPerGame"): "stat_off_ppg",
-    ("offense", "yardsPerPlay"): "stat_off_ypp",
-    ("offense", "successRate"): "stat_off_success",
-    ("offense", "explosiveness"): "stat_off_explosiveness",
-    ("defense", "pointsPerGame"): "stat_def_ppg",
-    ("defense", "yardsPerPlay"): "stat_def_ypp",
-    ("defense", "successRate"): "stat_def_success",
-    ("defense", "explosiveness"): "stat_def_explosiveness",
-    ("specialTeams", "pointsPerPlay"): "stat_st_points_per_play",
+_STAT_FEATURE_MAP: Dict[str, str] = {
+    "offense.points_per_game": "stat_off_ppg",
+    "offense.pointspergame": "stat_off_ppg",
+    "offense.points": "stat_off_ppg",
+    "offense.yards_per_play": "stat_off_ypp",
+    "offense.yardsperplay": "stat_off_ypp",
+    "offense.ypp": "stat_off_ypp",
+    "offense.success_rate": "stat_off_success",
+    "offense.successrate": "stat_off_success",
+    "offense.explosiveness": "stat_off_explosiveness",
+    "offense.explosive_rate": "stat_off_explosiveness",
+    "defense.points_per_game": "stat_def_ppg",
+    "defense.pointspergame": "stat_def_ppg",
+    "defense.yards_per_play": "stat_def_ypp",
+    "defense.yardsperplay": "stat_def_ypp",
+    "defense.success_rate": "stat_def_success",
+    "defense.successrate": "stat_def_success",
+    "defense.explosiveness": "stat_def_explosiveness",
+    "defense.explosive_rate": "stat_def_explosiveness",
+    "specialteams.points_per_play": "stat_st_points_per_play",
+    "specialteams.pointsperplay": "stat_st_points_per_play",
+    "special_teams.points_per_play": "stat_st_points_per_play",
 }
 
 _INVERT_METRICS: frozenset[str] = frozenset(
@@ -31,41 +43,28 @@ _INVERT_METRICS: frozenset[str] = frozenset(
 )
 
 
-def _serialize_stats_payload(payload: Iterable[Any], category: str) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
-    for item in payload or []:
-        team_name = getattr(item, "team", None) or getattr(item, "school", None)
-        conference = getattr(item, "conference", None)
-        stats = getattr(item, "stats", [])
-        for stat in stats or []:
-            stat_name = getattr(stat, "stat_name", None) or getattr(stat, "stat", None)
-            stat_value = getattr(stat, "stat_value", None) or getattr(stat, "value", None)
-            if team_name and stat_name is not None:
-                rows.append(
-                    {
-                        "team": str(team_name),
-                        "conference": str(conference) if conference is not None else None,
-                        "category": category,
-                        "stat_name": str(stat_name),
-                        "stat_value": float(stat_value) if stat_value not in (None, "") else None,
-                    }
-                )
-    return rows
-
-
-def _fetch_team_stats(year: int, category: str, apis: CfbdClients, cache: ApiCache) -> List[Dict[str, Any]]:
-    cache_key = f"team-stats:{year}:{category}"
+def _fetch_team_stats(year: int, apis: CfbdClients, cache: ApiCache) -> List[Dict[str, Any]]:
+    cache_key = f"team-stats:{year}"
     ok, cached = cache.get(cache_key)
     if ok and isinstance(cached, list):
         return cached
     if not getattr(apis, "stats_api", None):
         return []
     try:
-        payload = apis.stats_api.get_team_season_stats(year=year, season_type="regular", category=category)
-    except Exception as exc:  # pragma: no cover - remote failure path
-        _dbg(f"team stats fetch failed category={category} err={exc}")
+        payload = apis.stats_api.get_team_stats(year=year)
+    except Exception as exc:  # pragma: no cover
+        _dbg(f"team stats fetch failed year={year} err={exc}")
         return []
-    rows = _serialize_stats_payload(payload, category)
+    rows: List[Dict[str, Any]] = []
+    for item in payload or []:
+        rows.append(
+            {
+                "team": getattr(item, "team", None),
+                "conference": getattr(item, "conference", None),
+                "stat_name": getattr(item, "stat_name", None),
+                "stat_value": getattr(item, "stat_value", None),
+            }
+        )
     cache.set(cache_key, rows)
     return rows
 
@@ -95,19 +94,17 @@ def _normalize_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
 def _prepare_feature_frame(stats_df: pd.DataFrame) -> pd.DataFrame:
     if stats_df is None or stats_df.empty:
         return pd.DataFrame(columns=["team"] + list(_STAT_FEATURE_MAP.values()))
-    pivot_sources = []
-    for (category, stat_name), feature in _STAT_FEATURE_MAP.items():
-        mask = (stats_df["category"] == category) & (stats_df["stat_name"].str.lower() == stat_name.lower())
+    merged = pd.DataFrame()
+    for raw_name, feature in _STAT_FEATURE_MAP.items():
+        mask = stats_df["stat_name"].str.replace(" ", "_").str.lower() == raw_name.replace(" ", "_").lower()
         if not mask.any():
             continue
         subset = stats_df.loc[mask, ["team", "stat_value"]].copy()
         subset = subset.rename(columns={"stat_value": feature})
-        pivot_sources.append(subset)
-    if not pivot_sources:
-        return pd.DataFrame(columns=["team"] + list(_STAT_FEATURE_MAP.values()))
-    merged = pivot_sources[0]
-    for df_piece in pivot_sources[1:]:
-        merged = merged.merge(df_piece, on="team", how="outer")
+        merged = subset if merged.empty else merged.merge(subset, on="team", how="outer")
+    if merged.empty:
+        cols = ["team"] + list(_STAT_FEATURE_MAP.values())
+        return pd.DataFrame(columns=cols)
     merged = _normalize_feature_columns(merged)
     merged.sort_values("team", inplace=True, ignore_index=True)
     return merged
@@ -121,10 +118,7 @@ def build_team_stat_features(year: int, apis: CfbdClients, cache: ApiCache) -> p
         if not raw.empty:
             stats_df = raw.drop(columns=["season", "retrieved_at"], errors="ignore")
     if stats_df.empty:
-        categories = sorted({key[0] for key in _STAT_FEATURE_MAP.keys()})
-        rows: List[Dict[str, Any]] = []
-        for cat in categories:
-            rows.extend(_fetch_team_stats(year, cat, apis, cache))
+        rows = _fetch_team_stats(year, apis, cache)
         if rows:
             stats_df = pd.DataFrame(rows)
             store_df = stats_df.copy()

@@ -6,14 +6,14 @@ from agents.collect.stats_cfbd import _prepare_feature_frame
 def test_prepare_feature_frame_scales_and_inverts():
     stats_rows = pd.DataFrame(
         [
-            {"team": "Team A", "category": "offense", "stat_name": "pointsPerGame", "stat_value": 40.0},
-            {"team": "Team B", "category": "offense", "stat_name": "pointsPerGame", "stat_value": 20.0},
-            {"team": "Team A", "category": "defense", "stat_name": "pointsPerGame", "stat_value": 18.0},
-            {"team": "Team B", "category": "defense", "stat_name": "pointsPerGame", "stat_value": 35.0},
-            {"team": "Team A", "category": "offense", "stat_name": "yardsPerPlay", "stat_value": 7.5},
-            {"team": "Team B", "category": "offense", "stat_name": "yardsPerPlay", "stat_value": 5.0},
-            {"team": "Team A", "category": "defense", "stat_name": "yardsPerPlay", "stat_value": 4.8},
-            {"team": "Team B", "category": "defense", "stat_name": "yardsPerPlay", "stat_value": 6.2},
+            {"team": "Team A", "stat_name": "offense.points_per_game", "stat_value": 40.0},
+            {"team": "Team B", "stat_name": "offense.points_per_game", "stat_value": 20.0},
+            {"team": "Team A", "stat_name": "defense.points_per_game", "stat_value": 18.0},
+            {"team": "Team B", "stat_name": "defense.points_per_game", "stat_value": 35.0},
+            {"team": "Team A", "stat_name": "offense.yards_per_play", "stat_value": 7.5},
+            {"team": "Team B", "stat_name": "offense.yards_per_play", "stat_value": 5.0},
+            {"team": "Team A", "stat_name": "defense.yards_per_play", "stat_value": 4.8},
+            {"team": "Team B", "stat_name": "defense.yards_per_play", "stat_value": 6.2},
         ]
     )
 
