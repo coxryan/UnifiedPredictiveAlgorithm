@@ -154,13 +154,13 @@ jobs:
           CACHE_DIR: ${{ env.CACHE_DIR }}
         run: |
           set -euo pipefail
-          python tools/build_site_data.py --year 2025
+          python -m tools.build_site_data --year 2025
 
       # Hard validation: fail build if core artifacts are empty or stale
       - name: Validate data completeness (initial)
         run: |
           set -euo pipefail
-          python tools/validate_site_data.py --year 2025
+          python -m tools.validate_site_data --year 2025
 
       - name: Train residual model
         env:
@@ -176,12 +176,12 @@ jobs:
           CACHE_DIR: ${{ env.CACHE_DIR }}
         run: |
           set -euo pipefail
-          python tools/build_site_data.py --year 2025
+          python -m tools.build_site_data --year 2025
 
       - name: Validate data completeness (post-train)
         run: |
           set -euo pipefail
-          python tools/validate_site_data.py --year 2025
+          python -m tools.validate_site_data --year 2025
 
       - name: Run Python unit tests
         run: python -m pytest --maxfail=1 --disable-warnings
