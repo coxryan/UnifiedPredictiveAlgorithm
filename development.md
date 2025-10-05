@@ -183,6 +183,10 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
     - ✅ Derived unit grades (QB/RB/WR/OL/DL/LB/DB/ST) from CFBD efficiency composites; letters now reflect percentile tiers across FBS (A+ top ~1%, D-/F bottom decile).
     - ☐ Design richer positional metric schema leveraging roster/usage inputs (injuries, depth charts).
     - ☐ Produce `raw_positional_ratings` dataset with per-unit scores and integrate into team inputs/predictions.
+  - **Next phase – Data-driven spread model**
+    - ☐ Export historical training dataset (team stat snapshots + market outcomes) for the past N seasons.
+    - ☐ Train/regress a spread estimator (ridge/GBM) using new stats/grades; log feature importances.
+    - ☐ Integrate model predictions into `build_predictions_for_year`, keeping current blend as fallback while monitoring MAE.
   - **In flight – Historical baselines & drift monitoring**
     - ☐ Snapshot pre-kick predictions weekly (using frozen spreads) into a longitudinal table for MAE/cover tracking.
     - ☐ Expose rolling baseline metrics and alerts on the Status tab.
