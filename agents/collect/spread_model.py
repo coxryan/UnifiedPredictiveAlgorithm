@@ -27,6 +27,56 @@ class RidgeModel:
 
 
 @dataclass
+class LinearSpreadModel:
+    intercept: float
+    coefficients: Dict[str, float]
+
+    def predict(self, features: Dict[str, float]) -> float:
+        value = self.intercept
+        for key, coef in self.coefficients.items():
+            value += coef * float(features.get(key, 0.0))
+        return value
+
+
+def _prepare_training_frame(df: pd.DataFrame) -> pd.DataFrame:
+    """Legacy helper kept for backward compatibility with older tests.
+
+    Produces home/away deltas and a simple residual target even when only
+    partial columns are provided.
+    """
+
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    frame = df.copy()
+    if "market_spread_book" in frame.columns:
+        frame = frame.loc[pd.to_numeric(frame["market_spread_book"], errors="coerce").notna()].copy()
+    if frame.empty:
+        return pd.DataFrame()
+
+    delta_columns: List[str] = []
+    for col in list(frame.columns):
+        if not col.endswith("_home"):
+            continue
+        base = col[:-5]
+        away_col = f"{base}_away"
+        if away_col not in frame.columns:
+            continue
+        home_series = pd.to_numeric(frame[col], errors="coerce").fillna(0.0)
+        away_series = pd.to_numeric(frame[away_col], errors="coerce").fillna(0.0)
+        delta_name = f"delta_{base}"
+        frame[delta_name] = home_series - away_series
+        delta_columns.append(delta_name)
+
+    market = pd.to_numeric(frame.get("market_spread_book"), errors="coerce").fillna(0.0)
+    actual = pd.to_numeric(frame.get("actual_margin"), errors="coerce").fillna(0.0)
+    frame["target"] = actual - market
+
+    keep = delta_columns + ["target"]
+    return frame[keep]
+
+
+@dataclass
 class DecisionStump:
     feature: str
     threshold: float
@@ -577,6 +627,8 @@ def load_residual_model() -> Optional[ResidualEnsembleModel]:
 
 __all__ = [
     "ResidualEnsembleModel",
+    "LinearSpreadModel",
+    "_prepare_training_frame",
     "train_residual_model",
     "load_residual_model",
     "serialize_model",
