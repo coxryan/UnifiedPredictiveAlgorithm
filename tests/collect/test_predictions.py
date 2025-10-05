@@ -14,6 +14,22 @@ def _team_inputs():
             "stat_off_index_0_100": [70, 40],
             "stat_def_index_0_100": [68, 42],
             "stat_st_index_0_100": [55, 45],
+            "grade_qb_score": [72, 38],
+            "grade_qb_letter": ["B-", "D"],
+            "grade_wr_score": [75, 35],
+            "grade_wr_letter": ["C+", "D-"],
+            "grade_rb_score": [70, 40],
+            "grade_rb_letter": ["C-", "D+"],
+            "grade_ol_score": [68, 42],
+            "grade_ol_letter": ["D+", "D"],
+            "grade_dl_score": [73, 37],
+            "grade_dl_letter": ["C", "D-"],
+            "grade_lb_score": [71, 39],
+            "grade_lb_letter": ["C-", "D"],
+            "grade_db_score": [74, 36],
+            "grade_db_letter": ["C", "D-"],
+            "grade_st_score": [66, 34],
+            "grade_st_letter": ["D+", "F"],
         }
     )
 
@@ -59,6 +75,8 @@ def test_predictions_use_market_when_available(tmp_path):
     assert float(preds.loc[0, "market_spread_book"]) == -3.5
     assert int(preds.loc[0, "market_is_synthetic"]) == 0
     assert preds.loc[0, "edge_points_book"] != 0
+    assert "home_grade_qb_letter" in preds.columns
+    assert preds.loc[0, "home_grade_qb_letter"] != ""
 
 
 def test_predictions_sets_market_source_cfbd(tmp_path):

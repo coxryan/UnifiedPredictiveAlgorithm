@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,6 +11,35 @@ from .cache import ApiCache
 from .helpers import _normalize_percent, _scale_0_100
 from .stats_cfbd import build_team_stat_features
 from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
+
+
+_LETTER_THRESHOLDS: List[Tuple[float, str]] = [
+    (97.0, "A+"),
+    (93.0, "A"),
+    (90.0, "A-"),
+    (87.0, "B+"),
+    (83.0, "B"),
+    (80.0, "B-"),
+    (77.0, "C+"),
+    (73.0, "C"),
+    (70.0, "C-"),
+    (67.0, "D+"),
+    (63.0, "D"),
+    (60.0, "D-"),
+]
+
+
+def _letter_grade(score: Any) -> str:
+    try:
+        val = float(score)
+    except Exception:
+        return ""
+    if pd.isna(val):
+        return ""
+    for threshold, grade in _LETTER_THRESHOLDS:
+        if val >= threshold:
+            return grade
+    return "F"
 
 
 def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
@@ -247,35 +276,61 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             df["conference"] = df.get("conference", "FBS")
 
     if not df.empty:
-        def _mean_for(columns: List[str]) -> pd.Series:
-            if not columns:
-                return pd.Series([pd.NA] * len(df), index=df.index)
-            subset = df[columns].apply(pd.to_numeric, errors="coerce")
-            return subset.mean(axis=1, skipna=True)
+        def _col(name: str, default: float = 50.0) -> pd.Series:
+            return pd.to_numeric(df.get(name), errors="coerce").fillna(default)
 
-        off_cols = [
-            col for col in [
-                "stat_off_ppg",
-                "stat_off_ypp",
-                "stat_off_success",
-                "stat_off_explosiveness",
-            ]
-            if col in df.columns
-        ]
-        def_cols = [
-            col for col in [
-                "stat_def_ppg",
-                "stat_def_ypp",
-                "stat_def_success",
-                "stat_def_explosiveness",
-            ]
-            if col in df.columns
-        ]
-        st_cols = [col for col in ["stat_st_points_per_play"] if col in df.columns]
+        off_idx = _col("stat_off_index_0_100")
+        def_idx = _col("stat_def_index_0_100")
+        st_idx = _col("stat_st_index_0_100")
+        wrps_off = _col("wrps_offense_percent")
+        wrps_def = _col("wrps_defense_percent")
+        talent = _col("talent_score_0_100")
+        srs = _col("srs_score_0_100")
 
-        df["stat_off_index_0_100"] = _mean_for(off_cols)
-        df["stat_def_index_0_100"] = _mean_for(def_cols)
-        df["stat_st_index_0_100"] = _mean_for(st_cols)
+        off_success = _col("stat_off_success")
+        off_expl = _col("stat_off_explosiveness")
+        def_success = _col("stat_def_success")
+        def_expl = _col("stat_def_explosiveness")
+
+        def _blend(series: pd.Series) -> pd.Series:
+            return series.clip(lower=0.0, upper=100.0)
+
+        df["grade_qb_score"] = _blend(
+            0.45 * off_idx + 0.25 * wrps_off + 0.20 * talent + 0.10 * srs
+        )
+        df["grade_wr_score"] = _blend(
+            0.40 * off_idx + 0.35 * off_expl + 0.15 * wrps_off + 0.10 * talent
+        )
+        df["grade_rb_score"] = _blend(
+            0.40 * off_idx + 0.40 * off_success + 0.10 * wrps_off + 0.10 * talent
+        )
+        df["grade_ol_score"] = _blend(
+            0.35 * off_idx + 0.35 * off_success + 0.20 * talent + 0.10 * srs
+        )
+        df["grade_dl_score"] = _blend(
+            0.45 * def_idx + 0.30 * def_expl + 0.15 * wrps_def + 0.10 * srs
+        )
+        df["grade_lb_score"] = _blend(
+            0.40 * def_idx + 0.35 * def_success + 0.15 * wrps_def + 0.10 * srs
+        )
+        df["grade_db_score"] = _blend(
+            0.35 * def_idx + 0.40 * def_success + 0.15 * def_expl + 0.10 * wrps_def
+        )
+        df["grade_st_score"] = _blend(0.80 * st_idx + 0.20 * talent)
+
+        for key in [
+            "qb",
+            "wr",
+            "rb",
+            "ol",
+            "dl",
+            "lb",
+            "db",
+            "st",
+        ]:
+            score_col = f"grade_{key}_score"
+            letter_col = f"grade_{key}_letter"
+            df[letter_col] = df[score_col].map(_letter_grade)
 
     for col in [
         "team",
@@ -301,6 +356,22 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_off_index_0_100",
         "stat_def_index_0_100",
         "stat_st_index_0_100",
+        "grade_qb_score",
+        "grade_qb_letter",
+        "grade_wr_score",
+        "grade_wr_letter",
+        "grade_rb_score",
+        "grade_rb_letter",
+        "grade_ol_score",
+        "grade_ol_letter",
+        "grade_dl_score",
+        "grade_dl_letter",
+        "grade_lb_score",
+        "grade_lb_letter",
+        "grade_db_score",
+        "grade_db_letter",
+        "grade_st_score",
+        "grade_st_letter",
         "portal_net_0_100",
         "portal_net_count",
         "portal_net_value",

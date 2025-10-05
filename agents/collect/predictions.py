@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List, Dict
 
 import logging
 import os
@@ -210,6 +210,16 @@ def build_predictions_for_year(
     team_ratings = _rating_from_team_inputs(team_inputs_df)
     logger.debug("build_predictions_for_year: team ratings available for %s teams", len(team_ratings))
 
+    grade_columns: List[str] = []
+    grade_lookup: Dict[str, pd.Series] = {}
+    if team_inputs_df is not None and not team_inputs_df.empty and "team" in team_inputs_df.columns:
+        grade_columns = [c for c in team_inputs_df.columns if c.startswith("grade_")]
+        if grade_columns:
+            indexed_inputs = team_inputs_df.set_index("team")
+            for col in grade_columns:
+                if col in indexed_inputs.columns:
+                    grade_lookup[col] = indexed_inputs[col]
+
     if markets_df is None:
         current_week = discover_current_week(sched) or int(_sanitize_numeric(sched["week"]).max() or 1)
         markets_df = get_market_lines_for_current_week(year, int(current_week), sched, apis, cache)
@@ -256,6 +266,13 @@ def build_predictions_for_year(
         preds["neutral_site"] = 0
     preds["home_points"] = _sanitize_numeric(preds.get("home_points"))
     preds["away_points"] = _sanitize_numeric(preds.get("away_points"))
+
+    if grade_lookup:
+        for col, series in grade_lookup.items():
+            home_col = f"home_{col}"
+            away_col = f"away_{col}"
+            preds[home_col] = preds["home_team"].map(series)
+            preds[away_col] = preds["away_team"].map(series)
 
     home_rating = preds["home_team"].map(team_ratings).fillna(0.5)
     away_rating = preds["away_team"].map(team_ratings).fillna(0.5)
@@ -372,6 +389,38 @@ def build_predictions_for_year(
         "away_points",
         "played",
         "game_id",
+        "home_grade_qb_letter",
+        "away_grade_qb_letter",
+        "home_grade_qb_score",
+        "away_grade_qb_score",
+        "home_grade_wr_letter",
+        "away_grade_wr_letter",
+        "home_grade_wr_score",
+        "away_grade_wr_score",
+        "home_grade_rb_letter",
+        "away_grade_rb_letter",
+        "home_grade_rb_score",
+        "away_grade_rb_score",
+        "home_grade_ol_letter",
+        "away_grade_ol_letter",
+        "home_grade_ol_score",
+        "away_grade_ol_score",
+        "home_grade_dl_letter",
+        "away_grade_dl_letter",
+        "home_grade_dl_score",
+        "away_grade_dl_score",
+        "home_grade_lb_letter",
+        "away_grade_lb_letter",
+        "home_grade_lb_score",
+        "away_grade_lb_score",
+        "home_grade_db_letter",
+        "away_grade_db_letter",
+        "home_grade_db_score",
+        "away_grade_db_score",
+        "home_grade_st_letter",
+        "away_grade_st_letter",
+        "home_grade_st_score",
+        "away_grade_st_score",
     ]
     cols = [c for c in cols if c in preds.columns]
 

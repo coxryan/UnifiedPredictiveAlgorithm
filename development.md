@@ -180,7 +180,8 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
     - ☐ Add situational splits (3rd/4th down, red zone) and rolling four-week deltas.
     - ☐ Expand tests covering payload parsing and normalization edge cases.
   - **In flight – Positional ranking model**
-    - ☐ Design positional metric schema leveraging the new stat library plus roster/usage inputs.
+    - ✅ Derived initial unit grades (QB/RB/WR/OL/DL/LB/DB/ST) from CFBD efficiency indexes and surface them in predictions for head-to-head comparison.
+    - ☐ Design richer positional metric schema leveraging roster/usage inputs (injuries, depth charts).
     - ☐ Produce `raw_positional_ratings` dataset with per-unit scores and integrate into team inputs/predictions.
   - **In flight – Historical baselines & drift monitoring**
     - ☐ Snapshot pre-kick predictions weekly (using frozen spreads) into a longitudinal table for MAE/cover tracking.

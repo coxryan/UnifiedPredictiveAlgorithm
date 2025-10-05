@@ -2,10 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { loadTable, fmtNum, toNum } from "../lib/csv";
 import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
 
-// Numeric normalization helpers
-const isNum = (v: any) => Number.isFinite(toNum(v));
-const num = (v: any) => toNum(v);
-
 const providerLabel = (src: any): string => {
   const key = (src ?? "").toString().trim().toLowerCase();
   switch (key) {
@@ -31,9 +27,6 @@ type LiveRow = {
   away_points?: string | number; home_points?: string | number;
 };
 
-// -----------------------------
-// Types
-// -----------------------------
 type PredRow = {
   week: string; date: string; neutral_site?: string;
   home_team: string; away_team: string; played?: any;
@@ -42,16 +35,24 @@ type PredRow = {
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string | number;
   market_spread_source?: string | null;
-  // optional ranks (if present)
-  home_rank?: string; away_rank?: string;
-  home_ap_rank?: string; away_ap_rank?: string;
-  home_coaches_rank?: string; away_coaches_rank?: string;
-  // optional scores (if present for settled games)
   home_points?: string; away_points?: string;
 };
 
+type PositionKey = "qb" | "rb" | "wr" | "ol" | "dl" | "lb" | "db" | "st";
+
+const POSITION_KEYS: Array<{ key: PositionKey; label: string }> = [
+  { key: "qb", label: "QB" },
+  { key: "rb", label: "RB" },
+  { key: "wr", label: "WR" },
+  { key: "ol", label: "OL" },
+  { key: "dl", label: "DL" },
+  { key: "lb", label: "LB" },
+  { key: "db", label: "DB" },
+  { key: "st", label: "ST" },
+];
+
 function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
-  const edge = modelHome - marketHome; // >0 => market too heavy on HOME => value = AWAY
+  const edge = modelHome - marketHome;
   if (!Number.isFinite(edge) || Math.abs(edge) < 1e-9) return { side: "—", edge };
   return edge > 0 ? { side: `${away} (away)`, edge } : { side: `${home} (home)`, edge };
 }
@@ -61,16 +62,13 @@ export default function PredictionsTab() {
   const [wk, setWk] = useState<number | null>(null);
   const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
   const [liveRows, setLiveRows] = useState<LiveRow[]>([]);
-
   const [kickKeyMap, setKickKeyMap] = useState<Record<string, string>>({});
   const [kickIdMap, setKickIdMap] = useState<Record<string, string>>({});
-
-  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'week', dir: 'asc' });
 
   useEffect(() => {
     (async () => {
       try {
-        const r = (await loadTable("upa_predictions")) as PredRow[];
+        const raw = (await loadTable("upa_predictions")) as PredRow[];
         const coerceNum = (v: any) => {
           const n = toNum(v);
           return Number.isFinite(n) ? n : null;
@@ -83,9 +81,8 @@ export default function PredictionsTab() {
           const n = Number(v);
           return Number.isFinite(n) ? n : 0;
         };
-        const norm = (x: PredRow): PredRow => ({
+        const normalized = raw.map((x: PredRow) => ({
           ...x,
-          // Keep numbers as numbers; represent missing as null (so fmtNum shows "—" instead of 0)
           model_spread_book: coerceNum(x.model_spread_book) as any,
           market_spread_book: coerceNum(x.market_spread_book) as any,
           expected_market_spread_book: coerceNum(x.expected_market_spread_book) as any,
@@ -93,17 +90,15 @@ export default function PredictionsTab() {
           value_points_book: coerceNum(x.value_points_book) as any,
           market_spread_source: normalizeSource((x as any).market_spread_source),
           qualified_edge_flag: flagVal((x as any).qualified_edge_flag),
-        });
-        const normalized = r.map(norm);
+        }));
         setRows(normalized);
 
-        // Revert: default to upcoming week (original behavior). If unavailable, fall back to earliest week present.
         const nextWk = nextUpcomingWeek(normalized as any);
         if (nextWk) {
           setWk(nextWk);
         } else {
-          const w = Array.from(new Set(normalized.map(x => Number(x.week)).filter(x => Number.isFinite(x)))).sort((a,b)=>a-b);
-          setWk(w.length ? w[0] : null);
+          const weeks = Array.from(new Set(normalized.map((x) => Number(x.week)).filter((x) => Number.isFinite(x)))).sort((a, b) => a - b);
+          setWk(weeks.length ? weeks[0] : null);
         }
       } catch {
         setRows([]);
@@ -123,23 +118,18 @@ export default function PredictionsTab() {
         const byId: Record<string, string> = {};
         const norm = (s: any) => (s ?? '').toString().trim();
         const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
-        // Helper: combine date and time if needed
         function combineDateTime(dateStr: string, timeStr: string): string {
           if (!dateStr) return '';
           if (!timeStr) return dateStr;
-          // If dateStr already has a clock, don't append timeStr
           if (/(\d{1,2}):(\d{2})/.test(dateStr)) return dateStr;
           return `${dateStr} ${timeStr}`;
         }
         for (const r of sched || []) {
-          // Preferred order for date and time fields
           let dateStr = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? '').toString().trim();
           if (!dateStr) continue;
-          // If dateStr does not contain a clock, look for a time-only field
           let timeStr = '';
           if (!/(\d{1,2}):(\d{2})/.test(dateStr)) {
-            timeStr =
-              (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? '').toString().trim();
+            timeStr = (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? '').toString().trim();
           }
           const dt = timeStr ? combineDateTime(dateStr, timeStr) : dateStr;
           byKey[key(r.week, r.away_team, r.home_team)] = dt;
@@ -154,17 +144,11 @@ export default function PredictionsTab() {
     })();
   }, []);
 
-  // available week list for dropdown
   const weekOptions = useMemo(() => {
-    const w = Array.from(
-      new Set(
-        rows.map((r) => Number(r.week)).filter((x) => Number.isFinite(x))
-      )
-    ).sort((a, b) => a - b);
+    const w = Array.from(new Set(rows.map((r) => Number(r.week)).filter((x) => Number.isFinite(x)))).sort((a, b) => a - b);
     return w as number[];
   }, [rows]);
 
-  // map of live scores keyed by "away|home" using normalized school names from the live_scores dataset
   const liveMap = useMemo(() => {
     const m = new Map<string, { hp: number | null; ap: number | null; state: string }>();
     for (const r of liveRows || []) {
@@ -179,49 +163,13 @@ export default function PredictionsTab() {
     return m;
   }, [liveRows]);
 
-  const keyOf = (w:any,a:any,h:any)=> `${Number(w)||0}|${String(a||'').trim()}|${String(h||'').trim()}`;
-
-  function kickoffHourET(dateStr?: string): number | null {
-    if (!dateStr) return null;
-    const s = dateStr.toString().trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; // date-only → unknown
-    const clock = s.match(/(\d{1,2}):(\d{2})/);
-    const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
-    if (hasTZ) {
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
-        try {
-          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
-          const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
-          const mm = parts.find(p=>p.type==='minute')?.value ?? '00';
-          const day = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', month: '2-digit', day: '2-digit' }).format(d);
-          return Number(hh);
-        } catch {}
-      }
-      return clock ? Math.max(0, Math.min(23, Number(clock[1]))) : null;
-    }
-    if (clock) return Math.max(0, Math.min(23, Number(clock[1])));
-    const d = new Date(s);
-    if (isNaN(d.getTime())) return null;
-    try {
-      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(d);
-      const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
-      return Number(hh);
-    } catch { return null; }
-  }
+  const keyOf = (w: any, a: any, h: any) => `${Number(w) || 0}|${String(a || '').trim()}|${String(h || '').trim()}`;
 
   function kickoffLabelET(dateStr?: string): string {
     if (!dateStr) return '';
     const s = dateStr.toString().trim();
-
-    // If we only have a date (no time), do not fabricate a time (avoids 8:00 PM ET issue).
-    // Example: "2025-09-06" should show blank / TBA rather than 8:00 PM (UTC→ET artifact).
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
-
-    // If an explicit clock is present, prefer that clock as ET even if no timezone is present.
     const clock = s.match(/(\d{1,2}):(\d{2})/);
-
-    // If the string carries an explicit timezone (Z or ±HH:MM), format in ET.
     const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
     if (hasTZ) {
       const d = new Date(s);
@@ -231,14 +179,9 @@ export default function PredictionsTab() {
           return `${t} ET`;
         } catch {}
       }
-      // Fall back to clock if parse failed
       return clock ? `${clock[1]}:${clock[2]} ET` : '';
     }
-
-    // If we have a clock but no timezone, just echo the clock (assume ET for display).
     if (clock) return `${clock[1]}:${clock[2]} ET`;
-
-    // Otherwise, try a last-resort parse (may succeed for full ISO without TZ on some platforms).
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       try {
@@ -249,16 +192,10 @@ export default function PredictionsTab() {
     return '';
   }
 
-  const toneStyleRow = (tone: 'win'|'loss'|'none') => (
-    tone === 'win' ? { backgroundColor: '#16a34a22' } : tone === 'loss' ? { backgroundColor: '#dc262622' } : undefined
-  );
-
-  const sortIndicator = (k:string)=> sort.key===k ? (sort.dir==='asc'?' ▲':' ▼') : '';
-
-  const tableRows = useMemo(() => {
+  const cards = useMemo(() => {
     const filtered = rows.filter((r) => (wk ? Number(r.week) === wk : true));
-    const f2 = onlyQualified ? filtered.filter((r:any)=> Number(r.qualified_edge_flag) === 1) : filtered;
-    return f2.map((r:any) => {
+    const baseline = onlyQualified ? filtered.filter((r) => Number(r.qualified_edge_flag) === 1) : filtered;
+    const mapped = baseline.map((r: any) => {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
       const expected = toNum(r.expected_market_spread_book);
@@ -266,16 +203,17 @@ export default function PredictionsTab() {
         : (Number.isFinite(model) && Number.isFinite(market) ? model - market : NaN);
       const value = Number.isFinite(toNum(r.value_points_book)) ? toNum(r.value_points_book)
         : (Number.isFinite(market) && Number.isFinite(expected) ? market - expected : NaN);
-
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const marketSource = providerLabel((r as any).market_spread_source);
 
-      // kickoff resolution
-      const schedDt = (r as any).kickoff_utc || (r as any).start_date || kickIdMap[String((r as any).game_id || '')] || kickKeyMap[keyOf(r.week, r.away_team, r.home_team)] || r.date;
+      const schedDt = (r as any).kickoff_utc
+        || (r as any).start_date
+        || kickIdMap[String((r as any).game_id || '')]
+        || kickKeyMap[keyOf(r.week, r.away_team, r.home_team)]
+        || r.date;
       const kickLabel = kickoffLabelET(schedDt);
 
-      // live override: use live scores whenever available (in or post)
-      const key = `${(r.away_team||'').toString().trim()}|${(r.home_team||'').toString().trim()}`;
+      const key = `${(r.away_team || '').toString().trim()}|${(r.home_team || '').toString().trim()}`;
       const live = liveMap.get(key);
       let hp = toNum(r.home_points);
       let ap = toNum(r.away_points);
@@ -284,13 +222,14 @@ export default function PredictionsTab() {
         if (Number.isFinite(live.ap)) ap = live.ap as number;
       }
 
-      const score = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${fmtNum(ap,{maximumFractionDigits:0})} @ ${fmtNum(hp,{maximumFractionDigits:0})}` : '—';
-      const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN; // home minus away
+      const homePointsLabel = Number.isFinite(hp) ? fmtNum(hp, { maximumFractionDigits: 0 }) : '—';
+      const awayPointsLabel = Number.isFinite(ap) ? fmtNum(ap, { maximumFractionDigits: 0 }) : '—';
+      const scoreLabel = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${awayPointsLabel} @ ${homePointsLabel}` : '—';
+      const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN;
 
-      // correctness tone if game is final (post)
-      let tone: 'win'|'loss'|'none' = 'none';
+      let tone: 'win' | 'loss' | 'none' = 'none';
       if (live && live.state === 'post' && Number.isFinite(finalDiff) && Number.isFinite(market)) {
-        const homeCover = (finalDiff + market) > 0; // book-style cover test
+        const homeCover = (finalDiff + market) > 0;
         const pickHome = (pick.side || '').includes('(home)');
         const pickAway = (pick.side || '').includes('(away)');
         const correct = pickHome ? homeCover : pickAway ? !homeCover : null;
@@ -298,127 +237,147 @@ export default function PredictionsTab() {
         else if (correct === false) tone = 'loss';
       }
 
-      return { ...r,
-        _kick: kickLabel,
-        _model: model, _market: market, _expected: expected,
-        _edge: edge, _value: value, _pick: pick.side,
-        _score: score, _finalDiff: finalDiff,
-        _tone: tone,
+      const positions = POSITION_KEYS.map(({ key: posKey, label }) => {
+        const awayLetter = ((r as any)[`away_grade_${posKey}_letter`] ?? '').toString().trim() || '—';
+        const homeLetter = ((r as any)[`home_grade_${posKey}_letter`] ?? '').toString().trim() || '—';
+        const awayScore = toNum((r as any)[`away_grade_${posKey}_score`]);
+        const homeScore = toNum((r as any)[`home_grade_${posKey}_score`]);
+        let advantage: 'away' | 'home' | 'even' = 'even';
+        if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
+          const delta = homeScore - awayScore;
+          if (delta > 1.5) advantage = 'home';
+          else if (delta < -1.5) advantage = 'away';
+        }
+        return { key: posKey, label, awayLetter, homeLetter, awayScore, homeScore, advantage };
+      });
+
+      return {
+        ...r,
+        _model: model,
+        _market: market,
+        _expected: expected,
+        _edge: edge,
+        _value: value,
+        _pick: pick.side,
         _marketSource: marketSource,
+        _kick: kickLabel,
+        _scoreLabel: scoreLabel,
+        _tone: tone,
+        _homePointsLabel: homePointsLabel,
+        _awayPointsLabel: awayPointsLabel,
+        _liveState: (live?.state || '').toString().toUpperCase(),
+        _positions: positions,
       };
     });
+
+    return mapped.sort((a, b) => {
+      const wkA = Number(a.week) || 0;
+      const wkB = Number(b.week) || 0;
+      if (wkA !== wkB) return wkA - wkB;
+      const edgeA = Math.abs(toNum(a._edge));
+      const edgeB = Math.abs(toNum(b._edge));
+      return edgeB - edgeA;
+    });
   }, [rows, wk, onlyQualified, liveMap, kickKeyMap, kickIdMap]);
-
-  const sortedRows = useMemo(() => {
-    const arr = [...tableRows];
-    const dir = sort.dir === 'asc' ? 1 : -1;
-    const get = (r:any) => {
-      switch (sort.key) {
-        case 'week': return Number(r.week) || 0;
-        case 'date': return new Date(r.date || '').getTime() || 0;
-        case 'kick': return r._kick || '';
-        case 'away': return (r.away_team||'').toString();
-        case 'home': return (r.home_team||'').toString();
-        case 'score': return Number.isFinite(r._finalDiff) ? r._finalDiff : -1e9;
-        case 'model': return Number(r._model) || 0;
-        case 'market': return Number(r._market) || 0;
-        case 'expected': return Number(r._expected) || 0;
-        case 'edge': return Number(r._edge) || 0;
-        case 'value': return Number(r._value) || 0;
-        case 'qual': return Number(r.qualified_edge_flag) === 1 ? 1 : 0;
-        default: return 0;
-      }
-    };
-    arr.sort((a,b)=> (get(a) > get(b) ? 1 : get(a) < get(b) ? -1 : 0) * dir);
-    return arr;
-  }, [tableRows, sort]);
-
-  const requestSort = (key:string) => {
-    setSort((s)=> s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' });
-  };
 
   return (
     <section className="card">
       <div className="card-title">Predictions — 2025</div>
       <div className="controls">
         <label>Week
-          <select className="input" value={wk ?? ""} onChange={(e)=> setWk(e.target.value ? Number(e.target.value) : null)}>
+          <select className="input" value={wk ?? ""} onChange={(e) => setWk(e.target.value ? Number(e.target.value) : null)}>
             {(weekOptions.length ? weekOptions : [wk ?? 1]).map((w) => (
               <option key={w} value={w}>{w}</option>
             ))}
           </select>
         </label>
         <label className="chk">
-          <input type="checkbox" checked={onlyQualified} onChange={(e)=> setOnlyQualified(e.target.checked)} />
+          <input type="checkbox" checked={onlyQualified} onChange={(e) => setOnlyQualified(e.target.checked)} />
           Exclude non-qualified (show only ✓)
         </label>
-        <Badge tone="muted">Rows: {tableRows.length}</Badge>
+        <Badge tone="muted">Rows: {cards.length}</Badge>
       </div>
 
       {!rows.length && (
-        <div className="note" style={{marginBottom:8}}>No predictions found. Expecting dataset <code>upa_predictions</code>.</div>
+        <div className="note" style={{ marginBottom: 8 }}>No predictions found. Expecting dataset <code>upa_predictions</code>.</div>
       )}
 
-      <div className="table-wrap">
-        <table className="tbl wide">
-          <thead>
-            <tr>
-              <th onClick={()=>requestSort('week')}>Week{sortIndicator('week')}</th>
-              <th onClick={()=>requestSort('date')}>Date{sortIndicator('date')}</th>
-              <th onClick={()=>requestSort('kick')}>Kick (ET){sortIndicator('kick')}</th>
-              <th colSpan={2}>Matchup</th>
-              <th onClick={()=>requestSort('score')}>Score (A @ H) / Final (H){sortIndicator('score')}</th>
-              <th onClick={()=>requestSort('model')}>Model (H){sortIndicator('model')}</th>
-              <th onClick={()=>requestSort('market')}>Market (H){sortIndicator('market')}</th>
-              <th onClick={()=>requestSort('expected')}>Expected (H){sortIndicator('expected')}</th>
-              <th onClick={()=>requestSort('edge')}>Edge{sortIndicator('edge')}</th>
-              <th onClick={()=>requestSort('value')}>Value{sortIndicator('value')}</th>
-              <th onClick={()=>requestSort('qual')}>Qualified{sortIndicator('qual')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedRows.map((r:any, i:number)=> (
-              <tr key={`${r.week}-${r.date}-${r.home_team}-${r.away_team}-${i}`} className={i%2?"alt":undefined} style={toneStyleRow(r._tone)}>
-                <td>{r.week}</td>
-                <td>{r.date}</td>
-                <td>{r._kick}</td>
-                <td style={{ textAlign: "right" }}>
-                  <TeamLabel home={false} team={r.away_team} neutral={false} />
-                  {Number.isFinite(Number(r.away_rank)) ? (
-                    <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.away_rank)}</span>
-                  ) : null}
-                </td>
-                <td style={{ textAlign: "left" }}>
-                  <TeamLabel home={true} team={r.home_team} neutral={r.neutral_site === "1" || r.neutral_site === "true"} />
-                  {Number.isFinite(Number(r.home_rank)) ? (
-                    <span style={{ marginLeft: 6, opacity: 0.7, fontSize: "0.85em" }}>#{Number(r.home_rank)}</span>
-                  ) : null}
-                </td>
-                <td>
-                  <div>{r._score}</div>
-                  <div style={{opacity:0.75}}>ΔH: {fmtNum(r._finalDiff)}</div>
-                </td>
-                <td>{fmtNum(r._model)}</td>
-                <td>
-                  <div>{fmtNum(r._market)}</div>
-                  <div style={{ opacity: 0.7, fontSize: "0.8em" }}>{r._marketSource}</div>
-                </td>
-                <td>{fmtNum(r._expected)}</td>
-                <td className={Number.isFinite(r._edge) ? (r._edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._edge)}</td>
-                <td className={Number.isFinite(r._value) ? (r._value > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._value)}</td>
-                <td>{Number(r.qualified_edge_flag) === 1 ? "✓" : "—"}</td>
-              </tr>
-            ))}
-            {!sortedRows.length && (
-              <tr><td colSpan={12} style={{textAlign:"center", padding:12}}>No rows to display.</td></tr>
-            )}
-          </tbody>
-        </table>
+      <div className="grid">
+        {cards.map((card: any) => {
+          const key = card.game_id || `${card.week}-${card.home_team}-${card.away_team}`;
+          const qualified = Number(card.qualified_edge_flag) === 1;
+          return (
+            <div key={key} className="live-card pred-card" style={card._tone === 'none' ? {} : { borderColor: card._tone === 'win' ? '#16a34a' : '#dc2626' }}>
+              <div className="row header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <strong>Week {card.week}</strong> · {card.date || 'TBD'}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {qualified ? <Badge tone="pos">Qualified</Badge> : null}
+                  <Badge tone="muted">{card._marketSource}</Badge>
+                </div>
+              </div>
+              <div className="row meta" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, opacity: 0.8 }}>
+                <div>{card._kick || 'Kickoff TBA'}</div>
+                <div>{card._liveState || ''}</div>
+              </div>
+              <div className="row teams">
+                <div className="side">
+                  <div className="lbl">AWAY</div>
+                  <TeamLabel home={false} team={card.away_team} neutral={false} />
+                  <div className="score">{card._awayPointsLabel}</div>
+                </div>
+                <div className="side">
+                  <div className="lbl">HOME</div>
+                  <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === '1' || card.neutral_site === 'true'} />
+                  <div className="score">{card._homePointsLabel}</div>
+                </div>
+              </div>
+              <div className="row meta" style={{ marginTop: 8 }}>
+                <div>Score (A @ H): {card._scoreLabel}</div>
+              </div>
+              <div className="row picks" style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                <div>Model (H): {fmtNum(card._model)}</div>
+                <div>Market (H): {fmtNum(card._market)}</div>
+                <div>Edge: {fmtNum(card._edge)}</div>
+                <div>Value: {fmtNum(card._value)}</div>
+                <div>Pick: {card._pick || '—'}</div>
+              </div>
+              <div className="row positions" style={{ marginTop: 10 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Positional Grades</div>
+                <div className="pos-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 1fr', gap: 6 }}>
+                  {card._positions.map((pos: any) => {
+                    const awayStrong = pos.advantage === 'away';
+                    const homeStrong = pos.advantage === 'home';
+                    return (
+                      <div key={pos.key} className="pos-line" style={{ display: 'contents' }}>
+                        <span
+                          style={{ textAlign: 'right', fontWeight: awayStrong ? 600 : 400, opacity: awayStrong ? 1 : 0.75 }}
+                        >
+                          {pos.awayLetter}
+                        </span>
+                        <span className="pos-label" style={{ textAlign: 'center', opacity: 0.7 }}>{pos.label}</span>
+                        <span
+                          style={{ fontWeight: homeStrong ? 600 : 400, opacity: homeStrong ? 1 : 0.75 }}
+                        >
+                          {pos.homeLetter}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {!cards.length && (
+          <div className="note" style={{ padding: 12 }}>No rows to display.</div>
+        )}
       </div>
 
       <div className="note" style={{ marginTop: 8 }}>
         Book-style spreads shown (negative = home favorite). <b>Edge</b> = model − market (home perspective). <b>Value</b> = market − expected.
-        Games marked with a score are complete or live; upcoming games show “—”.
+        Positional letters compare normalized team units (A+ best, F worst), highlighting advantages head-to-head.
       </div>
     </section>
   );
