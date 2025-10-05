@@ -41,12 +41,15 @@ def load_training_dataset() -> pd.DataFrame:
         return pd.DataFrame()
     team_inputs = team_inputs.copy()
     team_inputs["team"] = team_inputs["team"].astype(str)
-    cols = ["team", "season"] + [c for c in FEATURE_COLUMNS if c in team_inputs.columns]
+    cols = ["team"] + [c for c in FEATURE_COLUMNS if c in team_inputs.columns]
+    if "season" in team_inputs.columns:
+        cols.insert(1, "season")
     team_inputs = team_inputs[cols]
 
     def _merge(side: str) -> pd.DataFrame:
         suffix = "_home" if side == "home" else "_away"
-        subset = team_inputs.rename(columns={c: f"{c}{suffix}" for c in team_inputs.columns if c not in {"team", "season"}})
+        ignore_cols = {"team", "season"} if "season" in team_inputs.columns else {"team"}
+        subset = team_inputs.rename(columns={c: f"{c}{suffix}" for c in team_inputs.columns if c not in ignore_cols})
         subset = subset.rename(columns={"team": f"{side}_team"})
         return subset
 
