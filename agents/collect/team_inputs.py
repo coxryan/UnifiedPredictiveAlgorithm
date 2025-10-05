@@ -198,15 +198,16 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         try:
             if apis.ratings_api:
                 sos = apis.ratings_api.get_sos(year=prev_season)
-                df = pd.DataFrame([{ "team": x.team, "prev_season_sos_rank_1_133": getattr(x, "rank", None)} for x in (sos or [])])
-                if not df.empty:
-                    df["season"] = prev_season
-                    df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                sos_df = pd.DataFrame([{ "team": x.team, "prev_season_sos_rank_1_133": getattr(x, "rank", None)} for x in (sos or [])])
+                if not sos_df.empty:
+                    sos_df["season"] = prev_season
+                    sos_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                     delete_rows("raw_cfbd_sos", "season", prev_season)
-                    storage_write_dataset(df, "raw_cfbd_sos", if_exists="append")
-                    sos_df = df
+                    storage_write_dataset(sos_df, "raw_cfbd_sos", if_exists="append")
         except Exception:
             sos_df = pd.DataFrame({"team": [], "prev_season_sos_rank_1_133": []})
+    if 'team' not in sos_df.columns:
+        sos_df = pd.DataFrame({'team': [], 'prev_season_sos_rank_1_133': []})
     if not sos_df.empty:
         sos_df = sos_df.drop(columns=["season", "retrieved_at"], errors="ignore")
 

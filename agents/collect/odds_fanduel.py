@@ -70,6 +70,8 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             if not data:
                 break
             agg.extend(data)
+        with open(os.path.join(DATA_DIR, "debug", "fanduel_raw.json"), "w") as f:
+            json.dump(agg, f, indent=2)
 
         rows: List[Dict[str, Any]] = []
         for game in agg:
