@@ -272,8 +272,11 @@ def build_predictions_for_year(
             home_col = f"home_{col}"
             away_col = f"away_{col}"
             try:
-                preds[home_col] = preds.set_index("home_team")[[]].join(series, how="left").iloc[:, 0].values
-                preds[away_col] = preds.set_index("away_team")[[]].join(series, how="left").iloc[:, 0].values
+                dedup = series[~series.index.duplicated(keep="last")]
+                home_values = preds["home_team"].map(dedup)
+                away_values = preds["away_team"].map(dedup)
+                preds[home_col] = home_values
+                preds[away_col] = away_values
             except Exception:
                 preds[home_col] = preds["home_team"].map(series)
                 preds[away_col] = preds["away_team"].map(series)
