@@ -324,6 +324,9 @@ def _apply_norm_stats(
     features: Sequence[str],
     stats: Dict[str, Any],
 ) -> pd.DataFrame:
+    for feat in features:
+        if feat not in frame.columns:
+            frame[feat] = 0.0
     normalized = pd.DataFrame(index=frame.index, columns=features, dtype=float)
     global_params = stats.get("__global__", {"mean": {}, "std": {}})
     global_mean = pd.Series(global_params.get("mean", {}))
