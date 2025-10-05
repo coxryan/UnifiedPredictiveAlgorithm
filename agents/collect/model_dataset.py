@@ -165,7 +165,6 @@ def _merge_team_features(
 
 def _team_long_frame(preds: pd.DataFrame) -> pd.DataFrame:
     base_cols = [
-        "game_id",
         "season",
         "week",
         "kickoff_dt",
@@ -175,16 +174,22 @@ def _team_long_frame(preds: pd.DataFrame) -> pd.DataFrame:
         "actual_margin",
         "residual_target",
     ]
+    has_game_id = "game_id" in preds.columns
+    if has_game_id:
+        base_cols.append("game_id")
     base_cols = [c for c in base_cols if c in preds.columns]
-    rows = []
+
+    rows: List[pd.DataFrame] = []
     for side in ("home", "away"):
-        cols = base_cols + [f"{side}_team", f"{('away' if side=='home' else 'home')}_team"]
+        opponent_field = "away" if side == "home" else "home"
+        cols = base_cols + [f"{side}_team", f"{opponent_field}_team"]
         cols = [c for c in cols if c in preds.columns]
+        if not cols:
+            continue
         sub = preds[cols].copy()
         sub["team"] = preds[f"{side}_team"].astype(str)
-        other_side = "away" if side == "home" else "home"
-        if f"{other_side}_team" in preds.columns:
-            sub["opponent"] = preds[f"{other_side}_team"].astype(str)
+        if f"{opponent_field}_team" in preds.columns:
+            sub["opponent"] = preds[f"{opponent_field}_team"].astype(str)
         sub["is_home"] = 1 if side == "home" else 0
         rows.append(sub)
     if not rows:
@@ -197,7 +202,10 @@ def _attach_rolling_features(preds: pd.DataFrame) -> pd.DataFrame:
     if long_df.empty:
         return preds
 
-    long_df = long_df.sort_values(["team", "kickoff_dt", "game_id"], kind="mergesort")
+    sort_cols = ["team", "kickoff_dt"]
+    if "game_id" in long_df.columns:
+        sort_cols.append("game_id")
+    long_df = long_df.sort_values(sort_cols, kind="mergesort")
 
     def rolling_mean(series: pd.Series, window: int) -> pd.Series:
         return series.shift(1).rolling(window=window, min_periods=1).mean()
@@ -222,7 +230,7 @@ def _attach_rolling_features(preds: pd.DataFrame) -> pd.DataFrame:
     for side in ("home", "away"):
         suffix = "_home" if side == "home" else "_away"
         subset = long_df.loc[long_df["is_home"] == (1 if side == "home" else 0)]
-        keep = ["team", "game_id"] + feature_cols
+        keep = ["team"] + ([] if "game_id" not in subset.columns else ["game_id"]) + list(feature_cols)
         keep = [c for c in keep if c in subset.columns]
         if not keep:
             continue
