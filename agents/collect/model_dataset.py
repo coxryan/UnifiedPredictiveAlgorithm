@@ -152,7 +152,7 @@ def _merge_team_features(
     # Drop the helper key columns that only exist on the right side.
     for key in right_keys:
         if key not in left_keys and key in merged.columns:
-        merged = merged.drop(columns=key)
+            merged = merged.drop(columns=key)
     if "season_x" in merged.columns and "season_y" in merged.columns:
         merged["season"] = merged["season_x"].combine_first(merged["season_y"])
         merged = merged.drop(columns=["season_x", "season_y"])
