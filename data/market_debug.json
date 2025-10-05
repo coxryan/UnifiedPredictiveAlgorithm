@@ -1,9 +1,9 @@
 {
   "year": 2025,
-  "week_used": 4,
+  "week_used": 6,
   "requested_market": "fanduel",
-  "status_market_used": "fanduel",
+  "status_market_used": null,
   "fallback_reason": null,
-  "rows_returned": 513,
-  "generated_at_utc": "2025-09-21T06:01:25Z"
+  "rows_returned": 717,
+  "generated_at_utc": "2025-10-05T03:01:56Z"
 }
