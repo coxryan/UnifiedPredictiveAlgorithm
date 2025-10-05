@@ -345,19 +345,23 @@ def build_predictions_for_year(
     )
     preds.loc[cf_mask, "market_spread_source"] = "cfbd"
 
-    preds["market_adjustment"] = 0.0
-    preds["market_adjustment_raw"] = 0.0
-    preds["market_adjustment_linear"] = 0.0
-    preds["market_adjustment_nonlinear"] = 0.0
-    preds["residual_pred_raw"] = 0.0
-    preds["residual_pred_calibrated"] = 0.0
-    preds["model_confidence"] = 0.0
-    preds["model_residual_sigma"] = np.nan
-
     preds["_row_id"] = np.arange(len(preds))
     residual_model = load_residual_model()
     if residual_model is not None and not preds.empty:
         feature_ready, _ = prepare_feature_frame(preds, team_inputs=team_inputs_df)
+        preds = preds.drop(
+            columns=[
+                "market_adjustment",
+                "market_adjustment_raw",
+                "market_adjustment_linear",
+                "market_adjustment_nonlinear",
+                "residual_pred_raw",
+                "residual_pred_calibrated",
+                "residual_pred_linear",
+                "residual_pred_nonlinear",
+            ],
+            errors="ignore",
+        )
         if not feature_ready.empty and residual_model.features:
             normalized_features = residual_model.transform_features(feature_ready)
             X = normalized_features[residual_model.features].to_numpy(dtype=float)
@@ -439,6 +443,24 @@ def build_predictions_for_year(
     else:
         preds["residual_pred_linear"] = 0.0
         preds["residual_pred_nonlinear"] = 0.0
+
+    default_columns = {
+        "market_adjustment": 0.0,
+        "market_adjustment_raw": 0.0,
+        "market_adjustment_linear": 0.0,
+        "market_adjustment_nonlinear": 0.0,
+        "residual_pred_raw": 0.0,
+        "residual_pred_calibrated": 0.0,
+        "residual_pred_linear": 0.0,
+        "residual_pred_nonlinear": 0.0,
+        "model_confidence": 0.0,
+        "model_residual_sigma": np.nan,
+    }
+    for col, default in default_columns.items():
+        if col not in preds.columns:
+            preds[col] = default
+        elif preds[col].isna().all() and np.isnan(default):
+            preds[col] = preds[col].astype("float64")
 
     # Use model spread as fall-back only for calculations so we avoid NaNs downstream
     market_for_calc = market_series.where(~market_missing, preds["model_spread_book"])

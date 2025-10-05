@@ -71,12 +71,12 @@ def _parse_datetime_columns(df: pd.DataFrame) -> pd.Series:
         if col not in df.columns:
             continue
         parsed = pd.to_datetime(df[col], errors="coerce", utc=True)
-        kickoff = kickoff.fillna(parsed)
+        kickoff = kickoff.combine_first(parsed)
     # Some historical rows only have a `date` column without timezone. Ensure we
     # at least parse that string even if the previous loop already attempted it.
     if kickoff.isna().any() and "date" in df.columns:
         parsed_date = pd.to_datetime(df["date"], errors="coerce", utc=True)
-        kickoff = kickoff.fillna(parsed_date)
+        kickoff = kickoff.combine_first(parsed_date)
     return kickoff
 
 
