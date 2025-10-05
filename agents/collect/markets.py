@@ -414,11 +414,7 @@ def get_market_lines_for_current_week(
                     fd_missing = out_df["market_spread_fanduel"].isna()
                 else:
                     fd_missing = pd.Series(True, index=out_df.index)
-                cf_only = (
-                    (source_series == "unknown")
-                    & out_df["market_spread_cfbd"].notna()
-                    & fd_missing
-                )
+                cf_only = out_df["market_spread_cfbd"].notna() & fd_missing
                 source_series.loc[cf_only] = "cfbd"
             source_series.loc[out_df["spread"].isna()] = "none"
             out_df["market_spread_source"] = source_series
