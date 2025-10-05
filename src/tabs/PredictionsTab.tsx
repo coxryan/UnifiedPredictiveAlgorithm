@@ -40,7 +40,7 @@ type PredRow = {
   model_spread_book?: string; market_spread_book?: string;
   expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string;
-  qualified_edge_flag?: string;
+  qualified_edge_flag?: string | number;
   market_spread_source?: string | null;
   // optional ranks (if present)
   home_rank?: string; away_rank?: string;
@@ -79,6 +79,10 @@ export default function PredictionsTab() {
           const key = (v ?? "").toString().trim().toLowerCase();
           return key ? key : null;
         };
+        const flagVal = (v: any): number => {
+          const n = Number(v);
+          return Number.isFinite(n) ? n : 0;
+        };
         const norm = (x: PredRow): PredRow => ({
           ...x,
           // Keep numbers as numbers; represent missing as null (so fmtNum shows "—" instead of 0)
@@ -88,6 +92,7 @@ export default function PredictionsTab() {
           edge_points_book: coerceNum(x.edge_points_book) as any,
           value_points_book: coerceNum(x.value_points_book) as any,
           market_spread_source: normalizeSource((x as any).market_spread_source),
+          qualified_edge_flag: flagVal((x as any).qualified_edge_flag),
         });
         const normalized = r.map(norm);
         setRows(normalized);
@@ -252,7 +257,7 @@ export default function PredictionsTab() {
 
   const tableRows = useMemo(() => {
     const filtered = rows.filter((r) => (wk ? Number(r.week) === wk : true));
-    const f2 = onlyQualified ? filtered.filter((r:any)=> r.qualified_edge_flag === '1') : filtered;
+    const f2 = onlyQualified ? filtered.filter((r:any)=> Number(r.qualified_edge_flag) === 1) : filtered;
     return f2.map((r:any) => {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
@@ -320,7 +325,7 @@ export default function PredictionsTab() {
         case 'expected': return Number(r._expected) || 0;
         case 'edge': return Number(r._edge) || 0;
         case 'value': return Number(r._value) || 0;
-        case 'qual': return r.qualified_edge_flag === '1' ? 1 : 0;
+        case 'qual': return Number(r.qualified_edge_flag) === 1 ? 1 : 0;
         default: return 0;
       }
     };
@@ -401,7 +406,7 @@ export default function PredictionsTab() {
                 <td>{fmtNum(r._expected)}</td>
                 <td className={Number.isFinite(r._edge) ? (r._edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._edge)}</td>
                 <td className={Number.isFinite(r._value) ? (r._value > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._value)}</td>
-                <td>{r.qualified_edge_flag === "1" ? "✓" : "—"}</td>
+                <td>{Number(r.qualified_edge_flag) === 1 ? "✓" : "—"}</td>
               </tr>
             ))}
             {!sortedRows.length && (
