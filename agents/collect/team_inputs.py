@@ -277,7 +277,11 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
 
     if not df.empty:
         def _col(name: str, default: float = 50.0) -> pd.Series:
-            return pd.to_numeric(df.get(name), errors="coerce").fillna(default)
+            if name in df.columns:
+                series = pd.to_numeric(df[name], errors="coerce")
+            else:
+                series = pd.Series(default, index=df.index, dtype="float64")
+            return series.fillna(default)
 
         off_idx = _col("stat_off_index_0_100")
         def_idx = _col("stat_def_index_0_100")
