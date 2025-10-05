@@ -995,6 +995,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Use `.cache_cfbd/<year>` (90d TTL) and `.cache_odds/<year>` (2d TTL). Only refresh when forced (`FORCE_REFRESH_*`) or when freshness checks fail.
 - All tunables (κ, λ, α-weights, thresholds, cache TTLs, year) must come from env vars or constants. Do not hardcode.
 - Secrets (`CFBD_BEARER_TOKEN`, `ODDS_API_KEY`) must come from environment or `.env` and never be committed.
+- Preserve historical market snapshots. We only refresh FanDuel/CFBD lines for the active and upcoming weeks; once a game's scheduled kickoff time has passed (or scores land) we keep the previously captured spread and skip overwriting it.
 
 ### Data Handling & Validation Rules
 - Abort if `cfb_schedule` has <200 rows or `max(date) < today+2 PT`.

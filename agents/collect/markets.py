@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 
 import math
 import re
@@ -243,6 +243,129 @@ def _cfbd_lines_to_bookstyle(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _build_started_map(schedule_df: pd.DataFrame) -> Dict[int, bool]:
+    if schedule_df is None or schedule_df.empty or "game_id" not in schedule_df.columns:
+        return {}
+
+    sched = schedule_df.copy()
+    sched["game_id"] = pd.to_numeric(sched.get("game_id"), errors="coerce")
+    sched = sched.loc[sched["game_id"].notna()].copy()
+    if sched.empty:
+        return {}
+    sched["game_id"] = sched["game_id"].astype("int64")
+
+    now_ts = pd.Timestamp.utcnow()
+    if now_ts.tzinfo is None:
+        now_ts = now_ts.tz_localize("UTC")
+    else:
+        now_ts = now_ts.tz_convert("UTC")
+    started: Dict[int, bool] = {}
+
+    for _, row in sched.iterrows():
+        gid = int(row["game_id"])
+        kickoff = None
+        for col in ["kickoff_utc", "start_time", "datetime", "start_date", "date"]:
+            val = row.get(col)
+            if val is None or (isinstance(val, float) and pd.isna(val)):
+                continue
+            kickoff = pd.to_datetime(val, utc=True, errors="coerce")
+            if kickoff is not None and pd.notna(kickoff):
+                break
+        flag = False
+        if kickoff is not None and pd.notna(kickoff):
+            try:
+                if kickoff.tzinfo is None:
+                    kickoff = kickoff.tz_localize("UTC")
+            except Exception:
+                pass
+            if kickoff <= now_ts:
+                flag = True
+        hp = row.get("home_points")
+        ap = row.get("away_points")
+        if pd.notna(hp) or pd.notna(ap):
+            flag = True
+        started[gid] = flag
+
+    return started
+
+
+def _persist_market_snapshot(
+    table: str,
+    season: int,
+    new_rows: pd.DataFrame,
+    started_map: Dict[int, bool],
+) -> None:
+    timestamp = pd.Timestamp.utcnow().isoformat()
+    new_df = new_rows.copy() if new_rows is not None else pd.DataFrame()
+    if not new_df.empty:
+        new_df["game_id"] = pd.to_numeric(new_df.get("game_id"), errors="coerce")
+        new_df = new_df.loc[new_df["game_id"].notna()].copy()
+        new_df["game_id"] = new_df["game_id"].astype("int64")
+        new_df["week"] = pd.to_numeric(new_df.get("week"), errors="coerce")
+        new_df = new_df.loc[new_df["week"].notna()].copy()
+        new_df["week"] = new_df["week"].astype("int64")
+        new_df["season"] = season
+        new_df["retrieved_at"] = timestamp
+
+    existing_all = read_dataset(table)
+    if existing_all.empty:
+        existing_year = pd.DataFrame()
+    else:
+        existing_year = existing_all.loc[existing_all.get("season") == season].copy()
+
+    if not existing_year.empty:
+        existing_year["game_id"] = pd.to_numeric(existing_year.get("game_id"), errors="coerce")
+        existing_year = existing_year.loc[existing_year["game_id"].notna()].copy()
+        existing_year["game_id"] = existing_year["game_id"].astype("int64")
+        existing_year["week"] = pd.to_numeric(existing_year.get("week"), errors="coerce")
+        existing_year = existing_year.loc[existing_year["week"].notna()].copy()
+        existing_year["week"] = existing_year["week"].astype("int64")
+
+    if new_df.empty:
+        final_year = existing_year.copy()
+    else:
+        freeze_ids: Set[int] = set()
+        if not existing_year.empty:
+            existing_ids = set(existing_year["game_id"].tolist())
+            for gid in new_df["game_id"].tolist():
+                if gid in existing_ids and started_map.get(int(gid), False):
+                    freeze_ids.add(int(gid))
+
+        preserve_rows = (
+            existing_year.loc[existing_year["game_id"].isin(list(freeze_ids))].copy()
+            if freeze_ids and not existing_year.empty
+            else pd.DataFrame()
+        )
+
+        if freeze_ids:
+            new_df = new_df.loc[~new_df["game_id"].isin(list(freeze_ids))].copy()
+
+        update_weeks = sorted(set(new_df["week"].astype(int).tolist())) if not new_df.empty else []
+        existing_keep = (
+            existing_year.loc[~existing_year["week"].isin(update_weeks)].copy()
+            if (not existing_year.empty and update_weeks)
+            else existing_year.copy()
+        )
+
+        parts = [existing_keep]
+        if not preserve_rows.empty:
+            parts.append(preserve_rows)
+        if not new_df.empty:
+            parts.append(new_df)
+
+        final_year = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+        if not final_year.empty:
+            final_year = final_year.drop_duplicates(
+                subset=[col for col in ["game_id", "week"] if col in final_year.columns],
+                keep="last",
+            )
+            final_year["season"] = season
+
+    delete_rows(table, "season", season)
+    if final_year is not None and not final_year.empty:
+        storage_write_dataset(final_year, table, if_exists="append")
+
+
 def get_market_lines_for_current_week(
     year: int, week: int, schedule_df: pd.DataFrame, apis: CfbdClients, cache: ApiCache
 ) -> pd.DataFrame:
@@ -289,6 +412,8 @@ def get_market_lines_for_current_week(
             cached = cached.drop_duplicates(subset=dup_keys, keep="last")
         return cached
 
+    started_map = _build_started_map(schedule_df)
+
     # Attempt to use cached FanDuel lines first
     cached_fanduel = _load_cached_lines("raw_fanduel_lines")
     if requested == "fanduel" and not cached_fanduel.empty and len(cached_fanduel) >= MARKET_MIN_ROWS:
@@ -328,10 +453,12 @@ def get_market_lines_for_current_week(
                         out_df = fanduel_norm.copy()
                         used = "fanduel"
                         store_df = out_df.copy()
-                        store_df["season"] = year
-                        store_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
-                        delete_rows("raw_fanduel_lines", "season", year)
-                        storage_write_dataset(store_df, "raw_fanduel_lines", if_exists="append")
+                        _persist_market_snapshot(
+                            "raw_fanduel_lines",
+                            year,
+                            store_df,
+                            started_map,
+                        )
                         if fanduel_rows < MARKET_MIN_ROWS:
                             fb_reason = (
                                 fb_reason
@@ -362,10 +489,12 @@ def get_market_lines_for_current_week(
             out_df = cfbd_norm.copy()
             if not cfbd_norm.empty:
                 store_cfbd = cfbd_norm.copy()
-                store_cfbd["season"] = year
-                store_cfbd["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
-                delete_rows("raw_cfbd_lines", "season", year)
-                storage_write_dataset(store_cfbd, "raw_cfbd_lines", if_exists="append")
+                _persist_market_snapshot(
+                    "raw_cfbd_lines",
+                    year,
+                    store_cfbd,
+                    started_map,
+                )
                 used = "cfbd"
         _dbg(f"get_market_lines_for_current_week: CFBD-only rows={len(out_df)}")
         if out_df.empty and not fb_reason:
