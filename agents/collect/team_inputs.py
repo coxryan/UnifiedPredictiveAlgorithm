@@ -246,6 +246,37 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         else:
             df["conference"] = df.get("conference", "FBS")
 
+    if not df.empty:
+        def _mean_for(columns: List[str]) -> pd.Series:
+            if not columns:
+                return pd.Series([pd.NA] * len(df), index=df.index)
+            subset = df[columns].apply(pd.to_numeric, errors="coerce")
+            return subset.mean(axis=1, skipna=True)
+
+        off_cols = [
+            col for col in [
+                "stat_off_ppg",
+                "stat_off_ypp",
+                "stat_off_success",
+                "stat_off_explosiveness",
+            ]
+            if col in df.columns
+        ]
+        def_cols = [
+            col for col in [
+                "stat_def_ppg",
+                "stat_def_ypp",
+                "stat_def_success",
+                "stat_def_explosiveness",
+            ]
+            if col in df.columns
+        ]
+        st_cols = [col for col in ["stat_st_points_per_play"] if col in df.columns]
+
+        df["stat_off_index_0_100"] = _mean_for(off_cols)
+        df["stat_def_index_0_100"] = _mean_for(def_cols)
+        df["stat_st_index_0_100"] = _mean_for(st_cols)
+
     for col in [
         "team",
         "conference",
@@ -267,6 +298,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_def_success",
         "stat_def_explosiveness",
         "stat_st_points_per_play",
+        "stat_off_index_0_100",
+        "stat_def_index_0_100",
+        "stat_st_index_0_100",
         "portal_net_0_100",
         "portal_net_count",
         "portal_net_value",

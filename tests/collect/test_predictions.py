@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from agents.collect.predictions import build_predictions_for_year
+from agents.collect.predictions import build_predictions_for_year, _rating_from_team_inputs
 from agents.collect import ApiCache
 
 
@@ -11,6 +11,9 @@ def _team_inputs():
             "wrps_percent_0_100": [60, 50],
             "talent_score_0_100": [62, 48],
             "srs_score_0_100": [65, 45],
+            "stat_off_index_0_100": [70, 40],
+            "stat_def_index_0_100": [68, 42],
+            "stat_st_index_0_100": [55, 45],
         }
     )
 
@@ -84,6 +87,22 @@ def test_predictions_sets_market_source_cfbd(tmp_path):
 
     assert preds.loc[0, "market_spread_source"] == "cfbd"
     assert int(preds.loc[0, "market_is_synthetic"]) == 0
+
+
+def test_rating_from_team_inputs_uses_stat_features():
+    df = pd.DataFrame(
+        {
+            "team": ["A", "B"],
+            "wrps_percent_0_100": [50, 50],
+            "talent_score_0_100": [50, 50],
+            "srs_score_0_100": [50, 50],
+            "stat_off_index_0_100": [80, 20],
+            "stat_def_index_0_100": [75, 25],
+            "stat_st_index_0_100": [60, 40],
+        }
+    )
+    ratings = _rating_from_team_inputs(df)
+    assert ratings.loc["A"] > ratings.loc["B"]
 
 
 def test_predictions_mark_synthetic_when_market_missing(tmp_path):

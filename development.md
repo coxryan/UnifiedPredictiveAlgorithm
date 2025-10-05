@@ -124,6 +124,7 @@ To decouple raw data ingestion from model generation, GitHub Actions now refresh
 - `refresh-cfbd-weekly` (`.github/workflows/fetch_cfbd_weekly.yml`): runs every Monday 10:00 UTC (and on demand). Calls `python -m agents.jobs.refresh_cfbd_weekly` to update team metadata (FBS teams, returning production, talent, SRS, SOS) and commits `data/upa_data.sqlite` back to `main`.
 - `refresh-cfbd-daily` (`.github/workflows/fetch_cfbd_daily.yml`): runs daily at 09:00 UTC. Executes `python -m agents.jobs.refresh_cfbd_daily`, pulling the latest CFBD schedule and CFBD lines fallback into the relational tables.
 - `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes. Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard, storing results in `raw_fanduel_lines`, `raw_cfbd_lines`, and `raw_espn_scoreboard`. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
+- `refresh-cfbd-stats-weekly` (`.github/workflows/fetch_cfbd_stats_weekly.yml`): runs every Tuesday at 12:00 UTC (and on demand). Executes `python -m agents.jobs.refresh_cfbd_stats_weekly` to refresh `raw_cfbd_team_stats` and the normalized feature table used by team inputs, committing the SQLite database when those metrics change.
 
 The downstream collector (`collect_cfbd_all`) and model builders now read exclusively from `upa_data.sqlite`, so the deploy workflow can focus on transformation, validation, and publishing without re-hitting upstream APIs.
 
@@ -1005,7 +1006,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
 
 ### Modeling Rules
-- Features must be blended into composite scores, not raw. Default α-weights: 0.35 WRPS, 0.35 Talent, 0.20 SRS, 0.10 SOS.
+- Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.25 WRPS, 0.25 Talent, 0.20 SRS, 0.15 Offensive efficiency, 0.10 Defensive efficiency, 0.05 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
 - Spread formula:
   ```
   M_model = - (κ * (S_home - S_away) + HFA)

@@ -24,16 +24,58 @@ def _rating_from_team_inputs(team_inputs: pd.DataFrame) -> pd.Series:
     if team_inputs is None or team_inputs.empty:
         return pd.Series(dtype="float64")
     df = team_inputs.copy()
-    for col in ["wrps_percent_0_100", "talent_score_0_100", "srs_score_0_100"]:
+    base_cols = [
+        "wrps_percent_0_100",
+        "talent_score_0_100",
+        "srs_score_0_100",
+        "stat_off_index_0_100",
+        "stat_def_index_0_100",
+        "stat_st_index_0_100",
+    ]
+    for col in base_cols:
         if col in df.columns:
             df[col] = _sanitize_numeric(df[col])
         else:
             df[col] = 0.0
+    if "stat_off_index_0_100" not in df.columns or df["stat_off_index_0_100"].isna().all():
+        off_cols = [c for c in [
+            "stat_off_ppg",
+            "stat_off_ypp",
+            "stat_off_success",
+            "stat_off_explosiveness",
+        ] if c in df.columns]
+        if off_cols:
+            df["stat_off_index_0_100"] = df[off_cols].apply(pd.to_numeric, errors="coerce").mean(axis=1, skipna=True)
+    if "stat_def_index_0_100" not in df.columns or df["stat_def_index_0_100"].isna().all():
+        def_cols = [c for c in [
+            "stat_def_ppg",
+            "stat_def_ypp",
+            "stat_def_success",
+            "stat_def_explosiveness",
+        ] if c in df.columns]
+        if def_cols:
+            df["stat_def_index_0_100"] = df[def_cols].apply(pd.to_numeric, errors="coerce").mean(axis=1, skipna=True)
+    if "stat_st_index_0_100" not in df.columns or df["stat_st_index_0_100"].isna().all():
+        st_cols = [c for c in ["stat_st_points_per_play"] if c in df.columns]
+        if st_cols:
+            df["stat_st_index_0_100"] = df[st_cols].apply(pd.to_numeric, errors="coerce").mean(axis=1, skipna=True)
+
     # Weighted composite score (0-1 scale)
     w_wrps = df["wrps_percent_0_100"].fillna(50.0) / 100.0
     w_talent = df["talent_score_0_100"].fillna(50.0) / 100.0
     w_srs = df["srs_score_0_100"].fillna(50.0) / 100.0
-    rating = (0.45 * w_wrps) + (0.30 * w_talent) + (0.25 * w_srs)
+    w_off = df["stat_off_index_0_100"].fillna(50.0) / 100.0
+    w_def = df["stat_def_index_0_100"].fillna(50.0) / 100.0
+    w_st = df["stat_st_index_0_100"].fillna(50.0) / 100.0
+
+    rating = (
+        0.25 * w_wrps
+        + 0.25 * w_talent
+        + 0.20 * w_srs
+        + 0.15 * w_off
+        + 0.10 * w_def
+        + 0.05 * w_st
+    )
     rating.index = df["team"].astype(str)
     # Ensure unique index by collapsing duplicate team rows (average scores)
     rating = rating.groupby(level=0).mean()
