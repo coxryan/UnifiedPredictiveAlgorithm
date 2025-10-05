@@ -892,12 +892,13 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 - **Location**: Unit tests live under `tests/collect/` and focus on collectors, backfill logic, and data shaping.
 - **Execution in CI**: The deploy workflow runs `python -m pytest --maxfail=1 --disable-warnings` after the "Validate data completeness" step. Builds fail if any test fails.
 - **Local run**: `pip install -r agents/requirements.txt` (includes `pytest`) then run `pytest` from repo root. Tests rely only on local fixtures—no external API calls.
-- **Current coverage**: `test_predictions.py` verifies that real market spreads override model fallbacks and that synthetic rows stay marked; `test_write_dataset.py` ensures `write_dataset` backfills from `market_debug` and flags synthetic gaps correctly.
+- **Current coverage**: `test_predictions.py` verifies that real market spreads override model fallbacks and that synthetic rows stay marked; `test_write_dataset.py` ensures `write_dataset` backfills from `market_debug` and flags synthetic gaps correctly; `test_markets.py` now hydrates the SQLite cache tables to prove FanDuel remains the primary source, exercises CFBD fallback, and asserts the new `fanduel_missing_detail` debug output includes the raw Odds API payload when spreads are missing.
 
 ### Debug Logging
 - Core collectors (`predictions`, `helpers`, `collect_cfbd_all`) emit structured `logging` debug messages. Set `UPA_LOG_LEVEL=DEBUG` (or run with a custom `logging.basicConfig`) to surface them locally.
 - CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_dataset: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues. The deploy workflow sets `UPA_LOG_LEVEL=DEBUG` by default, so production runs already emit the detailed traces.
 - Set `DEBUG_MARKET=1` to emit a per-game line (`market selection: ...`) detailing FanDuel vs CFBD spreads and the effective spread used; invaluable when chasing missing bookmaker lines.
+- With `DEBUG_MARKET=1` we now also log `fanduel_missing` summaries plus `fanduel_missing_detail {...}` entries for the first few games where FanDuel stayed `NaN`; those blobs include the normalized join keys, the CFBD fallback we used, and the raw provider payload returned by the Odds API so you can see exactly what FanDuel sent. The per-game `market selection:` line also appends `fan_duel_raw='...'` (and matching CFBD raw) whenever the numeric field is `NaN`, so the debug log immediately shows the unparsed value that came back from the provider.
 - All runs also write a rolling log file to `data/debug/collector.log`; inspect or stage this file when sharing artifacts or diagnosing CI failures.
 
 ### Git Auto-Staging (optional)

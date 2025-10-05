@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 from agents.collect.predictions import build_predictions_for_year
 from agents.collect import ApiCache
 
@@ -71,3 +72,34 @@ def test_predictions_mark_synthetic_when_market_missing(tmp_path):
 
     assert pd.isna(preds.loc[0, "market_spread_book"])
     assert int(preds.loc[0, "market_is_synthetic"]) == 1
+
+
+def test_market_selection_logs_raw_when_fanduel_nan(monkeypatch, caplog, tmp_path):
+    schedule_df = _schedule()
+    markets = pd.DataFrame(
+        [
+            {
+                "game_id": 1,
+                "week": 1,
+                "home_team": "Home",
+                "away_team": "Away",
+                "market_spread_fanduel": "PK",
+                "spread": -3.5,
+            }
+        ]
+    )
+
+    monkeypatch.setenv("DEBUG_MARKET", "1")
+
+    with caplog.at_level("DEBUG"):
+        build_predictions_for_year(
+            2025,
+            schedule_df,
+            apis=None,
+            cache=ApiCache(root=str(tmp_path / "cache")),
+            markets_df=markets,
+            team_inputs_df=_team_inputs(),
+        )
+
+    messages = [msg for msg in caplog.messages if msg.startswith("market selection:")]
+    assert any("fan_duel_raw='PK'" in msg for msg in messages)

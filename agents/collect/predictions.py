@@ -52,6 +52,7 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
             "market_spread_cfbd",
         ])
     df = markets_df.copy()
+    raw_cols: set[str] = set()
     if "market_spread_book" not in df.columns:
         if "spread" in df.columns:
             df["market_spread_book"] = df["spread"]
@@ -64,6 +65,14 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
         ("market_spread_cfbd", "market_spread_cfbd"),
     ):
         if src in df.columns:
+            raw_col = f"{dst}_raw"
+            if raw_col not in df.columns:
+                df[raw_col] = df[src]
+            else:
+                mask = df[src].notna()
+                if mask.any():
+                    df.loc[mask, raw_col] = df.loc[mask, src]
+            raw_cols.add(raw_col)
             df[dst] = _sanitize_numeric(df[src])
     for col in ("game_id", "week"):
         if col in df.columns:
@@ -84,6 +93,9 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
         ]
         if c in df.columns
     ]
+    for raw_col in sorted(raw_cols):
+        if raw_col in df.columns:
+            keep_cols.append(raw_col)
     out = df[keep_cols].drop_duplicates()
     return out
 
@@ -308,19 +320,33 @@ def build_predictions_for_year(
     )
     debug_market = os.environ.get("DEBUG_MARKET", "0").strip().lower() in {"1", "true", "yes"}
     if debug_market:
-        for idx, row in out.iterrows():
+        log_frame = preds.copy()
+        for _, row in log_frame.iterrows():
+            fan_duel_val = row.get("market_spread_fanduel")
+            fan_duel_raw = row.get("market_spread_fanduel_raw")
+            cfbd_val = row.get("market_spread_cfbd")
+            cfbd_raw = row.get("market_spread_cfbd_raw")
+
+            extra_parts = []
+            if pd.isna(fan_duel_val) and pd.notna(fan_duel_raw) and str(fan_duel_raw) != "":
+                extra_parts.append(f"fan_duel_raw={fan_duel_raw!r}")
+            if pd.isna(cfbd_val) and pd.notna(cfbd_raw) and str(cfbd_raw) != "":
+                extra_parts.append(f"cfbd_raw={cfbd_raw!r}")
+            detail_suffix = (" " + " ".join(extra_parts)) if extra_parts else ""
+
             logger.debug(
-                "market selection: week=%s game_id=%s home=%s away=%s fan_duel=%s cfbd=%s market=%s effective=%s source=%s synthetic=%s",
+                "market selection: week=%s game_id=%s home=%s away=%s fan_duel=%s cfbd=%s market=%s effective=%s source=%s synthetic=%s%s",
                 row.get("week"),
                 row.get("game_id"),
                 row.get("home_team"),
                 row.get("away_team"),
-                row.get("market_spread_fanduel"),
-                row.get("market_spread_cfbd"),
+                fan_duel_val,
+                cfbd_val,
                 row.get("market_spread_book"),
                 row.get("market_spread_effective"),
                 row.get("market_spread_source"),
                 row.get("market_is_synthetic"),
+                detail_suffix,
             )
 
     return out
