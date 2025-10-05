@@ -6,6 +6,25 @@ import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
 const isNum = (v: any) => Number.isFinite(toNum(v));
 const num = (v: any) => toNum(v);
 
+const providerLabel = (src: any): string => {
+  const key = (src ?? "").toString().trim().toLowerCase();
+  switch (key) {
+    case "fanduel":
+      return "FanDuel";
+    case "cfbd":
+      return "CFBD";
+    case "model":
+      return "Model";
+    case "unknown":
+      return "Unknown";
+    case "none":
+    case "":
+      return "—";
+    default:
+      return key ? key.toUpperCase() : "—";
+  }
+};
+
 type LiveRow = {
   state?: string;
   away_school?: string; home_school?: string;
@@ -22,6 +41,7 @@ type PredRow = {
   expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string;
+  market_spread_source?: string | null;
   // optional ranks (if present)
   home_rank?: string; away_rank?: string;
   home_ap_rank?: string; away_ap_rank?: string;
@@ -55,6 +75,10 @@ export default function PredictionsTab() {
           const n = toNum(v);
           return Number.isFinite(n) ? n : null;
         };
+        const normalizeSource = (v: any): string | null => {
+          const key = (v ?? "").toString().trim().toLowerCase();
+          return key ? key : null;
+        };
         const norm = (x: PredRow): PredRow => ({
           ...x,
           // Keep numbers as numbers; represent missing as null (so fmtNum shows "—" instead of 0)
@@ -63,6 +87,7 @@ export default function PredictionsTab() {
           expected_market_spread_book: coerceNum(x.expected_market_spread_book) as any,
           edge_points_book: coerceNum(x.edge_points_book) as any,
           value_points_book: coerceNum(x.value_points_book) as any,
+          market_spread_source: normalizeSource((x as any).market_spread_source),
         });
         const normalized = r.map(norm);
         setRows(normalized);
@@ -238,6 +263,7 @@ export default function PredictionsTab() {
         : (Number.isFinite(market) && Number.isFinite(expected) ? market - expected : NaN);
 
       const pick = valueSide(model, market, r.home_team, r.away_team);
+      const marketSource = providerLabel((r as any).market_spread_source);
 
       // kickoff resolution
       const schedDt = (r as any).kickoff_utc || (r as any).start_date || kickIdMap[String((r as any).game_id || '')] || kickKeyMap[keyOf(r.week, r.away_team, r.home_team)] || r.date;
@@ -273,6 +299,7 @@ export default function PredictionsTab() {
         _edge: edge, _value: value, _pick: pick.side,
         _score: score, _finalDiff: finalDiff,
         _tone: tone,
+        _marketSource: marketSource,
       };
     });
   }, [rows, wk, onlyQualified, liveMap, kickKeyMap, kickIdMap]);
@@ -367,7 +394,10 @@ export default function PredictionsTab() {
                   <div style={{opacity:0.75}}>ΔH: {fmtNum(r._finalDiff)}</div>
                 </td>
                 <td>{fmtNum(r._model)}</td>
-                <td>{fmtNum(r._market)}</td>
+                <td>
+                  <div>{fmtNum(r._market)}</div>
+                  <div style={{ opacity: 0.7, fontSize: "0.8em" }}>{r._marketSource}</div>
+                </td>
                 <td>{fmtNum(r._expected)}</td>
                 <td className={Number.isFinite(r._edge) ? (r._edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._edge)}</td>
                 <td className={Number.isFinite(r._value) ? (r._value > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._value)}</td>

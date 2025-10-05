@@ -315,10 +315,16 @@ def get_market_lines_for_current_week(
                         fanduel_raw_debug = fanduel_df.copy()
                     else:
                         fanduel_raw_debug = pd.DataFrame()
-                    market_extra = {"market_raw": stats.get("raw", 0), "market_mapped": stats.get("mapped", 0), "market_unmatched": stats.get("unmatched", 0)}
+                    market_extra = {
+                        "market_raw": stats.get("raw", 0),
+                        "market_mapped": stats.get("mapped", 0),
+                        "market_unmatched": stats.get("unmatched", 0),
+                    }
                     fanduel_df = fanduel_df.loc[pd.to_numeric(fanduel_df["week"], errors="coerce") <= next_week].copy()
                     fanduel_norm = _normalize_market_df(fanduel_df)
-                    if len(fanduel_norm) >= MARKET_MIN_ROWS:
+                    fanduel_rows = int(len(fanduel_norm))
+                    market_extra["fanduel_rows"] = fanduel_rows
+                    if fanduel_rows > 0:
                         out_df = fanduel_norm.copy()
                         used = "fanduel"
                         store_df = out_df.copy()
@@ -326,9 +332,14 @@ def get_market_lines_for_current_week(
                         store_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
                         delete_rows("raw_fanduel_lines", "season", year)
                         storage_write_dataset(store_df, "raw_fanduel_lines", if_exists="append")
+                        if fanduel_rows < MARKET_MIN_ROWS:
+                            fb_reason = (
+                                fb_reason
+                                or f"FanDuel rows below threshold ({fanduel_rows} < {MARKET_MIN_ROWS}); supplementing with CFBD"
+                            )
                     else:
                         used = "cfbd"
-                        fb_reason = f"FanDuel available but returned too few rows ({len(fanduel_df)})"
+                        fb_reason = fb_reason or "FanDuel returned no usable rows"
                         out_df = pd.DataFrame(columns=["game_id", "week", "home_team", "away_team", "spread"])
         except Exception as e:
             used = "cfbd"
@@ -343,9 +354,11 @@ def get_market_lines_for_current_week(
                 out_df = _normalize_market_df(cached_cfbd)
                 cfbd_norm = out_df.copy()
                 used = "cfbd"
+                market_extra["cfbd_rows"] = int(len(cfbd_norm))
         if out_df.empty:
             cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
             cfbd_norm = _normalize_market_df(cfbd_df)
+            market_extra["cfbd_rows"] = int(len(cfbd_norm))
             out_df = cfbd_norm.copy()
             if not cfbd_norm.empty:
                 store_cfbd = cfbd_norm.copy()
@@ -360,6 +373,7 @@ def get_market_lines_for_current_week(
     else:
         cfbd_df = _fetch_cfbd_lines(year, weeks, apis)
         cfbd_norm = _normalize_market_df(cfbd_df)
+        market_extra["cfbd_rows"] = int(len(cfbd_norm))
         if not cfbd_norm.empty:
             before_rows = len(out_df)
             out_df = _combine_market_sources(out_df, cfbd_norm)
@@ -379,6 +393,26 @@ def get_market_lines_for_current_week(
             cf = cfbd_norm[key_cols + ["spread"]].drop_duplicates(subset=key_cols, keep="last")
             cf = cf.rename(columns={"spread": "market_spread_cfbd"})
             out_df = out_df.merge(cf, on=key_cols, how="left")
+
+        if "spread" in out_df.columns:
+            tol = 1e-6
+            source_series = pd.Series("unknown", index=out_df.index)
+            if "market_spread_fanduel" in out_df.columns:
+                fd_match = (
+                    out_df["market_spread_fanduel"].notna()
+                    & (out_df["spread"] - out_df["market_spread_fanduel"]).abs() <= tol
+                )
+                source_series.loc[fd_match] = "fanduel"
+            if "market_spread_cfbd" in out_df.columns:
+                cf_match = (
+                    out_df["market_spread_cfbd"].notna()
+                    & (out_df["spread"] - out_df["market_spread_cfbd"]).abs() <= tol
+                )
+                source_series.loc[(source_series == "unknown") & cf_match] = "cfbd"
+            source_series.loc[out_df["spread"].isna()] = "none"
+            out_df["market_spread_source"] = source_series
+            market_extra["fanduel_games"] = int((source_series == "fanduel").sum())
+            market_extra["cfbd_games"] = int((source_series == "cfbd").sum())
 
     _log_fanduel_nan_debug(out_df, fanduel_norm, fanduel_raw_debug, requested)
 

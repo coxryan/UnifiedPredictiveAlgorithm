@@ -58,6 +58,34 @@ def test_predictions_use_market_when_available(tmp_path):
     assert preds.loc[0, "edge_points_book"] != 0
 
 
+def test_predictions_sets_market_source_cfbd(tmp_path):
+    schedule_df = _schedule()
+    markets = pd.DataFrame(
+        [
+            {
+                "game_id": 1,
+                "week": 1,
+                "home_team": "Home",
+                "away_team": "Away",
+                "spread": -6.5,
+                "market_spread_cfbd": -6.5,
+            }
+        ]
+    )
+
+    preds = build_predictions_for_year(
+        2025,
+        schedule_df,
+        apis=None,
+        cache=ApiCache(root=str(tmp_path / "cache")),
+        markets_df=markets,
+        team_inputs_df=_team_inputs(),
+    )
+
+    assert preds.loc[0, "market_spread_source"] == "cfbd"
+    assert int(preds.loc[0, "market_is_synthetic"]) == 0
+
+
 def test_predictions_mark_synthetic_when_market_missing(tmp_path):
     schedule_df = _schedule()
 

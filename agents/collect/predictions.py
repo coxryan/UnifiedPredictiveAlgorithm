@@ -84,6 +84,10 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
     for col in ("home_team", "away_team"):
         if col in df.columns:
             df[col] = df[col].astype(str).str.strip()
+    if "market_spread_source" in df.columns:
+        df["market_spread_source"] = (
+            df["market_spread_source"].astype(str).str.strip().str.lower()
+        )
     keep_cols = [
         c
         for c in [
@@ -94,6 +98,7 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
             "market_spread_book",
             "market_spread_fanduel",
             "market_spread_cfbd",
+            "market_spread_source",
         ]
         if c in df.columns
     ]
@@ -234,9 +239,23 @@ def build_predictions_for_year(
     market_missing = market_series.isna()
     preds["market_is_synthetic"] = market_missing.astype(int)
 
-    preds["market_spread_source"] = "model"
+    if "market_spread_source" in preds.columns:
+        preds["market_spread_source"] = (
+            preds["market_spread_source"].fillna("").astype(str).str.strip().str.lower()
+        )
+    else:
+        preds["market_spread_source"] = "model"
+
+    preds.loc[
+        preds["market_spread_source"].isin(["", "nan", "none"]),
+        "market_spread_source",
+    ] = "model"
     market_present = preds["market_spread_book"].notna()
-    preds.loc[market_present, "market_spread_source"] = "unknown"
+    preds.loc[~market_present, "market_spread_source"] = "model"
+    preds.loc[
+        market_present & ~preds["market_spread_source"].isin(["fanduel", "cfbd"]),
+        "market_spread_source",
+    ] = "unknown"
     tol = 1e-6
     fd_mask = (
         market_present

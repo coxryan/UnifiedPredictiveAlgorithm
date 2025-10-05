@@ -13,10 +13,30 @@ type LiveRow = {
   away_points?: string | number; home_points?: string | number;
 };
 
+const providerLabel = (src: any): string => {
+  const key = (src ?? "").toString().trim().toLowerCase();
+  switch (key) {
+    case "fanduel":
+      return "FanDuel";
+    case "cfbd":
+      return "CFBD";
+    case "model":
+      return "Model";
+    case "unknown":
+      return "Unknown";
+    case "none":
+    case "":
+      return "—";
+    default:
+      return key ? key.toUpperCase() : "—";
+  }
+};
+
 type PredRow = {
   week: string; date: string; neutral_site?: string;
   home_team: string; away_team: string; played?: any;
   model_spread_book?: string; market_spread_book?: string;
+  market_spread_source?: string | null;
 };
 
 type TeamInput = { team: string };
@@ -77,7 +97,8 @@ export default function LiveResultsTab() {
       const h = (r.home_team||"").toString().trim();
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
-      if (a && h) map.set(key(a,h), { model, market });
+      const src = providerLabel((r as any).market_spread_source);
+      if (a && h) map.set(key(a,h), { model, market, source: src });
     }
     return map;
   }, [preds]);
@@ -93,13 +114,14 @@ export default function LiveResultsTab() {
         const match = predByMatch.get(`${aSchool}|${hSchool}`);
         const model = match ? match.model : NaN;
         const market = match ? match.market : NaN;
+        const source = match ? match.source : "—";
         const pick = Number.isFinite(model) && Number.isFinite(market)
           ? pickFromModelMarket(model, market, hSchool, aSchool).side
           : "—";
         const hp = typeof r.home_points === 'string' ? Number(r.home_points) : (r.home_points as number);
         const ap = typeof r.away_points === 'string' ? Number(r.away_points) : (r.away_points as number);
         const tone = coverStatus(Number(hp), Number(ap), Number(market), pick);
-        return { ...r, _model:model, _market:market, _pick:pick, _tone:tone } as any;
+        return { ...r, _model:model, _market:market, _pick:pick, _tone:tone, _marketSource: source } as any;
       });
   }, [live, predByMatch, fbs]);
 
@@ -151,7 +173,10 @@ export default function LiveResultsTab() {
             </div>
             <div className="row picks">
               <div>Model (H): {fmtNum(g._model)}</div>
-              <div>Market (H): {fmtNum(g._market)}</div>
+              <div>
+                Market (H): {fmtNum(g._market)}
+                {g._marketSource && g._marketSource !== "—" ? ` (${g._marketSource})` : ""}
+              </div>
               <div>Pick: {g._pick || "—"}</div>
             </div>
           </div>

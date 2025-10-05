@@ -1,6 +1,6 @@
 # UPA-F Development Manual (Expanded)
 
-> **Assistant Instructions**
+> **Agent Instructions**
 > - Always read this document in full when a new session starts.
 > - Follow the processes, test requirements, and logging expectations described here before making changes.
 > - Keep this document up to date with any code or workflow changes during your session.
@@ -1000,6 +1000,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Abort if `cfb_schedule` has <200 rows or `max(date) < today+2 PT`.
 - CI fails if `market_debug` is empty or `upa_predictions` has 0 rows.
 - Backfill order: FanDuel → CFBD → legacy `market_spread` → schedule → model fallback. Flag synthetic rows.
+- FanDuel coverage is reconciled game-by-game; CFBD fills only the specific matchups missing FanDuel spreads while preserving available FanDuel markets.
 - Every artifact must be regenerated on CI run; never rely on committed data files.
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
 - Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
