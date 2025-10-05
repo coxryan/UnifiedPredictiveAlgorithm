@@ -30,8 +30,7 @@ def main() -> None:
 
     team_inputs = build_team_inputs_datadriven(year, apis, cache)
     team_inputs["season"] = year
-    delete_rows("upa_team_inputs_datadriven_v0", "season", year)
-    storage_write_dataset(team_inputs, "upa_team_inputs_datadriven_v0", if_exists="append")
+    storage_write_dataset(team_inputs, "upa_team_inputs_datadriven_v0", if_exists="replace")
 
 
 if __name__ == "__main__":
