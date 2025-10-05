@@ -1,0 +1,50 @@
+name: refresh-cfbd-stats-weekly
+
+on:
+  schedule:
+    - cron: '0 12 * * 2'
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-cfbd-stats-weekly
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agents/requirements.txt
+
+      - name: Refresh weekly CFBD stat features
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+        run: |
+          python -m agents.jobs.refresh_cfbd_stats_weekly
+
+      - name: Commit SQLite database
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          if git diff --quiet data/upa_data.sqlite; then
+            echo "No database changes to commit."
+            exit 0
+          fi
+          git add data/upa_data.sqlite
+          git commit -m "chore: refresh CFBD stats weekly [skip ci]"
+          git push
