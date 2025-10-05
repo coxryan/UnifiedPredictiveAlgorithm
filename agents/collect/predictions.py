@@ -55,9 +55,13 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
     raw_cols: set[str] = set()
     if "market_spread_book" not in df.columns:
         if "spread" in df.columns:
+            df["market_spread_book_raw"] = df["spread"]
             df["market_spread_book"] = df["spread"]
         elif "point_home_book" in df.columns:
+            df["market_spread_book_raw"] = df["point_home_book"]
             df["market_spread_book"] = df["point_home_book"]
+    else:
+        df["market_spread_book_raw"] = df["market_spread_book"]
     for src, dst in (
         ("spread_fanduel", "market_spread_fanduel"),
         ("market_spread_fanduel", "market_spread_fanduel"),
@@ -93,6 +97,9 @@ def _market_lookup(markets_df: pd.DataFrame) -> pd.DataFrame:
         ]
         if c in df.columns
     ]
+    for raw_col in sorted(raw_cols | {"market_spread_book_raw"}):
+        if raw_col in df.columns and raw_col not in keep_cols:
+            keep_cols.append(raw_col)
     for raw_col in sorted(raw_cols):
         if raw_col in df.columns:
             keep_cols.append(raw_col)
@@ -322,16 +329,28 @@ def build_predictions_for_year(
     if debug_market:
         log_frame = preds.copy()
         for _, row in log_frame.iterrows():
-            fan_duel_val = row.get("market_spread_fanduel")
-            fan_duel_raw = row.get("market_spread_fanduel_raw")
-            cfbd_val = row.get("market_spread_cfbd")
-            cfbd_raw = row.get("market_spread_cfbd_raw")
+            def _scalar(val: Any) -> Any:
+                if isinstance(val, pd.Series):
+                    for item in val:
+                        if pd.notna(item):
+                            return item
+                    return val.iloc[0] if not val.empty else None
+                return val
+
+            fan_duel_val = _scalar(row.get("market_spread_fanduel"))
+            fan_duel_raw = _scalar(row.get("market_spread_fanduel_raw"))
+            cfbd_val = _scalar(row.get("market_spread_cfbd"))
+            cfbd_raw = _scalar(row.get("market_spread_cfbd_raw"))
+            book_val = _scalar(row.get("market_spread_book"))
+            book_raw = _scalar(row.get("market_spread_book_raw"))
 
             extra_parts = []
             if pd.isna(fan_duel_val) and pd.notna(fan_duel_raw) and str(fan_duel_raw) != "":
                 extra_parts.append(f"fan_duel_raw={fan_duel_raw!r}")
             if pd.isna(cfbd_val) and pd.notna(cfbd_raw) and str(cfbd_raw) != "":
                 extra_parts.append(f"cfbd_raw={cfbd_raw!r}")
+            if pd.isna(fan_duel_val) and pd.notna(book_raw) and str(book_raw) != "":
+                extra_parts.append(f"book_raw={book_raw!r}")
             detail_suffix = (" " + " ".join(extra_parts)) if extra_parts else ""
 
             logger.debug(
@@ -342,7 +361,7 @@ def build_predictions_for_year(
                 row.get("away_team"),
                 fan_duel_val,
                 cfbd_val,
-                row.get("market_spread_book"),
+                book_val,
                 row.get("market_spread_effective"),
                 row.get("market_spread_source"),
                 row.get("market_is_synthetic"),
