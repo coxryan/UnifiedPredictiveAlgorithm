@@ -57,12 +57,18 @@ def _fetch_team_stats(year: int, apis: CfbdClients, cache: ApiCache) -> List[Dic
         return []
     rows: List[Dict[str, Any]] = []
     for item in payload or []:
+        stat_name = getattr(item, "stat_name", None)
+        raw_value = getattr(item, "stat_value", None)
+        try:
+            stat_value = float(raw_value)
+        except (TypeError, ValueError):
+            stat_value = None
         rows.append(
             {
                 "team": getattr(item, "team", None),
                 "conference": getattr(item, "conference", None),
-                "stat_name": getattr(item, "stat_name", None),
-                "stat_value": getattr(item, "stat_value", None),
+                "stat_name": stat_name,
+                "stat_value": stat_value,
             }
         )
     cache.set(cache_key, rows)
