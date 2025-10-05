@@ -30,7 +30,9 @@ type LiveRow = {
 type PredRow = {
   week: string; date: string; neutral_site?: string;
   home_team: string; away_team: string; played?: any;
-  model_spread_book?: string; market_spread_book?: string;
+  model_spread_book?: string; model_spread_baseline?: string;
+  market_adjustment?: string; model_confidence?: string;
+  market_spread_book?: string;
   expected_market_spread_book?: string;
   edge_points_book?: string; value_points_book?: string;
   qualified_edge_flag?: string | number;
@@ -84,11 +86,14 @@ export default function PredictionsTab() {
         const normalized = raw.map((x: PredRow) => ({
           ...x,
           model_spread_book: coerceNum(x.model_spread_book) as any,
+          model_spread_baseline: coerceNum((x as any).model_spread_baseline) as any,
+          market_adjustment: coerceNum((x as any).market_adjustment) as any,
           market_spread_book: coerceNum(x.market_spread_book) as any,
           expected_market_spread_book: coerceNum(x.expected_market_spread_book) as any,
           edge_points_book: coerceNum(x.edge_points_book) as any,
           value_points_book: coerceNum(x.value_points_book) as any,
           market_spread_source: normalizeSource((x as any).market_spread_source),
+          model_confidence: coerceNum((x as any).model_confidence) as any,
           qualified_edge_flag: flagVal((x as any).qualified_edge_flag),
         }));
         setRows(normalized);
@@ -199,12 +204,16 @@ export default function PredictionsTab() {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
       const expected = toNum(r.expected_market_spread_book);
+      const anchored = toNum(r.model_spread_book);
+      const baselineModel = toNum((r as any).model_spread_baseline);
+      const adjustment = toNum((r as any).market_adjustment);
       const edge = Number.isFinite(toNum(r.edge_points_book)) ? toNum(r.edge_points_book)
         : (Number.isFinite(model) && Number.isFinite(market) ? model - market : NaN);
       const value = Number.isFinite(toNum(r.value_points_book)) ? toNum(r.value_points_book)
         : (Number.isFinite(market) && Number.isFinite(expected) ? market - expected : NaN);
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const marketSource = providerLabel((r as any).market_spread_source);
+      const confidence = toNum((r as any).model_confidence);
 
       const schedDt = (r as any).kickoff_utc
         || (r as any).start_date
@@ -255,6 +264,9 @@ export default function PredictionsTab() {
         ...r,
         _model: model,
         _market: market,
+        _anchored: anchored,
+        _baseline: baselineModel,
+        _adjustment: adjustment,
         _expected: expected,
         _edge: edge,
         _value: value,
@@ -267,6 +279,7 @@ export default function PredictionsTab() {
         _awayPointsLabel: awayPointsLabel,
         _liveState: (live?.state || '').toString().toUpperCase(),
         _positions: positions,
+        _confidence: confidence,
       };
     });
 
@@ -337,10 +350,13 @@ export default function PredictionsTab() {
                 <div>Score (A @ H): {card._scoreLabel}</div>
               </div>
               <div className="row picks" style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                <div>Model (H): {fmtNum(card._model)}</div>
                 <div>Market (H): {fmtNum(card._market)}</div>
+                <div>Adj Δ (model − market): {fmtNum(card._adjustment)}</div>
+                <div>Anchored Model (H): {fmtNum(card._anchored)}</div>
+                <div>Baseline Model (H): {fmtNum(card._baseline)}</div>
                 <div>Edge: {fmtNum(card._edge)}</div>
                 <div>Value: {fmtNum(card._value)}</div>
+                <div>Confidence: {Number.isFinite(card._confidence) ? fmtNum(card._confidence, { style: 'percent', maximumFractionDigits: 0 }) : '—'}</div>
                 <div>Pick: {card._pick || '—'}</div>
               </div>
               <div className="row positions" style={{ marginTop: 10 }}>
@@ -376,8 +392,7 @@ export default function PredictionsTab() {
       </div>
 
       <div className="note" style={{ marginTop: 8 }}>
-        Book-style spreads shown (negative = home favorite). <b>Edge</b> = model − market (home perspective). <b>Value</b> = market − expected.
-        Positional letters compare normalized team units (A+ best, F worst), highlighting advantages head-to-head.
+        Book-style spreads shown (negative = home favorite). <b>Adjustment</b> models the residual gap (market − model); the anchored model applies that delta to the live market line. <b>Edge</b> = model − market (home perspective). <b>Value</b> = market − expected. Positional letters compare normalized team units (A+ best, F worst), highlighting advantages head-to-head.
       </div>
     </section>
   );

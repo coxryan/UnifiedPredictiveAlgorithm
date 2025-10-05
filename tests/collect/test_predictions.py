@@ -77,6 +77,9 @@ def test_predictions_use_market_when_available(tmp_path):
     assert preds.loc[0, "edge_points_book"] != 0
     assert "home_grade_qb_letter" in preds.columns
     assert preds.loc[0, "home_grade_qb_letter"] != ""
+    assert "market_adjustment" in preds.columns
+    assert float(preds.loc[0, "market_adjustment"]) == pytest.approx(0.0)
+    assert "model_confidence" in preds.columns
 
 
 def test_predictions_sets_market_source_cfbd(tmp_path):
@@ -105,6 +108,7 @@ def test_predictions_sets_market_source_cfbd(tmp_path):
 
     assert preds.loc[0, "market_spread_source"] == "cfbd"
     assert int(preds.loc[0, "market_is_synthetic"]) == 0
+    assert float(preds.loc[0, "market_adjustment"]) == pytest.approx(0.0)
 
 
 def test_rating_from_team_inputs_uses_stat_features():
@@ -137,6 +141,7 @@ def test_predictions_mark_synthetic_when_market_missing(tmp_path):
 
     assert pd.isna(preds.loc[0, "market_spread_book"])
     assert int(preds.loc[0, "market_is_synthetic"]) == 1
+    assert float(preds.loc[0, "market_adjustment"]) == pytest.approx(0.0)
 
 
 def test_market_selection_logs_raw_when_fanduel_nan(monkeypatch, caplog, tmp_path):

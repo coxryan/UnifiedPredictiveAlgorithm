@@ -29,6 +29,8 @@ def test_load_training_dataset(tmp_path, monkeypatch):
 
     monkeypatch.setattr("agents.collect.model_dataset.read_dataset", lambda name: preds if name == "upa_predictions" else team_inputs)
 
-    df = load_training_dataset()
-    assert "market_spread_book" in df.columns
-    assert any(col.endswith("_home") for col in df.columns)
+    dataset = load_training_dataset()
+    assert not dataset.frame.empty
+    assert "market_spread_book" in dataset.frame.columns
+    assert dataset.feature_columns
+    assert any(col.startswith("delta_") for col in dataset.feature_columns)

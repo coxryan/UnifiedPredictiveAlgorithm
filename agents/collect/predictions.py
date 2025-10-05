@@ -10,8 +10,8 @@ import pandas as pd
 from .cache import ApiCache
 from .schedule import discover_current_week
 from .team_inputs import build_team_inputs_datadriven
-from .spread_model import load_linear_model
-from .model_dataset import FEATURE_COLUMNS
+from .spread_model import load_residual_model
+from .model_dataset import FEATURE_COLUMNS, prepare_feature_frame
 from .markets import get_market_lines_for_current_week
 from .cfbd_clients import CfbdClients
 
@@ -290,26 +290,8 @@ def build_predictions_for_year(
     home_field = np.where(preds["neutral_site"] == 1, 0.0, 1.5)
     baseline_model = base_diff + home_field
 
-    model = load_linear_model()
-    if model is not None:
-        deltas: Dict[str, float] = {}
-        for base in FEATURE_COLUMNS:
-            home_col = f"{base}_home"
-            away_col = f"{base}_away"
-            if home_col in preds.columns and away_col in preds.columns:
-                deltas[f"delta_{base}"] = (
-                    pd.to_numeric(preds[home_col], errors="coerce").fillna(0.0)
-                    - pd.to_numeric(preds[away_col], errors="coerce").fillna(0.0)
-                )
-        modeled = baseline_model.copy()
-        for name, series in deltas.items():
-            coef = model.coefficients.get(name, 0.0)
-            if coef:
-                modeled = modeled + coef * series
-        modeled = modeled + model.intercept
-        preds["model_spread_book"] = modeled.round(2)
-    else:
-        preds["model_spread_book"] = (baseline_model).round(2)
+    preds["model_spread_baseline"] = baseline_model.round(2)
+    preds["model_spread_book"] = preds["model_spread_baseline"]
 
     if "market_spread_book" in preds.columns:
         market_series = _sanitize_numeric(preds["market_spread_book"])
@@ -363,6 +345,101 @@ def build_predictions_for_year(
     )
     preds.loc[cf_mask, "market_spread_source"] = "cfbd"
 
+    preds["market_adjustment"] = 0.0
+    preds["market_adjustment_raw"] = 0.0
+    preds["market_adjustment_linear"] = 0.0
+    preds["market_adjustment_nonlinear"] = 0.0
+    preds["residual_pred_raw"] = 0.0
+    preds["residual_pred_calibrated"] = 0.0
+    preds["model_confidence"] = 0.0
+    preds["model_residual_sigma"] = np.nan
+
+    preds["_row_id"] = np.arange(len(preds))
+    residual_model = load_residual_model()
+    if residual_model is not None and not preds.empty:
+        feature_ready, _ = prepare_feature_frame(preds, team_inputs=team_inputs_df)
+        if not feature_ready.empty and residual_model.features:
+            normalized_features = residual_model.transform_features(feature_ready)
+            X = normalized_features[residual_model.features].to_numpy(dtype=float)
+            components = residual_model.predict_components(X)
+            residual_df = pd.DataFrame(
+                {
+                    "_row_id": feature_ready["_row_id"],
+                    "residual_pred_linear": components["ridge"],
+                    "residual_pred_nonlinear": components["gbdt"],
+                    "residual_pred_raw": components["raw"],
+                    "residual_pred_calibrated": components["calibrated"],
+                }
+            )
+            residual_df = residual_df.drop_duplicates(subset=["_row_id"])
+            preds = preds.merge(residual_df, on="_row_id", how="left")
+
+            preds["market_adjustment_linear"] = (
+                -preds["residual_pred_linear"].fillna(0.0)
+            ).round(2)
+            preds["market_adjustment_nonlinear"] = (
+                -preds["residual_pred_nonlinear"].fillna(0.0)
+            ).round(2)
+            preds["market_adjustment_raw"] = (
+                -preds["residual_pred_raw"].fillna(0.0)
+            ).round(2)
+            preds["market_adjustment"] = (
+                -preds["residual_pred_calibrated"].fillna(0.0)
+            ).round(2)
+
+            preds[[
+                "residual_pred_linear",
+                "residual_pred_nonlinear",
+                "residual_pred_raw",
+                "residual_pred_calibrated",
+            ]] = preds[[
+                "residual_pred_linear",
+                "residual_pred_nonlinear",
+                "residual_pred_raw",
+                "residual_pred_calibrated",
+            ]].fillna(0.0).round(3)
+
+            preds["model_residual_sigma"] = residual_model.residual_std
+
+            sigma = max(residual_model.residual_std, 1e-6)
+            confidence = np.exp(
+                -preds["residual_pred_calibrated"].abs() / (sigma * 1.5)
+            )
+            confidence = confidence.where(
+                ~preds["market_is_synthetic"].astype(bool),
+                confidence * 0.5,
+            )
+            confidence = confidence.where(
+                preds["market_spread_source"].isin(["fanduel", "cfbd"]),
+                confidence * 0.7,
+            )
+            preds["model_confidence"] = confidence.clip(0.05, 0.99).round(3)
+
+            market_present_mask = preds["market_spread_book"].notna()
+            preds.loc[market_present_mask, "model_spread_book"] = (
+                preds.loc[market_present_mask, "market_spread_book"]
+                + preds.loc[market_present_mask, "market_adjustment"]
+            ).round(2)
+
+            missing_market_mask = ~market_present_mask
+            if missing_market_mask.any():
+                preds.loc[
+                    missing_market_mask,
+                    [
+                        "market_adjustment",
+                        "market_adjustment_raw",
+                        "market_adjustment_linear",
+                        "market_adjustment_nonlinear",
+                    ],
+                ] = 0.0
+                preds.loc[missing_market_mask, "model_confidence"] = 0.0
+        else:
+            preds["residual_pred_linear"] = 0.0
+            preds["residual_pred_nonlinear"] = 0.0
+    else:
+        preds["residual_pred_linear"] = 0.0
+        preds["residual_pred_nonlinear"] = 0.0
+
     # Use model spread as fall-back only for calculations so we avoid NaNs downstream
     market_for_calc = market_series.where(~market_missing, preds["model_spread_book"])
     preds["market_spread_effective"] = market_for_calc.round(2)
@@ -394,6 +471,9 @@ def build_predictions_for_year(
         preds["home_points"].notna() & preds["away_points"].notna()
     ).astype(int)
 
+    if "_row_id" in preds.columns:
+        preds = preds.drop(columns=["_row_id"])
+
     # Order + select columns expected by downstream tables
     cols = [
         "week",
@@ -403,6 +483,17 @@ def build_predictions_for_year(
         "home_team",
         "neutral_site",
         "model_spread_book",
+        "model_spread_baseline",
+        "market_adjustment",
+        "market_adjustment_raw",
+        "market_adjustment_linear",
+        "market_adjustment_nonlinear",
+        "residual_pred_calibrated",
+        "residual_pred_raw",
+        "residual_pred_linear",
+        "residual_pred_nonlinear",
+        "model_confidence",
+        "model_residual_sigma",
         "market_spread_book",
         "market_spread_fanduel",
         "market_spread_cfbd",

@@ -125,7 +125,7 @@ To decouple raw data ingestion from model generation, GitHub Actions now refresh
 - `refresh-cfbd-daily` (`.github/workflows/fetch_cfbd_daily.yml`): runs daily at 09:00 UTC. Executes `python -m agents.jobs.refresh_cfbd_daily`, pulling the latest CFBD schedule and CFBD lines fallback into the relational tables.
 - `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes on Fridays and Saturdays (manual dispatch available otherwise). Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard, storing results in `raw_fanduel_lines`, `raw_cfbd_lines`, and `raw_espn_scoreboard`. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
 - `refresh-cfbd-stats-weekly` (`.github/workflows/fetch_cfbd_stats_weekly.yml`): runs every Tuesday at 12:00 UTC (and on demand). Executes `python -m agents.jobs.refresh_cfbd_stats_weekly` to refresh `raw_cfbd_team_stats` and the normalized feature table used by team inputs, committing the SQLite database when those metrics change.
-- `train-spread-model` (`.github/workflows/train_spread_model.yml`): runs every Tuesday at 11:00 UTC (and on demand). Executes `python -m agents.jobs.train_spread_model` to fit the latest linear spread estimator and persist coefficients in `data/upa_data.sqlite`.
+- `train-spread-model` (`.github/workflows/train_spread_model.yml`): runs every Tuesday at 11:00 UTC (and on demand). Executes `python -m agents.jobs.train_spread_model` to fit the residual ensemble (ridge + boosted stumps), calibrate it, and persist the artifact to `models/residual_model.json`.
 
 The downstream collector (`collect_cfbd_all`) and model builders now read exclusively from `upa_data.sqlite`, so the deploy workflow can focus on transformation, validation, and publishing without re-hitting upstream APIs.
 
@@ -186,8 +186,9 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
     - ☐ Produce `raw_positional_ratings` dataset with per-unit scores and integrate into team inputs/predictions.
   - **Next phase – Data-driven spread model**
     - ✅ Export historical training dataset (team stat snapshots + market outcomes) via `agents.collect.model_dataset`.
-    - ✅ Train/regress a linear spread estimator (`agents.collect.spread_model` + `agents.jobs.train_spread_model`) using new stats/grades; coefficients persisted to `models/spread_model.json`.
-    - ✅ Integrate model predictions into `build_predictions_for_year`, keeping the baseline rating blend as fallback while monitoring MAE.
+    - ✅ Train the residual spread ensemble (`agents.collect.spread_model` + `agents.jobs.train_spread_model`) using new stats/grades; model blob persisted to `models/residual_model.json` with calibration metadata.
+    - ✅ Integrate model predictions into `build_predictions_for_year` as an additive adjustment over the market spread.
+    - ☐ Calibrate residuals and monitor MAE/coverage vs. market baseline, add alerting when residual drift > threshold.
   - **In flight – Historical baselines & drift monitoring**
     - ☐ Snapshot pre-kick predictions weekly (using frozen spreads) into a longitudinal table for MAE/cover tracking.
     - ☐ Expose rolling baseline metrics and alerts on the Status tab.
@@ -570,11 +571,10 @@ We try, in order:
 ### Confidence & Synthetic Flag
 - `market_is_synthetic=false` for lines sourced from FanDuel/CFBD joins.
 - `market_is_synthetic = 1` whenever we had to fall back to a non-book value (legacy schedule, model fill, etc.).
-- Confidence `Conf` is reduced when:
-  - line is synthetic,
-  - line is older than 48h on an active slate,
-  - join matched on fuzzy criteria rather than exact keys,
-  - team features are incomplete (early season / API gaps).
+- `model_confidence` comes from the residual ensemble and decays when:
+  - the predicted residual magnitude is large relative to `model_residual_sigma`,
+  - the line is synthetic or sourced outside FanDuel/CFBD (extra 50–30% haircut),
+  - join matched on fuzzy criteria rather than exact keys.
 
 ### Backfill Hierarchy inside Predictions
 When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
@@ -617,7 +617,6 @@ After backfill:
 - FanDuel posts `Home -3.5`. After normalization:
   - `market_spread_book = -3.5` (home favored).
   - Suppose model says `M_model = -5.0` → `edge_points_book = -5.0 - (-3.5) = -1.5` (model more bullish on home by 1.5).
-  - With `Conf = 0.7` → `value_points_book = 1.5 * 0.7 = 1.05`.
 
 ---
 
@@ -733,7 +732,8 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 
 | Column / Term                       | Type      | Definition (home-centric sign)                                                                                                                                                                     | Purpose / Usage                                                                                                  |
 |------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `model_spread_book`                | float     | Model’s predicted point spread for the **home** team using bookmaker sign: **negative** means home favored by `abs(value)`; **positive** means away favored. Computed as `M_model = -(κ*(S_home - S_away) + HFA)`. | Core model output for comparisons and value. Drives `expected`, `edge`, and `value`.                              |
+| `model_spread_book`                | float     | Anchored model spread for the **home** team in bookmaker sign. When a market line exists: `M_model = M_market + market_adjustment`. Without a market line the column falls back to `model_spread_baseline`. | Core model output for comparisons and value. Drives `expected`, `edge`, and `value`.                              |
+| `model_spread_baseline`            | float     | Rating-differential baseline prior to residual anchoring: `baseline = -(κ*(S_home - S_away) + HFA)` with the standard feature blend and home-field term.                                        | Diagnostic handle for how far the residual moved us away from the raw rating model.                              |
 | `market_spread_book`               | float     | Latest normalized market line (FanDuel preferred; CFBD fallback) for the **home** side, using the same sign convention as above.                                                                     | The ground truth comparator for pricing disagreement.                                                             |
 | `market_spread_fanduel`            | float     | Raw FanDuel spread (home-centric sign) when available for the matchup.                                                                                                                              | Auditing aid; confirms the exact FanDuel price that fed `market_spread_book`.                                     |
 | `market_spread_cfbd`               | float     | CFBD lines API spread normalized to bookmaker sign. Populated whenever CFBD produced a numeric line for the matchup.                                                                                | Provides the fallback price when FanDuel is missing or incomplete; useful for cross-checking outages.             |
@@ -741,6 +741,13 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `market_spread_effective`          | float     | Spread actually used in edge/value calculations after fallback logic (`market_spread_book` where present, otherwise the model spread).                                                              | Guarantees transparency when synthetic markets are in play; equals the number used in `edge_points_book`.         |
 | `expected_market_spread_book`      | float     | Smoothed line blending market with model: `M_expected = λ*M_market + (1-λ)*M_model` (default `λ=0.7`). Falls back to model if market unavailable.                                                     | Dampens market noise; helps avoid over-reaction to early/illiquid lines.                                         |
 | `market_is_synthetic`              | boolean   | `true` if `market_spread_book` was not sourced directly from FanDuel/CFBD (e.g., copied from legacy column, or schedule fallback).                                                                    | Quality flag. Synthetic markets reduce confidence and can be excluded from MAE/edge screens if desired.          |
+| `market_adjustment`                | float     | Calibrated residual adjustment applied to the market line (bookmaker sign). Positive → tilt toward the away team; negative → tilt toward the home team.                                            | Primary residual output; anchoring mechanism that answers “what is the market missing?”                          |
+| `market_adjustment_raw`            | float     | Uncalibrated residual prediction (`-residual_pred_raw`).                                                                                                                                            | Debugging aid to inspect the raw delta before isotonic scaling.                                                   |
+| `market_adjustment_linear`         | float     | Component contributed by the ridge fit (`-residual_pred_linear`).                                                                                                                                   | Helps attribute movement to linear vs nonlinear features.                                                         |
+| `market_adjustment_nonlinear`      | float     | Component contributed by the gradient-boosted stumps (`-residual_pred_nonlinear`).                                                                                                                  | Highlights where nonlinear splits add lift beyond the linear baseline.                                            |
+| `residual_pred_raw`                | float     | Raw residual prediction (`residual_pred_linear + residual_pred_nonlinear`).                                                                                                                        | Inspection metric for calibration quality; zero means market-perfect.                                             |
+| `residual_pred_calibrated`         | float     | Calibrated residual after isotonic/linear scaling (prior to sign flip for the adjustment).                                                                                                          | Should centre near zero with stable variance; feeds `market_adjustment`.                                          |
+| `model_residual_sigma`             | float     | Standard deviation of residual errors on the training set (points).                                                                                                                                | Confidence input; higher sigma → broader uncertainty.                                                             |
 | `nan_reason`                       | string    | Diagnostic reason why a numeric field is missing/NaN (e.g., `no_market_match`, `team_features_missing`, `future_game`).                                                                              | Debugging & QA; quickly surfaces systemic data gaps.                                                              |
 | `HFA` (not always persisted)       | float     | Home-field advantage points added to model before sign flip (default `2.2`, `0` if neutral site).                                                                                                     | Component of the model spread.                                                                                    |
 
@@ -753,19 +760,18 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | Column / Term            | Type    | Formula / Definition                                                                                       | Purpose / Usage                                                                                               |
 |--------------------------|---------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
-| `confidence`             | float   | `Conf ∈ [0,1] = w1*FeatCompleteness + w2*MarketFreshness + w3*ScheduleCertainty + w4*SampleDepth`.         | Calibrates conviction; reduces weight early season or with synthetic/old lines.                               |
-| `value_points_book`      | float   | `Value = |Edge| * Conf`.                                                                                    | Magnitude-adjusted edge. Large edges with low confidence are demoted; small but very confident edges rise.    |
-| `qualified_edge_flag`    | boolean | `true` if `( |Edge| ≥ τ_points ) AND ( Conf ≥ τ_conf )` (defaults: `τ_points=2.0`, `τ_conf=0.6`).           | Screening filter for the **Predictions** tab and alerts.                                                      |
+| `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
+| `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
+| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.0`, `|Value| ≥ 1.0`, and the model/expected sides align in direction.                 | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
 
 **Interpretation of `edge_points_book`:**
 - `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).
 - `Edge < 0` → model is **more bullish on away** than the market is (model spread less negative / more positive).
 
-**Confidence subcomponents:**
-- *FeatCompleteness:* fraction of team features present (WRPS, Talent, SRS, SOS). Missing → lower.
-- *MarketFreshness:* decay from line timestamp; < 24h → ~1.0; > 7d → ~0.5.
-- *ScheduleCertainty:* game-day ~1.0; week-of ~0.8; further out ~0.6.
-- *SampleDepth:* early season ~0.5 rising toward 1.0 as games accumulate.
+**Confidence intuition:**
+- Residuals near zero (book already correct) → confidence ~1.0.
+- Large residual magnitude or noisy spreads → exponential decay toward 0.
+- Synthetic or non-book markets are penalised multiplicatively.
 
 ---
 
@@ -786,35 +792,34 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 
 ### D. Worked Examples
 
-**Example 1 — Home favorite with positive value**
+**Example 1 — Home lean but not qualified**
 
 ```
-S_home = 82, S_away = 74, κ = 0.25, HFA = 2.2
-ΔS = 8 → κ*ΔS = 2.0
-Model (before sign): 2.0 + 2.2 = 4.2 points in favor of HOME
-M_model (book sign) = -4.2
+Baseline rating diff → model_spread_baseline = -4.2 (home favoured by 4.2)
+Market line: M_market = -3.5
+Residual ensemble produces market_adjustment = -0.6 → anchored model M_model = -4.1
 
-Market: M_market = -2.5
-Edge = M_model - M_market = (-4.2) - (-2.5) = -1.7  → model more bullish on HOME by 1.7 pts (negative favors home)
+Edge = M_model - M_market = (-4.1) - (-3.5) = -0.6 (model slightly stronger on home)
+Expected (λ=0.6) = 0.6*(-3.5) + 0.4*(-4.1) = -3.76
+Value = M_market - Expected = (-3.5) - (-3.76) = 0.26
+Model confidence = exp(-|residual| / (σ·1.5)) ≈ 0.58 (market-adjusted residual still noisy)
 
-Conf = 0.75  (good features, fresh market)
-Value = |Edge| * Conf = 1.7 * 0.75 = 1.275
-Qualified?  |Edge|=1.7 < τ_points=2.0 → **No**
+Qualified?  |Edge| = 0.6 < 2.0 → **No**
 ```
 
-**Example 2 — Away lean with qualification**
+**Example 2 — Away value that clears the gate**
 
 ```
-S_home=76, S_away=84 → ΔS = -8 → κ*ΔS = -2.0
-Neutral site → HFA=0.0
-M_model = -( -2.0 + 0.0 ) = +2.0   (away by ~2)
+Baseline rating diff → model_spread_baseline = +0.5 (slight away lean)
+Market line: M_market = +1.0 (home +1)
+Residual adjustment: market_adjustment = -2.6 → anchored model M_model = -1.6 (now home favoured)
 
-Market: M_market = -1.0 (home -1)
-Edge = +2.0 - (-1.0) = +3.0  → model favors AWAY by 3 more points than market
+Edge = (-1.6) - (+1.0) = -2.6  (absolute edge 2.6 ≥ 2.0)
+Expected = 0.6*(+1.0) + 0.4*(-1.6) = -0.04
+Value = +1.0 - (-0.04) = 1.04  (≥ 1.0)
+Model confidence ≈ 0.82 (fresh line, residual within σ)
 
-Conf = 0.68
-Value = 3.0 * 0.68 = 2.04
-Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
+Qualified?  Edge and value thresholds cleared, model/expected sides agree → **Yes**
 ```
 
 ---
@@ -833,7 +838,7 @@ Qualified? |Edge|=3.0 ≥ 2.0 AND 0.68 ≥ 0.6 → **Yes**
 - Avoid comparing raw numbers when sign conventions differ; **normalize to bookmaker sign first**.
 - Treat `expected_market_spread_book` as a **stabilizer**—don’t overfit to early-release lines.
 - Watch `market_unmatched`; rising counts usually mean alias drift or non-FBS leakage.
-- In early season, expect lower `Conf` and higher variance; edges should clear higher bars.
+- In early season, expect lower `model_confidence` and higher variance; edges should clear higher bars.
 - **Zero** is a valid spread; missing values must remain **NaN**, not `0`, to avoid inflating coverage and skewing MAE.
 
 ---
@@ -1013,9 +1018,19 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 
 ### Modeling Rules
 - Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.25 WRPS, 0.25 Talent, 0.20 SRS, 0.15 Offensive efficiency, 0.10 Defensive efficiency, 0.05 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
-- Spread formula:
+- Baseline spread (ratings only):
   ```
-  M_model = - (κ * (S_home - S_away) + HFA)
+  M_baseline = - (κ * (S_home - S_away) + HFA)
+  ```
+- Residual model learns the margin miss: `residual = (actual_margin + M_market)`.
+- Anchored model spread:
+  ```
+  market_adjustment = - f_residual(features, market_metadata)
+  M_model = 
+    \begin{cases}
+      M_market + market_adjustment, & \text{if market available} \\
+      M_baseline, & \text{otherwise}
+    \end{cases}
   ```
 - Expected market spread:
   ```
@@ -1024,9 +1039,9 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Edge/value:
   ```
   Edge = M_model - M_market
-  Value = |Edge| * Conf
+  Value = M_market - M_expected
   ```
-- Confidence weighted by feature completeness, market freshness, schedule certainty, sample depth.
+- `model_confidence` derives from the calibrated residual magnitude and is penalised for synthetic / non-book markets.
 
 ### UI/Presentation Rules
 - Status tab must link to all debug files and show MAE, coverage, synthetic rate.

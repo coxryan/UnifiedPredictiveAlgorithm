@@ -9,7 +9,9 @@ import { EDGE_MIN, VALUE_MIN } from "./constants";
 type PredRow = {
  week: string; date: string; neutral_site?: string;
  home_team: string; away_team: string; played?: any;
- model_spread_book?: string; market_spread_book?: string;
+ model_spread_book?: string; model_spread_baseline?: string;
+ market_adjustment?: string; model_confidence?: string;
+ market_spread_book?: string;
  expected_market_spread_book?: string;
  edge_points_book?: string; value_points_book?: string;
  qualified_edge_flag?: string;
@@ -200,6 +202,9 @@ export default function BetsTab() {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
       const expected = toNum(r.expected_market_spread_book);
+      const adjustment = toNum((r as any).market_adjustment);
+      const baseline = toNum((r as any).model_spread_baseline);
+      const confidence = toNum((r as any).model_confidence);
       const edge = Number.isFinite(toNum(r.edge_points_book))
         ? toNum(r.edge_points_book)
         : Number.isFinite(model) && Number.isFinite(market)
@@ -229,6 +234,9 @@ export default function BetsTab() {
         ...r,
         _model: model,
         _market: market,
+        _baseline: baseline,
+        _adjustment: adjustment,
+        _confidence: confidence,
         _edge: edge,
         _value: value,
         _pick: pick.side,
@@ -413,8 +421,11 @@ export default function BetsTab() {
                   <th>Date</th>
                   <th>Kick (ET)</th>
                   <th colSpan={2}>Matchup</th>
-                  <th>Model (H)</th>
+                  <th>Anchored (H)</th>
+                  <th>Adj Δ</th>
+                  <th>Baseline (H)</th>
                   <th>Market (H)</th>
+                  <th>Conf</th>
                   <th>Edge</th>
                   <th>Value</th>
                   <th>EV</th>
@@ -437,7 +448,10 @@ export default function BetsTab() {
                       <TeamLabel home={true} team={r.home_team} neutral={r._neutral} />
                     </td>
                     <td>{fmtNum(r._model)}</td>
+                    <td>{fmtNum(r._adjustment)}</td>
+                    <td>{fmtNum(r._baseline)}</td>
                     <td>{fmtNum(r._market)}</td>
+                    <td>{Number.isFinite(r._confidence) ? fmtNum(r._confidence, { style: "percent", maximumFractionDigits: 0 }) : "—"}</td>
                     <td className={Number.isFinite(r._edge) ? (r._edge > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._edge)}</td>
                     <td className={Number.isFinite(r._value) ? (r._value > 0 ? "pos" : "neg") : undefined}>{fmtNum(r._value)}</td>
                     <td className={Number.isFinite(r._ev) ? (r._ev > 0 ? "pos" : "neg") : undefined}>{fmtNum((r._ev as number) * 100, { maximumFractionDigits: 1 })}%</td>
