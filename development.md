@@ -14,6 +14,7 @@
 - 2025-10-05 21:48: Queried `upa_predictions`; all `value_points_book` magnitudes ≈0.87 because λ=0.6 dampens to `(1-λ)*|edge|`. With value cutoff still at 1.0, no rows qualify, so Bets tab renders empty. Need to retune qualification thresholds to reflect the λ change.
 - 2025-10-05 21:58: Rebased qualification thresholds to align with λ=0.6, added env-configurable defaults in `agents/collect/predictions.py`, synced UI constants, and refreshed `qualified_edge_flag` values in the SQLite artifacts.
 - 2025-10-05 22:05: Validated dataset after refresh — 181 rows satisfy Bets tab filters (|edge| ≥ 1.5, |value| ≥ 0.6) and 79 rows carry `qualified_edge_flag=1` with the new 0.8 point threshold.
+- 2025-10-05 21:54: Predictions tab layout regressed (team names overlap kickoff info, positional grade pills collide). Need to restore structured team header and adjust grade grid spacing.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:

@@ -231,7 +231,9 @@ select{
 .pred-card__grades{display:flex;flex-direction:column;gap:10px;}
 .pred-card__grades-title{text-transform:uppercase;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,.65);}
 .pred-card__grades-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;}
-.pred-card__grades-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;}
+.pred-card__grades-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;font-size:13px;}
+.pred-card__grades-row .pred-card__grade:first-child{justify-self:start;}
+.pred-card__grades-row .pred-card__grade:last-child{justify-self:end;}
 .pred-card__grades-label{text-align:center;font-weight:600;color:rgba(255,255,255,.7);}
 .pred-card__grade{min-width:36px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);text-align:center;font-weight:600;letter-spacing:.05em;}
 .pred-card__grade.highlight{box-shadow:0 0 0 1px rgba(255,255,255,.22);}
