@@ -18,6 +18,19 @@ from .cfbd_clients import CfbdClients
 logger = logging.getLogger(__name__)
 
 
+_SOURCE_ADJ_SCALE = {
+    "fanduel": 1.0,
+    "cfbd": 0.35,
+    "model": 0.0,
+    "unknown": 0.5,
+}
+
+try:
+    _MAX_MARKET_ADJUSTMENT = float(os.environ.get("MAX_MARKET_ADJUSTMENT", "8.0"))
+except ValueError:
+    _MAX_MARKET_ADJUSTMENT = 8.0
+
+
 def _sanitize_numeric(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series, errors="coerce")
 
@@ -362,7 +375,8 @@ def build_predictions_for_year(
             ],
             errors="ignore",
         )
-        if not feature_ready.empty and residual_model.features:
+        has_features = bool(residual_model.features)
+        if has_features and not feature_ready.empty:
             normalized_features = residual_model.transform_features(feature_ready)
             X = normalized_features[residual_model.features].to_numpy(dtype=float)
             components = residual_model.predict_components(X)
@@ -377,19 +391,10 @@ def build_predictions_for_year(
             )
             residual_df = residual_df.drop_duplicates(subset=["_row_id"])
             preds = preds.merge(residual_df, on="_row_id", how="left")
-
-            preds["market_adjustment_linear"] = (
-                -preds["residual_pred_linear"].fillna(0.0)
-            ).round(2)
-            preds["market_adjustment_nonlinear"] = (
-                -preds["residual_pred_nonlinear"].fillna(0.0)
-            ).round(2)
-            preds["market_adjustment_raw"] = (
-                -preds["residual_pred_raw"].fillna(0.0)
-            ).round(2)
-            preds["market_adjustment"] = (
-                -preds["residual_pred_calibrated"].fillna(0.0)
-            ).round(2)
+            raw_linear = preds["residual_pred_linear"].fillna(0.0)
+            raw_nonlinear = preds["residual_pred_nonlinear"].fillna(0.0)
+            raw_uncalibrated = preds["residual_pred_raw"].fillna(0.0)
+            raw_calibrated = preds["residual_pred_calibrated"].fillna(0.0)
 
             preds[[
                 "residual_pred_linear",
@@ -403,12 +408,12 @@ def build_predictions_for_year(
                 "residual_pred_calibrated",
             ]].fillna(0.0).round(3)
 
-            preds["model_residual_sigma"] = residual_model.residual_std
+            preds["market_adjustment_linear"] = (-raw_linear).round(2)
+            preds["market_adjustment_nonlinear"] = (-raw_nonlinear).round(2)
+            preds["market_adjustment_raw"] = (-raw_uncalibrated).round(2)
 
             sigma = max(residual_model.residual_std, 1e-6)
-            confidence = np.exp(
-                -preds["residual_pred_calibrated"].abs() / (sigma * 1.5)
-            )
+            confidence = np.exp(-raw_calibrated.abs() / (sigma * 1.5))
             confidence = confidence.where(
                 ~preds["market_is_synthetic"].astype(bool),
                 confidence * 0.5,
@@ -417,7 +422,17 @@ def build_predictions_for_year(
                 preds["market_spread_source"].isin(["fanduel", "cfbd"]),
                 confidence * 0.7,
             )
-            preds["model_confidence"] = confidence.clip(0.05, 0.99).round(3)
+            confidence = confidence.clip(0.0, 0.99)
+
+            source_scale = preds["market_spread_source"].map(_SOURCE_ADJ_SCALE).fillna(0.5)
+            scaled_delta = source_scale * confidence
+            market_adjustment = (-raw_calibrated * scaled_delta).clip(
+                -_MAX_MARKET_ADJUSTMENT,
+                _MAX_MARKET_ADJUSTMENT,
+            )
+            preds["market_adjustment"] = market_adjustment.round(2)
+            preds["model_confidence"] = confidence.round(3)
+            preds["model_residual_sigma"] = residual_model.residual_std
 
             market_present_mask = preds["market_spread_book"].notna()
             preds.loc[market_present_mask, "model_spread_book"] = (
@@ -427,40 +442,30 @@ def build_predictions_for_year(
 
             missing_market_mask = ~market_present_mask
             if missing_market_mask.any():
-                preds.loc[
-                    missing_market_mask,
-                    [
-                        "market_adjustment",
-                        "market_adjustment_raw",
-                        "market_adjustment_linear",
-                        "market_adjustment_nonlinear",
-                    ],
-                ] = 0.0
+                preds.loc[missing_market_mask, "market_adjustment"] = 0.0
                 preds.loc[missing_market_mask, "model_confidence"] = 0.0
         else:
+            preds["market_adjustment"] = 0.0
+            preds["market_adjustment_raw"] = 0.0
+            preds["market_adjustment_linear"] = 0.0
+            preds["market_adjustment_nonlinear"] = 0.0
             preds["residual_pred_linear"] = 0.0
             preds["residual_pred_nonlinear"] = 0.0
+            preds["residual_pred_raw"] = 0.0
+            preds["residual_pred_calibrated"] = 0.0
+            preds["model_confidence"] = 0.0
+            preds["model_residual_sigma"] = residual_model.residual_std
     else:
+        preds["market_adjustment"] = 0.0
+        preds["market_adjustment_raw"] = 0.0
+        preds["market_adjustment_linear"] = 0.0
+        preds["market_adjustment_nonlinear"] = 0.0
         preds["residual_pred_linear"] = 0.0
         preds["residual_pred_nonlinear"] = 0.0
-
-    default_columns = {
-        "market_adjustment": 0.0,
-        "market_adjustment_raw": 0.0,
-        "market_adjustment_linear": 0.0,
-        "market_adjustment_nonlinear": 0.0,
-        "residual_pred_raw": 0.0,
-        "residual_pred_calibrated": 0.0,
-        "residual_pred_linear": 0.0,
-        "residual_pred_nonlinear": 0.0,
-        "model_confidence": 0.0,
-        "model_residual_sigma": np.nan,
-    }
-    for col, default in default_columns.items():
-        if col not in preds.columns:
-            preds[col] = default
-        elif preds[col].isna().all() and np.isnan(default):
-            preds[col] = preds[col].astype("float64")
+        preds["residual_pred_raw"] = 0.0
+        preds["residual_pred_calibrated"] = 0.0
+        preds["model_confidence"] = 0.0
+        preds["model_residual_sigma"] = np.nan
 
     # Use model spread as fall-back only for calculations so we avoid NaNs downstream
     market_for_calc = market_series.where(~market_missing, preds["model_spread_book"])

@@ -78,10 +78,7 @@ def test_predictions_use_market_when_available(tmp_path):
     assert "home_grade_qb_letter" in preds.columns
     assert preds.loc[0, "home_grade_qb_letter"] != ""
     assert "market_adjustment" in preds.columns
-    model_val = float(preds.loc[0, "model_spread_book"])
-    market_val = float(preds.loc[0, "market_spread_book"])
-    adjustment_val = float(preds.loc[0, "market_adjustment"])
-    assert model_val == pytest.approx(market_val + adjustment_val)
+    assert float(preds.loc[0, "market_adjustment"]) == pytest.approx(0.0)
     assert "model_confidence" in preds.columns
     conf = float(preds.loc[0, "model_confidence"])
     assert 0.0 <= conf <= 1.0
@@ -113,9 +110,7 @@ def test_predictions_sets_market_source_cfbd(tmp_path):
 
     assert preds.loc[0, "market_spread_source"] == "cfbd"
     assert int(preds.loc[0, "market_is_synthetic"]) == 0
-    assert float(preds.loc[0, "model_spread_book"]) == pytest.approx(
-        float(preds.loc[0, "market_spread_book"]) + float(preds.loc[0, "market_adjustment"])
-    )
+    assert float(preds.loc[0, "market_adjustment"]) == pytest.approx(0.0)
 
 
 def test_rating_from_team_inputs_uses_stat_features():

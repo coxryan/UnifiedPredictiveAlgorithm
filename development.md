@@ -575,6 +575,7 @@ We try, in order:
   - the predicted residual magnitude is large relative to `model_residual_sigma`,
   - the line is synthetic or sourced outside FanDuel/CFBD (extra 50–30% haircut),
   - join matched on fuzzy criteria rather than exact keys.
+- Final `market_adjustment` = `residual_pred_calibrated × source_scale × model_confidence`, clipped to ±8 points. Source scales: FanDuel=1.0, CFBD=0.35, Model=0.0, Unknown=0.5.
 
 ### Backfill Hierarchy inside Predictions
 When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
@@ -741,9 +742,9 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `market_spread_effective`          | float     | Spread actually used in edge/value calculations after fallback logic (`market_spread_book` where present, otherwise the model spread).                                                              | Guarantees transparency when synthetic markets are in play; equals the number used in `edge_points_book`.         |
 | `expected_market_spread_book`      | float     | Smoothed line blending market with model: `M_expected = λ*M_market + (1-λ)*M_model` (default `λ=0.7`). Falls back to model if market unavailable.                                                     | Dampens market noise; helps avoid over-reaction to early/illiquid lines.                                         |
 | `market_is_synthetic`              | boolean   | `true` if `market_spread_book` was not sourced directly from FanDuel/CFBD (e.g., copied from legacy column, or schedule fallback).                                                                    | Quality flag. Synthetic markets reduce confidence and can be excluded from MAE/edge screens if desired.          |
-| `market_adjustment`                | float     | Calibrated residual adjustment applied to the market line (bookmaker sign). Positive → tilt toward the away team; negative → tilt toward the home team.                                            | Primary residual output; anchoring mechanism that answers “what is the market missing?”                          |
-| `market_adjustment_raw`            | float     | Uncalibrated residual prediction (`-residual_pred_raw`).                                                                                                                                            | Debugging aid to inspect the raw delta before isotonic scaling.                                                   |
-| `market_adjustment_linear`         | float     | Component contributed by the ridge fit (`-residual_pred_linear`).                                                                                                                                   | Helps attribute movement to linear vs nonlinear features.                                                         |
+| `market_adjustment`                | float     | Calibrated residual adjustment applied to the market line (bookmaker sign). After scaling by confidence and market source, the value is clipped to ±8.0 points. Positive → tilt toward away; negative → home. | Primary residual output; anchoring mechanism that answers “what is the market missing?” while guarding against outlier swings. |
+| `market_adjustment_raw`            | float     | Uncalibrated residual prediction (`-residual_pred_raw`).                                                                                                                                            | Debugging aid to inspect the raw delta before isotonic scaling or damping.                                        |
+| `market_adjustment_linear`         | float     | Component contributed by the ridge fit (`-residual_pred_linear`).                                                                                                                                   | Helps attribute movement to linear vs nonlinear features; combine with `market_adjustment` to judge damping.      |
 | `market_adjustment_nonlinear`      | float     | Component contributed by the gradient-boosted stumps (`-residual_pred_nonlinear`).                                                                                                                  | Highlights where nonlinear splits add lift beyond the linear baseline.                                            |
 | `residual_pred_raw`                | float     | Raw residual prediction (`residual_pred_linear + residual_pred_nonlinear`).                                                                                                                        | Inspection metric for calibration quality; zero means market-perfect.                                             |
 | `residual_pred_calibrated`         | float     | Calibrated residual after isotonic/linear scaling (prior to sign flip for the adjustment).                                                                                                          | Should centre near zero with stable variance; feeds `market_adjustment`.                                          |
@@ -1025,10 +1026,11 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Residual model learns the margin miss: `residual = (actual_margin + M_market)`.
 - Anchored model spread:
   ```
-  market_adjustment = - f_residual(features, market_metadata)
+  raw_adjustment = - f_residual(features, market_metadata)
+  damped_adjustment = clip( raw_adjustment * source_scale * confidence, ±8 )
   M_model = 
     \begin{cases}
-      M_market + market_adjustment, & \text{if market available} \\
+      M_market + damped_adjustment, & \text{if market available} \\
       M_baseline, & \text{otherwise}
     \end{cases}
   ```
