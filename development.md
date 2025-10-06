@@ -9,6 +9,12 @@
 
 ## Product Overview: Purpose, Audience & Goals
 
+## Codex Session Log (2025-10-05)
+- 2025-10-05 21:36: Kickoff session; Bets tab showing zero plays despite predictions for Week 7. Beginning data validation in `upa_predictions`.
+- 2025-10-05 21:48: Queried `upa_predictions`; all `value_points_book` magnitudes ≈0.87 because λ=0.6 dampens to `(1-λ)*|edge|`. With value cutoff still at 1.0, no rows qualify, so Bets tab renders empty. Need to retune qualification thresholds to reflect the λ change.
+- 2025-10-05 21:58: Rebased qualification thresholds to align with λ=0.6, added env-configurable defaults in `agents/collect/predictions.py`, synced UI constants, and refreshed `qualified_edge_flag` values in the SQLite artifacts.
+- 2025-10-05 22:05: Validated dataset after refresh — 181 rows satisfy Bets tab filters (|edge| ≥ 1.5, |value| ≥ 0.6) and 79 rows carry `qualified_edge_flag=1` with the new 0.8 point threshold.
+
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
   - Synthesizes **team fundamentals** (WRPS, Talent, SRS, SOS) with **market lines** (FanDuel preferred) and **live context** (scores).
@@ -740,7 +746,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `market_spread_cfbd`               | float     | CFBD lines API spread normalized to bookmaker sign. Populated whenever CFBD produced a numeric line for the matchup.                                                                                | Provides the fallback price when FanDuel is missing or incomplete; useful for cross-checking outages.             |
 | `market_spread_source`             | string    | Origin of `market_spread_book`: `fanduel`, `cfbd`, `model`, or `unknown` (rare metadata mismatch).                                                                                                   | Lets analysts confirm whether a value was sourced from FanDuel, CFBD fallback, or synthesized from the model.     |
 | `market_spread_effective`          | float     | Spread actually used in edge/value calculations after fallback logic (`market_spread_book` where present, otherwise the model spread).                                                              | Guarantees transparency when synthetic markets are in play; equals the number used in `edge_points_book`.         |
-| `expected_market_spread_book`      | float     | Smoothed line blending market with model: `M_expected = λ*M_market + (1-λ)*M_model` (default `λ=0.7`). Falls back to model if market unavailable.                                                     | Dampens market noise; helps avoid over-reaction to early/illiquid lines.                                         |
+| `expected_market_spread_book`      | float     | Smoothed line blending market with model: `M_expected = λ*M_market + (1-λ)*M_model` (default `λ=0.6`, override via `EXPECTED_MARKET_LAMBDA`). Falls back to model if market unavailable.              | Dampens market noise; helps avoid over-reaction to early/illiquid lines.                                         |
 | `market_is_synthetic`              | boolean   | `true` if `market_spread_book` was not sourced directly from FanDuel/CFBD (e.g., copied from legacy column, or schedule fallback).                                                                    | Quality flag. Synthetic markets reduce confidence and can be excluded from MAE/edge screens if desired.          |
 | `market_adjustment`                | float     | Calibrated residual adjustment applied to the market line (bookmaker sign). After scaling by confidence and market source, the value is clipped to ±8.0 points. Positive → tilt toward away; negative → home. | Primary residual output; anchoring mechanism that answers “what is the market missing?” while guarding against outlier swings. |
 | `market_adjustment_raw`            | float     | Uncalibrated residual prediction (`-residual_pred_raw`).                                                                                                                                            | Debugging aid to inspect the raw delta before isotonic scaling or damping.                                        |
@@ -763,7 +769,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
 | `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
 | `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
-| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.0`, `|Value| ≥ 1.0`, and the model/expected sides align in direction.                 | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
+| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.0`, `|Value| ≥ 0.8` (derived as `(1-λ)*EDGE_MIN`, override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), and the model/expected sides align in direction.        | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
 
 **Interpretation of `edge_points_book`:**
 - `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).

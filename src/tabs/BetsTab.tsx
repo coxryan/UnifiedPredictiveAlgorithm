@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadTable, fmtNum, toNum } from "../lib/csv";
 import { Badge, TeamLabel, nextUpcomingWeek } from "../lib/ui";
-
-const EDGE_THRESHOLD = 1.5;
-const VALUE_THRESHOLD = 1.0;
+import { BETS_EDGE_MIN, BETS_VALUE_MIN } from "./constants";
 
 const providerLabel = (src: any): string => {
   const key = (src ?? "").toString().trim().toLowerCase();
@@ -89,7 +87,7 @@ export default function BetsTab() {
         const confidence = toNum((r as any).model_confidence);
         const anchored = model;
         const delta = Number.isFinite(model) && Number.isFinite(market) ? model - market : NaN;
-        const play = Number.isFinite(edge) && Number.isFinite(value) && Math.abs(edge) >= EDGE_THRESHOLD && Math.abs(value) >= VALUE_THRESHOLD;
+        const play = Number.isFinite(edge) && Number.isFinite(value) && Math.abs(edge) >= BETS_EDGE_MIN && Math.abs(value) >= BETS_VALUE_MIN;
 
         return {
           ...r,
@@ -137,7 +135,7 @@ export default function BetsTab() {
         <Badge tone="muted">Plays: {cards.length}</Badge>
       </div>
 
-      <div className="note">Showing plays where |edge| ≥ 1.5 and |value| ≥ 1.0. Negative edges point to the home side.</div>
+      <div className="note">Showing plays where |edge| ≥ {fmtNum(BETS_EDGE_MIN)} and |value| ≥ {fmtNum(BETS_VALUE_MIN)}. Negative edges point to the home side.</div>
 
       {!cards.length && (
         <div className="note">No recommended edges for this week. Check back after markets update.</div>

@@ -31,6 +31,35 @@ except ValueError:
     _MAX_MARKET_ADJUSTMENT = 8.0
 
 
+def _get_float_env(key: str, default: float | None = None) -> float | None:
+    raw = os.environ.get(key)
+    if raw is None:
+        return default
+    raw = raw.strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+def _clamp(value: float, *, lo: float, hi: float) -> float:
+    return max(lo, min(hi, value))
+
+
+_EXPECTED_MARKET_LAMBDA = _get_float_env("EXPECTED_MARKET_LAMBDA", 0.6) or 0.6
+_EXPECTED_MARKET_LAMBDA = _clamp(_EXPECTED_MARKET_LAMBDA, lo=0.0, hi=1.0)
+_EDGE_POINTS_MIN_DEFAULT = 2.0
+_EDGE_POINTS_MIN = _get_float_env("EDGE_POINTS_QUALIFY_MIN", _EDGE_POINTS_MIN_DEFAULT) or _EDGE_POINTS_MIN_DEFAULT
+_EDGE_POINTS_MIN = max(0.0, _EDGE_POINTS_MIN)
+_value_override = _get_float_env("VALUE_POINTS_QUALIFY_MIN")
+if _value_override is None:
+    _VALUE_POINTS_MIN = round(_EDGE_POINTS_MIN * max(0.0, 1.0 - _EXPECTED_MARKET_LAMBDA), 2)
+else:
+    _VALUE_POINTS_MIN = max(0.0, _value_override)
+
+
 def _sanitize_numeric(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series, errors="coerce")
 
@@ -472,7 +501,8 @@ def build_predictions_for_year(
     preds["market_spread_effective"] = market_for_calc.round(2)
 
     preds["expected_market_spread_book"] = (
-        market_for_calc * 0.6 + preds["model_spread_book"] * 0.4
+        market_for_calc * _EXPECTED_MARKET_LAMBDA
+        + preds["model_spread_book"] * (1.0 - _EXPECTED_MARKET_LAMBDA)
     ).round(2)
 
     preds["edge_points_book"] = (
@@ -483,8 +513,8 @@ def build_predictions_for_year(
     ).round(2)
 
     qualified_mask = (
-        (preds["edge_points_book"].abs() >= 2.0)
-        & (preds["value_points_book"].abs() >= 1.0)
+        (preds["edge_points_book"].abs() >= _EDGE_POINTS_MIN)
+        & (preds["value_points_book"].abs() >= _VALUE_POINTS_MIN)
         & (
             np.sign(preds["edge_points_book"]) == np.sign(preds["value_points_book"] * -1)
         )
