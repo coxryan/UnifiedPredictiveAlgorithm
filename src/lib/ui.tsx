@@ -8,44 +8,16 @@ export function Badge({ children, tone = "default" }: { children: React.ReactNod
   return <span className="badge" style={style}>{children}</span>;
 }
 
-const hashColor = (team: string): { from: string; to: string } => {
-  let hash = 0;
-  const input = (team || "").toUpperCase();
-  for (let i = 0; i < input.length; i++) {
-    hash = (hash << 5) - hash + input.charCodeAt(i);
-    hash |= 0;
-  }
-  const hueA = Math.abs(hash) % 360;
-  const hueB = (hueA + 30) % 360;
-  return {
-    from: `hsl(${hueA}, 70%, 48%)`,
-    to: `hsl(${hueB}, 65%, 40%)`,
-  };
-};
-
 export function TeamLabel({ home, team, neutral, showTags = true }: { home: boolean; team: string; neutral: boolean; showTags?: boolean }) {
-  const initials = (team || "")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("" || "?");
-  const colors = hashColor(team || "Team");
-
   return (
     <div className="team-label">
-      <div className="team-label__avatar" style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}>
-        <span>{initials || "?"}</span>
-      </div>
-      <div className="team-label__meta">
-        <div className="team-label__name">{team || "—"}</div>
-        {showTags && (
-          <div className="team-label__tags">
-            <Badge tone="muted">{home ? "HOME" : "AWAY"}</Badge>
-            {neutral && <Badge tone="muted">NEUTRAL</Badge>}
-          </div>
-        )}
-      </div>
+      <span className="team-label__name">{team || "—"}</span>
+      {showTags && (
+        <span className="team-label__tags">
+          <Badge tone="muted">{home ? "HOME" : "AWAY"}</Badge>
+          {neutral && <Badge tone="muted">NEUTRAL</Badge>}
+        </span>
+      )}
     </div>
   );
 }

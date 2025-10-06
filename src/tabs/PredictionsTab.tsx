@@ -358,7 +358,8 @@ export default function PredictionsTab() {
 
               <div className="pred-card__teams">
                 <div className="pred-card__team pred-card__team--away">
-                  <TeamLabel home={false} team={card.away_team} neutral={false} />
+                  <div className="pred-card__team-role">Away</div>
+                  <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{card._awayPointsLabel}</div>
                 </div>
                 <div className="pred-card__match-info">
@@ -367,8 +368,12 @@ export default function PredictionsTab() {
                   <div className="pred-card__live-tag">{card._liveState || ""}</div>
                 </div>
                 <div className="pred-card__team pred-card__team--home">
-                  <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} />
+                  <div className="pred-card__team-role">Home</div>
+                  <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} showTags={false} />
                   <div className="pred-card__score">{card._homePointsLabel}</div>
+                  {card.neutral_site === "1" || card.neutral_site === "true" ? (
+                    <div className="pred-card__team-tags"><Badge tone="muted">NEUTRAL</Badge></div>
+                  ) : null}
                 </div>
               </div>
 

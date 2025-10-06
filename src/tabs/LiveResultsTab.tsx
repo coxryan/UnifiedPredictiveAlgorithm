@@ -222,7 +222,8 @@ export default function LiveResultsTab() {
 
               <div className="pred-card__teams">
                 <div className="pred-card__team pred-card__team--away">
-                  <TeamLabel home={false} team={g.away_school || g.away_team} neutral={false} />
+                  <div className="pred-card__team-role">Away</div>
+                  <TeamLabel home={false} team={g.away_school || g.away_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{awayScore}</div>
                 </div>
                 <div className="pred-card__match-info">
@@ -231,7 +232,8 @@ export default function LiveResultsTab() {
                   <div className="pred-card__live-tag">{g.detail || ""}</div>
                 </div>
                 <div className="pred-card__team pred-card__team--home">
-                  <TeamLabel home={true} team={g.home_school || g.home_team} neutral={false} />
+                  <div className="pred-card__team-role">Home</div>
+                  <TeamLabel home={true} team={g.home_school || g.home_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{homeScore}</div>
                 </div>
               </div>
