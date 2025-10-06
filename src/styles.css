@@ -208,15 +208,15 @@ select{
 .pred-card__week{font-weight:600;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.7);}
 .pred-card__date{margin-top:2px;color:var(--muted);font-size:13px;}
 .pred-card__header-meta{display:flex;gap:8px;align-items:center;}
-.pred-card__teams{display:flex;align-items:center;gap:14px;justify-content:space-between;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 16px;}
+.pred-card__teams{display:flex;align-items:center;gap:14px;justify-content:space-between;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 16px;min-height:96px;}
 .pred-card__team{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;}
 .pred-card__team--home{align-items:flex-end;text-align:right;}
 .pred-card__team-label{text-transform:uppercase;font-size:11px;letter-spacing:.16em;color:rgba(255,255,255,.55);}
 .pred-card__score{font-size:26px;font-weight:700;min-width:38px;text-align:center;}
-.pred-card__match-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:12px;text-align:center;}
-.pred-card__kick{font-weight:500;color:rgba(255,255,255,.75);}
-.pred-card__scoreline{font-size:12.5px;}
-.pred-card__live-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b94a7;}
+.pred-card__match-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:12px;text-align:center;min-width:100px;}
+.pred-card__kick{font-weight:600;color:rgba(255,255,255,.82);white-space:nowrap;}
+.pred-card__scoreline{font-size:12.5px;white-space:nowrap;}
+.pred-card__live-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b94a7;white-space:nowrap;}
 .pred-card__summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;padding:12px 0 6px;}
 .pred-card__summary .metric{display:flex;flex-direction:column;background:rgba(12,13,18,.65);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;gap:2px;}
 .pred-card__summary .metric .label{text-transform:uppercase;font-size:10px;letter-spacing:.16em;color:rgba(255,255,255,.6);}
@@ -249,9 +249,27 @@ select{
 @media (max-width:720px){
   .pred-card__summary{grid-template-columns:1fr;}
   .pred-card__grades-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pred-card__notes-grid{grid-template-columns:1fr;}
 }
 .live-card .teams .lbl { font-size: 11px; opacity: .65; margin-bottom: 2px; }
 .live-card .teams .name { font-weight: 600; }
 .live-card .teams .score { font-size: 24px; font-weight: 700; }
 .live-card .meta { font-size: 12px; opacity: .7; }
 .live-card .picks { font-size: 12px; gap: 12px; flex-wrap: wrap; }
+.pred-card--tone-ok{border-color:rgba(53,209,134,.5);box-shadow:0 30px 70px rgba(53,209,134,.2);}
+.pred-card--tone-bad{border-color:rgba(255,114,99,.55);box-shadow:0 30px 70px rgba(255,114,99,.22);}
+.pred-card--tone-warn{border-color:rgba(255,196,88,.45);box-shadow:0 30px 70px rgba(255,196,88,.18);}
+.pred-card--live .pred-card__summary{grid-template-columns:repeat(2,minmax(0,1fr));}
+.pred-card--live .metric--pick{grid-column:1/-1;background:rgba(255,255,255,.06);}
+
+.pred-card__grades-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+.pred-card__notes{display:flex;flex-direction:column;gap:10px;}
+.pred-card__notes-title{text-transform:uppercase;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,.65);}
+.pred-card__notes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;font-size:13px;}
+.pred-card__notes-row{display:flex;justify-content:space-between;gap:12px;color:rgba(255,255,255,.82);}
+.pred-card__notes-row span:first-child{color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.12em;}
+.team-label{display:inline-flex;align-items:center;gap:10px;min-width:0;}
+.team-label__avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;letter-spacing:.05em;box-shadow:0 0 0 1px rgba(255,255,255,.18);}
+.team-label__meta{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.team-label__name{font-weight:600;font-size:14px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;}
+.team-label__tags{display:flex;gap:6px;align-items:center;}
