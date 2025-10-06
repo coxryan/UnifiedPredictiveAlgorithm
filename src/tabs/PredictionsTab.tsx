@@ -23,21 +23,31 @@ const providerLabel = (src: any): string => {
 
 type LiveRow = {
   state?: string;
-  away_school?: string; home_school?: string;
-  away_points?: string | number; home_points?: string | number;
+  away_school?: string;
+  home_school?: string;
+  away_points?: string | number;
+  home_points?: string | number;
 };
 
 type PredRow = {
-  week: string; date: string; neutral_site?: string;
-  home_team: string; away_team: string; played?: any;
-  model_spread_book?: string; model_spread_baseline?: string;
-  market_adjustment?: string; model_confidence?: string;
+  week: string;
+  date: string;
+  neutral_site?: string;
+  home_team: string;
+  away_team: string;
+  played?: any;
+  model_spread_book?: string;
+  model_spread_baseline?: string;
+  market_adjustment?: string;
+  model_confidence?: string;
   market_spread_book?: string;
   expected_market_spread_book?: string;
-  edge_points_book?: string; value_points_book?: string;
+  edge_points_book?: string;
+  value_points_book?: string;
   qualified_edge_flag?: string | number;
   market_spread_source?: string | null;
-  home_points?: string; away_points?: string;
+  home_points?: string;
+  away_points?: string;
 };
 
 type PositionKey = "qb" | "rb" | "wr" | "ol" | "dl" | "lb" | "db" | "st";
@@ -53,6 +63,12 @@ const POSITION_KEYS: Array<{ key: PositionKey; label: string }> = [
   { key: "st", label: "ST" },
 ];
 
+const gradeClassName = (letter: string) => {
+  const clean = (letter || "").toString().trim();
+  if (!clean) return "";
+  return ` grade-${clean.replace("+", "p").replace("-", "m").toLowerCase()}`;
+};
+
 function valueSide(modelHome: number, marketHome: number, home: string, away: string) {
   const edge = modelHome - marketHome;
   if (!Number.isFinite(edge) || Math.abs(edge) < 1e-9) return { side: "—", edge };
@@ -66,6 +82,7 @@ export default function PredictionsTab() {
   const [liveRows, setLiveRows] = useState<LiveRow[]>([]);
   const [kickKeyMap, setKickKeyMap] = useState<Record<string, string>>({});
   const [kickIdMap, setKickIdMap] = useState<Record<string, string>>({});
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -121,24 +138,24 @@ export default function PredictionsTab() {
         const sched = (await loadTable("cfb_schedule")) as any[];
         const byKey: Record<string, string> = {};
         const byId: Record<string, string> = {};
-        const norm = (s: any) => (s ?? '').toString().trim();
+        const norm = (s: any) => (s ?? "").toString().trim();
         const key = (w: any, a: any, h: any) => `${Number(w) || 0}|${norm(a)}|${norm(h)}`;
         function combineDateTime(dateStr: string, timeStr: string): string {
-          if (!dateStr) return '';
+          if (!dateStr) return "";
           if (!timeStr) return dateStr;
           if (/(\d{1,2}):(\d{2})/.test(dateStr)) return dateStr;
           return `${dateStr} ${timeStr}`;
         }
         for (const r of sched || []) {
-          let dateStr = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? '').toString().trim();
+          let dateStr = (r.kickoff_utc ?? r.start_date ?? r.datetime ?? r.date ?? "").toString().trim();
           if (!dateStr) continue;
-          let timeStr = '';
+          let timeStr = "";
           if (!/(\d{1,2}):(\d{2})/.test(dateStr)) {
-            timeStr = (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? '').toString().trim();
+            timeStr = (r.kickoff_et ?? r.kickoff_time ?? r.start_time ?? r.time ?? r.kick_time ?? "").toString().trim();
           }
           const dt = timeStr ? combineDateTime(dateStr, timeStr) : dateStr;
           byKey[key(r.week, r.away_team, r.home_team)] = dt;
-          if (r.game_id != null && r.game_id !== '') byId[String(r.game_id)] = dt;
+          if (r.game_id != null && r.game_id !== "") byId[String(r.game_id)] = dt;
         }
         setKickKeyMap(byKey);
         setKickIdMap(byId);
@@ -168,96 +185,96 @@ export default function PredictionsTab() {
     return m;
   }, [liveRows]);
 
-  const keyOf = (w: any, a: any, h: any) => `${Number(w) || 0}|${String(a || '').trim()}|${String(h || '').trim()}`;
+  const keyOf = (w: any, a: any, h: any) => `${Number(w) || 0}|${String(a || "").trim()}|${String(h || "").trim()}`;
 
   function kickoffLabelET(dateStr?: string): string {
-    if (!dateStr) return '';
+    if (!dateStr) return "";
     const s = dateStr.toString().trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return "";
     const clock = s.match(/(\d{1,2}):(\d{2})/);
     const hasTZ = /Z|[+-]\d{2}:?\d{2}$/.test(s);
     if (hasTZ) {
       const d = new Date(s);
       if (!isNaN(d.getTime())) {
         try {
-          const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
+          const t = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit" }).format(d);
           return `${t} ET`;
-        } catch {}
+        } catch {
+          // ignore
+        }
       }
-      return clock ? `${clock[1]}:${clock[2]} ET` : '';
+      return clock ? `${clock[1]}:${clock[2]} ET` : "";
     }
     if (clock) return `${clock[1]}:${clock[2]} ET`;
     const d = new Date(s);
     if (!isNaN(d.getTime())) {
       try {
-        const t = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(d);
+        const t = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit" }).format(d);
         return `${t} ET`;
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
-    return '';
+    return "";
   }
 
   const cards = useMemo(() => {
     const filtered = rows.filter((r) => (wk ? Number(r.week) === wk : true));
     const baseline = onlyQualified ? filtered.filter((r) => Number(r.qualified_edge_flag) === 1) : filtered;
-    const mapped = baseline.map((r: any) => {
+    return baseline.map((r: any) => {
       const model = toNum(r.model_spread_book);
       const market = toNum(r.market_spread_book);
       const expected = toNum(r.expected_market_spread_book);
       const anchored = toNum(r.model_spread_book);
       const baselineModel = toNum((r as any).model_spread_baseline);
       const adjustment = toNum((r as any).market_adjustment);
-      const edge = Number.isFinite(toNum(r.edge_points_book)) ? toNum(r.edge_points_book)
-        : (Number.isFinite(model) && Number.isFinite(market) ? model - market : NaN);
-      const value = Number.isFinite(toNum(r.value_points_book)) ? toNum(r.value_points_book)
-        : (Number.isFinite(market) && Number.isFinite(expected) ? market - expected : NaN);
+      const edge = Number.isFinite(toNum(r.edge_points_book))
+        ? toNum(r.edge_points_book)
+        : Number.isFinite(model) && Number.isFinite(market)
+        ? model - market
+        : NaN;
+      const value = Number.isFinite(toNum(r.value_points_book))
+        ? toNum(r.value_points_book)
+        : Number.isFinite(market) && Number.isFinite(expected)
+        ? market - expected
+        : NaN;
       const pick = valueSide(model, market, r.home_team, r.away_team);
       const marketSource = providerLabel((r as any).market_spread_source);
       const confidence = toNum((r as any).model_confidence);
+      const confidencePct = Number.isFinite(confidence) ? Math.round(confidence * 100) : null;
 
       const schedDt = (r as any).kickoff_utc
         || (r as any).start_date
-        || kickIdMap[String((r as any).game_id || '')]
+        || kickIdMap[String((r as any).game_id || "")]
         || kickKeyMap[keyOf(r.week, r.away_team, r.home_team)]
         || r.date;
       const kickLabel = kickoffLabelET(schedDt);
 
-      const key = `${(r.away_team || '').toString().trim()}|${(r.home_team || '').toString().trim()}`;
+      const key = `${(r.away_team || "").toString().trim()}|${(r.home_team || "").toString().trim()}`;
       const live = liveMap.get(key);
       let hp = toNum(r.home_points);
       let ap = toNum(r.away_points);
-      if (live && (live.state === 'in' || live.state === 'post')) {
+      if (live && (live.state === "in" || live.state === "post")) {
         if (Number.isFinite(live.hp)) hp = live.hp as number;
         if (Number.isFinite(live.ap)) ap = live.ap as number;
       }
 
-      const homePointsLabel = Number.isFinite(hp) ? fmtNum(hp, { maximumFractionDigits: 0 }) : '—';
-      const awayPointsLabel = Number.isFinite(ap) ? fmtNum(ap, { maximumFractionDigits: 0 }) : '—';
-      const scoreLabel = (Number.isFinite(hp) && Number.isFinite(ap)) ? `${awayPointsLabel} @ ${homePointsLabel}` : '—';
-      const finalDiff = (Number.isFinite(hp) && Number.isFinite(ap)) ? (hp - ap) : NaN;
+      const homePointsLabel = Number.isFinite(hp) ? fmtNum(hp, { maximumFractionDigits: 0 }) : "—";
+      const awayPointsLabel = Number.isFinite(ap) ? fmtNum(ap, { maximumFractionDigits: 0 }) : "—";
+      const scoreLabel = Number.isFinite(hp) && Number.isFinite(ap) ? `${awayPointsLabel} @ ${homePointsLabel}` : "—";
 
-      let tone: 'win' | 'loss' | 'none' = 'none';
-      if (live && live.state === 'post' && Number.isFinite(finalDiff) && Number.isFinite(market)) {
-        const homeCover = (finalDiff + market) > 0;
-        const pickHome = (pick.side || '').includes('(home)');
-        const pickAway = (pick.side || '').includes('(away)');
-        const correct = pickHome ? homeCover : pickAway ? !homeCover : null;
-        if (correct === true) tone = 'win';
-        else if (correct === false) tone = 'loss';
-      }
-
-      const positions = POSITION_KEYS.map(({ key: posKey, label }) => {
-        const awayLetter = ((r as any)[`away_grade_${posKey}_letter`] ?? '').toString().trim() || '—';
-        const homeLetter = ((r as any)[`home_grade_${posKey}_letter`] ?? '').toString().trim() || '—';
-        const awayScore = toNum((r as any)[`away_grade_${posKey}_score`]);
-        const homeScore = toNum((r as any)[`home_grade_${posKey}_score`]);
-        let advantage: 'away' | 'home' | 'even' = 'even';
+      const positions = POSITION_KEYS.map(({ key, label }) => {
+        const awayLetter = ((r as any)[`away_grade_${key}_letter`] ?? "").toString().trim() || "—";
+        const homeLetter = ((r as any)[`home_grade_${key}_letter`] ?? "").toString().trim() || "—";
+        const awayScore = toNum((r as any)[`away_grade_${key}_score`]);
+        const homeScore = toNum((r as any)[`home_grade_${key}_score`]);
+        let advantage: "away" | "home" | "even" = "even";
         if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
           const delta = homeScore - awayScore;
-          if (delta > 1.5) advantage = 'home';
-          else if (delta < -1.5) advantage = 'away';
+          if (delta > 1.5) advantage = "home";
+          else if (delta < -1.5) advantage = "away";
         }
-        return { key: posKey, label, awayLetter, homeLetter, awayScore, homeScore, advantage };
+        return { key, label, awayLetter, homeLetter, advantage };
       });
 
       return {
@@ -274,28 +291,25 @@ export default function PredictionsTab() {
         _marketSource: marketSource,
         _kick: kickLabel,
         _scoreLabel: scoreLabel,
-        _tone: tone,
         _homePointsLabel: homePointsLabel,
         _awayPointsLabel: awayPointsLabel,
-        _liveState: (live?.state || '').toString().toUpperCase(),
+        _liveState: (live?.state || "").toString().toUpperCase(),
         _positions: positions,
         _confidence: confidence,
+        _confidencePct: confidencePct,
       };
     });
-
-    return mapped.sort((a, b) => {
-      const wkA = Number(a.week) || 0;
-      const wkB = Number(b.week) || 0;
-      if (wkA !== wkB) return wkA - wkB;
-      const edgeA = Math.abs(toNum(a._edge));
-      const edgeB = Math.abs(toNum(b._edge));
-      return edgeB - edgeA;
-    });
-  }, [rows, wk, onlyQualified, liveMap, kickKeyMap, kickIdMap]);
+  }, [rows, wk, onlyQualified, kickKeyMap, kickIdMap, liveMap]);
 
   return (
-    <section className="card">
-      <div className="card-title">Predictions — 2025</div>
+    <section className="page">
+      <div className="header">
+        <div>
+          <h1>Predictions</h1>
+          <p className="sub">Model-calibrated spreads, edge, and value</p>
+        </div>
+      </div>
+
       <div className="controls">
         <label>Week
           <select className="input" value={wk ?? ""} onChange={(e) => setWk(e.target.value ? Number(e.target.value) : null)}>
@@ -315,77 +329,88 @@ export default function PredictionsTab() {
         <div className="note" style={{ marginBottom: 8 }}>No predictions found. Expecting dataset <code>upa_predictions</code>.</div>
       )}
 
-      <div className="grid">
+      <div className="pred-grid">
         {cards.map((card: any) => {
           const key = card.game_id || `${card.week}-${card.home_team}-${card.away_team}`;
           const qualified = Number(card.qualified_edge_flag) === 1;
+          const isOpen = expanded === key;
+
+          const toggleDetails = () => setExpanded((prev) => (prev === key ? null : key));
+
+          const gradeBadge = (letter: string, highlight = false) => (
+            <span className={`pred-card__grade${gradeClassName(letter)}${highlight ? " highlight" : ""}`}>
+              {(letter || "—").toString().trim() || "—"}
+            </span>
+          );
+
           return (
-            <div key={key} className="live-card pred-card" style={card._tone === 'none' ? {} : { borderColor: card._tone === 'win' ? '#16a34a' : '#dc2626' }}>
-              <div className="row header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={key} className={`pred-card${qualified ? " pred-card--qualified" : ""}`}>
+              <div className="pred-card__header">
                 <div>
-                  <strong>Week {card.week}</strong> · {card.date || 'TBD'}
+                  <div className="pred-card__week">Week {card.week}</div>
+                  <div className="pred-card__date">{card.date || "TBD"}</div>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="pred-card__header-meta">
                   {qualified ? <Badge tone="pos">Qualified</Badge> : null}
                   <Badge tone="muted">{card._marketSource}</Badge>
                 </div>
               </div>
-              <div className="row meta" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, opacity: 0.8 }}>
-                <div>{card._kick || 'Kickoff TBA'}</div>
-                <div>{card._liveState || ''}</div>
-              </div>
-              <div className="row teams">
-                <div className="side">
-                  <div className="lbl">AWAY</div>
+
+              <div className="pred-card__teams">
+                <div className="pred-card__team pred-card__team--away">
+                  <div className="pred-card__team-label">Away</div>
                   <TeamLabel home={false} team={card.away_team} neutral={false} />
-                  <div className="score">{card._awayPointsLabel}</div>
+                  <div className="pred-card__score">{card._awayPointsLabel}</div>
                 </div>
-                <div className="side">
-                  <div className="lbl">HOME</div>
-                  <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === '1' || card.neutral_site === 'true'} />
-                  <div className="score">{card._homePointsLabel}</div>
+                <div className="pred-card__match-info">
+                  <div className="pred-card__kick">{card._kick || "Kickoff TBA"}</div>
+                  <div className="pred-card__scoreline">{card._scoreLabel}</div>
+                  <div className="pred-card__live-tag">{card._liveState || ""}</div>
+                </div>
+                <div className="pred-card__team pred-card__team--home">
+                  <div className="pred-card__team-label">Home</div>
+                  <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} />
+                  <div className="pred-card__score">{card._homePointsLabel}</div>
                 </div>
               </div>
-              <div className="row meta" style={{ marginTop: 8 }}>
-                <div>Score (A @ H): {card._scoreLabel}</div>
+
+              <div className="pred-card__summary">
+                <div className="metric"><span className="label">Market</span><span>{fmtNum(card._market)}</span></div>
+                <div className="metric"><span className="label">Adj Δ</span><span>{fmtNum(card._adjustment)}</span></div>
+                <div className="metric"><span className="label">Anchored</span><span>{fmtNum(card._anchored)}</span></div>
+                <div className="metric"><span className="label">Baseline</span><span>{fmtNum(card._baseline)}</span></div>
+                <div className="metric"><span className="label">Edge</span><span>{fmtNum(card._edge)}</span></div>
+                <div className="metric"><span className="label">Value</span><span>{fmtNum(card._value)}</span></div>
+                <div className="metric"><span className="label">Confidence</span><span>{Number.isFinite(card._confidence) && card._confidencePct != null ? `${card._confidencePct}%` : "—"}</span></div>
+                <div className="metric metric--pick"><span className="label">Pick</span><span>{card._pick || "—"}</span></div>
               </div>
-              <div className="row picks" style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                <div>Market (H): {fmtNum(card._market)}</div>
-                <div>Adj Δ (model − market): {fmtNum(card._adjustment)}</div>
-                <div>Anchored Model (H): {fmtNum(card._anchored)}</div>
-                <div>Baseline Model (H): {fmtNum(card._baseline)}</div>
-                <div>Edge: {fmtNum(card._edge)}</div>
-                <div>Value: {fmtNum(card._value)}</div>
-                <div>Confidence: {Number.isFinite(card._confidence) ? fmtNum(card._confidence, { style: 'percent', maximumFractionDigits: 0 }) : '—'}</div>
-                <div>Pick: {card._pick || '—'}</div>
-              </div>
-              <div className="row positions" style={{ marginTop: 10 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>Positional Grades</div>
-                <div className="pos-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 0.75fr 1fr', gap: 6 }}>
-                  {card._positions.map((pos: any) => {
-                    const awayStrong = pos.advantage === 'away';
-                    const homeStrong = pos.advantage === 'home';
-                    return (
-                      <div key={pos.key} className="pos-line" style={{ display: 'contents' }}>
-                        <span
-                          style={{ textAlign: 'right', fontWeight: awayStrong ? 600 : 400, opacity: awayStrong ? 1 : 0.75 }}
-                        >
-                          {pos.awayLetter}
-                        </span>
-                        <span className="pos-label" style={{ textAlign: 'center', opacity: 0.7 }}>{pos.label}</span>
-                        <span
-                          style={{ fontWeight: homeStrong ? 600 : 400, opacity: homeStrong ? 1 : 0.75 }}
-                        >
-                          {pos.homeLetter}
-                        </span>
-                      </div>
-                    );
-                  })}
+
+              <button className="pred-card__toggle" onClick={toggleDetails}>
+                {isOpen ? "Hide details" : "More details"}
+              </button>
+
+              <div className={`pred-card__details${isOpen ? " open" : ""}`}>
+                <div className="pred-card__grades">
+                  <div className="pred-card__grades-title">Positional Grades</div>
+                  <div className="pred-card__grades-grid">
+                    {card._positions.map((pos: any) => {
+                      const awayStrong = pos.advantage === "away";
+                      const homeStrong = pos.advantage === "home";
+                      return (
+                        <div key={pos.key} className="pred-card__grades-row">
+                          {gradeBadge(pos.awayLetter, awayStrong)}
+                          <span className="pred-card__grades-label">{pos.label}</span>
+                          {gradeBadge(pos.homeLetter, homeStrong)}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           );
         })}
+
         {!cards.length && (
           <div className="note" style={{ padding: 12 }}>No rows to display.</div>
         )}
