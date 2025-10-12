@@ -12,7 +12,8 @@ from .schedule import load_schedule_for_year
 from .team_inputs import build_team_inputs_datadriven
 from .markets import get_market_lines_for_current_week
 from .predictions import build_predictions_for_year
-from .helpers import write_dataset, _apply_book_grades, _mirror_book_to_legacy_columns
+from .helpers import _apply_book_grades, _mirror_book_to_legacy_columns
+from agents.storage import read_dataset, write_dataset
 
 logger = logging.getLogger(__name__)
 
@@ -119,21 +120,55 @@ def _compute_backtest_summary(df: pd.DataFrame, year: int) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _load_cached_dataset(name: str) -> pd.DataFrame | None:
+    try:
+        df = read_dataset(name)
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            return df
+    except Exception:
+        return None
+    return None
+
+
 def build_backtest_dataset(
     year: int,
     apis: CfbdClients,
     cache: ApiCache,
+    *,
+    offline: bool = False,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     logger.info("Building backtest dataset for season %s", year)
 
-    teams_df = build_team_inputs_datadriven(year, apis, cache)
-    schedule_df = load_schedule_for_year(year, apis, cache)
+    teams_df: pd.DataFrame | None = None
+    schedule_df: pd.DataFrame | None = None
+    markets_df: pd.DataFrame | None = None
+
+    if offline:
+        teams_df = _load_cached_dataset(f"backtest_team_inputs_{year}")
+        schedule_df = _load_cached_dataset(f"backtest_schedule_{year}")
+        markets_df = _load_cached_dataset(f"backtest_markets_{year}")
+
+    if teams_df is None or teams_df.empty:
+        if offline:
+            raise RuntimeError(
+                f"Cached backtest team inputs for {year} not found. Run online hydration first."
+            )
+        teams_df = build_team_inputs_datadriven(year, apis, cache)
+        write_dataset(teams_df, f"backtest_team_inputs_{year}")
+
     if schedule_df is None or schedule_df.empty:
-        logger.warning("Backtest schedule empty for %s", year)
-        empty = pd.DataFrame()
-        write_dataset(empty, f"upa_predictions_{year}_backtest")
-        write_dataset(empty, f"backtest_summary_{year}")
-        return empty, empty
+        if offline:
+            raise RuntimeError(
+                f"Cached backtest schedule for {year} not found. Run online hydration first."
+            )
+        schedule_df = load_schedule_for_year(year, apis, cache)
+        if schedule_df is None or schedule_df.empty:
+            logger.warning("Backtest schedule empty for %s", year)
+            empty = pd.DataFrame()
+            write_dataset(empty, f"upa_predictions_{year}_backtest")
+            write_dataset(empty, f"backtest_summary_{year}")
+            return empty, empty
+        write_dataset(schedule_df, f"backtest_schedule_{year}")
 
     try:
         max_week = int(pd.to_numeric(schedule_df.get("week"), errors="coerce").max())
@@ -142,7 +177,13 @@ def build_backtest_dataset(
     if not max_week or max_week < 1:
         max_week = 1
 
-    markets_df = get_market_lines_for_current_week(year, max_week, schedule_df, apis, cache)
+    if markets_df is None or markets_df.empty:
+        if offline:
+            raise RuntimeError(
+                f"Cached backtest markets for {year} not found. Run online hydration first."
+            )
+        markets_df = get_market_lines_for_current_week(year, max_week, schedule_df, apis, cache)
+        write_dataset(markets_df, f"backtest_markets_{year}")
 
     preds_df = build_predictions_for_year(
         year,

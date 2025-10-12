@@ -178,6 +178,14 @@ jobs:
           set -euo pipefail
           python -m tools.build_site_data --year 2025
 
+      - name: Recompute backtest (offline)
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          BACKTEST_YEAR: ${{ env.BACKTEST_YEAR }}
+        run: |
+          set -euo pipefail
+          python -m tools.build_backtest_data --year "${BACKTEST_YEAR}" --offline
+
       - name: Validate data completeness (post-train)
         run: |
           set -euo pipefail

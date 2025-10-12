@@ -7,6 +7,10 @@ on:
         description: 'Season to backtest'
         required: false
         default: '2024'
+      offline:
+        description: 'Reuse cached data (skip CFBD fetch)'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -24,6 +28,7 @@ jobs:
     env:
       BACKTEST_YEAR: ${{ github.event.inputs.year || '2024' }}
       CACHE_DIR: .cache_cfbd/${{ github.event.inputs.year || '2024' }}
+      OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +54,11 @@ jobs:
           CACHE_DIR: ${{ env.CACHE_DIR }}
         run: |
           set -euo pipefail
-          python -m tools.build_backtest_data --year "${BACKTEST_YEAR}"
+          if [ "${OFFLINE_MODE}" = "true" ]; then
+            python -m tools.build_backtest_data --year "${BACKTEST_YEAR}" --offline
+          else
+            python -m tools.build_backtest_data --year "${BACKTEST_YEAR}"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

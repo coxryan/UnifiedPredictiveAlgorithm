@@ -26,17 +26,18 @@ def _configure_logging() -> None:
     )
 
 
-def build_backtest(year: int, bearer_token: str | None = None) -> None:
+def build_backtest(year: int, bearer_token: str | None = None, offline: bool = False) -> None:
     _configure_logging()
     logger = logging.getLogger("build_backtest")
     token = bearer_token or os.environ.get("CFBD_BEARER_TOKEN", "")
     masked = f"len={len(token)}" if token else "len=0"
-    logger.info("Starting backtest build for %s (CFBD token %s)", year, masked)
+    mode = "offline" if offline else "online"
+    logger.info("Starting backtest build for %s (%s, CFBD token %s)", year, mode, masked)
 
     apis = CfbdClients(bearer_token=token or "")
     cache = ApiCache()
 
-    preds, summary = build_backtest_dataset(year, apis=apis, cache=cache)
+    preds, summary = build_backtest_dataset(year, apis=apis, cache=cache, offline=offline)
     logger.info("Backtest build finished: predictions=%s summary=%s", len(preds), len(summary))
 
 
@@ -50,8 +51,13 @@ def main() -> None:
         default=None,
         help="Override CFBD bearer token (falls back to CFBD_BEARER_TOKEN env)",
     )
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Use cached datasets instead of hitting CFBD APIs (requires prior hydration)",
+    )
     args = parser.parse_args()
-    build_backtest(year=args.year, bearer_token=args.cfbd_token)
+    build_backtest(year=args.year, bearer_token=args.cfbd_token, offline=args.offline)
 
 
 if __name__ == "__main__":

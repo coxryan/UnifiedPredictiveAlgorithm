@@ -16,6 +16,8 @@
 - 2025-10-05 22:05: Validated dataset after refresh — 181 rows satisfy Bets tab filters (|edge| ≥ 1.5, |value| ≥ 0.6) and 79 rows carry `qualified_edge_flag=1` with the new 0.8 point threshold.
 - 2025-10-05 21:54: Predictions tab layout regressed (team names overlap kickoff info, positional grade pills collide). Need to restore structured team header and adjust grade grid spacing.
 - 2025-10-05 22:08: Backtest tab empty post-SQLite migration; need one-off builder + manual workflow to hydrate 2024 datasets into `upa_data.sqlite` and deploy.
+- 2025-10-12 12:24: Added scripted backtest builder + workflow; latest run populated 2024 tables but missing graded results. Wiring helper grades now and rehydrating to restore W/L counts.
+- 2025-10-12 12:30: Cached schedule/markets/team inputs persisted for offline reuse; deploy workflow now runs `tools.build_backtest_data --offline` so model changes automatically refresh backtest results without refetching CFBD.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -169,7 +171,7 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
 
 - **Week 5 market coverage**: FanDuel returns limited spreads early in the week. We now merge new pulls with existing `market_debug`; monitor `market_predictions_backfill.json` to ensure previously played games retain bookmaker lines and synthetic rate stays ≤ 5%.
 - **Manual workflow toggles**: Caching and backtest are disabled by default. When re-enabled for investigations, confirm toggle values in the workflow run summary and reset them to `false` afterwards.
-- **Backtest builder workflow**: Use `build-backtest` (workflow_dispatch) when you need to refresh historical seasons. It runs `python -m tools.build_backtest_data --year <season>`, copies the updated SQLite into `dist/data/`, commits with `[skip ci]`, and redeploys Pages. Provide `CFBD_BEARER_TOKEN` before triggering; this job only runs on demand.
+- **Backtest builder workflow**: Use `build-backtest` (workflow_dispatch) when you need to refresh historical seasons. It runs `python -m tools.build_backtest_data --year <season>`, copies the updated SQLite into `dist/data/`, commits with `[skip ci]`, and redeploys Pages. Provide `CFBD_BEARER_TOKEN` before triggering; this job only runs on demand. An initial online run is required to seed the cached `backtest_*` tables so future deploys can recompute offline.
 - **Schedule freshness**: Early-week runs can lag if CFBD throttles. Keep an eye on the validation check (`schedule stale`) and bump `FORCE_REFRESH_*` envs for a one-off retry if needed.
 
 ---
@@ -537,6 +539,9 @@ YEAR=${YEAR:-2025}
 | `market_unmatched`                        | During market normalization             | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
 | `upa_predictions`                         | Collector + ALL step                    | `build_predictions_for_year` → `write_dataset` + backfill  | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
 | `upa_predictions_2024_backtest`           | Backtest workflow                        | `build_backtest_dataset` → `write_dataset`                 | **Backtest tab** historical rows                                     | ✅ non-empty |
+| `backtest_schedule_2024`                  | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (schedule cache)                              | ✅ non-empty |
+| `backtest_markets_2024`                   | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (market cache)                                | ✅ non-empty |
+| `backtest_team_inputs_2024`               | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (team features cache)                         | ✅ non-empty |
 | `live_edge_report`                        | ALL step                                | `build_live_edge_report` → `write_dataset`                  | Optional live edge table                                             | — (placeholder ok) |
 | `backtest_summary_2024`                   | Backtest workflow                        | `build_backtest_dataset` → `_compute_backtest_summary`     | **Backtest tab** weekly hit-rate summary                             | ✅ non-empty |
 | `live_scores`                              | ALL step                                | `fetch_scoreboard(None)` → `write_dataset`                 | Status checks; optional live indicators                              | ✅ readable  |
@@ -976,6 +981,11 @@ python -m src.run_pipeline --config configs/default.yaml
 python -m tools.build_backtest_data --year 2024
 ```
 > Uses the CFBD token + cache for the requested season. Run sparingly (data is static) and always commit the updated `upa_data.sqlite` + `dist/data/upa_data.sqlite` afterwards.
+
+```bash
+python -m tools.build_backtest_data --year 2024 --offline
+```
+> Recomputes predictions and summary using the cached `backtest_*` tables (no API access). This is what the deploy workflow runs on every push after training.
 
 ### How to Run All Tests
 ```bash
