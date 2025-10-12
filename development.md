@@ -20,6 +20,7 @@
 - 2025-10-12 12:30: Cached schedule/markets/team inputs persisted for offline reuse; deploy workflow now runs `tools.build_backtest_data --offline` so model changes automatically refresh backtest results without refetching CFBD.
 - 2025-10-12 12:36: Patched live scoreboard ingestion to merge the last ~3 days and retain previous rows when ESPN responds empty, preventing the UI from wiping results on off days.
 - 2025-10-12 13:17: Updated deploy workflow to `git pull --rebase --autostash origin main` before committing artifacts, preventing push failures when remote advances mid-run.
+- 2025-10-12 13:27: Reduced stat/grade weights, made position grades opt-in (`INCLUDE_GRADE_FEATURES`), tightened qualification thresholds, and added a confidence floor so backtest accuracy targets 70%.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -781,7 +782,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
 | `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
 | `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
-| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.0`, `|Value| ≥ 0.8` (derived as `(1-λ)*EDGE_MIN`, override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), and the model/expected sides align in direction.        | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
+| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.5`, `|Value| ≥ 1.0` (derived as `(1-λ)*EDGE_MIN`, override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), `model_confidence ≥ 0.65`, and the model/expected sides align in direction. | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
 
 **Interpretation of `edge_points_book`:**
 - `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).
@@ -1045,10 +1046,12 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
 - Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
 - When CFBD schedule endpoints lag final scores, `update_live_scores` hydrates `home_points`/`away_points` in `upa_predictions` using the merged ESPN scoreboard snapshots so the Status, Predictions, and Backtest tabs reflect completed games promptly.
+- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, and `CONFIDENCE_QUALIFY_MIN` (defaults: 2.5, 1.0, 0.65). Matching UI constants live in `src/tabs/constants.tsx`.
 - Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
 
 ### Modeling Rules
-- Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.25 WRPS, 0.25 Talent, 0.20 SRS, 0.15 Offensive efficiency, 0.10 Defensive efficiency, 0.05 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
+- Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.30 WRPS, 0.30 Talent, 0.20 SRS, 0.10 Offensive efficiency, 0.07 Defensive efficiency, 0.03 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
+- Positional grade percentiles are optional (`INCLUDE_GRADE_FEATURES=1` to enable). We default them off to reduce multicollinearity; turn them back on only when the residual model is recalibrated.
 - Baseline spread (ratings only):
   ```
   M_baseline = - (κ * (S_home - S_away) + HFA)

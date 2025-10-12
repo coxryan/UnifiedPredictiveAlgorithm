@@ -50,7 +50,7 @@ def _clamp(value: float, *, lo: float, hi: float) -> float:
 
 _EXPECTED_MARKET_LAMBDA = _get_float_env("EXPECTED_MARKET_LAMBDA", 0.6) or 0.6
 _EXPECTED_MARKET_LAMBDA = _clamp(_EXPECTED_MARKET_LAMBDA, lo=0.0, hi=1.0)
-_EDGE_POINTS_MIN_DEFAULT = 2.0
+_EDGE_POINTS_MIN_DEFAULT = 2.5
 _EDGE_POINTS_MIN = _get_float_env("EDGE_POINTS_QUALIFY_MIN", _EDGE_POINTS_MIN_DEFAULT) or _EDGE_POINTS_MIN_DEFAULT
 _EDGE_POINTS_MIN = max(0.0, _EDGE_POINTS_MIN)
 _value_override = _get_float_env("VALUE_POINTS_QUALIFY_MIN")
@@ -58,6 +58,9 @@ if _value_override is None:
     _VALUE_POINTS_MIN = round(_EDGE_POINTS_MIN * max(0.0, 1.0 - _EXPECTED_MARKET_LAMBDA), 2)
 else:
     _VALUE_POINTS_MIN = max(0.0, _value_override)
+_CONFIDENCE_MIN_DEFAULT = 0.65
+_CONFIDENCE_MIN = _get_float_env("CONFIDENCE_QUALIFY_MIN", _CONFIDENCE_MIN_DEFAULT) or _CONFIDENCE_MIN_DEFAULT
+_CONFIDENCE_MIN = max(0.0, min(1.0, _CONFIDENCE_MIN))
 
 
 def _sanitize_numeric(series: pd.Series) -> pd.Series:
@@ -113,12 +116,12 @@ def _rating_from_team_inputs(team_inputs: pd.DataFrame) -> pd.Series:
     w_st = df["stat_st_index_0_100"].fillna(50.0) / 100.0
 
     rating = (
-        0.25 * w_wrps
-        + 0.25 * w_talent
+        0.30 * w_wrps
+        + 0.30 * w_talent
         + 0.20 * w_srs
-        + 0.15 * w_off
-        + 0.10 * w_def
-        + 0.05 * w_st
+        + 0.10 * w_off
+        + 0.07 * w_def
+        + 0.03 * w_st
     )
     rating.index = df["team"].astype(str)
     # Ensure unique index by collapsing duplicate team rows (average scores)
@@ -255,9 +258,15 @@ def build_predictions_for_year(
     team_ratings = _rating_from_team_inputs(team_inputs_df)
     logger.debug("build_predictions_for_year: team ratings available for %s teams", len(team_ratings))
 
+    include_grade_features = os.environ.get("INCLUDE_GRADE_FEATURES", "0").strip().lower() in {"1", "true", "yes", "y"}
     grade_columns: List[str] = []
     grade_lookup: Dict[str, pd.Series] = {}
-    if team_inputs_df is not None and not team_inputs_df.empty and "team" in team_inputs_df.columns:
+    if (
+        include_grade_features
+        and team_inputs_df is not None
+        and not team_inputs_df.empty
+        and "team" in team_inputs_df.columns
+    ):
         grade_columns = [c for c in team_inputs_df.columns if c.startswith("grade_")]
         if grade_columns:
             indexed_inputs = team_inputs_df.set_index("team")
@@ -601,6 +610,7 @@ def build_predictions_for_year(
     qualified_mask = (
         (preds["edge_points_book"].abs() >= _EDGE_POINTS_MIN)
         & (preds["value_points_book"].abs() >= _VALUE_POINTS_MIN)
+        & (preds["model_confidence"] >= _CONFIDENCE_MIN)
         & (
             np.sign(preds["edge_points_book"]) == np.sign(preds["value_points_book"] * -1)
         )

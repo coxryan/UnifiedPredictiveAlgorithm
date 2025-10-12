@@ -6,7 +6,7 @@ const parseEnvFloat = (value: string | undefined, fallback: number): number => {
   return Number.isFinite(num) ? num : fallback;
 };
 
-export const EDGE_MIN = parseEnvFloat(import.meta.env.VITE_EDGE_MIN as string | undefined, 2.0);
+export const EDGE_MIN = parseEnvFloat(import.meta.env.VITE_EDGE_MIN as string | undefined, 2.5);
 export const VALUE_MIN = parseEnvFloat(
   import.meta.env.VITE_VALUE_MIN as string | undefined,
   Number((EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
@@ -14,7 +14,7 @@ export const VALUE_MIN = parseEnvFloat(
 
 export const BETS_EDGE_MIN = parseEnvFloat(
   import.meta.env.VITE_BETS_EDGE_MIN as string | undefined,
-  1.5
+  2.5
 );
 export const BETS_VALUE_MIN = parseEnvFloat(
   import.meta.env.VITE_BETS_VALUE_MIN as string | undefined,

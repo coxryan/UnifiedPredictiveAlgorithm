@@ -7,17 +7,24 @@ from typing import Iterable, List, Sequence
 import numpy as np
 import pandas as pd
 
+import os
+
 from agents.storage import read_dataset
 
 # Base feature columns that exist in the team inputs table. These remain the
 # foundation for delta-style features when we assemble the residual dataset.
-FEATURE_COLUMNS: Iterable[str] = (
+_INCLUDE_GRADE_FEATURES = os.environ.get("INCLUDE_GRADE_FEATURES", "0").strip().lower() in {"1", "true", "yes", "y"}
+
+_BASE_FEATURE_COLUMNS: List[str] = [
     "wrps_percent_0_100",
     "talent_score_0_100",
     "srs_score_0_100",
     "stat_off_index_0_100",
     "stat_def_index_0_100",
     "stat_st_index_0_100",
+]
+
+_GRADE_FEATURE_COLUMNS: List[str] = [
     "grade_qb_percentile",
     "grade_rb_percentile",
     "grade_wr_percentile",
@@ -26,6 +33,11 @@ FEATURE_COLUMNS: Iterable[str] = (
     "grade_lb_percentile",
     "grade_db_percentile",
     "grade_st_percentile",
+]
+
+FEATURE_COLUMNS: Iterable[str] = tuple(
+    _BASE_FEATURE_COLUMNS
+    + (_GRADE_FEATURE_COLUMNS if _INCLUDE_GRADE_FEATURES else [])
 )
 
 # Additional engineered features backed by historical results. We derive these on
