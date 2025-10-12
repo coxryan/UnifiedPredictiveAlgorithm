@@ -226,6 +226,12 @@ jobs:
           fi
           git status --short
 
+      - name: Rebase onto origin/main (autostash)
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git pull --rebase --autostash origin main
+
       - name: Commit and push generated artifacts
         run: |
           set -euo pipefail

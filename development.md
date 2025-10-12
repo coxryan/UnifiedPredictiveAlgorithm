@@ -19,6 +19,7 @@
 - 2025-10-12 12:24: Added scripted backtest builder + workflow; latest run populated 2024 tables but missing graded results. Wiring helper grades now and rehydrating to restore W/L counts.
 - 2025-10-12 12:30: Cached schedule/markets/team inputs persisted for offline reuse; deploy workflow now runs `tools.build_backtest_data --offline` so model changes automatically refresh backtest results without refetching CFBD.
 - 2025-10-12 12:36: Patched live scoreboard ingestion to merge the last ~3 days and retain previous rows when ESPN responds empty, preventing the UI from wiping results on off days.
+- 2025-10-12 13:17: Updated deploy workflow to `git pull --rebase --autostash origin main` before committing artifacts, preventing push failures when remote advances mid-run.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
