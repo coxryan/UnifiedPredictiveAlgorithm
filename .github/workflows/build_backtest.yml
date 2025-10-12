@@ -74,6 +74,11 @@ jobs:
           git add data/ dist/
           git status --short
 
+      - name: Sync with origin/main
+        run: |
+          git fetch origin main
+          git rebase origin/main
+
       - name: Commit and push
         run: |
           if git diff --cached --quiet; then
