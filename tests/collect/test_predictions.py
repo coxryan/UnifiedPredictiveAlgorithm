@@ -70,13 +70,15 @@ def test_predictions_use_market_when_available(tmp_path):
         cache=ApiCache(root=str(tmp_path / "cache")),
         markets_df=markets,
         team_inputs_df=_team_inputs(),
+        scoreboard_df=pd.DataFrame(),
     )
 
     assert float(preds.loc[0, "market_spread_book"]) == -3.5
     assert int(preds.loc[0, "market_is_synthetic"]) == 0
     assert preds.loc[0, "edge_points_book"] != 0
-    assert "home_grade_qb_letter" in preds.columns
-    assert preds.loc[0, "home_grade_qb_letter"] != ""
+    assert "model_confidence" in preds.columns
+    conf = float(preds.loc[0, "model_confidence"])
+    assert 0.0 <= conf <= 1.0
     assert "market_adjustment" in preds.columns
     model_val = float(preds.loc[0, "model_spread_book"])
     market_val = float(preds.loc[0, "market_spread_book"])
@@ -110,6 +112,7 @@ def test_predictions_sets_market_source_cfbd(tmp_path):
         cache=ApiCache(root=str(tmp_path / "cache")),
         markets_df=markets,
         team_inputs_df=_team_inputs(),
+        scoreboard_df=pd.DataFrame(),
     )
 
     assert preds.loc[0, "market_spread_source"] == "cfbd"
@@ -145,6 +148,7 @@ def test_predictions_mark_synthetic_when_market_missing(tmp_path):
         cache=ApiCache(root=str(tmp_path / "cache")),
         markets_df=pd.DataFrame(),
         team_inputs_df=_team_inputs(),
+        scoreboard_df=pd.DataFrame(),
     )
 
     assert pd.isna(preds.loc[0, "market_spread_book"])
