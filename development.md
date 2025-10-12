@@ -1052,6 +1052,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 ### Modeling Rules
 - Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.30 WRPS, 0.30 Talent, 0.20 SRS, 0.10 Offensive efficiency, 0.07 Defensive efficiency, 0.03 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
 - Positional grade percentiles are optional (`INCLUDE_GRADE_FEATURES=1` to enable). We default them off to reduce multicollinearity; turn them back on only when the residual model is recalibrated.
+- Residual model training respects `RESIDUAL_ALPHA_GRID`, `RESIDUAL_LEARNING_RATE`, and `RESIDUAL_N_ESTIMATORS` environment overrides (defaults: `1.5,2.5,4.0,6.0`, `0.1`, and `75`).
 - Baseline spread (ratings only):
   ```
   M_baseline = - (κ * (S_home - S_away) + HFA)

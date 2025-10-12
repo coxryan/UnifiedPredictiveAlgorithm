@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -478,12 +479,50 @@ def _select_alpha(cv_results: Dict[float, Dict[str, float]]) -> float:
     return float(ranked[0][0])
 
 
+def _parse_alpha_grid(raw: Optional[str], default: Sequence[float]) -> Sequence[float]:
+    if not raw:
+        return default
+    values: List[float] = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            values.append(float(part))
+        except ValueError:
+            continue
+    return tuple(values) if values else default
+
+
+def _get_float_env(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+def _get_int_env(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        return max(1, int(raw))
+    except ValueError:
+        return default
+
+
 def train_residual_model(
     *,
-    alpha_grid: Sequence[float] = (0.5, 1.0, 2.0, 4.0),
-    learning_rate: float = 0.3,
-    n_estimators: int = 50,
+    alpha_grid: Sequence[float] = (1.5, 2.5, 4.0, 6.0),
+    learning_rate: float = 0.1,
+    n_estimators: int = 75,
 ) -> Optional[ResidualEnsembleModel]:
+    alpha_grid = _parse_alpha_grid(os.environ.get("RESIDUAL_ALPHA_GRID"), alpha_grid)
+    learning_rate = _get_float_env("RESIDUAL_LEARNING_RATE", learning_rate)
+    n_estimators = _get_int_env("RESIDUAL_N_ESTIMATORS", n_estimators)
     dataset = load_training_dataset()
     frame = dataset.frame
     features = list(dataset.feature_columns)
