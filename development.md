@@ -15,6 +15,7 @@
 - 2025-10-05 21:58: Rebased qualification thresholds to align with λ=0.6, added env-configurable defaults in `agents/collect/predictions.py`, synced UI constants, and refreshed `qualified_edge_flag` values in the SQLite artifacts.
 - 2025-10-05 22:05: Validated dataset after refresh — 181 rows satisfy Bets tab filters (|edge| ≥ 1.5, |value| ≥ 0.6) and 79 rows carry `qualified_edge_flag=1` with the new 0.8 point threshold.
 - 2025-10-05 21:54: Predictions tab layout regressed (team names overlap kickoff info, positional grade pills collide). Need to restore structured team header and adjust grade grid spacing.
+- 2025-10-05 22:08: Backtest tab empty post-SQLite migration; need one-off builder + manual workflow to hydrate 2024 datasets into `upa_data.sqlite` and deploy.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -168,6 +169,7 @@ The downstream collector (`collect_cfbd_all`) and model builders now read exclus
 
 - **Week 5 market coverage**: FanDuel returns limited spreads early in the week. We now merge new pulls with existing `market_debug`; monitor `market_predictions_backfill.json` to ensure previously played games retain bookmaker lines and synthetic rate stays ≤ 5%.
 - **Manual workflow toggles**: Caching and backtest are disabled by default. When re-enabled for investigations, confirm toggle values in the workflow run summary and reset them to `false` afterwards.
+- **Backtest builder workflow**: Use `build-backtest` (workflow_dispatch) when you need to refresh historical seasons. It runs `python -m tools.build_backtest_data --year <season>`, copies the updated SQLite into `dist/data/`, commits with `[skip ci]`, and redeploys Pages. Provide `CFBD_BEARER_TOKEN` before triggering; this job only runs on demand.
 - **Schedule freshness**: Early-week runs can lag if CFBD throttles. Keep an eye on the validation check (`schedule stale`) and bump `FORCE_REFRESH_*` envs for a one-off retry if needed.
 
 ---
@@ -534,7 +536,9 @@ YEAR=${YEAR:-2025}
 | `market_debug` (JSON summary)             | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
 | `market_unmatched`                        | During market normalization             | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
 | `upa_predictions`                         | Collector + ALL step                    | `build_predictions_for_year` → `write_dataset` + backfill  | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
+| `upa_predictions_2024_backtest`           | Backtest workflow                        | `build_backtest_dataset` → `write_dataset`                 | **Backtest tab** historical rows                                     | ✅ non-empty |
 | `live_edge_report`                        | ALL step                                | `build_live_edge_report` → `write_dataset`                  | Optional live edge table                                             | — (placeholder ok) |
+| `backtest_summary_2024`                   | Backtest workflow                        | `build_backtest_dataset` → `_compute_backtest_summary`     | **Backtest tab** weekly hit-rate summary                             | ✅ non-empty |
 | `live_scores`                              | ALL step                                | `fetch_scoreboard(None)` → `write_dataset`                 | Status checks; optional live indicators                              | ✅ readable  |
 | `status` (JSON)                            | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
 | `market_predictions_backfill` (JSON)      | ALL step / diagnostics                  | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
@@ -966,6 +970,12 @@ graph TD
 ```bash
 python -m src.run_pipeline --config configs/default.yaml
 ```
+
+### How to Refresh Backtest Data
+```bash
+python -m tools.build_backtest_data --year 2024
+```
+> Uses the CFBD token + cache for the requested season. Run sparingly (data is static) and always commit the updated `upa_data.sqlite` + `dist/data/upa_data.sqlite` afterwards.
 
 ### How to Run All Tests
 ```bash

@@ -1,0 +1,101 @@
+name: build-backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to backtest'
+        required: false
+        default: '2024'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  MARKET_SOURCE: fanduel
+  DATA_DB_PATH: data/upa_data.sqlite
+  CACHE_VERSION: v1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BACKTEST_YEAR: ${{ github.event.inputs.year || '2024' }}
+      CACHE_DIR: .cache_cfbd/${{ github.event.inputs.year || '2024' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agents/requirements.txt
+
+      - name: Build backtest dataset
+        env:
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          CACHE_DIR: ${{ env.CACHE_DIR }}
+        run: |
+          set -euo pipefail
+          python -m tools.build_backtest_data --year "${BACKTEST_YEAR}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install UI deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+
+      - name: Build UI bundle
+        run: npm run build
+
+      - name: Copy data into dist
+        run: |
+          mkdir -p dist/data
+          if [ -d data ]; then
+            cp -R data/* dist/data/ || true
+          fi
+
+      - name: Stage generated artifacts
+        run: |
+          git add data/ dist/
+          git status --short
+
+      - name: Commit and push
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git commit -m "chore: refresh backtest data ${BACKTEST_YEAR} [skip ci]"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

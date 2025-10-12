@@ -39,6 +39,7 @@ from .team_inputs import build_team_inputs_datadriven
 from .stats_cfbd import build_team_stat_features
 from .predictions import build_predictions_for_year
 from .live_edge import build_live_edge_report
+from .backtest import build_backtest_dataset
 from .odds_fanduel import (
     _odds_api_fetch_fanduel,
     _date_from_iso,
@@ -68,6 +69,7 @@ __all__ = [
     "build_team_stat_features",
     "build_predictions_for_year",
     "build_live_edge_report",
+    "build_backtest_dataset",
     # odds/fanduel + name resolution
     "_odds_api_fetch_fanduel","_date_from_iso","_best_fuzzy_match","_resolve_names_to_schedule",
     "_resolve_names_to_schedule_with_details","_autofix_aliases_from_unmatched","get_market_lines_fanduel_for_weeks",

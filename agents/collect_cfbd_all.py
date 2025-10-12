@@ -92,6 +92,7 @@ from agents.collect import (
     build_team_inputs_datadriven,
     build_predictions_for_year,
     build_live_edge_report,
+    build_backtest_dataset,
     # odds + name resolution
     _odds_api_fetch_fanduel,
     _date_from_iso,
@@ -125,6 +126,7 @@ __all__ = [
     "build_team_inputs_datadriven",
     "build_predictions_for_year",
     "build_live_edge_report",
+    "build_backtest_dataset",
     # odds + name resolution
     "_odds_api_fetch_fanduel","_date_from_iso","_best_fuzzy_match","_resolve_names_to_schedule",
     "_resolve_names_to_schedule_with_details","_autofix_aliases_from_unmatched","get_market_lines_fanduel_for_weeks",
@@ -144,7 +146,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--market-source", dest="market_source", type=str, default=os.environ.get("MARKET_SOURCE", "fanduel"))
     p.add_argument("--year", type=int, default=None)
-    p.add_argument("--backtest", type=int, default=None)  # accepted but unused here
+    p.add_argument("--backtest", type=int, default=None)
     args = p.parse_args()
 
     if args.market_source:
@@ -167,6 +169,7 @@ if __name__ == "__main__":
             build_team_inputs_datadriven,
             build_predictions_for_year,
             build_live_edge_report,
+            build_backtest_dataset,
             DATA_DIR,
             write_dataset,
         )
@@ -242,6 +245,14 @@ if __name__ == "__main__":
             "collect_cfbd_all: wrote predictions rows=%s synthetic=%s market_non_null=%s",
             len(preds), synthetic_count, non_null_predictions
         )
+        if args.backtest:
+            try:
+                backtest_year = int(args.backtest)
+                logger.debug("collect_cfbd_all: running backtest capture for %s", backtest_year)
+                build_backtest_dataset(backtest_year, apis=apis, cache=cache)
+            except Exception:
+                logger.exception("collect_cfbd_all: backtest capture failed")
+
         logger.debug("collect_cfbd_all: building live edge report")
         edge = build_live_edge_report(year, preds_df=preds)
         write_dataset(edge, "live_edge_report")
