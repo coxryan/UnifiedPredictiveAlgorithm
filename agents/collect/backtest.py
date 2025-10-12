@@ -12,7 +12,7 @@ from .schedule import load_schedule_for_year
 from .team_inputs import build_team_inputs_datadriven
 from .markets import get_market_lines_for_current_week
 from .predictions import build_predictions_for_year
-from agents.storage import write_dataset
+from .helpers import write_dataset, _apply_book_grades, _mirror_book_to_legacy_columns
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +152,9 @@ def build_backtest_dataset(
         markets_df=markets_df,
         team_inputs_df=teams_df,
     )
+
+    preds_df = _mirror_book_to_legacy_columns(preds_df.copy())
+    preds_df = _apply_book_grades(preds_df)
 
     preds_df["season"] = int(year)
     preds_df["backtest_generated_at"] = pd.Timestamp.utcnow().isoformat()
