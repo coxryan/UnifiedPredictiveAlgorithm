@@ -208,15 +208,16 @@ select{
 .pred-card__week{font-weight:600;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.7);}
 .pred-card__date{margin-top:2px;color:var(--muted);font-size:13px;}
 .pred-card__header-meta{display:flex;gap:8px;align-items:center;}
-.pred-card__teams{display:flex;align-items:center;gap:14px;justify-content:space-between;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 16px;min-height:96px;}
-.pred-card__team{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;}
-.pred-card__team--home{align-items:flex-end;text-align:right;}
+.pred-card__teams{display:grid;grid-template-columns:1fr minmax(120px,auto) 1fr;align-items:center;gap:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 16px;min-height:96px;}
+.pred-card__team{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.pred-card__team--away{justify-self:flex-start;align-items:flex-start;text-align:left;}
+.pred-card__team--home{justify-self:flex-end;align-items:flex-end;text-align:right;}
 .pred-card__team-role{text-transform:uppercase;font-size:10px;letter-spacing:.16em;color:rgba(255,255,255,.55);}
 .pred-card__team .team-label{align-items:flex-start;}
 .pred-card__team--home .team-label{align-items:flex-end;text-align:right;}
 .pred-card__team-tags{display:flex;gap:6px;align-items:center;}
 .pred-card__score{font-size:26px;font-weight:700;min-width:38px;text-align:center;}
-.pred-card__match-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:12px;text-align:center;min-width:100px;}
+.pred-card__match-info{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:12px;text-align:center;min-width:120px;justify-self:center;}
 .pred-card__kick{font-weight:600;color:rgba(255,255,255,.82);white-space:nowrap;}
 .pred-card__scoreline{font-size:12.5px;white-space:nowrap;}
 .pred-card__live-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b94a7;white-space:nowrap;}
