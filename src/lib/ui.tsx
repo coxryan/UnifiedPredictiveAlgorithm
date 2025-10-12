@@ -9,9 +9,15 @@ export function Badge({ children, tone = "default" }: { children: React.ReactNod
 }
 
 export function TeamLabel({ home, team, neutral, showTags = true }: { home: boolean; team: string; neutral: boolean; showTags?: boolean }) {
+  const words = (team || "—").toString().trim().split(/\s+/).filter(Boolean);
+  const displayWords = words.length ? words : ["—"];
   return (
     <div className="team-label">
-      <span className="team-label__name">{team || "—"}</span>
+      <span className={`team-label__name${home ? " team-label__name--home" : ""}`}>
+        {displayWords.map((word, idx) => (
+          <span key={`${word}-${idx}`}>{word}</span>
+        ))}
+      </span>
       {showTags && (
         <span className="team-label__tags">
           <Badge tone="muted">{home ? "HOME" : "AWAY"}</Badge>

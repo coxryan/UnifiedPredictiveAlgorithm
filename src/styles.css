@@ -275,5 +275,7 @@ select{
 .pred-card__notes-row{display:flex;justify-content:space-between;gap:12px;color:rgba(255,255,255,.82);}
 .pred-card__notes-row span:first-child{color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.12em;}
 .team-label{display:flex;flex-direction:column;gap:4px;min-width:0;text-align:left;}
-.team-label__name{font-weight:600;font-size:14px;color:rgba(255,255,255,.92);white-space:nowrap;text-overflow:ellipsis;overflow:hidden;}
+.team-label__name{display:flex;flex-direction:column;gap:2px;font-weight:600;font-size:14px;color:rgba(255,255,255,.92);text-overflow:ellipsis;overflow:hidden;white-space:normal;line-height:1.1;align-items:flex-start;}
+.team-label__name span{display:block;}
+.team-label__name.team-label__name--home{align-items:flex-end;text-align:right;}
 .team-label__tags{display:flex;gap:6px;align-items:center;}
