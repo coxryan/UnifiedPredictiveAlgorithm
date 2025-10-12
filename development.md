@@ -18,6 +18,7 @@
 - 2025-10-05 22:08: Backtest tab empty post-SQLite migration; need one-off builder + manual workflow to hydrate 2024 datasets into `upa_data.sqlite` and deploy.
 - 2025-10-12 12:24: Added scripted backtest builder + workflow; latest run populated 2024 tables but missing graded results. Wiring helper grades now and rehydrating to restore W/L counts.
 - 2025-10-12 12:30: Cached schedule/markets/team inputs persisted for offline reuse; deploy workflow now runs `tools.build_backtest_data --offline` so model changes automatically refresh backtest results without refetching CFBD.
+- 2025-10-12 12:36: Patched live scoreboard ingestion to merge the last ~3 days and retain previous rows when ESPN responds empty, preventing the UI from wiping results on off days.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -133,7 +134,7 @@
 To decouple raw data ingestion from model generation, GitHub Actions now refresh the SQLite datastore independently:
 - `refresh-cfbd-weekly` (`.github/workflows/fetch_cfbd_weekly.yml`): runs every Monday 10:00 UTC (and on demand). Calls `python -m agents.jobs.refresh_cfbd_weekly` to update team metadata (FBS teams, returning production, talent, SRS, SOS) and commits `data/upa_data.sqlite` back to `main`.
 - `refresh-cfbd-daily` (`.github/workflows/fetch_cfbd_daily.yml`): runs daily at 09:00 UTC. Executes `python -m agents.jobs.refresh_cfbd_daily`, pulling the latest CFBD schedule and CFBD lines fallback into the relational tables.
-- `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes on Fridays and Saturdays (manual dispatch available otherwise). Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard, storing results in `raw_fanduel_lines`, `raw_cfbd_lines`, and `raw_espn_scoreboard`. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
+- `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes on Fridays and Saturdays (manual dispatch available otherwise). Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard via `update_live_scores`, merging the past ~3 days so finals persist. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
 - `refresh-cfbd-stats-weekly` (`.github/workflows/fetch_cfbd_stats_weekly.yml`): runs every Tuesday at 12:00 UTC (and on demand). Executes `python -m agents.jobs.refresh_cfbd_stats_weekly` to refresh `raw_cfbd_team_stats` and the normalized feature table used by team inputs, committing the SQLite database when those metrics change.
 - `train-spread-model` (`.github/workflows/train_spread_model.yml`): runs every Tuesday at 11:00 UTC (and on demand). Executes `python -m agents.jobs.train_spread_model` to fit the residual ensemble (ridge + boosted stumps), calibrate it, and persist the artifact to `models/residual_model.json`.
 
@@ -544,7 +545,7 @@ YEAR=${YEAR:-2025}
 | `backtest_team_inputs_2024`               | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (team features cache)                         | ✅ non-empty |
 | `live_edge_report`                        | ALL step                                | `build_live_edge_report` → `write_dataset`                  | Optional live edge table                                             | — (placeholder ok) |
 | `backtest_summary_2024`                   | Backtest workflow                        | `build_backtest_dataset` → `_compute_backtest_summary`     | **Backtest tab** weekly hit-rate summary                             | ✅ non-empty |
-| `live_scores`                              | ALL step                                | `fetch_scoreboard(None)` → `write_dataset`                 | Status checks; optional live indicators                              | ✅ readable  |
+| `live_scores`                              | ALL step / live refresh                  | `update_live_scores` (merges ~3 days of ESPN scoreboard)   | Status checks; Live Results tab, populates home/away finals          | ✅ readable  |
 | `status` (JSON)                            | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
 | `market_predictions_backfill` (JSON)      | ALL step / diagnostics                  | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
 | `upa_data.sqlite` (copied to `dist/data/`) | After ALL step + copy to `dist/data/`   | Shell `cp data/upa_data.sqlite dist/data/`                  | **All UI SQL queries (via sql.js)**                                  | —            |
@@ -1042,6 +1043,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Every artifact must be regenerated on CI run; never rely on committed data files.
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
 - Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
+- When CFBD schedule endpoints lag final scores, `update_live_scores` hydrates `home_points`/`away_points` in `upa_predictions` using the merged ESPN scoreboard snapshots so the Status, Predictions, and Backtest tabs reflect completed games promptly.
 - Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
 
 ### Modeling Rules

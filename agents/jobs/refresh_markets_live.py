@@ -11,10 +11,8 @@ from agents.collect import (
     load_schedule_for_year,
     discover_current_week,
     get_market_lines_for_current_week,
+    update_live_scores,
 )
-from agents.collect.helpers import write_dataset
-from agents.storage import write_dataset as storage_write_dataset, delete_rows
-from agents.fetch_live_scores import fetch_scoreboard
 
 
 def main() -> None:
@@ -36,19 +34,7 @@ def main() -> None:
     get_market_lines_for_current_week(year, int(wk), sched, apis, cache)
 
     # Refresh live scoreboard snapshot.
-    rows = fetch_scoreboard(None)
-    live_scores_columns = [
-        "event_id","date","state","detail","clock","period","venue",
-        "home_team","away_team","home_school","away_school","home_points","away_points"
-    ]
-    ls_df = pd.DataFrame(rows, columns=live_scores_columns)
-    write_dataset(ls_df, "live_scores")
-    if not ls_df.empty:
-        store_ls = ls_df.copy()
-        store_ls["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
-        store_ls["season"] = year
-        delete_rows("raw_espn_scoreboard", "season", year)
-        storage_write_dataset(store_ls, "raw_espn_scoreboard", if_exists="append")
+    update_live_scores(year, days=3)
 
 
 if __name__ == "__main__":

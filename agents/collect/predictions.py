@@ -205,6 +205,7 @@ def build_predictions_for_year(
     cache: Optional[ApiCache] = None,
     markets_df: Optional[pd.DataFrame] = None,
     team_inputs_df: Optional[pd.DataFrame] = None,
+    scoreboard_df: Optional[pd.DataFrame] = None,
 ) -> pd.DataFrame:
     """Return per-game prediction rows with basic edges/value signals.
 
@@ -279,6 +280,91 @@ def build_predictions_for_year(
 
     # Merge markets by game_id when available, else week + teams fallback
     preds = sched.copy()
+
+    if scoreboard_df is not None and not scoreboard_df.empty:
+        sb = scoreboard_df.copy()
+        for col in ("home_school", "away_school", "home_team", "away_team"):
+            if col in sb.columns:
+                sb[col] = sb[col].astype(str).str.strip()
+        home_series = sb.get("home_school")
+        home_team_series = sb.get("home_team")
+        if home_series is None:
+            home_series = home_team_series
+        elif home_team_series is not None:
+            home_series = home_series.combine_first(home_team_series)
+
+        away_series = sb.get("away_school")
+        away_team_series = sb.get("away_team")
+        if away_series is None:
+            away_series = away_team_series
+        elif away_team_series is not None:
+            away_series = away_series.combine_first(away_team_series)
+
+        sb["home_norm"] = (
+            home_series.astype(str).str.strip().str.casefold()
+            if home_series is not None
+            else pd.Series("", index=sb.index)
+        )
+        sb["away_norm"] = (
+            away_series.astype(str).str.strip().str.casefold()
+            if away_series is not None
+            else pd.Series("", index=sb.index)
+        )
+        sb["date_key"] = sb.get("date").astype(str).str.slice(0, 10)
+        sb["home_points"] = pd.to_numeric(sb.get("home_points"), errors="coerce")
+        sb["away_points"] = pd.to_numeric(sb.get("away_points"), errors="coerce")
+        sb = sb.dropna(subset=["home_norm", "away_norm"])
+
+        preds["home_norm"] = preds["home_team"].astype(str).str.strip().str.casefold()
+        preds["away_norm"] = preds["away_team"].astype(str).str.strip().str.casefold()
+        preds["date_key"] = preds.get("kickoff_utc", preds.get("date", "")).astype(str).str.slice(0, 10)
+        preds.loc[
+            preds["date_key"].isna() | (preds["date_key"] == ""), "date_key"
+        ] = preds.get("date").astype(str).str.slice(0, 10)
+
+        sb_latest = (
+            sb.sort_values("date_key")
+            [["date_key", "home_norm", "away_norm", "home_points", "away_points"]]
+            .drop_duplicates(subset=["date_key", "home_norm", "away_norm"], keep="last")
+        )
+        preds = preds.merge(
+            sb_latest,
+            on=["date_key", "home_norm", "away_norm"],
+            how="left",
+            suffixes=("", "_sb"),
+        )
+        if "home_points_sb" in preds.columns:
+            preds["home_points"] = preds.get("home_points").where(
+                preds.get("home_points").notna(), preds.get("home_points_sb")
+            )
+            preds["away_points"] = preds.get("away_points").where(
+                preds.get("away_points").notna(), preds.get("away_points_sb")
+            )
+            preds = preds.drop(columns=["home_points_sb", "away_points_sb"], errors="ignore")
+
+        missing_mask = preds["home_points"].isna() | preds["away_points"].isna()
+        if missing_mask.any():
+            sb_teams = (
+                sb.sort_values("date_key")
+                [["home_norm", "away_norm", "home_points", "away_points"]]
+                .drop_duplicates(subset=["home_norm", "away_norm"], keep="last")
+            )
+            preds = preds.merge(
+                sb_teams,
+                on=["home_norm", "away_norm"],
+                how="left",
+                suffixes=("", "_sb2"),
+            )
+            preds.loc[preds["home_points"].isna(), "home_points"] = preds.loc[
+                preds["home_points"].isna(), "home_points_sb2"
+            ]
+            preds.loc[preds["away_points"].isna(), "away_points"] = preds.loc[
+                preds["away_points"].isna(), "away_points_sb2"
+            ]
+            preds = preds.drop(columns=["home_points_sb2", "away_points_sb2"], errors="ignore")
+
+        preds = preds.drop(columns=["home_norm", "away_norm", "date_key"], errors="ignore")
+
     preds["game_id"] = _sanitize_numeric(preds.get("game_id"))
     if not markets.empty:
         join_cols_game = [c for c in ["game_id"] if c in preds.columns and c in markets.columns]

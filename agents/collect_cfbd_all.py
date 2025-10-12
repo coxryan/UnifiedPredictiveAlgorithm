@@ -92,6 +92,7 @@ from agents.collect import (
     build_team_inputs_datadriven,
     build_predictions_for_year,
     build_live_edge_report,
+    update_live_scores,
     build_backtest_dataset,
     # odds + name resolution
     _odds_api_fetch_fanduel,
@@ -107,7 +108,7 @@ from agents.collect import (
     # debug entry
     market_debug_entry,
 )
-from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
+from agents.storage import read_dataset
 
 __all__ = [
     # config/env
@@ -173,7 +174,6 @@ if __name__ == "__main__":
             DATA_DIR,
             write_dataset,
         )
-        from agents.fetch_live_scores import fetch_scoreboard
         year = int(os.environ.get("YEAR", "2025"))
         raw_token = os.environ.get("CFBD_BEARER_TOKEN", "")
         masked = f"len={len(raw_token)}" if raw_token else "len=0"
@@ -229,6 +229,9 @@ if __name__ == "__main__":
             len(combined_lines), combined_non_null, len(lines)
         )
         # predictions + live edge
+        logger.debug("collect_cfbd_all: refreshing live scores snapshot")
+        live_scores_df = update_live_scores(year, days=3)
+
         logger.debug("collect_cfbd_all: building predictions")
         preds = build_predictions_for_year(
             year,
@@ -237,6 +240,7 @@ if __name__ == "__main__":
             cache=cache,
             markets_df=combined_lines,
             team_inputs_df=teams_df,
+            scoreboard_df=live_scores_df,
         )
         write_dataset(preds, "upa_predictions")
         synthetic_count = int(preds.get("market_is_synthetic", pd.Series(dtype=int)).sum()) if "market_is_synthetic" in preds.columns else 0
@@ -257,24 +261,6 @@ if __name__ == "__main__":
         edge = build_live_edge_report(year, preds_df=preds)
         write_dataset(edge, "live_edge_report")
         logger.debug("collect_cfbd_all: wrote live_edge rows=%s", len(edge))
-        # live scores
-        logger.debug("collect_cfbd_all: fetching live scores")
-        live_scores_columns = [
-            "event_id","date","state","detail","clock","period","venue",
-            "home_team","away_team","home_school","away_school","home_points","away_points"
-        ]
-        try:
-            rows = fetch_scoreboard(None)
-            ls_df = pd.DataFrame(rows, columns=live_scores_columns)
-            write_dataset(ls_df, "live_scores")
-            if not ls_df.empty:
-                store_ls = ls_df.copy()
-                store_ls["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
-                store_ls["season"] = year
-                delete_rows("raw_espn_scoreboard", "season", year)
-                storage_write_dataset(store_ls, "raw_espn_scoreboard", if_exists="append")
-        except Exception:
-            write_dataset(pd.DataFrame(columns=live_scores_columns), "live_scores")
 
         generated_paths = [
             DATA_DB_PATH,

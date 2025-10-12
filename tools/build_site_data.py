@@ -25,6 +25,7 @@ from agents.collect import (
     build_team_inputs_datadriven,
     build_predictions_for_year,
     build_live_edge_report,
+    update_live_scores,
 )
 from agents.storage import read_dataset, write_json_blob, read_json_blob
 
@@ -114,6 +115,8 @@ def build_site_data(*, year: int, bearer_token: str | None = None) -> None:
             )
 
     # 5. Predictions
+    live_scores = update_live_scores(year, days=3)
+
     preds = build_predictions_for_year(
         year,
         schedule,
@@ -121,6 +124,7 @@ def build_site_data(*, year: int, bearer_token: str | None = None) -> None:
         cache=cache,
         markets_df=markets,
         team_inputs_df=team_inputs,
+        scoreboard_df=live_scores,
     )
     write_dataset(preds, "upa_predictions")
     print(f"[OK] wrote predictions rows={len(preds)}")
