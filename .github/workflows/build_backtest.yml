@@ -28,6 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Sync with origin/main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -68,11 +73,6 @@ jobs:
           if [ -d data ]; then
             cp -R data/* dist/data/ || true
           fi
-
-      - name: Sync with origin/main
-        run: |
-          git fetch origin main
-          git rebase origin/main
 
       - name: Stage generated artifacts
         run: |
