@@ -83,38 +83,7 @@ def build_site_data(*, year: int, bearer_token: str | None = None) -> None:
             "market_unmatched",
         )
 
-    # 4. Live scores snapshot
-    try:
-        from agents.fetch_live_scores import fetch_scoreboard
-
-        rows = fetch_scoreboard(None)
-        write_dataset(pd.DataFrame(rows), "live_scores")
-        print(f"[OK] wrote live_scores rows={len(rows)}")
-    except Exception as exc:
-        print(f"[warn] live scores fetch failed: {exc}")
-        if read_dataset("live_scores").empty:
-            write_dataset(
-                pd.DataFrame(
-                    columns=[
-                        "event_id",
-                        "date",
-                        "state",
-                        "detail",
-                        "clock",
-                        "period",
-                        "venue",
-                        "home_team",
-                        "away_team",
-                        "home_school",
-                        "away_school",
-                        "home_points",
-                        "away_points",
-                    ]
-                ),
-                "live_scores",
-            )
-
-    # 5. Predictions
+    # 4. Live scores snapshot + Predictions
     live_scores = update_live_scores(year, days=3)
 
     preds = build_predictions_for_year(

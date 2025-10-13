@@ -782,7 +782,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
 | `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
 | `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
-| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 2.5`, `|Value| ≥ 1.0` (derived as `(1-λ)*EDGE_MIN`, override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), `model_confidence ≥ 0.65`, and the model/expected sides align in direction. | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
+| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 1.8`, `|Value| ≥ 0.8` (override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), `model_confidence ≥ 0.55`, and the model/expected sides align in direction. | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
 
 **Interpretation of `edge_points_book`:**
 - `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).
@@ -1046,7 +1046,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
 - Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
 - When CFBD schedule endpoints lag final scores, `update_live_scores` hydrates `home_points`/`away_points` in `upa_predictions` using the merged ESPN scoreboard snapshots so the Status, Predictions, and Backtest tabs reflect completed games promptly.
-- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, and `CONFIDENCE_QUALIFY_MIN` (defaults: 2.5, 1.0, 0.65). Matching UI constants live in `src/tabs/constants.tsx`.
+- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, and `CONFIDENCE_QUALIFY_MIN` (defaults: 1.8, 0.8, 0.55). Matching UI constants live in `src/tabs/constants.tsx`.
 - Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
 
 ### Modeling Rules

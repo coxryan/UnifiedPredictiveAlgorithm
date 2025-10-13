@@ -6,19 +6,19 @@ const parseEnvFloat = (value: string | undefined, fallback: number): number => {
   return Number.isFinite(num) ? num : fallback;
 };
 
-export const EDGE_MIN = parseEnvFloat(import.meta.env.VITE_EDGE_MIN as string | undefined, 2.5);
+export const EDGE_MIN = parseEnvFloat(import.meta.env.VITE_EDGE_MIN as string | undefined, 1.8);
 export const VALUE_MIN = parseEnvFloat(
   import.meta.env.VITE_VALUE_MIN as string | undefined,
-  Number((EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
+  Number(Math.max(0.8, EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
 );
 
 export const BETS_EDGE_MIN = parseEnvFloat(
   import.meta.env.VITE_BETS_EDGE_MIN as string | undefined,
-  2.5
+  1.8
 );
 export const BETS_VALUE_MIN = parseEnvFloat(
   import.meta.env.VITE_BETS_VALUE_MIN as string | undefined,
-  Number((BETS_EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
+  Number(Math.max(0.8, BETS_EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
 );
 
 export const MODEL_EXPECTED_LAMBDA = EXPECTED_MARKET_LAMBDA;
