@@ -51,6 +51,14 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
         url = base.format(sport=sport)
         agg: List[Dict[str, Any]] = []
         for page in range(1, 6):
+            page_params = {
+                "regions": "us",
+                "markets": "spreads",
+                "bookmakers": "fanduel",
+                "oddsFormat": "american",
+                "dateFormat": "iso",
+                "page": page,
+            }
             params = {
                 "apiKey": ODDS_API_KEY,
                 "regions": "us",
@@ -60,7 +68,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                 "dateFormat": "iso",
                 "page": page,
             }
+            _dbg(f"odds_api_fetch_fanduel: requesting page={page} params={page_params}")
             r = requests.get(url, params=params, timeout=25)
+            _dbg(f"odds_api_fetch_fanduel: page={page} status={r.status_code}")
             if r.status_code == 404:
                 _dbg(f"odds_api_fetch_fanduel: page {page} -> 404 (stop)")
                 break
@@ -105,6 +115,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                     "point_home_book": point_home_book,
                     "commence_time": game.get("commence_time"),
                 }
+            )
+            _dbg(
+                f"odds_api_fetch_fanduel: game={g_away} @ {g_home} line={point_home_book} commence={game.get('commence_time')}"
             )
 
         _dbg(f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} (saving to cache key={key})")

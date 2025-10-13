@@ -21,6 +21,7 @@
 - 2025-10-12 12:36: Patched live scoreboard ingestion to merge the last ~3 days and retain previous rows when ESPN responds empty, preventing the UI from wiping results on off days.
 - 2025-10-12 13:17: Updated deploy workflow to `git pull --rebase --autostash origin main` before committing artifacts, preventing push failures when remote advances mid-run.
 - 2025-10-12 13:27: Reduced stat/grade weights, made position grades opt-in (`INCLUDE_GRADE_FEATURES`), tightened qualification thresholds, and added a confidence floor so backtest accuracy targets 70%.
+- 2025-10-12 21:45: Added `fetch-fanduel-odds` workflow + `tools.fetch_fanduel_odds` helper to snapshot FanDuel spreads with verbose logging (`DEBUG_MARKET=1`) and persist results to `data/debug/fanduel_odds_snapshot.json` / `fanduel_odds_snapshot`.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -539,6 +540,7 @@ YEAR=${YEAR:-2025}
 | `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_dataset`           | Status counts (optional)                                            | —            |
 | `market_debug`                             | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_dataset`      | Status (Market Debug), backfill source                              | ✅ non-empty |
 | `market_debug` (JSON summary)             | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
+| `fanduel_odds_snapshot`                  | `fetch-fanduel-odds` workflow           | `tools.fetch_fanduel_odds`                                 | Debug odds snapshot (`data/debug/fanduel_odds_snapshot.json`)        | —            |
 | `market_unmatched`                        | During market normalization             | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
 | `upa_predictions`                         | Collector + ALL step                    | `build_predictions_for_year` → `write_dataset` + backfill  | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
 | `upa_predictions_2024_backtest`           | Backtest workflow                        | `build_backtest_dataset` → `write_dataset`                 | **Backtest tab** historical rows                                     | ✅ non-empty |

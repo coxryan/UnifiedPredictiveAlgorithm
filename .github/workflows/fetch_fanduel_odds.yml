@@ -1,0 +1,57 @@
+name: fetch-fanduel-odds
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season year (default current)'
+        required: false
+        default: ''
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agents/requirements.txt
+
+      - name: Fetch FanDuel odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
+          DEBUG_MARKET: "1"
+        run: |
+          YEAR_INPUT="${{ github.event.inputs.year }}"
+          if [ -z "$YEAR_INPUT" ]; then
+            YEAR=$(date +%Y)
+          else
+            YEAR=$YEAR_INPUT
+          fi
+          python -m tools.fetch_fanduel_odds --year "$YEAR"
+
+      - name: Commit odds snapshot
+        run: |
+          set -euo pipefail
+          if [ ! -f data/debug/fanduel_odds_snapshot.json ]; then
+            echo "Snapshot file not created; nothing to commit."
+            exit 0
+          fi
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/debug/fanduel_odds_snapshot.json data/upa_data.sqlite
+          if git diff --cached --quiet; then
+            echo "No odds snapshot changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: refresh FanDuel odds snapshot [skip ci]"
+          git push
