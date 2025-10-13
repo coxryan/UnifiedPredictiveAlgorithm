@@ -47,6 +47,8 @@ type PredRow = {
   qualified_edge_flag?: string;
   kickoff_utc?: string;
   start_date?: string;
+  played?: string | number;
+  model_result?: string;
 };
 
 type ViewMode = "cards" | "list";
@@ -68,6 +70,8 @@ type BetRow = PredRow & {
   _sourceKey: string;
   _pick: string;
   _dateIso: string;
+  _spreadBucket: string | null;
+  _result: string | null;
 };
 
 const confidenceBucket = (conf: number | null) => {
@@ -84,6 +88,17 @@ const SOURCE_OPTIONS = [
   { key: "unknown", label: "Unknown" },
 ];
 
+const spreadBucketFor = (spreadAbs: number | null): string | null => {
+  if (!Number.isFinite(spreadAbs)) return null;
+  const val = spreadAbs as number;
+  if (val < 3) return "<3";
+  if (val < 5) return "3-5";
+  if (val < 10) return "5-10";
+  if (val < 15) return "10-15";
+  if (val < 20) return "15-20";
+  return "20+";
+};
+
 export default function BetsTab() {
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [rows, setRows] = useState<PredRow[]>([]);
@@ -91,10 +106,10 @@ export default function BetsTab() {
   const [onlyQualified, setOnlyQualified] = useState<boolean>(false);
   const [highConfidenceOnly, setHighConfidenceOnly] = useState<boolean>(false);
   const [largeSpreadOnly, setLargeSpreadOnly] = useState<boolean>(false);
+  const [mostLikelyOnly, setMostLikelyOnly] = useState<boolean>(false);
   const [edgeMin, setEdgeMin] = useState<number>(BETS_EDGE_MIN);
   const [valueMin, setValueMin] = useState<number>(BETS_VALUE_MIN);
   const [confidenceMin, setConfidenceMin] = useState<number>(CONFIDENCE_MIN);
-  const [teamQuery, setTeamQuery] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [spreadBand, setSpreadBand] = useState<"any" | "close" | "td" | "double">("any");
@@ -168,6 +183,9 @@ export default function BetsTab() {
         if (raw.length >= 10) return raw.slice(0, 10);
         return raw;
       })();
+      const modelResult = (r.model_result || "").toString().trim().toUpperCase();
+      const playedFlag = Number(r.played);
+      const spreadBucket = spreadBucketFor(spreadAbs);
       return {
         ...r,
         _model: Number.isFinite(model) ? model : null,
@@ -186,15 +204,52 @@ export default function BetsTab() {
         _sourceKey: sourceKey,
         _pick: pick,
         _dateIso: dateIso,
+        _spreadBucket: spreadBucket,
+        _result: playedFlag === 1 ? modelResult : null,
       };
     });
   }, [rows]);
+
+  const bucketInsights = useMemo(() => {
+    const counts = new Map<
+      string,
+      {
+        wins: number;
+        total: number;
+      }
+    >();
+    shapedRows.forEach((row) => {
+      if (!row._spreadBucket || !row._result) return;
+      if (!["CORRECT", "INCORRECT"].includes(row._result)) return;
+      const entry = counts.get(row._spreadBucket) ?? { wins: 0, total: 0 };
+      entry.total += 1;
+      if (row._result === "CORRECT") entry.wins += 1;
+      counts.set(row._spreadBucket, entry);
+    });
+    let bestRate = 0;
+    let bestBuckets: string[] = [];
+    counts.forEach((entry, bucket) => {
+      if (!entry.total) return;
+      const rate = entry.wins / entry.total;
+      if (rate > bestRate + 1e-6) {
+        bestRate = rate;
+        bestBuckets = [bucket];
+      } else if (Math.abs(rate - bestRate) <= 1e-6) {
+        bestBuckets = [...bestBuckets, bucket];
+      }
+    });
+    return {
+      counts,
+      bestBuckets,
+      bestRate,
+    };
+  }, [shapedRows]);
 
   const filteredRows = useMemo(() => {
     if (!shapedRows.length) return [];
     const weekSet = new Set(selectedWeeks);
     const activeSources = SOURCE_OPTIONS.filter((opt) => sourceFilters[opt.key]).map((opt) => opt.key);
-    const teamSearch = teamQuery.trim().toLowerCase();
+    const bestBuckets = bucketInsights.bestBuckets;
 
     return shapedRows
       .filter((row) => {
@@ -221,13 +276,6 @@ export default function BetsTab() {
         if (confidenceMin > 0 && !(Number.isFinite(row._confidence) && (row._confidence as number) >= confidenceMin)) {
           return false;
         }
-        if (teamSearch) {
-          const home = (row.home_team ?? "").toString().toLowerCase();
-          const away = (row.away_team ?? "").toString().toLowerCase();
-          if (!home.includes(teamSearch) && !away.includes(teamSearch)) {
-            return false;
-          }
-        }
         if (startDate && (!row._dateIso || row._dateIso < startDate)) return false;
         if (endDate && (!row._dateIso || row._dateIso > endDate)) return false;
         if (activeSources.length && !activeSources.includes(row._sourceKey || "unknown")) return false;
@@ -237,6 +285,9 @@ export default function BetsTab() {
           if (spreadBand === "close" && absSpread > 3.5) return false;
           if (spreadBand === "td" && absSpread > 7.5) return false;
           if (spreadBand === "double" && absSpread < 10) return false;
+        }
+        if (mostLikelyOnly) {
+          if (!row._spreadBucket || !bestBuckets.includes(row._spreadBucket)) return false;
         }
         return true;
       })
@@ -256,11 +307,12 @@ export default function BetsTab() {
     edgeMin,
     valueMin,
     confidenceMin,
-    teamQuery,
     startDate,
     endDate,
     sourceFilters,
     spreadBand,
+    mostLikelyOnly,
+    bucketInsights.bestBuckets,
   ]);
 
   const handleWeekToggle = (week: number) => {
@@ -369,6 +421,14 @@ export default function BetsTab() {
               />
               <span>Large spread</span>
             </label>
+            <label className="control-chip">
+              <input
+                type="checkbox"
+                checked={mostLikelyOnly}
+                onChange={(e) => setMostLikelyOnly(e.target.checked)}
+              />
+              <span>Most likely to hit</span>
+            </label>
           </div>
         </div>
 
@@ -422,16 +482,6 @@ export default function BetsTab() {
         </div>
 
         <div className="control-block">
-          <div className="control-label">Teams</div>
-          <input
-            className="search"
-            placeholder="Filter by team..."
-            value={teamQuery}
-            onChange={(e) => setTeamQuery(e.target.value)}
-          />
-        </div>
-
-        <div className="control-block">
           <div className="control-label">Kickoff window</div>
           <div className="control-options tight">
             <label>
@@ -461,6 +511,12 @@ export default function BetsTab() {
       <div className="note">
         Default filters require |edge| ≥ {fmtNum(BETS_EDGE_MIN)} and |value| ≥ {fmtNum(BETS_VALUE_MIN)}. Adjust thresholds or toggles above to widen or narrow the slate.
       </div>
+      {bucketInsights.bestBuckets.length > 0 && (
+        <div className="note">
+          Highest historical hit rate: {bucketInsights.bestBuckets.join(", ")} spreads (~
+          {Math.round(bucketInsights.bestRate * 1000) / 10}%). Enable “Most likely to hit” to focus on these spots.
+        </div>
+      )}
 
       {!filteredRows.length && (
         <div className="note">No recommended edges currently match these filters. Loosen thresholds or refresh after markets update.</div>

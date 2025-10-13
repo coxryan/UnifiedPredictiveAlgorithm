@@ -1086,7 +1086,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 ### UI/Presentation Rules
 - Status tab must link to all debug files and show MAE, coverage, synthetic rate.
 - Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
-- Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, team search, and spread bands.
+- Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, spread bands, and the “Most likely to hit” historical selector.
 - Status tab table must include descriptions of each file.
 
 ### Dev Workflow Rules
