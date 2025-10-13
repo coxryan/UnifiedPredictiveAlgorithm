@@ -594,7 +594,7 @@ We try, in order:
   - the predicted residual magnitude is large relative to `model_residual_sigma`,
   - the line is synthetic or sourced outside FanDuel/CFBD (extra 50–30% haircut),
   - join matched on fuzzy criteria rather than exact keys.
-- Final `market_adjustment` = `residual_pred_calibrated × source_scale × model_confidence`, clipped to ±8 points. Source scales: FanDuel=1.0, CFBD=0.35, Model=0.0, Unknown=0.5.
+- Final `market_adjustment` = `residual_pred_calibrated × source_scale × model_confidence`, clipped to ±8 points. Source scales: FanDuel=1.0, CFBD=1.0, Model=0.0, Unknown=0.5 (override with `SOURCE_ADJ_SCALE_*`).
 
 ### Backfill Hierarchy inside Predictions
 When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
