@@ -19,6 +19,7 @@ from agents.collect import (
     get_odds_cache,
 )
 from agents.collect.odds_fanduel import get_market_lines_fanduel_for_weeks
+from agents.collect.markets import _persist_market_snapshot, _build_started_map
 from agents.storage import read_dataset, write_dataset
 
 
@@ -73,7 +74,21 @@ def main() -> None:
     except Exception as exc:
         print(f"[warn] unable to write dataset: {exc}")
 
+    # Ensure raw_fanduel_lines cached table is updated so the main collector can reuse it
+    try:
+        started_map = _build_started_map(schedule)
+        _persist_market_snapshot(
+            "raw_fanduel_lines",
+            args.year,
+            odds_df,
+            started_map,
+        )
+        print(
+            f"[OK] refreshed raw_fanduel_lines with {len(odds_df)} rows for season {args.year}"
+        )
+    except Exception as exc:
+        print(f"[warn] unable to update raw_fanduel_lines: {exc}")
+
 
 if __name__ == "__main__":
     main()
-
