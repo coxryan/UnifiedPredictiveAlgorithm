@@ -21,4 +21,25 @@ export const BETS_VALUE_MIN = parseEnvFloat(
   Number(Math.max(0.8, BETS_EDGE_MIN * Math.max(0, 1 - EXPECTED_MARKET_LAMBDA)).toFixed(2))
 );
 
+export const CONFIDENCE_MIN = parseEnvFloat(
+  import.meta.env.VITE_CONFIDENCE_MIN as string | undefined,
+  0.55
+);
+export const HIGH_CONFIDENCE_MIN = parseEnvFloat(
+  import.meta.env.VITE_HIGH_CONFIDENCE_MIN as string | undefined,
+  0.7
+);
+export const HIGH_CONF_VALUE_MIN = parseEnvFloat(
+  import.meta.env.VITE_HIGH_CONF_VALUE_MIN as string | undefined,
+  0.5
+);
+export const LARGE_SPREAD_ABS_MIN = parseEnvFloat(
+  import.meta.env.VITE_LARGE_SPREAD_ABS_MIN as string | undefined,
+  14.0
+);
+export const LARGE_SPREAD_CONF_MIN = parseEnvFloat(
+  import.meta.env.VITE_LARGE_SPREAD_CONF_MIN as string | undefined,
+  0.7
+);
+
 export const MODEL_EXPECTED_LAMBDA = EXPECTED_MARKET_LAMBDA;
