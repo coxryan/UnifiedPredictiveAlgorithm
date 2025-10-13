@@ -1,7 +1,7 @@
 {
   "dataset": "upa_predictions",
-  "predictions_rows": 3651,
-  "predictions_rows_with_market": 3651,
-  "schedule_rows": 3651,
+  "predictions_rows": 753,
+  "predictions_rows_with_market": 753,
+  "schedule_rows": 753,
   "schedule_rows_with_market": 0
 }
