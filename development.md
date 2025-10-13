@@ -782,7 +782,7 @@ This section defines every metric/column that appears in the CSVs and UI, explai
 | `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
 | `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
 | `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
-| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 1.8`, `|Value| ≥ 0.8` (override via `EDGE_POINTS_QUALIFY_MIN`/`VALUE_POINTS_QUALIFY_MIN`), `model_confidence ≥ 0.55`, and the model/expected sides align in direction. | Screening filter for the **Predictions** and **Bets** tabs.                                                    |
+| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 1.8`, value ≥ max(`VALUE_POINTS_QUALIFY_MIN`, 0.8) _or_ (`model_confidence ≥ 0.7` and value ≥ 0.5), baseline direction matches, and `model_confidence ≥ 0.55` (≥0.7 whenever `|market_spread_book| ≥ 14`). Overrides: `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, `HIGH_CONFIDENCE_MIN`, `HIGH_CONF_VALUE_MIN`, `LARGE_SPREAD_ABS_MIN`, `LARGE_SPREAD_CONF_MIN`. | Screening filter for the **Predictions** and **Bets** tabs. |
 
 **Interpretation of `edge_points_book`:**
 - `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).
@@ -1046,13 +1046,14 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
 - Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
 - When CFBD schedule endpoints lag final scores, `update_live_scores` hydrates `home_points`/`away_points` in `upa_predictions` using the merged ESPN scoreboard snapshots so the Status, Predictions, and Backtest tabs reflect completed games promptly.
-- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, and `CONFIDENCE_QUALIFY_MIN` (defaults: 1.8, 0.8, 0.55). Matching UI constants live in `src/tabs/constants.tsx`.
+- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, `CONFIDENCE_QUALIFY_MIN`, `HIGH_CONFIDENCE_MIN`, `HIGH_CONF_VALUE_MIN`, `LARGE_SPREAD_ABS_MIN`, and `LARGE_SPREAD_CONF_MIN` (defaults: 1.8, 0.8, 0.55, 0.7, 0.5, 14.0, 0.7). Matching UI constants for base edge/value live in `src/tabs/constants.tsx`.
 - Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
 
 ### Modeling Rules
 - Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.30 WRPS, 0.30 Talent, 0.20 SRS, 0.10 Offensive efficiency, 0.07 Defensive efficiency, 0.03 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
 - Positional grade percentiles are optional (`INCLUDE_GRADE_FEATURES=1` to enable). We default them off to reduce multicollinearity; turn them back on only when the residual model is recalibrated.
 - Residual model training respects `RESIDUAL_ALPHA_GRID`, `RESIDUAL_LEARNING_RATE`, and `RESIDUAL_N_ESTIMATORS` environment overrides (defaults: `1.5,2.5,4.0,6.0`, `0.1`, and `75`).
+- Residual adjustments now apply equally to FanDuel and CFBD spreads (source scale = 1.0 for both). Use `SOURCE_ADJ_SCALE_cfbd` env override if you need to damp fallback lines.
 - Baseline spread (ratings only):
   ```
   M_baseline = - (κ * (S_home - S_away) + HFA)

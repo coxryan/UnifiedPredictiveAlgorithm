@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 _SOURCE_ADJ_SCALE = {
     "fanduel": 1.0,
-    "cfbd": 0.35,
+    "cfbd": 1.0,
     "model": 0.0,
     "unknown": 0.5,
 }
@@ -61,6 +61,12 @@ else:
 _CONFIDENCE_MIN_DEFAULT = 0.55
 _CONFIDENCE_MIN = _get_float_env("CONFIDENCE_QUALIFY_MIN", _CONFIDENCE_MIN_DEFAULT) or _CONFIDENCE_MIN_DEFAULT
 _CONFIDENCE_MIN = max(0.0, min(1.0, _CONFIDENCE_MIN))
+_HIGH_CONFIDENCE_MIN = _get_float_env("HIGH_CONFIDENCE_MIN", 0.7) or 0.7
+_HIGH_CONFIDENCE_MIN = max(0.0, min(1.0, _HIGH_CONFIDENCE_MIN))
+_HIGH_CONF_VALUE_MIN = _get_float_env("HIGH_CONF_VALUE_MIN", 0.5) or 0.5
+_HIGH_CONF_VALUE_MIN = max(0.0, _HIGH_CONF_VALUE_MIN)
+_LARGE_SPREAD_THRESH = _get_float_env("LARGE_SPREAD_ABS_MIN", 14.0) or 14.0
+_LARGE_SPREAD_CONF_MIN = _get_float_env("LARGE_SPREAD_CONF_MIN", 0.7) or 0.7
 
 
 def _sanitize_numeric(series: pd.Series) -> pd.Series:
@@ -607,13 +613,31 @@ def build_predictions_for_year(
         market_for_calc - preds["expected_market_spread_book"]
     ).round(2)
 
+    edge_condition = preds["edge_points_book"].abs() >= _EDGE_POINTS_MIN
+
+    value_abs = preds["value_points_book"].abs()
+    confidence_series = preds["model_confidence"].fillna(0.0)
+    high_conf_mask = confidence_series >= _HIGH_CONFIDENCE_MIN
+    value_condition = (value_abs >= _VALUE_POINTS_MIN) | (
+        high_conf_mask & (value_abs >= _HIGH_CONF_VALUE_MIN)
+    )
+
+    large_spread_mask = preds["market_spread_book"].abs() >= _LARGE_SPREAD_THRESH
+    confidence_condition = (
+        confidence_series >= _CONFIDENCE_MIN
+    ) & (
+        ~large_spread_mask | (confidence_series >= _LARGE_SPREAD_CONF_MIN)
+    )
+
+    direction_condition = np.sign(preds["edge_points_book"]) == np.sign(
+        preds["value_points_book"] * -1
+    )
+
     qualified_mask = (
-        (preds["edge_points_book"].abs() >= _EDGE_POINTS_MIN)
-        & (preds["value_points_book"].abs() >= _VALUE_POINTS_MIN)
-        & (preds["model_confidence"] >= _CONFIDENCE_MIN)
-        & (
-            np.sign(preds["edge_points_book"]) == np.sign(preds["value_points_book"] * -1)
-        )
+        edge_condition
+        & value_condition
+        & confidence_condition
+        & direction_condition
     )
     preds["qualified_edge_flag"] = qualified_mask.astype(int)
 
