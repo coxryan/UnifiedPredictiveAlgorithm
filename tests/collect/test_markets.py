@@ -292,6 +292,63 @@ def test_get_market_lines_partial_fanduel_uses_cfbd(monkeypatch, tmp_path):
     assert "rows below threshold" in (status_updates[-1][2] or "")
 
 
+def test_get_market_lines_refreshes_cached_when_next_week_missing(monkeypatch, tmp_path):
+    _patch_data_db(monkeypatch, tmp_path)
+    monkeypatch.setattr(markets, "DATA_DIR", str(tmp_path), raising=False)
+    monkeypatch.setattr(markets, "MARKET_SOURCE", "fanduel", raising=False)
+    monkeypatch.setattr(markets, "ODDS_API_KEY", "token", raising=False)
+
+    cached_rows = pd.DataFrame(
+        [
+            {
+                "season": 2025,
+                "week": 5,
+                "game_id": 30,
+                "home_team": "Alpha",
+                "away_team": "Beta",
+                "spread": -4.0,
+                "retrieved_at": "2025-10-05T00:00:00Z",
+            }
+        ]
+    )
+    storage.write_dataset(cached_rows, "raw_fanduel_lines")
+
+    fetched_rows = pd.DataFrame(
+        [
+            {"game_id": 30, "week": 5, "home_team": "Alpha", "away_team": "Beta", "spread": -4.0},
+            {"game_id": 40, "week": 6, "home_team": "Gamma", "away_team": "Delta", "spread": -2.5},
+        ]
+    )
+
+    fetch_calls: list[list[int]] = []
+
+    def fake_fetch(year, weeks, sched_df, cache):
+        fetch_calls.append(sorted(int(w) for w in weeks))
+        return fetched_rows.copy(), {"raw": len(fetched_rows), "mapped": len(fetched_rows), "unmatched": 0}
+
+    monkeypatch.setattr(markets, "get_market_lines_fanduel_for_weeks", fake_fetch, raising=False)
+
+    schedule = pd.DataFrame(
+        [
+            {"game_id": 30, "week": 5, "home_team": "Alpha", "away_team": "Beta"},
+            {"game_id": 40, "week": 6, "home_team": "Gamma", "away_team": "Delta"},
+        ]
+    )
+
+    result = markets.get_market_lines_for_current_week(
+        2025,
+        5,
+        schedule,
+        apis=SimpleNamespace(lines_api=None),
+        cache=SimpleNamespace(),
+    )
+
+    assert fetch_calls, "expected FanDuel fetch when cached weeks are incomplete"
+    assert fetch_calls[0][-1] == 6
+    assert sorted(result["week"].unique().tolist()) == [5, 6]
+    assert result.loc[result["game_id"] == 40, "market_spread_fanduel"].iloc[0] == pytest.approx(-2.5)
+
+
 def test_fanduel_nan_logging_includes_raw(monkeypatch, tmp_path):
     logs: list[str] = []
     monkeypatch.setattr(markets, "_dbg", lambda msg: logs.append(msg), raising=False)

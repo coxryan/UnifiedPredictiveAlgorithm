@@ -394,6 +394,18 @@ def get_market_lines_for_current_week(
         weeks.append(next_week)
     weeks = sorted(set(int(w) for w in weeks if pd.notna(w)))
 
+    required_weeks: Set[int] = set()
+    if pd.notna(next_week):
+        try:
+            required_weeks.add(int(next_week))
+        except Exception:
+            pass
+    if not required_weeks and pd.notna(current_week):
+        try:
+            required_weeks.add(int(current_week))
+        except Exception:
+            pass
+
     def _load_cached_lines(table: str) -> pd.DataFrame:
         cached = read_dataset(table)
         if cached.empty:
@@ -416,7 +428,28 @@ def get_market_lines_for_current_week(
 
     # Attempt to use cached FanDuel lines first
     cached_fanduel = _load_cached_lines("raw_fanduel_lines")
-    if requested == "fanduel" and not cached_fanduel.empty and len(cached_fanduel) >= MARKET_MIN_ROWS:
+    cached_fanduel_weeks_ok = True
+    missing_required_weeks: List[int] = []
+    if not cached_fanduel.empty and required_weeks:
+        cached_week_values = pd.to_numeric(cached_fanduel.get("week"), errors="coerce")
+        cached_weeks = {
+            int(w)
+            for w in cached_week_values.dropna().astype("int64")
+        } if cached_week_values is not None else set()
+        missing_required_weeks = sorted(w for w in required_weeks if w not in cached_weeks)
+        cached_fanduel_weeks_ok = not missing_required_weeks
+        if missing_required_weeks:
+            market_extra["fanduel_cached_missing_weeks"] = missing_required_weeks
+            _dbg(
+                "get_market_lines_for_current_week: cached FanDuel missing required weeks "
+                f"{missing_required_weeks}; will attempt refresh"
+            )
+    if (
+        requested == "fanduel"
+        and not cached_fanduel.empty
+        and len(cached_fanduel) >= MARKET_MIN_ROWS
+        and cached_fanduel_weeks_ok
+    ):
         out_df = _normalize_market_df(cached_fanduel)
         fanduel_norm = out_df.copy()
         used = "fanduel"
