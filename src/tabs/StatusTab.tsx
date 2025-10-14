@@ -19,6 +19,15 @@ type Status = {
 
 type PredRow = { week: string; market_spread_book?: string; model_spread_book?: string; played?: any; model_result?: string; };
 
+const SPREAD_BANDS = [
+  { label: "<3", min: 0, max: 3 },
+  { label: "3-5", min: 3, max: 5 },
+  { label: "5-10", min: 5, max: 10 },
+  { label: "10-15", min: 10, max: 15 },
+  { label: "15-20", min: 15, max: 20 },
+  { label: "20+", min: 20, max: Number.POSITIVE_INFINITY },
+];
+
 export default function StatusTab() {
   const [status, setStatus] = useState<Status | null>(null);
   const [preds, setPreds] = useState<PredRow[]>([]);
@@ -64,20 +73,44 @@ export default function StatusTab() {
   }, [preds]);
 
   const weekly = useMemo(() => {
-    const by: Record<string, {w:number,l:number,p:number}> = {};
+    const by: Record<string, {w:number,l:number,p:number, bands: Record<string,{wins:number,total:number}>}> = {};
     for (const r of preds) {
       if (!playedBool(r.played)) continue;
       const wk = r.week;
       const res = r.model_result;
-      if (!by[wk]) by[wk] = { w:0, l:0, p:0 };
+      if (!by[wk]) {
+        const bandInit: Record<string,{wins:number,total:number}> = {};
+        for (const band of SPREAD_BANDS) bandInit[band.label] = { wins: 0, total: 0 };
+        by[wk] = { w:0, l:0, p:0, bands: bandInit };
+      }
+      let bandLabel: string | null = null;
+      const marketAbs = Math.abs(toNum(r.market_spread_book));
+      if (Number.isFinite(marketAbs)) {
+        const band = SPREAD_BANDS.find(b => marketAbs >= b.min && marketAbs < b.max);
+        if (band) bandLabel = band.label;
+      }
       if (res === "CORRECT") by[wk].w++;
       else if (res === "INCORRECT") by[wk].l++;
       else by[wk].p++;
+      if (bandLabel) {
+        const bucket = by[wk].bands[bandLabel];
+        if (res === "CORRECT") {
+          bucket.wins += 1;
+          bucket.total += 1;
+        } else if (res === "INCORRECT") {
+          bucket.total += 1;
+        }
+      }
     }
     const rows = Object.keys(by).sort((a,b)=>Number(a)-Number(b)).map(wk => {
-      const {w,l,p} = by[wk];
+      const {w,l,p,bands} = by[wk];
       const tot = w + l; const acc = tot ? w/tot : NaN;
-      return { week: wk, wins: w, losses: l, pushes: p, accuracy: acc };
+      const bandRates = SPREAD_BANDS.map(b => {
+        const stats = bands[b.label];
+        const rate = stats.total ? stats.wins / stats.total : NaN;
+        return { label: b.label, wins: stats.wins, total: stats.total, rate };
+      });
+      return { week: wk, wins: w, losses: l, pushes: p, accuracy: acc, bandRates };
     });
     return rows;
   }, [preds]);
@@ -170,11 +203,24 @@ export default function StatusTab() {
               {!weekly.length ? <div className="note">No completed games yet.</div> : (
                 <div className="table-wrap">
                   <table className="tbl compact">
-                    <thead><tr><th>Week</th><th>W</th><th>L</th><th>Push</th><th>Accuracy</th></tr></thead>
+                    <thead><tr><th>Week</th><th>W</th><th>L</th><th>Push</th><th>Accuracy</th><th>Spread Bands</th></tr></thead>
                     <tbody>
                       {weekly.map(r => (
                         <tr key={r.week}>
-                          <td>{r.week}</td><td>{r.wins}</td><td>{r.losses}</td><td>{r.pushes}</td><td>{fmtPct01(r.accuracy)}</td>
+                          <td>{r.week}</td>
+                          <td>{r.wins}</td>
+                          <td>{r.losses}</td>
+                          <td>{r.pushes}</td>
+                          <td>{fmtPct01(r.accuracy)}</td>
+                          <td>
+                            {r.bandRates.some(b => b.total > 0)
+                              ? r.bandRates.filter(b => b.total > 0).map(b => (
+                                  <span key={b.label} style={{ marginRight: 8 }}>
+                                    <b>{b.label}</b>: {fmtPct01(b.rate)}
+                                  </span>
+                                ))
+                              : "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -27,6 +27,7 @@
 - 2025-10-13 07:33: Added `FANDUEL_CACHE_ONLY`; deploy/live workflows set it to `1` so only manual `fetch-fanduel-odds` runs hit the Odds API.
 - 2025-10-13 07:45: Ingest CFBD player usage, derive availability metrics, and merge new availability features into team inputs/model dataset.
 - 2025-10-13 07:50: Bets tab shows historical win rate for the selected spread band and clarifies the buckets used for “Most likely to hit”.
+- 2025-10-13 07:52: Status tab weekly accuracy tables now display spread-band win rates for completed games.
 
 ## In-Progress Changes (2025-10-13)
 
