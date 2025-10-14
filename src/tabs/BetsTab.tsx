@@ -99,6 +99,20 @@ const spreadBucketFor = (spreadAbs: number | null): string | null => {
   return "20+";
 };
 
+const BAND_BUCKETS: Record<string, string[]> = {
+  any: ["<3", "3-5", "5-10", "10-15", "15-20", "20+"],
+  close: ["<3", "3-5"],
+  td: ["<3", "3-5", "5-10"],
+  double: ["10-15", "15-20", "20+"],
+};
+
+const BAND_LABELS: Record<string, string> = {
+  any: "All spreads",
+  close: "One-score (≤ 3.5)",
+  td: "Touchdown (≤ 7.5)",
+  double: "Double-digit (≥ 10)",
+};
+
 export default function BetsTab() {
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [rows, setRows] = useState<PredRow[]>([]);
@@ -244,6 +258,23 @@ export default function BetsTab() {
       bestRate,
     };
   }, [shapedRows]);
+
+  const bandStats = useMemo(() => {
+    const buckets = BAND_BUCKETS[spreadBand] || BAND_BUCKETS.any;
+    let wins = 0;
+    let total = 0;
+    buckets.forEach((bucket) => {
+      const entry = bucketInsights.counts.get(bucket);
+      if (!entry) return;
+      wins += entry.wins;
+      total += entry.total;
+    });
+    return {
+      wins,
+      total,
+      pct: total > 0 ? (wins / total) * 100 : null,
+    };
+  }, [spreadBand, bucketInsights.counts]);
 
   const filteredRows = useMemo(() => {
     if (!shapedRows.length) return [];
@@ -514,9 +545,15 @@ export default function BetsTab() {
       {bucketInsights.bestBuckets.length > 0 && (
         <div className="note">
           Highest historical hit rate: {bucketInsights.bestBuckets.join(", ")} spreads (~
-          {Math.round(bucketInsights.bestRate * 1000) / 10}%). Enable “Most likely to hit” to focus on these spots.
+          {Math.round(bucketInsights.bestRate * 1000) / 10}%). “Most likely to hit” filters to these bucket(s).
         </div>
       )}
+      <div className="note">
+        Historical win rate for {BAND_LABELS[spreadBand] ?? "selected band"}:{" "}
+        {bandStats.total
+          ? `${Math.round((bandStats.pct ?? 0) * 10) / 10}% (${bandStats.wins}/${bandStats.total})`
+          : "—"}
+      </div>
 
       {!filteredRows.length && (
         <div className="note">No recommended edges currently match these filters. Loosen thresholds or refresh after markets update.</div>

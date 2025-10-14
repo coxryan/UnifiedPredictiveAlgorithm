@@ -26,6 +26,7 @@
 - 2025-10-13 07:20: `_odds_api_fetch_fanduel` paginates until the Odds API signals completion (via `x-odds-api-page-count` or empty payload), preventing partial slates like Oregon @ Rutgers from falling back to CFBD.
 - 2025-10-13 07:33: Added `FANDUEL_CACHE_ONLY`; deploy/live workflows set it to `1` so only manual `fetch-fanduel-odds` runs hit the Odds API.
 - 2025-10-13 07:45: Ingest CFBD player usage, derive availability metrics, and merge new availability features into team inputs/model dataset.
+- 2025-10-13 07:50: Bets tab shows historical win rate for the selected spread band and clarifies the buckets used for “Most likely to hit”.
 
 ## In-Progress Changes (2025-10-13)
 
@@ -1107,6 +1108,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Status tab must link to all debug files and show MAE, coverage, synthetic rate.
 - Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
 - Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, spread bands, and the “Most likely to hit” historical selector.
+- Bets tab surfaces the historical win rate for the active spread band and notes the spread bucket(s) powering “Most likely to hit”.
 - Status tab table must include descriptions of each file.
 
 ### Dev Workflow Rules
