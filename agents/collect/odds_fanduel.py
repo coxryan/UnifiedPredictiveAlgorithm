@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 
 from .cache import ApiCache
-from .config import ODDS_API_KEY, CACHE_ONLY, DATA_DIR, _dbg
+from .config import ODDS_API_KEY, CACHE_ONLY, DATA_DIR, FANDUEL_CACHE_ONLY, _dbg
 from .status import _upsert_status_market_source
 from agents.storage import read_json_blob, write_json_blob
 
@@ -34,9 +34,21 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     day_key = pd.Timestamp.utcnow().strftime("%Y%m%d")
     key = f"oddsapi:fanduel:daily:{day_key}"
     ok, cached = cache.get(key)
-    _dbg(f"odds_api_fetch_fanduel: cache_ok={ok} cached_items={len(cached) if ok and cached is not None else 0} key={key}")
-    if ok and cached is not None:
-        return list(cached)
+    cached_rows = list(cached) if ok and cached is not None else []
+    _dbg(
+        f"odds_api_fetch_fanduel: cache_ok={ok} cached_items={len(cached_rows) if cached_rows else 0} key={key} "
+        f"fanduel_cache_only={FANDUEL_CACHE_ONLY}"
+    )
+    if FANDUEL_CACHE_ONLY:
+        if cached_rows:
+            _dbg("odds_api_fetch_fanduel: FANDUEL_CACHE_ONLY=1 -> serving cached FanDuel odds")
+            return cached_rows
+        _dbg("odds_api_fetch_fanduel: FANDUEL_CACHE_ONLY=1 but cache miss -> skipping Odds API call")
+        cache.set(key, [])
+        return []
+
+    if cached_rows:
+        return cached_rows
 
     if CACHE_ONLY:
         cache.set(key, [])

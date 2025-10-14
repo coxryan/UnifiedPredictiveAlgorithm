@@ -30,6 +30,7 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           DEBUG_MARKET: "1"
+          FANDUEL_CACHE_ONLY: "0"
         run: |
           YEAR_INPUT="${{ github.event.inputs.year }}"
           if [ -z "$YEAR_INPUT" ]; then

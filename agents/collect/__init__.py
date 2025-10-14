@@ -8,6 +8,7 @@ from .config import (
     ENABLE_SHEETS,
     ODDS_API_KEY,
     MARKET_SOURCE,
+    FANDUEL_CACHE_ONLY,
     ODDS_CACHE_DIR,
     ODDS_CACHE_TTL_DAYS,
     REQUIRE_SCHED_MIN_ROWS,
@@ -56,7 +57,7 @@ from .debug import market_debug_entry
 __all__ = [
     # config
     "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_DB_PATH","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY",
-    "MARKET_SOURCE","ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET",
+    "MARKET_SOURCE","FANDUEL_CACHE_ONLY","ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET",
     "MARKET_MIN_ROWS","_dbg",
     # core utils
     "ApiCache","get_odds_cache","CfbdClients","write_dataset",

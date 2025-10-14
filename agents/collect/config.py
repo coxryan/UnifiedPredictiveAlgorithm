@@ -22,6 +22,7 @@ CACHE_ONLY = os.environ.get("CACHE_ONLY", "0").strip().lower() in ("1", "true", 
 ENABLE_SHEETS = False
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 MARKET_SOURCE = os.environ.get("MARKET_SOURCE", "fanduel").strip().lower()
+FANDUEL_CACHE_ONLY = os.environ.get("FANDUEL_CACHE_ONLY", "0").strip().lower() in ("1", "true", "yes", "y")
 
 # Separate cache for FanDuel (Odds API) so we can flip sources freely
 ODDS_CACHE_DIR = os.environ.get("ODDS_CACHE_DIR", ".cache_odds")
@@ -44,6 +45,6 @@ def _dbg(msg: str) -> None:
 
 
 __all__ = [
-    "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_DB_PATH","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE",
+    "DATA_DIR","DATA_DB_PATH","CACHE_DIR","CACHE_TTL_DAYS","CACHE_DB_PATH","CACHE_ONLY","ENABLE_SHEETS","ODDS_API_KEY","MARKET_SOURCE","FANDUEL_CACHE_ONLY",
     "ODDS_CACHE_DIR","ODDS_CACHE_TTL_DAYS","REQUIRE_SCHED_MIN_ROWS","DEBUG_MARKET","MARKET_MIN_ROWS","_dbg",
 ]

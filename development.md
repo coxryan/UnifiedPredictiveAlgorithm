@@ -24,6 +24,7 @@
 - 2025-10-12 21:45: Added `fetch-fanduel-odds` workflow + `tools.fetch_fanduel_odds` helper to snapshot FanDuel spreads with verbose logging (`DEBUG_MARKET=1`) and persist results to `data/debug/fanduel_odds_snapshot.json` / `fanduel_odds_snapshot`.
 - 2025-10-13 06:??: `fetch-fanduel-odds` now also updates the canonical `raw_fanduel_lines` cache via `_persist_market_snapshot`, so the main collector reuses the latest FanDuel pulls without hitting the API again.
 - 2025-10-13 07:20: `_odds_api_fetch_fanduel` paginates until the Odds API signals completion (via `x-odds-api-page-count` or empty payload), preventing partial slates like Oregon @ Rutgers from falling back to CFBD.
+- 2025-10-13 07:33: Added `FANDUEL_CACHE_ONLY`; deploy/live workflows set it to `1` so only manual `fetch-fanduel-odds` runs hit the Odds API.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
@@ -1092,6 +1093,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 
 ### Dev Workflow Rules
 - Use structured logging with consistent tags (e.g., `build_predictions_for_year`).
+- Run the Odds API only via `tools.fetch_fanduel_odds` / `fetch-fanduel-odds` workflow. All other collectors set `FANDUEL_CACHE_ONLY=1` and must rely on cached FanDuel data.
 - Add unit tests for collector logic, backfill, sign convention, NaN handling.
 - Update `development.md` and tests whenever columns or artifacts change.
 - Fail early on critical data gaps; do not silently continue.

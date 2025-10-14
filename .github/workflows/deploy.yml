@@ -32,6 +32,7 @@ env:
   ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
   ODDS_CACHE_DIR: .cache_odds/2025
   ODDS_CACHE_TTL_DAYS: 2
+  FANDUEL_CACHE_ONLY: '1'
   # Ensure Actions cache paths match code defaults
   CACHE_DIR: .cache_cfbd/2025
   UPA_LOG_LEVEL: DEBUG
