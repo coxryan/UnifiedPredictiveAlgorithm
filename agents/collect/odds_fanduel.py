@@ -50,7 +50,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
     try:
         url = base.format(sport=sport)
         agg: List[Dict[str, Any]] = []
-        for page in range(1, 6):
+        max_pages = 50
+        page = 1
+        while True:
             page_params = {
                 "regions": "us",
                 "markets": "spreads",
@@ -78,8 +80,21 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             data = r.json() or []
             _dbg(f"odds_api_fetch_fanduel: page={page} items={len(data)}")
             if not data:
+                _dbg(f"odds_api_fetch_fanduel: page={page} empty payload -> stop")
                 break
             agg.extend(data)
+            total_pages = None
+            try:
+                total_pages = int(r.headers.get("x-odds-api-page-count", "") or 0)
+            except Exception:
+                total_pages = None
+            if total_pages and page >= total_pages:
+                _dbg(f"odds_api_fetch_fanduel: reached declared page count {total_pages}")
+                break
+            page += 1
+            if page > max_pages:
+                _dbg(f"odds_api_fetch_fanduel: reached safety page limit {max_pages}")
+                break
         with open(os.path.join(DATA_DIR, "debug", "fanduel_raw.json"), "w") as f:
             json.dump(agg, f, indent=2)
 

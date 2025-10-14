@@ -23,6 +23,7 @@
 - 2025-10-12 13:27: Reduced stat/grade weights, made position grades opt-in (`INCLUDE_GRADE_FEATURES`), tightened qualification thresholds, and added a confidence floor so backtest accuracy targets 70%.
 - 2025-10-12 21:45: Added `fetch-fanduel-odds` workflow + `tools.fetch_fanduel_odds` helper to snapshot FanDuel spreads with verbose logging (`DEBUG_MARKET=1`) and persist results to `data/debug/fanduel_odds_snapshot.json` / `fanduel_odds_snapshot`.
 - 2025-10-13 06:??: `fetch-fanduel-odds` now also updates the canonical `raw_fanduel_lines` cache via `_persist_market_snapshot`, so the main collector reuses the latest FanDuel pulls without hitting the API again.
+- 2025-10-13 07:20: `_odds_api_fetch_fanduel` paginates until the Odds API signals completion (via `x-odds-api-page-count` or empty payload), preventing partial slates like Oregon @ Rutgers from falling back to CFBD.
 
 **What we are trying to do (mission)**
 - Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
