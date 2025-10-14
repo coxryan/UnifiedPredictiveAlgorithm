@@ -99,19 +99,14 @@ const spreadBucketFor = (spreadAbs: number | null): string | null => {
   return "20+";
 };
 
-const BAND_BUCKETS: Record<string, string[]> = {
-  any: ["<3", "3-5", "5-10", "10-15", "15-20", "20+"],
-  close: ["<3", "3-5"],
-  td: ["<3", "3-5", "5-10"],
-  double: ["10-15", "15-20", "20+"],
-};
-
-const BAND_LABELS: Record<string, string> = {
-  any: "All spreads",
-  close: "One-score (≤ 3.5)",
-  td: "Touchdown (≤ 7.5)",
-  double: "Double-digit (≥ 10)",
-};
+const SPREAD_BUCKETS = [
+  { key: "<3", label: "<3", min: 0, max: 3 },
+  { key: "3-5", label: "3-5", min: 3, max: 5 },
+  { key: "5-10", label: "5-10", min: 5, max: 10 },
+  { key: "10-15", label: "10-15", min: 10, max: 15 },
+  { key: "15-20", label: "15-20", min: 15, max: 20 },
+  { key: "20+", label: "20+", min: 20, max: Number.POSITIVE_INFINITY },
+];
 
 export default function BetsTab() {
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
@@ -126,7 +121,7 @@ export default function BetsTab() {
   const [confidenceMin, setConfidenceMin] = useState<number>(CONFIDENCE_MIN);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [spreadBand, setSpreadBand] = useState<"any" | "close" | "td" | "double">("double");
+  const [selectedBands, setSelectedBands] = useState<string[]>(() => SPREAD_BUCKETS.map((b) => b.key));
   const [sourceFilters, setSourceFilters] = useState<Record<string, boolean>>(
     () =>
       SOURCE_OPTIONS.reduce<Record<string, boolean>>((acc, opt) => {
@@ -260,27 +255,29 @@ export default function BetsTab() {
   }, [shapedRows]);
 
   const bandStats = useMemo(() => {
-    const buckets = BAND_BUCKETS[spreadBand] || BAND_BUCKETS.any;
+    const active = selectedBands.length ? selectedBands : SPREAD_BUCKETS.map((b) => b.key);
     let wins = 0;
     let total = 0;
-    buckets.forEach((bucket) => {
+    active.forEach((bucket) => {
       const entry = bucketInsights.counts.get(bucket);
       if (!entry) return;
       wins += entry.wins;
       total += entry.total;
     });
     return {
+      label: active.length === SPREAD_BUCKETS.length ? "All spreads" : active.join(", "),
       wins,
       total,
       pct: total > 0 ? (wins / total) * 100 : null,
     };
-  }, [spreadBand, bucketInsights.counts]);
+  }, [selectedBands, bucketInsights.counts]);
 
   const filteredRows = useMemo(() => {
     if (!shapedRows.length) return [];
     const weekSet = new Set(selectedWeeks);
     const activeSources = SOURCE_OPTIONS.filter((opt) => sourceFilters[opt.key]).map((opt) => opt.key);
     const bestBuckets = bucketInsights.bestBuckets;
+    const activeBandKeys = selectedBands.length ? new Set(selectedBands) : new Set(SPREAD_BUCKETS.map((b) => b.key));
 
     return shapedRows
       .filter((row) => {
@@ -310,13 +307,7 @@ export default function BetsTab() {
         if (startDate && (!row._dateIso || row._dateIso < startDate)) return false;
         if (endDate && (!row._dateIso || row._dateIso > endDate)) return false;
         if (activeSources.length && !activeSources.includes(row._sourceKey || "unknown")) return false;
-        if (spreadBand !== "any") {
-          const absSpread = row._spreadAbs ?? NaN;
-          if (!Number.isFinite(absSpread)) return false;
-          if (spreadBand === "close" && absSpread > 3.5) return false;
-          if (spreadBand === "td" && absSpread > 7.5) return false;
-          if (spreadBand === "double" && absSpread < 10) return false;
-        }
+        if (activeBandKeys.size && row._spreadBucket && !activeBandKeys.has(row._spreadBucket)) return false;
         if (mostLikelyOnly) {
           if (!row._spreadBucket || !bestBuckets.includes(row._spreadBucket)) return false;
         }
@@ -341,7 +332,7 @@ export default function BetsTab() {
     startDate,
     endDate,
     sourceFilters,
-    spreadBand,
+    selectedBands,
     mostLikelyOnly,
     bucketInsights.bestBuckets,
   ]);
@@ -360,6 +351,20 @@ export default function BetsTab() {
       ...prev,
       [key]: !prev[key],
     }));
+  };
+
+  const handleBandToggle = (key: string) => {
+    setSelectedBands((prev) => {
+      if (prev.includes(key)) {
+        return prev.filter((k) => k !== key);
+      }
+      const added = [...prev, key];
+      return SPREAD_BUCKETS.map((b) => b.key).filter((k) => added.includes(k));
+    });
+  };
+
+  const handleSelectAllBands = () => {
+    setSelectedBands(SPREAD_BUCKETS.map((b) => b.key));
   };
 
   const handleEdgeMin = (value: string) => {
@@ -528,12 +533,21 @@ export default function BetsTab() {
 
         <div className="control-block">
           <div className="control-label">Spread band</div>
-          <select value={spreadBand} onChange={(e) => setSpreadBand(e.target.value as typeof spreadBand)}>
-            <option value="any">All spreads</option>
-            <option value="close">One-score (≤ 3.5)</option>
-            <option value="td">Touchdown (≤ 7.5)</option>
-            <option value="double">Double-digit (≥ 10)</option>
-          </select>
+          <div className="control-options">
+            {SPREAD_BUCKETS.map((band) => (
+              <label key={band.key} className="control-chip">
+                <input
+                  type="checkbox"
+                  checked={selectedBands.includes(band.key) || selectedBands.length === 0}
+                  onChange={() => handleBandToggle(band.key)}
+                />
+                <span>{band.label}</span>
+              </label>
+            ))}
+            <button type="button" className="control-chip action" onClick={handleSelectAllBands}>
+              All
+            </button>
+          </div>
         </div>
 
         <Badge tone="muted">Plays: {filteredRows.length}</Badge>
@@ -549,7 +563,7 @@ export default function BetsTab() {
         </div>
       )}
       <div className="note">
-        Historical win rate for {BAND_LABELS[spreadBand] ?? "selected band"}:{" "}
+        Historical win rate for {bandStats.label}:{" "}
         {bandStats.total
           ? `${Math.round((bandStats.pct ?? 0) * 10) / 10}% (${bandStats.wins}/${bandStats.total})`
           : "—"}

@@ -1110,7 +1110,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Status tab must link to all debug files and show MAE, coverage, synthetic rate.
 - Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
 - Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, spread bands, and the “Most likely to hit” historical selector.
-- Bets tab surfaces the historical win rate for the active spread band and notes the spread bucket(s) powering “Most likely to hit”.
+- Bets tab surfaces the historical win rate for the active spread band(s), notes the bucket(s) powering “Most likely to hit”, and its spread filters align with the six Status-tab buckets (`<3`, `3-5`, `5-10`, `10-15`, `15-20`, `20+`) with multi-select checkboxes.
 - Status tab table must include descriptions of each file.
 
 ### Dev Workflow Rules
