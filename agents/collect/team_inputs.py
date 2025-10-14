@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from collections import defaultdict
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -42,6 +43,219 @@ def _letter_from_percentile(value: Any) -> str:
     return "F"
 
 
+_AVAIL_OFF_POS = {
+    "QB",
+    "RB",
+    "TB",
+    "HB",
+    "FB",
+    "WR",
+    "TE",
+    "H",
+    "Y",
+    "X",
+    "Z",
+    "OL",
+    "LT",
+    "LG",
+    "C",
+    "RG",
+    "RT",
+}
+
+_AVAIL_DEF_POS = {
+    "DL",
+    "DE",
+    "DT",
+    "NT",
+    "EDGE",
+    "LB",
+    "MLB",
+    "OLB",
+    "WLB",
+    "SLB",
+    "CB",
+    "DB",
+    "FS",
+    "SS",
+    "NICKEL",
+    "STAR",
+}
+
+_AVAIL_ST_POS = {
+    "K",
+    "P",
+    "PK",
+    "LS",
+    "KR",
+    "PR",
+    "ST",
+}
+
+
+def _load_cfbd_player_usage(
+    year: int,
+    apis: CfbdClients,
+    cache: ApiCache,
+    team_conf: Dict[str, str],
+) -> pd.DataFrame:
+    usage_df = read_dataset("raw_cfbd_player_usage")
+    if not usage_df.empty:
+        usage_df = usage_df.loc[usage_df.get("year") == year].copy()
+    if not usage_df.empty:
+        usage_df = usage_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+        return usage_df
+
+    if not apis.players_api or not team_conf:
+        return pd.DataFrame()
+
+    conferences = sorted({c for c in team_conf.values() if c})
+    rows: List[Dict[str, Any]] = []
+    for conf in conferences:
+        cache_key = f"cfbd:player_usage:{year}:{conf}"
+        ok, cached = cache.get(cache_key)
+        if ok and cached:
+            rows.extend(cached)
+            continue
+        try:
+            items = apis.players_api.get_player_usage(year=year, conference=conf)
+        except Exception as exc:  # pragma: no cover - network failure path
+            print(f"[warn] player usage fetch failed for {conf}: {exc}", file=sys.stderr)
+            items = []
+        serialised: List[Dict[str, Any]] = []
+        for it in items or []:
+            usage = getattr(it, "usage", None)
+            serialised.append(
+                {
+                    "team": getattr(it, "team", None),
+                    "conference": getattr(it, "conference", None) or team_conf.get(getattr(it, "team", None), "FBS"),
+                    "player_id": getattr(it, "id", None),
+                    "player_name": getattr(it, "name", None),
+                    "position": (getattr(it, "position", None) or "").upper(),
+                    "usage_overall": getattr(usage, "overall", None) if usage is not None else None,
+                    "usage_rush": getattr(usage, "rush", None) if usage is not None else None,
+                    "usage_pass": getattr(usage, "var_pass", None) if usage is not None else None,
+                    "usage_first_down": getattr(usage, "first_down", None) if usage is not None else None,
+                    "usage_standard_downs": getattr(usage, "standard_downs", None) if usage is not None else None,
+                    "usage_passing_downs": getattr(usage, "passing_downs", None) if usage is not None else None,
+                }
+            )
+        if serialised:
+            cache.set(cache_key, serialised)
+            rows.extend(serialised)
+    if not rows:
+        return pd.DataFrame()
+    usage_df = pd.DataFrame(rows)
+    usage_df["year"] = year
+    usage_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+    delete_rows("raw_cfbd_player_usage", "year", year)
+    storage_write_dataset(usage_df, "raw_cfbd_player_usage", if_exists="append")
+    usage_df = usage_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+    return usage_df
+
+
+def _build_availability_features(
+    usage_df: pd.DataFrame,
+    team_conf: Dict[str, str],
+    default_score: float = 0.65,
+) -> pd.DataFrame:
+    if usage_df is None or usage_df.empty:
+        if not team_conf:
+            return pd.DataFrame()
+        return pd.DataFrame(
+            [
+                {
+                    "team": team,
+                    "availability_source": "default",
+                    "availability_offense_score": round(default_score * 100, 1),
+                    "availability_defense_score": round(default_score * 100, 1),
+                    "availability_special_score": round(default_score * 100, 1),
+                    "availability_qb_score": round(default_score * 100, 1),
+                    "availability_overall_score": round(default_score * 100, 1),
+                    "availability_flag_qb_low": 0,
+                    "availability_off_depth": 0,
+                    "availability_def_depth": 0,
+                }
+                for team in sorted(team_conf.keys())
+            ]
+        )
+
+    df = usage_df.copy()
+    df["team"] = df["team"].astype(str)
+    for col in [
+        "usage_overall",
+        "usage_rush",
+        "usage_pass",
+        "usage_first_down",
+        "usage_standard_downs",
+        "usage_passing_downs",
+    ]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+
+    records: List[Dict[str, Any]] = []
+    grouped = df.groupby("team")
+
+    def _score_for_positions(grp: pd.DataFrame, positions: set[str], top_n: int, fallback: float) -> tuple[float, int]:
+        subset = grp.loc[grp["position"].isin(positions)]
+        if subset.empty:
+            return fallback, 0
+        values = subset["usage_overall"].sort_values(ascending=False)
+        if values.empty:
+            return fallback, 0
+        top_vals = values.head(top_n)
+        mean_val = float(top_vals.mean()) if not top_vals.empty else fallback
+        contributor_count = int((values >= 0.40).sum())
+        return mean_val, contributor_count
+
+    for team, grp in grouped:
+        grp = grp.copy()
+        grp["position"] = grp["position"].astype(str).str.upper()
+        off_score_raw, off_depth = _score_for_positions(grp, _AVAIL_OFF_POS, 5, default_score)
+        def_score_raw, def_depth = _score_for_positions(grp, _AVAIL_DEF_POS, 5, default_score)
+        st_score_raw, _ = _score_for_positions(grp, _AVAIL_ST_POS, 3, default_score)
+        qb_score_raw, _ = _score_for_positions(grp, {"QB"}, 1, default_score)
+        overall_score = 0.6 * off_score_raw + 0.3 * def_score_raw + 0.1 * st_score_raw
+
+        record = {
+            "team": team,
+            "availability_source": "cfbd_usage",
+            "availability_offense_score": round(max(0.0, min(off_score_raw, 1.0)) * 100, 1),
+            "availability_defense_score": round(max(0.0, min(def_score_raw, 1.0)) * 100, 1),
+            "availability_special_score": round(max(0.0, min(st_score_raw, 1.0)) * 100, 1),
+            "availability_qb_score": round(max(0.0, min(qb_score_raw, 1.0)) * 100, 1),
+            "availability_overall_score": round(max(0.0, min(overall_score, 1.0)) * 100, 1),
+            "availability_flag_qb_low": int(qb_score_raw < 0.40),
+            "availability_off_depth": off_depth,
+            "availability_def_depth": def_depth,
+        }
+        records.append(record)
+
+    if not team_conf:
+        return pd.DataFrame(records)
+
+    known_teams = {rec["team"] for rec in records}
+    for team in sorted(team_conf.keys()):
+        if team in known_teams:
+            continue
+        records.append(
+            {
+                "team": team,
+                "availability_source": "default",
+                "availability_offense_score": round(default_score * 100, 1),
+                "availability_defense_score": round(default_score * 100, 1),
+                "availability_special_score": round(default_score * 100, 1),
+                "availability_qb_score": round(default_score * 100, 1),
+                "availability_overall_score": round(default_score * 100, 1),
+                "availability_flag_qb_low": 0,
+                "availability_off_depth": 0,
+                "availability_def_depth": 0,
+            }
+        )
+
+    return pd.DataFrame(records)
+
+
 def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
     # conference map
     team_conf: Dict[str, str] = {}
@@ -75,6 +289,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
                 storage_write_dataset(df_store, "raw_cfbd_fbs_teams", if_exists="append")
         except Exception as e:
             print(f"[warn] fbs teams fetch failed: {e}", file=sys.stderr)
+
+    usage_df = _load_cfbd_player_usage(year, apis, cache, team_conf)
+    availability_df = _build_availability_features(usage_df, team_conf)
 
     # Returning Production (Connelly via CFBD)
     rp_df = read_dataset("raw_cfbd_returning_production")
@@ -257,6 +474,8 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         df = df.merge(sos_df, on="team", how="left")
         if not stats_df.empty:
             df = df.merge(stats_df, on="team", how="left")
+        if not availability_df.empty:
+            df = df.merge(availability_df, on="team", how="left")
         df = df.merge(portal_df, on="team", how="left")
     else:
         seed = [
@@ -355,6 +574,15 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_off_index_0_100",
         "stat_def_index_0_100",
         "stat_st_index_0_100",
+        "availability_source",
+        "availability_offense_score",
+        "availability_defense_score",
+        "availability_special_score",
+        "availability_qb_score",
+        "availability_overall_score",
+        "availability_flag_qb_low",
+        "availability_off_depth",
+        "availability_def_depth",
         "grade_qb_score",
         "grade_qb_percentile",
         "grade_qb_letter",

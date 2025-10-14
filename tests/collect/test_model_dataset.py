@@ -34,3 +34,4 @@ def test_load_training_dataset(tmp_path, monkeypatch):
     assert "market_spread_book" in dataset.frame.columns
     assert dataset.feature_columns
     assert any(col.startswith("delta_") for col in dataset.feature_columns)
+    assert any("availability_overall_score" in col for col in dataset.feature_columns)

@@ -22,6 +22,14 @@ _BASE_FEATURE_COLUMNS: List[str] = [
     "stat_off_index_0_100",
     "stat_def_index_0_100",
     "stat_st_index_0_100",
+    "availability_overall_score",
+    "availability_offense_score",
+    "availability_defense_score",
+    "availability_special_score",
+    "availability_qb_score",
+    "availability_flag_qb_low",
+    "availability_off_depth",
+    "availability_def_depth",
 ]
 
 _GRADE_FEATURE_COLUMNS: List[str] = [
