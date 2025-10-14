@@ -126,7 +126,7 @@ export default function BetsTab() {
   const [confidenceMin, setConfidenceMin] = useState<number>(CONFIDENCE_MIN);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [spreadBand, setSpreadBand] = useState<"any" | "close" | "td" | "double">("any");
+  const [spreadBand, setSpreadBand] = useState<"any" | "close" | "td" | "double">("double");
   const [sourceFilters, setSourceFilters] = useState<Record<string, boolean>>(
     () =>
       SOURCE_OPTIONS.reduce<Record<string, boolean>>((acc, opt) => {
