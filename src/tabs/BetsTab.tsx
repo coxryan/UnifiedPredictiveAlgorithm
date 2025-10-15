@@ -72,12 +72,6 @@ type BetRow = PredRow & {
   _dateIso: string;
   _spreadBucket: string | null;
   _result: string | null;
-  _homeQbScore: number | null;
-  _awayQbScore: number | null;
-  _homeQbFlag: boolean;
-  _awayQbFlag: boolean;
-  _homeAvailability: number | null;
-  _awayAvailability: number | null;
 };
 
 const confidenceBucket = (conf: number | null) => {
@@ -284,6 +278,9 @@ export default function BetsTab() {
     const activeSources = SOURCE_OPTIONS.filter((opt) => sourceFilters[opt.key]).map((opt) => opt.key);
     const bestBuckets = bucketInsights.bestBuckets;
     const activeBandKeys = selectedBands.length ? new Set(selectedBands) : new Set(SPREAD_BUCKETS.map((b) => b.key));
+    const effectiveEdgeMin = onlyQualified ? edgeMin : 0;
+    const effectiveValueMin = onlyQualified ? valueMin : 0;
+    const effectiveConfidenceMin = onlyQualified ? confidenceMin : 0;
 
     return shapedRows
       .filter((row) => {
@@ -305,9 +302,9 @@ export default function BetsTab() {
             return false;
           }
         }
-        if (!(Number.isFinite(row._edge) && Math.abs(row._edge as number) >= edgeMin)) return false;
-        if (!(Number.isFinite(row._value) && Math.abs(row._value as number) >= valueMin)) return false;
-        if (confidenceMin > 0 && !(Number.isFinite(row._confidence) && (row._confidence as number) >= confidenceMin)) {
+        if (!(Number.isFinite(row._edge) && Math.abs(row._edge as number) >= effectiveEdgeMin)) return false;
+        if (!(Number.isFinite(row._value) && Math.abs(row._value as number) >= effectiveValueMin)) return false;
+        if (effectiveConfidenceMin > 0 && !(Number.isFinite(row._confidence) && (row._confidence as number) >= effectiveConfidenceMin)) {
           return false;
         }
         if (startDate && (!row._dateIso || row._dateIso < startDate)) return false;
@@ -594,7 +591,9 @@ export default function BetsTab() {
                 <th>Value</th>
                 <th>Confidence</th>
                 <th>Source</th>
-                                <th>Qualified</th>
+                <th>Score</th>
+                <th>Result</th>
+                <th>Qualified</th>
                 <th>Pick</th>
               </tr>
             </thead>
@@ -613,6 +612,20 @@ export default function BetsTab() {
                     <td className={Number(row._value ?? 0) >= 0 ? "pos" : "neg"}>{fmtNum(row._value)}</td>
                     <td>{confPct !== null ? `${confPct}%` : "—"}</td>
                     <td>{row._source}</td>
+                    <td>
+                      {Number.isFinite(toNum((row as any).away_points)) && Number.isFinite(toNum((row as any).home_points))
+                        ? `${fmtNum(toNum((row as any).away_points), { maximumFractionDigits: 0 })} @ ${fmtNum(toNum((row as any).home_points), { maximumFractionDigits: 0 })}`
+                        : "—"}
+                    </td>
+                    <td>
+                      {row._result === "CORRECT"
+                        ? "Model Win"
+                        : row._result === "INCORRECT"
+                        ? "Model Loss"
+                        : row._result === "P"
+                        ? "Push"
+                        : "—"}
+                    </td>
                                         <td>{row._qualified ? "Yes" : "No"}</td>
                     <td>{row._pick}</td>
                   </tr>
@@ -626,11 +639,19 @@ export default function BetsTab() {
       {viewMode === "cards" && (
         <div className="pred-grid">
           {filteredRows.map((card) => {
-          const key = `${card.week}-${card.home_team}-${card.away_team}`;
-          const isOpen = expanded === key;
-          const toggle = () => setExpanded((prev) => (prev === key ? null : key));
-          
-          return (
+            const key = `${card.week}-${card.home_team}-${card.away_team}`;
+            const isOpen = expanded === key;
+            const toggle = () => setExpanded((prev) => (prev === key ? null : key));
+
+            const awayPts = toNum((card as any).away_points);
+            const homePts = toNum((card as any).home_points);
+            const awayScore = Number.isFinite(awayPts) ? fmtNum(awayPts, { maximumFractionDigits: 0 }) : "—";
+            const homeScore = Number.isFinite(homePts) ? fmtNum(homePts, { maximumFractionDigits: 0 }) : "—";
+            const scoreLine = Number.isFinite(awayPts) && Number.isFinite(homePts) ? `${awayScore} @ ${homeScore}` : "—";
+            const resultLabel = card._result === "CORRECT" ? "Model Win" : card._result === "INCORRECT" ? "Model Loss" : card._result === "P" ? "Push" : "";
+            const resultTone = card._result === "CORRECT" ? "pos" : card._result === "INCORRECT" ? "warn" : "muted";
+
+            return (
               <div key={key} className={`pred-card pred-card--bets pred-card--confidence-${card._confidenceBucket}`}>
                 <div className="pred-card__header">
                   <div>
@@ -638,25 +659,26 @@ export default function BetsTab() {
                     <div className="pred-card__date">{card.date || "TBD"}</div>
                   </div>
                   <div className="pred-card__header-meta">
+                    {resultLabel ? <Badge tone={resultTone}>{resultLabel}</Badge> : null}
                     <Badge tone="muted">{card._source}</Badge>
                   </div>
                 </div>
 
                 <div className="pred-card__teams">
-                            <div className="pred-card__team pred-card__team--away">
+                  <div className="pred-card__team pred-card__team--away">
                     <div className="pred-card__team-role">Away</div>
                     <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
-                                        <div className="pred-card__score">{fmtNum(undefined)}</div>
+                    <div className="pred-card__score">{awayScore}</div>
                   </div>
                   <div className="pred-card__match-info">
                     <div className="pred-card__kick">{card.date || ""}</div>
-                    <div className="pred-card__scoreline">{Number.isFinite(card._delta) ? `Delta: ${fmtNum(card._delta)}` : "Spread delta"}</div>
+                    <div className="pred-card__scoreline">{scoreLine}</div>
                     <div className="pred-card__live-tag">{card.neutral_site === "1" || card.neutral_site === "true" ? "Neutral" : ""}</div>
                   </div>
-                            <div className="pred-card__team pred-card__team--home">
+                  <div className="pred-card__team pred-card__team--home">
                     <div className="pred-card__team-role">Home</div>
                     <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} showTags={false} />
-                                        <div className="pred-card__score">{fmtNum(undefined)}</div>
+                    <div className="pred-card__score">{homeScore}</div>
                   </div>
                 </div>
 
@@ -684,7 +706,7 @@ export default function BetsTab() {
                       <div className="pred-card__notes-row"><span>Baseline Spread</span><span>{fmtNum(card._baseline)}</span></div>
                       <div className="pred-card__notes-row"><span>Adj Δ</span><span>{fmtNum(card._adjustment)}</span></div>
                       <div className="pred-card__notes-row"><span>Confidence bucket</span><span>{card._confidenceBucket}</span></div>
-                                          </div>
+                    </div>
                   </div>
                 </div>
               </div>
