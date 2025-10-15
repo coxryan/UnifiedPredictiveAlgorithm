@@ -48,12 +48,6 @@ type PredRow = {
   market_spread_source?: string | null;
   home_points?: string;
   away_points?: string;
-  availability_qb_score_home?: string | number;
-  availability_qb_score_away?: string | number;
-  availability_flag_qb_low_home?: string | number;
-  availability_flag_qb_low_away?: string | number;
-  availability_overall_score_home?: string | number;
-  availability_overall_score_away?: string | number;
 };
 
 type PositionKey = "qb" | "rb" | "wr" | "ol" | "dl" | "lb" | "db" | "st";
@@ -289,14 +283,6 @@ export default function PredictionsTab() {
         return { key, label, awayLetter, homeLetter, advantage };
       });
 
-      const homeQbScore = toNum((r as any).availability_qb_score_home);
-      const awayQbScore = toNum((r as any).availability_qb_score_away);
-      const homeAvailability = toNum((r as any).availability_overall_score_home);
-      const awayAvailability = toNum((r as any).availability_overall_score_away);
-      const homeQbFlagRaw = Number((r as any).availability_flag_qb_low_home);
-      const awayQbFlagRaw = Number((r as any).availability_flag_qb_low_away);
-      const homeQbFlag = (homeQbFlagRaw === 1) || (Number.isFinite(homeQbScore) && (homeQbScore as number) < 40);
-      const awayQbFlag = (awayQbFlagRaw === 1) || (Number.isFinite(awayQbScore) && (awayQbScore as number) < 40);
 
       return {
         ...r,
@@ -318,12 +304,6 @@ export default function PredictionsTab() {
         _positions: positions,
         _confidence: confidence,
         _confidencePct: confidencePct,
-        _homeQbScore: Number.isFinite(homeQbScore) ? (homeQbScore as number) : null,
-        _awayQbScore: Number.isFinite(awayQbScore) ? (awayQbScore as number) : null,
-        _homeAvailability: Number.isFinite(homeAvailability) ? (homeAvailability as number) : null,
-        _awayAvailability: Number.isFinite(awayAvailability) ? (awayAvailability as number) : null,
-        _homeQbFlag: homeQbFlag,
-        _awayQbFlag: awayQbFlag,
       };
     });
   }, [rows, wk, onlyQualified, kickKeyMap, kickIdMap, liveMap]);
@@ -390,7 +370,7 @@ export default function PredictionsTab() {
               </div>
 
               <div className="pred-card__teams">
-                <div className={`pred-card__team pred-card__team--away${awayInjury ? " pred-card__team--flagged" : ""}`}>
+                <div className="pred-card__team pred-card__team--away">
                   <div className="pred-card__team-role">Away</div>
                   <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{card._awayPointsLabel}</div>
@@ -401,7 +381,7 @@ export default function PredictionsTab() {
                   <div className="pred-card__scoreline">{card._scoreLabel}</div>
                   <div className="pred-card__live-tag">{card._liveState || ""}</div>
                 </div>
-                <div className={`pred-card__team pred-card__team--home${homeInjury ? " pred-card__team--flagged" : ""}`}>
+                <div className="pred-card__team pred-card__team--home">
                   <div className="pred-card__team-role">Home</div>
                   <TeamLabel
                     home={true}
@@ -413,7 +393,7 @@ export default function PredictionsTab() {
                   {card.neutral_site === "1" || card.neutral_site === "true" ? (
                     <div className="pred-card__team-tags"><Badge tone="muted">NEUTRAL</Badge></div>
                   ) : null}
-                  {homeInjury && <span className="availability-chip">QB Impact</span>}
+
                 </div>
               </div>
 
@@ -449,15 +429,7 @@ export default function PredictionsTab() {
                     })}
                   </div>
                 </div>
-                <div className="pred-card__notes">
-                  <div className="pred-card__notes-title">Availability Signals</div>
-                  <div className="pred-card__notes-grid">
-                    <div className="pred-card__notes-row"><span>{card.away_team} QB availability</span><span>{awayQbScore}{awayInjury ? " ⚠" : ""}</span></div>
-                    <div className="pred-card__notes-row"><span>{card.home_team} QB availability</span><span>{homeQbScore}{homeInjury ? " ⚠" : ""}</span></div>
-                    <div className="pred-card__notes-row"><span>{card.away_team} overall availability</span><span>{awayAvailability}</span></div>
-                    <div className="pred-card__notes-row"><span>{card.home_team} overall availability</span><span>{homeAvailability}</span></div>
-                  </div>
-                </div>
+                
               </div>
             </div>
           );
