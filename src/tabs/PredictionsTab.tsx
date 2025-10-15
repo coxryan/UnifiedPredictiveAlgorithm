@@ -394,7 +394,7 @@ export default function PredictionsTab() {
                   <div className="pred-card__team-role">Away</div>
                   <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{card._awayPointsLabel}</div>
-                  {awayInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
+                  {awayInjury && <span className="availability-chip">QB Impact</span>}
                 </div>
                 <div className="pred-card__match-info">
                   <div className="pred-card__kick">{card._kick || "Kickoff TBA"}</div>
@@ -413,7 +413,7 @@ export default function PredictionsTab() {
                   {card.neutral_site === "1" || card.neutral_site === "true" ? (
                     <div className="pred-card__team-tags"><Badge tone="muted">NEUTRAL</Badge></div>
                   ) : null}
-                  {homeInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
+                  {homeInjury && <span className="availability-chip">QB Impact</span>}
                 </div>
               </div>
 

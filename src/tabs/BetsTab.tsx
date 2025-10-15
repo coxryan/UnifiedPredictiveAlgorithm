@@ -683,7 +683,7 @@ export default function BetsTab() {
                   <div className={`pred-card__team pred-card__team--away${awayInjury ? " pred-card__team--flagged" : ""}`}>
                     <div className="pred-card__team-role">Away</div>
                     <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
-                    {awayInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
+                    {awayInjury && <span className="availability-chip">QB Impact</span>}
                     <div className="pred-card__score">{fmtNum(undefined)}</div>
                   </div>
                   <div className="pred-card__match-info">
@@ -694,7 +694,7 @@ export default function BetsTab() {
                   <div className={`pred-card__team pred-card__team--home${homeInjury ? " pred-card__team--flagged" : ""}`}>
                     <div className="pred-card__team-role">Home</div>
                     <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} showTags={false} />
-                    {homeInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
+                    {homeInjury && <span className="availability-chip">QB Impact</span>}
                     <div className="pred-card__score">{fmtNum(undefined)}</div>
                   </div>
                 </div>
