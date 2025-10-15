@@ -29,6 +29,7 @@
 - 2025-10-13 07:50: Bets tab shows historical win rate for the selected spread band and clarifies the buckets used for “Most likely to hit”.
 - 2025-10-13 07:52: Status tab weekly accuracy tables now display spread-band win rates for completed games.
 - 2025-10-13 07:55: Default Bets tab spread band set to “double-digit (≥10)” after historical win-rate review; status band table uses the same definitions.
+- 2025-10-13 08:05: Documented workflow/caching overview, added odds-calculation summary, and scheduled FanDuel snapshot workflow for Thu/Fri midnight PT and Sat 7am PT.
 
 ## In-Progress Changes (2025-10-13)
 
@@ -537,6 +538,17 @@ YEAR=${YEAR:-2025}
     ```
   - If a dataset is empty, the UI surfaces an empty state; we write structural placeholders where necessary to keep links valid.
 
+### Workflow & Cache Overview
+- **Deploy (`deploy.yml`)** – runs on every push (or manually). Rebuilds schedule, markets, team inputs, predictions, residual model, live edge report, copies artifacts into `dist/`, and validates outputs. Respects caches unless `FORCE_REFRESH_*` flags are set.
+- **Live markets (`fetch_markets_live.yml`)** – runs every 5 minutes on Friday/Saturday (and manually). Refreshes the current-week markets and live scores in-place, committing the updated SQLite database. Uses `FANDUEL_CACHE_ONLY=1` to avoid extra Odds API calls.
+- **FanDuel snapshot (`fetch-fanduel-odds.yml`)** – scheduled for Thursday 00:00 PT (07:00 UTC), Friday 00:00 PT (07:00 UTC), and Saturday 07:00 PT (14:00 UTC), with manual dispatch still available. Refreshes FanDuel odds, updates `.cache_odds/<year>`, and commits the odds snapshot + SQLite DB.
+- **Backtest (`build_backtest.yml`)** – manual workflow that rebuilds a historical season’s datasets (default 2024). Supports offline mode to reuse cached API responses.
+
+**Caching:**
+- `.cache_cfbd/<year>` (90-day TTL) stores CFBD schedule/teams/stats responses. Only purge when data is stale or schema changes; clears force a full refetch the next run.
+- `.cache_odds/<year>` (2-day TTL) stores FanDuel Odds API responses. Automatically refreshed by the scheduled snapshot workflow; deploy/live collectors reuse the most recent cached payload.
+- `data/upa_data.sqlite` is regenerated or updated every run and copied into the site build (`dist/data`). Debug artifacts (`data/debug/*.json`, `collector.log`) accompany the DB for troubleshooting.
+
 ### Summary Table
 
 | Table / JSON key (legacy path)            | Where Generated                         | Who Generates It                                           | UI Consumers / Links                                                | CI Validation |
@@ -572,24 +584,21 @@ YEAR=${YEAR:-2025}
 
 **Key Guarantee:** Every CI run **regenerates** these artifacts. If a critical file is empty/stale, the **validation step fails** the build, preventing accidental deployment.
 
-## Market Sources: FanDuel vs CFBD / Legacy `market_spread`
+## Market Sources & Backfill Order
 
-This section explains **how we use FanDuel vs other market sources**, how the data flows into predictions, and what the **priority & fallback** rules are.
+This section explains **how we use bookmaker odds** (FanDuel as the preferred feed with CFBD fallbacks), how the data flows into predictions, and what the **priority & fallback** rules are.
 
 ### Source Priority (ingestion → predictions)
 1. **FanDuel (Odds API)** — primary source for bookmaker lines.
    - Controlled by `MARKET_SOURCE=fanduel`.
    - Cached under `.cache_odds/<year>` (TTL ~2 days).
-   - Written to `data/market_debug` and `data/market_debug.json`.
-   - After fetching, we merge in CFBD spreads for any games missing a FanDuel line so finished games retain a market value the rest of the week.
-    - FanDuel fetch now requests data through **current week + 1**, so upcoming games in the next week are captured alongside the current slate.
-    - Debug logs: look for `get_market_lines_for_current_week` and `_fetch_cfbd_lines` messages to verify FanDuel coverage and CFBD fallback counts.
-2. **CFBD odds** — fallback when FanDuel is unavailable or token/limits block retrieval.
-   - Same normalization/sign convention as FanDuel (bookmaker sign: negative = home favored).
-   - Written into `market_debug.*` with metadata noting `source=cfbd`.
-3. **Legacy schedule column `market_spread`** — last-resort backfill if neither FanDuel nor CFBD provided a line for a game.
-   - Copied into `market_spread_book` **only when** `market_spread_book` is NaN and `market_spread` is numeric.
-   - Rows populated this way are marked `market_is_synthetic=true`.
+   - Populates `raw_fanduel_lines`, `market_debug.*`, and `market_debug.json`.
+   - Automated cron schedule (`fetch-fanduel-odds` workflow) refreshes snapshots every **Thursday 00:00 PT**, **Friday 00:00 PT**, and **Saturday 07:00 PT**, committing the updated odds snapshot for analysts. Manual dispatch is still available for ad-hoc pulls.
+2. **CFBD odds** — automatically fetched during deploy/live collectors to cover gaps or when the Odds API is unavailable.
+   - Shares the same sign convention (home-centric bookmaker sign).
+   - Merged into `market_debug.*` with `source=cfbd` metadata so we can trace fallbacks.
+3. **Legacy schedule column `market_spread`** — last-resort backfill if neither FanDuel nor CFBD provided a line.
+   - Only used when `market_spread_book` remains NaN after both feeds; rows are flagged `market_is_synthetic=1`.
 
 ### Join Keys & Alignment
 We try, in order:
@@ -612,6 +621,14 @@ We try, in order:
   - the line is synthetic or sourced outside FanDuel/CFBD (extra 50–30% haircut),
   - join matched on fuzzy criteria rather than exact keys.
 - Final `market_adjustment` = `residual_pred_calibrated × source_scale × model_confidence`, clipped to ±8 points. Source scales: FanDuel=1.0, CFBD=1.0, Model=0.0, Unknown=0.5 (override with `SOURCE_ADJ_SCALE_*`).
+
+### How UPA-F Calculates Spreads (Quick Overview)
+1. **Baseline rating model** – blend WRPS, Talent, SRS, and efficiency scores (weighted per `team_inputs.py`) to compute a home-minus-away rating differential, then add contextual home-field advantage.
+2. **Availability adjustments** – CFBD player-usage metrics become team availability scores (offense/defense/special/QB). Low quarterback availability triggers alerts and reduces residual confidence.
+3. **Residual ensemble** – train ridge + gradient-boosted stumps on historical residuals (market vs final margin) to learn matchup adjustments. Outputs linear, nonlinear, and calibrated components.
+4. **Anchoring to the market** – calibrated residual, scaled by confidence and source weights, yields `market_adjustment`. Adding it to the bookmaker spread (or baseline when markets are missing) gives `model_spread_book`.
+5. **Expected market blend** – compute `expected_market_spread_book = λ*M_market + (1-λ)*M_model` (λ defaults to 0.6) to derive value metrics (`edge_points_book`, `value_points_book`).
+6. **Confidence & qualification** – residual variance, availability flags, and synthetic markets feed into `model_confidence`; qualification thresholds gate recommended plays in the UI and Bets tab.
 
 ### Backfill Hierarchy inside Predictions
 When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
@@ -1111,6 +1128,7 @@ These rules guide Codex/Copilot when reading this document and editing the repos
 - Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
 - Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, spread bands, and the “Most likely to hit” historical selector.
 - Bets tab surfaces the historical win rate for the active spread band(s), notes the bucket(s) powering “Most likely to hit”, and its spread filters align with the six Status-tab buckets (`<3`, `3-5`, `5-10`, `10-15`, `15-20`, `20+`) with multi-select checkboxes.
+- Predictions and Bets tabs show a “QB Impact” badge (with detailed availability metrics) when CFBD player usage indicates the listed team carries a meaningful quarterback availability risk.
 - Status tab table must include descriptions of each file.
 
 ### Dev Workflow Rules

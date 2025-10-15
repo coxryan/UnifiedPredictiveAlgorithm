@@ -48,6 +48,12 @@ type PredRow = {
   market_spread_source?: string | null;
   home_points?: string;
   away_points?: string;
+  availability_qb_score_home?: string | number;
+  availability_qb_score_away?: string | number;
+  availability_flag_qb_low_home?: string | number;
+  availability_flag_qb_low_away?: string | number;
+  availability_overall_score_home?: string | number;
+  availability_overall_score_away?: string | number;
 };
 
 type PositionKey = "qb" | "rb" | "wr" | "ol" | "dl" | "lb" | "db" | "st";
@@ -112,6 +118,12 @@ export default function PredictionsTab() {
           market_spread_source: normalizeSource((x as any).market_spread_source),
           model_confidence: coerceNum((x as any).model_confidence) as any,
           qualified_edge_flag: flagVal((x as any).qualified_edge_flag),
+          availability_qb_score_home: coerceNum((x as any).availability_qb_score_home) as any,
+          availability_qb_score_away: coerceNum((x as any).availability_qb_score_away) as any,
+          availability_flag_qb_low_home: flagVal((x as any).availability_flag_qb_low_home),
+          availability_flag_qb_low_away: flagVal((x as any).availability_flag_qb_low_away),
+          availability_overall_score_home: coerceNum((x as any).availability_overall_score_home) as any,
+          availability_overall_score_away: coerceNum((x as any).availability_overall_score_away) as any,
         }));
         setRows(normalized);
 
@@ -277,6 +289,15 @@ export default function PredictionsTab() {
         return { key, label, awayLetter, homeLetter, advantage };
       });
 
+      const homeQbScore = toNum((r as any).availability_qb_score_home);
+      const awayQbScore = toNum((r as any).availability_qb_score_away);
+      const homeAvailability = toNum((r as any).availability_overall_score_home);
+      const awayAvailability = toNum((r as any).availability_overall_score_away);
+      const homeQbFlagRaw = Number((r as any).availability_flag_qb_low_home);
+      const awayQbFlagRaw = Number((r as any).availability_flag_qb_low_away);
+      const homeQbFlag = (homeQbFlagRaw === 1) || (Number.isFinite(homeQbScore) && (homeQbScore as number) < 40);
+      const awayQbFlag = (awayQbFlagRaw === 1) || (Number.isFinite(awayQbScore) && (awayQbScore as number) < 40);
+
       return {
         ...r,
         _model: model,
@@ -297,6 +318,12 @@ export default function PredictionsTab() {
         _positions: positions,
         _confidence: confidence,
         _confidencePct: confidencePct,
+        _homeQbScore: Number.isFinite(homeQbScore) ? (homeQbScore as number) : null,
+        _awayQbScore: Number.isFinite(awayQbScore) ? (awayQbScore as number) : null,
+        _homeAvailability: Number.isFinite(homeAvailability) ? (homeAvailability as number) : null,
+        _awayAvailability: Number.isFinite(awayAvailability) ? (awayAvailability as number) : null,
+        _homeQbFlag: homeQbFlag,
+        _awayQbFlag: awayQbFlag,
       };
     });
   }, [rows, wk, onlyQualified, kickKeyMap, kickIdMap, liveMap]);
@@ -337,11 +364,17 @@ export default function PredictionsTab() {
 
           const toggleDetails = () => setExpanded((prev) => (prev === key ? null : key));
 
-          const gradeBadge = (letter: string, highlight = false) => (
-            <span className={`pred-card__grade${gradeClassName(letter)}${highlight ? " highlight" : ""}`}>
-              {(letter || "—").toString().trim() || "—"}
-            </span>
-          );
+      const gradeBadge = (letter: string, highlight = false) => (
+        <span className={`pred-card__grade${gradeClassName(letter)}${highlight ? " highlight" : ""}`}>
+          {(letter || "—").toString().trim() || "—"}
+        </span>
+      );
+      const awayInjury = card._awayQbFlag;
+      const homeInjury = card._homeQbFlag;
+      const awayAvailability = Number.isFinite(card._awayAvailability) ? `${fmtNum(card._awayAvailability)}%` : "—";
+      const homeAvailability = Number.isFinite(card._homeAvailability) ? `${fmtNum(card._homeAvailability)}%` : "—";
+      const awayQbScore = Number.isFinite(card._awayQbScore) ? `${fmtNum(card._awayQbScore)}%` : "—";
+      const homeQbScore = Number.isFinite(card._homeQbScore) ? `${fmtNum(card._homeQbScore)}%` : "—";
 
           return (
             <div key={key} className={`pred-card${qualified ? " pred-card--qualified" : ""}`}>
@@ -357,17 +390,18 @@ export default function PredictionsTab() {
               </div>
 
               <div className="pred-card__teams">
-                <div className="pred-card__team pred-card__team--away">
+                <div className={`pred-card__team pred-card__team--away${awayInjury ? " pred-card__team--flagged" : ""}`}>
                   <div className="pred-card__team-role">Away</div>
                   <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
                   <div className="pred-card__score">{card._awayPointsLabel}</div>
+                  {awayInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
                 </div>
                 <div className="pred-card__match-info">
                   <div className="pred-card__kick">{card._kick || "Kickoff TBA"}</div>
                   <div className="pred-card__scoreline">{card._scoreLabel}</div>
                   <div className="pred-card__live-tag">{card._liveState || ""}</div>
                 </div>
-                <div className="pred-card__team pred-card__team--home">
+                <div className={`pred-card__team pred-card__team--home${homeInjury ? " pred-card__team--flagged" : ""}`}>
                   <div className="pred-card__team-role">Home</div>
                   <TeamLabel
                     home={true}
@@ -379,6 +413,7 @@ export default function PredictionsTab() {
                   {card.neutral_site === "1" || card.neutral_site === "true" ? (
                     <div className="pred-card__team-tags"><Badge tone="muted">NEUTRAL</Badge></div>
                   ) : null}
+                  {homeInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
                 </div>
               </div>
 
@@ -412,6 +447,15 @@ export default function PredictionsTab() {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+                <div className="pred-card__notes">
+                  <div className="pred-card__notes-title">Availability Signals</div>
+                  <div className="pred-card__notes-grid">
+                    <div className="pred-card__notes-row"><span>{card.away_team} QB availability</span><span>{awayQbScore}{awayInjury ? " ⚠" : ""}</span></div>
+                    <div className="pred-card__notes-row"><span>{card.home_team} QB availability</span><span>{homeQbScore}{homeInjury ? " ⚠" : ""}</span></div>
+                    <div className="pred-card__notes-row"><span>{card.away_team} overall availability</span><span>{awayAvailability}</span></div>
+                    <div className="pred-card__notes-row"><span>{card.home_team} overall availability</span><span>{homeAvailability}</span></div>
                   </div>
                 </div>
               </div>

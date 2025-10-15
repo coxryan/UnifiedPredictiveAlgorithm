@@ -1,6 +1,10 @@
 name: fetch-fanduel-odds
 
 on:
+  schedule:
+    - cron: '0 7 * * 4'
+    - cron: '0 7 * * 5'
+    - cron: '0 14 * * 6'
   workflow_dispatch:
     inputs:
       year:

@@ -49,6 +49,12 @@ type PredRow = {
   start_date?: string;
   played?: string | number;
   model_result?: string;
+  availability_qb_score_home?: string | number;
+  availability_qb_score_away?: string | number;
+  availability_flag_qb_low_home?: string | number;
+  availability_flag_qb_low_away?: string | number;
+  availability_overall_score_home?: string | number;
+  availability_overall_score_away?: string | number;
 };
 
 type ViewMode = "cards" | "list";
@@ -72,6 +78,12 @@ type BetRow = PredRow & {
   _dateIso: string;
   _spreadBucket: string | null;
   _result: string | null;
+  _homeQbScore: number | null;
+  _awayQbScore: number | null;
+  _homeQbFlag: boolean;
+  _awayQbFlag: boolean;
+  _homeAvailability: number | null;
+  _awayAvailability: number | null;
 };
 
 const confidenceBucket = (conf: number | null) => {
@@ -195,6 +207,14 @@ export default function BetsTab() {
       const modelResult = (r.model_result || "").toString().trim().toUpperCase();
       const playedFlag = Number(r.played);
       const spreadBucket = spreadBucketFor(spreadAbs);
+      const homeQbScoreRaw = toNum((r as any).availability_qb_score_home);
+      const awayQbScoreRaw = toNum((r as any).availability_qb_score_away);
+      const homeQbFlagRaw = Number((r as any).availability_flag_qb_low_home);
+      const awayQbFlagRaw = Number((r as any).availability_flag_qb_low_away);
+      const homeAvailabilityRaw = toNum((r as any).availability_overall_score_home);
+      const awayAvailabilityRaw = toNum((r as any).availability_overall_score_away);
+      const homeQbFlag = (homeQbFlagRaw === 1) || (Number.isFinite(homeQbScoreRaw) && (homeQbScoreRaw as number) < 40);
+      const awayQbFlag = (awayQbFlagRaw === 1) || (Number.isFinite(awayQbScoreRaw) && (awayQbScoreRaw as number) < 40);
       return {
         ...r,
         _model: Number.isFinite(model) ? model : null,
@@ -215,6 +235,12 @@ export default function BetsTab() {
         _dateIso: dateIso,
         _spreadBucket: spreadBucket,
         _result: playedFlag === 1 ? modelResult : null,
+        _homeQbScore: Number.isFinite(homeQbScoreRaw) ? (homeQbScoreRaw as number) : null,
+        _awayQbScore: Number.isFinite(awayQbScoreRaw) ? (awayQbScoreRaw as number) : null,
+        _homeQbFlag: homeQbFlag,
+        _awayQbFlag: awayQbFlag,
+        _homeAvailability: Number.isFinite(homeAvailabilityRaw) ? (homeAvailabilityRaw as number) : null,
+        _awayAvailability: Number.isFinite(awayAvailabilityRaw) ? (awayAvailabilityRaw as number) : null,
       };
     });
   }, [rows]);
@@ -588,6 +614,7 @@ export default function BetsTab() {
                 <th>Value</th>
                 <th>Confidence</th>
                 <th>Source</th>
+                <th>QB Alert</th>
                 <th>Qualified</th>
                 <th>Pick</th>
               </tr>
@@ -607,6 +634,16 @@ export default function BetsTab() {
                     <td className={Number(row._value ?? 0) >= 0 ? "pos" : "neg"}>{fmtNum(row._value)}</td>
                     <td>{confPct !== null ? `${confPct}%` : "—"}</td>
                     <td>{row._source}</td>
+                    <td>
+                      {row._awayQbFlag || row._homeQbFlag
+                        ? [
+                            row._awayQbFlag ? `${row.away_team} QB` : null,
+                            row._homeQbFlag ? `${row.home_team} QB` : null,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")
+                        : "—"}
+                    </td>
                     <td>{row._qualified ? "Yes" : "No"}</td>
                     <td>{row._pick}</td>
                   </tr>
@@ -620,11 +657,17 @@ export default function BetsTab() {
       {viewMode === "cards" && (
         <div className="pred-grid">
           {filteredRows.map((card) => {
-            const key = `${card.week}-${card.home_team}-${card.away_team}`;
-            const isOpen = expanded === key;
-            const toggle = () => setExpanded((prev) => (prev === key ? null : key));
+          const key = `${card.week}-${card.home_team}-${card.away_team}`;
+          const isOpen = expanded === key;
+          const toggle = () => setExpanded((prev) => (prev === key ? null : key));
+          const awayInjury = card._awayQbFlag;
+          const homeInjury = card._homeQbFlag;
+          const awayAvailability = Number.isFinite(card._awayAvailability) ? `${fmtNum(card._awayAvailability)}%` : "—";
+          const homeAvailability = Number.isFinite(card._homeAvailability) ? `${fmtNum(card._homeAvailability)}%` : "—";
+          const awayQbScore = Number.isFinite(card._awayQbScore) ? `${fmtNum(card._awayQbScore)}%` : "—";
+          const homeQbScore = Number.isFinite(card._homeQbScore) ? `${fmtNum(card._homeQbScore)}%` : "—";
 
-            return (
+          return (
               <div key={key} className={`pred-card pred-card--bets pred-card--confidence-${card._confidenceBucket}`}>
                 <div className="pred-card__header">
                   <div>
@@ -637,9 +680,10 @@ export default function BetsTab() {
                 </div>
 
                 <div className="pred-card__teams">
-                  <div className="pred-card__team pred-card__team--away">
+                  <div className={`pred-card__team pred-card__team--away${awayInjury ? " pred-card__team--flagged" : ""}`}>
                     <div className="pred-card__team-role">Away</div>
                     <TeamLabel home={false} team={card.away_team} neutral={false} showTags={false} />
+                    {awayInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
                     <div className="pred-card__score">{fmtNum(undefined)}</div>
                   </div>
                   <div className="pred-card__match-info">
@@ -647,9 +691,10 @@ export default function BetsTab() {
                     <div className="pred-card__scoreline">{Number.isFinite(card._delta) ? `Delta: ${fmtNum(card._delta)}` : "Spread delta"}</div>
                     <div className="pred-card__live-tag">{card.neutral_site === "1" || card.neutral_site === "true" ? "Neutral" : ""}</div>
                   </div>
-                  <div className="pred-card__team pred-card__team--home">
+                  <div className={`pred-card__team pred-card__team--home${homeInjury ? " pred-card__team--flagged" : ""}`}>
                     <div className="pred-card__team-role">Home</div>
                     <TeamLabel home={true} team={card.home_team} neutral={card.neutral_site === "1" || card.neutral_site === "true"} showTags={false} />
+                    {homeInjury && <Badge tone="warn" className="availability-badge">QB Impact</Badge>}
                     <div className="pred-card__score">{fmtNum(undefined)}</div>
                   </div>
                 </div>
@@ -678,6 +723,10 @@ export default function BetsTab() {
                       <div className="pred-card__notes-row"><span>Baseline Spread</span><span>{fmtNum(card._baseline)}</span></div>
                       <div className="pred-card__notes-row"><span>Adj Δ</span><span>{fmtNum(card._adjustment)}</span></div>
                       <div className="pred-card__notes-row"><span>Confidence bucket</span><span>{card._confidenceBucket}</span></div>
+                      <div className="pred-card__notes-row"><span>{card.away_team} QB availability</span><span>{awayQbScore}{awayInjury ? " ⚠" : ""}</span></div>
+                      <div className="pred-card__notes-row"><span>{card.home_team} QB availability</span><span>{homeQbScore}{homeInjury ? " ⚠" : ""}</span></div>
+                      <div className="pred-card__notes-row"><span>{card.away_team} overall availability</span><span>{awayAvailability}</span></div>
+                      <div className="pred-card__notes-row"><span>{card.home_team} overall availability</span><span>{homeAvailability}</span></div>
                     </div>
                   </div>
                 </div>

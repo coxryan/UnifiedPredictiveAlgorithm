@@ -426,6 +426,24 @@ def build_predictions_for_year(
                 preds[home_col] = preds["home_team"].map(series)
                 preds[away_col] = preds["away_team"].map(series)
 
+    availability_columns: List[str] = []
+    if team_inputs_df is not None and not team_inputs_df.empty and "team" in team_inputs_df.columns:
+        availability_columns = [
+            col
+            for col in team_inputs_df.columns
+            if col.startswith("availability_")
+        ]
+        if availability_columns:
+            indexed_availability = team_inputs_df.set_index("team")
+            dedup_availability = indexed_availability.loc[~indexed_availability.index.duplicated(keep="last")]
+            for col in availability_columns:
+                if col not in dedup_availability.columns:
+                    continue
+                home_col = f"{col}_home"
+                away_col = f"{col}_away"
+                preds[home_col] = preds["home_team"].map(dedup_availability[col])
+                preds[away_col] = preds["away_team"].map(dedup_availability[col])
+
     home_rating = preds["home_team"].map(team_ratings).fillna(0.5)
     away_rating = preds["away_team"].map(team_ratings).fillna(0.5)
 
