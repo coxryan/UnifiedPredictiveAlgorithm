@@ -328,6 +328,13 @@ def test_get_market_lines_refreshes_cached_when_next_week_missing(monkeypatch, t
 
     monkeypatch.setattr(markets, "get_market_lines_fanduel_for_weeks", fake_fetch, raising=False)
 
+    status_updates = []
+
+    def capture_status(used, req, reason, *_args, extra=None, **_kwargs):
+        status_updates.append((used, req, reason, extra or {}))
+
+    monkeypatch.setattr(markets, "_upsert_status_market_source", capture_status, raising=False)
+
     schedule = pd.DataFrame(
         [
             {"game_id": 30, "week": 5, "home_team": "Alpha", "away_team": "Beta"},
@@ -343,10 +350,11 @@ def test_get_market_lines_refreshes_cached_when_next_week_missing(monkeypatch, t
         cache=SimpleNamespace(),
     )
 
-    assert fetch_calls, "expected FanDuel fetch when cached weeks are incomplete"
-    assert fetch_calls[0][-1] == 6
-    assert sorted(result["week"].unique().tolist()) == [5, 6]
-    assert result.loc[result["game_id"] == 40, "market_spread_fanduel"].iloc[0] == pytest.approx(-2.5)
+    assert not fetch_calls, "should reuse cached FanDuel rows without fetching when future weeks missing"
+    assert sorted(result["week"].unique().tolist()) == [5]
+    assert result.loc[result["game_id"] == 30, "market_spread_fanduel"].iloc[0] == pytest.approx(-4.0)
+    latest_extra = status_updates[-1][3] if status_updates else {}
+    assert latest_extra.get("fanduel_cached_missing_optional_weeks") == [6]
 
 
 def test_fanduel_nan_logging_includes_raw(monkeypatch, tmp_path):

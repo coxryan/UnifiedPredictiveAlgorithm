@@ -594,6 +594,7 @@ This section explains **how we use bookmaker odds** (FanDuel as the preferred fe
    - Cached under `.cache_odds/<year>` (TTL ~2 days).
    - Populates `raw_fanduel_lines`, `market_debug.*`, and `market_debug.json`.
    - Automated cron schedule (`fetch-fanduel-odds` workflow) refreshes snapshots every **Thursday 00:00 PT**, **Friday 00:00 PT**, and **Saturday 07:00 PT**, committing the updated odds snapshot for analysts. Manual dispatch is still available for ad-hoc pulls.
+   - Cached FanDuel pulls remain authoritative for the **current week** even when the next slate is missing; we log any upcoming-week gaps via `fanduel_cached_missing_optional_weeks` so analysts can decide whether a refresh is needed.
 2. **CFBD odds** — automatically fetched during deploy/live collectors to cover gaps or when the Odds API is unavailable.
    - Shares the same sign convention (home-centric bookmaker sign).
    - Merged into `market_debug.*` with `source=cfbd` metadata so we can trace fallbacks.

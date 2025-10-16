@@ -390,21 +390,27 @@ def get_market_lines_for_current_week(
     if pd.notna(max_sched_week):
         next_week = min(next_week, max_sched_week)
     weeks = list(range(1, current_week + 1))
-    if next_week not in weeks and next_week >= 1:
-        weeks.append(next_week)
-    weeks = sorted(set(int(w) for w in weeks if pd.notna(w)))
-
-    required_weeks: Set[int] = set()
-    if pd.notna(next_week):
+    if pd.notna(next_week) and next_week >= 1:
         try:
-            required_weeks.add(int(next_week))
+            weeks.append(int(next_week))
         except Exception:
             pass
-    if not required_weeks and pd.notna(current_week):
+    weeks = sorted({int(w) for w in weeks if pd.notna(w)})
+
+    required_weeks: Set[int] = set()
+    optional_weeks: Set[int] = set()
+    if pd.notna(current_week):
         try:
             required_weeks.add(int(current_week))
         except Exception:
             pass
+    if pd.notna(next_week):
+        try:
+            next_week_int = int(next_week)
+        except Exception:
+            next_week_int = None
+        if next_week_int is not None and (not required_weeks or next_week_int not in required_weeks):
+            optional_weeks.add(next_week_int)
 
     def _load_cached_lines(table: str) -> pd.DataFrame:
         cached = read_dataset(table)
@@ -428,18 +434,29 @@ def get_market_lines_for_current_week(
 
     # Attempt to use cached FanDuel lines first
     cached_fanduel = _load_cached_lines("raw_fanduel_lines")
-    cached_fanduel_weeks_ok = True
+    cached_fanduel_required_ok = True
     missing_required_weeks: List[int] = []
-    if not cached_fanduel.empty and required_weeks:
+    missing_optional_weeks: List[int] = []
+    cached_weeks: Set[int] = set()
+    if not cached_fanduel.empty:
         cached_week_values = pd.to_numeric(cached_fanduel.get("week"), errors="coerce")
-        cached_weeks = {
-            int(w)
-            for w in cached_week_values.dropna().astype("int64")
-        } if cached_week_values is not None else set()
-        missing_required_weeks = sorted(w for w in required_weeks if w not in cached_weeks)
-        cached_fanduel_weeks_ok = not missing_required_weeks
-        if missing_required_weeks:
-            market_extra["fanduel_cached_missing_weeks"] = missing_required_weeks
+        if cached_week_values is not None:
+            cached_weeks = {
+                int(w) for w in cached_week_values.dropna().astype("int64")
+            }
+        if required_weeks:
+            missing_required_weeks = sorted(w for w in required_weeks if w not in cached_weeks)
+            cached_fanduel_required_ok = not missing_required_weeks
+            if missing_required_weeks:
+                market_extra["fanduel_cached_missing_weeks"] = missing_required_weeks
+        if optional_weeks:
+            missing_optional_weeks = sorted(w for w in optional_weeks if w not in cached_weeks)
+            if missing_optional_weeks:
+                market_extra["fanduel_cached_missing_optional_weeks"] = missing_optional_weeks
+    else:
+        if required_weeks:
+            cached_fanduel_required_ok = False
+            missing_required_weeks = sorted(required_weeks)
             _dbg(
                 "get_market_lines_for_current_week: cached FanDuel missing required weeks "
                 f"{missing_required_weeks}; will attempt refresh"
@@ -448,7 +465,7 @@ def get_market_lines_for_current_week(
         requested == "fanduel"
         and not cached_fanduel.empty
         and len(cached_fanduel) >= MARKET_MIN_ROWS
-        and cached_fanduel_weeks_ok
+        and cached_fanduel_required_ok
     ):
         out_df = _normalize_market_df(cached_fanduel)
         fanduel_norm = out_df.copy()
