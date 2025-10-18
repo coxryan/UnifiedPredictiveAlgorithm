@@ -1,33 +1,5 @@
 [
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -60,7 +32,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -81,7 +53,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -102,14 +74,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -130,7 +102,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -144,28 +116,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -179,7 +151,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -214,7 +186,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -263,35 +235,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -312,7 +284,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -343,34 +315,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -403,7 +347,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -424,7 +368,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -445,14 +389,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -473,7 +417,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -487,28 +431,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -522,7 +466,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -557,7 +501,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -606,35 +550,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -655,7 +599,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -686,34 +630,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -746,7 +662,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -767,7 +683,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -788,14 +704,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -816,7 +732,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -830,28 +746,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -865,7 +781,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -900,7 +816,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -949,35 +865,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -998,7 +914,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -1029,34 +945,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -1089,7 +977,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -1110,7 +998,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -1131,14 +1019,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -1159,7 +1047,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -1173,28 +1061,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -1208,7 +1096,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -1243,7 +1131,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -1292,35 +1180,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -1341,7 +1229,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -1372,34 +1260,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -1432,7 +1292,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -1453,7 +1313,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -1474,14 +1334,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -1502,7 +1362,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -1516,28 +1376,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -1551,7 +1411,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -1586,7 +1446,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -1635,35 +1495,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -1684,7 +1544,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -1715,34 +1575,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -1775,7 +1607,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -1796,7 +1628,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -1817,14 +1649,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -1845,7 +1677,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -1859,28 +1691,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -1894,7 +1726,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -1929,7 +1761,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -1978,35 +1810,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -2027,7 +1859,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -2058,34 +1890,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -2118,7 +1922,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -2139,7 +1943,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -2160,14 +1964,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -2188,7 +1992,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -2202,28 +2006,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -2237,7 +2041,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -2272,7 +2076,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -2321,35 +2125,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -2370,7 +2174,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -2401,34 +2205,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -2461,7 +2237,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -2482,7 +2258,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -2503,14 +2279,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -2531,7 +2307,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -2545,28 +2321,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -2580,7 +2356,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -2615,7 +2391,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -2664,35 +2440,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -2713,7 +2489,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -2744,34 +2520,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -2804,7 +2552,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -2825,7 +2573,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -2846,14 +2594,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -2874,7 +2622,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -2888,28 +2636,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -2923,7 +2671,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -2958,7 +2706,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -3007,35 +2755,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -3056,7 +2804,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -3087,34 +2835,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -3147,7 +2867,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -3168,7 +2888,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -3189,14 +2909,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -3217,7 +2937,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -3231,28 +2951,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -3266,7 +2986,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -3301,7 +3021,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -3350,35 +3070,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -3399,7 +3119,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -3430,34 +3150,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -3490,7 +3182,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -3511,7 +3203,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -3532,14 +3224,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -3560,7 +3252,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -3574,28 +3266,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -3609,7 +3301,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -3644,7 +3336,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -3693,35 +3385,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -3742,7 +3434,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -3773,34 +3465,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -3833,7 +3497,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -3854,7 +3518,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -3875,14 +3539,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -3903,7 +3567,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -3917,28 +3581,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -3952,7 +3616,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -3987,7 +3651,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -4036,35 +3700,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -4085,7 +3749,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -4116,34 +3780,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -4176,7 +3812,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -4197,7 +3833,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -4218,14 +3854,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -4246,7 +3882,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -4260,28 +3896,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -4295,7 +3931,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -4330,7 +3966,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -4379,35 +4015,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -4428,7 +4064,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -4459,34 +4095,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -4519,7 +4127,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -4540,7 +4148,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -4561,14 +4169,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -4589,7 +4197,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -4603,28 +4211,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -4638,7 +4246,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -4673,7 +4281,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -4722,35 +4330,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -4771,7 +4379,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -4802,34 +4410,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -4862,7 +4442,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -4883,7 +4463,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -4904,14 +4484,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -4932,7 +4512,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -4946,28 +4526,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -4981,7 +4561,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -5016,7 +4596,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -5065,35 +4645,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -5114,7 +4694,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -5145,34 +4725,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -5205,7 +4757,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -5226,7 +4778,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -5247,14 +4799,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -5275,7 +4827,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -5289,28 +4841,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -5324,7 +4876,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -5359,7 +4911,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -5408,35 +4960,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -5457,7 +5009,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -5488,34 +5040,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -5548,7 +5072,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -5569,7 +5093,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -5590,14 +5114,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -5618,7 +5142,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -5632,28 +5156,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -5667,7 +5191,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -5702,7 +5226,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -5751,35 +5275,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -5800,7 +5324,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -5831,34 +5355,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -5891,7 +5387,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -5912,7 +5408,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -5933,14 +5429,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -5961,7 +5457,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -5975,28 +5471,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -6010,7 +5506,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -6045,7 +5541,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -6094,35 +5590,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -6143,7 +5639,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -6174,34 +5670,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -6234,7 +5702,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -6255,7 +5723,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -6276,14 +5744,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -6304,7 +5772,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -6318,28 +5786,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -6353,7 +5821,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -6388,7 +5856,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -6437,35 +5905,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -6486,7 +5954,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -6517,34 +5985,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -6577,7 +6017,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -6598,7 +6038,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -6619,14 +6059,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -6647,7 +6087,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -6661,28 +6101,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -6696,7 +6136,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -6731,7 +6171,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -6780,35 +6220,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -6829,7 +6269,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -6860,34 +6300,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -6920,7 +6332,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -6941,7 +6353,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -6962,14 +6374,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -6990,7 +6402,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -7004,28 +6416,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -7039,7 +6451,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -7074,7 +6486,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -7123,35 +6535,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -7172,7 +6584,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -7203,34 +6615,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -7263,7 +6647,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -7284,7 +6668,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -7305,14 +6689,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -7333,7 +6717,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -7347,28 +6731,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -7382,7 +6766,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -7417,7 +6801,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -7466,35 +6850,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -7515,7 +6899,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -7546,34 +6930,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -7606,7 +6962,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -7627,7 +6983,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -7648,14 +7004,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -7676,7 +7032,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -7690,28 +7046,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -7725,7 +7081,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -7760,7 +7116,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -7809,35 +7165,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -7858,7 +7214,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -7889,34 +7245,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -7949,7 +7277,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -7970,7 +7298,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -7991,14 +7319,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -8019,7 +7347,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -8033,28 +7361,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -8068,7 +7396,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -8103,7 +7431,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -8152,35 +7480,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -8201,7 +7529,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -8232,34 +7560,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -8292,7 +7592,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -8313,7 +7613,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -8334,14 +7634,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -8362,7 +7662,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -8376,28 +7676,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -8411,7 +7711,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -8446,7 +7746,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -8495,35 +7795,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -8544,7 +7844,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -8575,34 +7875,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -8635,7 +7907,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -8656,7 +7928,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -8677,14 +7949,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -8705,7 +7977,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -8719,28 +7991,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -8754,7 +8026,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -8789,7 +8061,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -8838,35 +8110,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -8887,7 +8159,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -8918,34 +8190,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -8978,7 +8222,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -8999,7 +8243,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -9020,14 +8264,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -9048,7 +8292,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -9062,28 +8306,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -9097,7 +8341,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -9132,7 +8376,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -9181,35 +8425,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -9230,7 +8474,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -9261,34 +8505,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -9321,7 +8537,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -9342,7 +8558,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -9363,14 +8579,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -9391,7 +8607,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -9405,28 +8621,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -9440,7 +8656,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -9475,7 +8691,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -9524,35 +8740,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -9573,7 +8789,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -9604,34 +8820,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -9664,7 +8852,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -9685,7 +8873,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -9706,14 +8894,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -9734,7 +8922,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -9748,28 +8936,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -9783,7 +8971,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -9818,7 +9006,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -9867,35 +9055,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -9916,7 +9104,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -9947,34 +9135,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -10007,7 +9167,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -10028,7 +9188,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -10049,14 +9209,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -10077,7 +9237,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -10091,28 +9251,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -10126,7 +9286,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -10161,7 +9321,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -10210,35 +9370,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -10259,7 +9419,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -10290,34 +9450,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -10350,7 +9482,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -10371,7 +9503,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -10392,14 +9524,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -10420,7 +9552,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -10434,28 +9566,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -10469,7 +9601,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -10504,7 +9636,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -10553,35 +9685,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -10602,7 +9734,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -10633,34 +9765,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -10693,7 +9797,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -10714,7 +9818,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -10735,14 +9839,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -10763,7 +9867,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -10777,28 +9881,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -10812,7 +9916,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -10847,7 +9951,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -10896,35 +10000,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -10945,7 +10049,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -10976,34 +10080,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -11036,7 +10112,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -11057,7 +10133,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -11078,14 +10154,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -11106,7 +10182,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -11120,28 +10196,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -11155,7 +10231,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -11190,7 +10266,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -11239,35 +10315,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -11288,7 +10364,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -11319,34 +10395,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -11379,7 +10427,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -11400,7 +10448,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -11421,14 +10469,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -11449,7 +10497,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -11463,28 +10511,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -11498,7 +10546,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -11533,7 +10581,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -11582,35 +10630,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -11631,7 +10679,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -11662,34 +10710,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -11722,7 +10742,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -11743,7 +10763,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -11764,14 +10784,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -11792,7 +10812,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -11806,28 +10826,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -11841,7 +10861,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -11876,7 +10896,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -11925,35 +10945,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -11974,7 +10994,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -12005,34 +11025,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -12065,7 +11057,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -12086,7 +11078,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -12107,14 +11099,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -12135,7 +11127,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -12149,28 +11141,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -12184,7 +11176,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -12219,7 +11211,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -12268,35 +11260,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -12317,7 +11309,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -12348,34 +11340,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -12408,7 +11372,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -12429,7 +11393,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -12450,14 +11414,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -12478,7 +11442,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -12492,28 +11456,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -12527,7 +11491,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -12562,7 +11526,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -12611,35 +11575,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -12660,7 +11624,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -12691,34 +11655,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -12751,7 +11687,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -12772,7 +11708,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -12793,14 +11729,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -12821,7 +11757,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -12835,28 +11771,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -12870,7 +11806,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -12905,7 +11841,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -12954,35 +11890,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -13003,7 +11939,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -13034,34 +11970,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -13094,7 +12002,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -13115,7 +12023,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -13136,14 +12044,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -13164,7 +12072,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -13178,28 +12086,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -13213,7 +12121,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -13248,7 +12156,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -13297,35 +12205,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -13346,7 +12254,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -13377,34 +12285,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -13437,7 +12317,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -13458,7 +12338,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -13479,14 +12359,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -13507,7 +12387,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -13521,28 +12401,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -13556,7 +12436,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -13591,7 +12471,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -13640,35 +12520,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -13689,7 +12569,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -13720,34 +12600,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -13780,7 +12632,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -13801,7 +12653,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -13822,14 +12674,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -13850,7 +12702,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -13864,28 +12716,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -13899,7 +12751,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -13934,7 +12786,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -13983,35 +12835,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -14032,7 +12884,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -14063,34 +12915,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -14123,7 +12947,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -14144,7 +12968,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -14165,14 +12989,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -14193,7 +13017,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -14207,28 +13031,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -14242,7 +13066,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -14277,7 +13101,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -14326,35 +13150,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -14375,7 +13199,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -14406,34 +13230,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -14466,7 +13262,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -14487,7 +13283,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -14508,14 +13304,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -14536,7 +13332,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -14550,28 +13346,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -14585,7 +13381,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -14620,7 +13416,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -14669,35 +13465,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -14718,7 +13514,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -14749,34 +13545,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -14809,7 +13577,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -14830,7 +13598,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -14851,14 +13619,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -14879,7 +13647,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -14893,28 +13661,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -14928,7 +13696,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -14963,7 +13731,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -15012,35 +13780,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -15061,7 +13829,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -15092,34 +13860,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -15152,7 +13892,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -15173,7 +13913,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -15194,14 +13934,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -15222,7 +13962,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -15236,28 +13976,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -15271,7 +14011,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -15306,7 +14046,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -15355,35 +14095,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -15404,7 +14144,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -15435,34 +14175,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -15495,7 +14207,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -15516,7 +14228,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -15537,14 +14249,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -15565,7 +14277,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -15579,28 +14291,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -15614,7 +14326,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -15649,7 +14361,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -15698,35 +14410,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -15747,7 +14459,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -15778,34 +14490,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -15838,7 +14522,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -15859,7 +14543,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -15880,14 +14564,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -15908,7 +14592,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -15922,28 +14606,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -15957,7 +14641,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -15992,7 +14676,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -16041,35 +14725,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -16090,7 +14774,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -16121,34 +14805,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -16181,7 +14837,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -16202,7 +14858,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -16223,14 +14879,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -16251,7 +14907,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -16265,28 +14921,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -16300,7 +14956,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -16335,7 +14991,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -16384,35 +15040,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -16433,7 +15089,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -16464,34 +15120,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -16524,7 +15152,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -16545,7 +15173,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -16566,14 +15194,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -16594,7 +15222,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -16608,28 +15236,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -16643,7 +15271,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -16678,7 +15306,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -16727,35 +15355,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -16776,7 +15404,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
@@ -16807,34 +15435,6 @@
     "spread":-24.5
   },
   {
-    "game_id":401754564,
-    "week":8,
-    "home_team":"Miami",
-    "away_team":"Louisville",
-    "spread":-13.5
-  },
-  {
-    "game_id":401752872,
-    "week":8,
-    "home_team":"Minnesota",
-    "away_team":"Nebraska",
-    "spread":7.5
-  },
-  {
-    "game_id":401760396,
-    "week":8,
-    "home_team":"Utah State",
-    "away_team":"San Jos\u00e9 State",
-    "spread":-3.5
-  },
-  {
-    "game_id":401754371,
-    "week":8,
-    "home_team":"California",
-    "away_team":"North Carolina",
-    "spread":-9.5
-  },
-  {
     "game_id":401756925,
     "week":8,
     "home_team":"Houston",
@@ -16867,7 +15467,7 @@
     "week":8,
     "home_team":"Duke",
     "away_team":"Georgia Tech",
-    "spread":-1.5
+    "spread":-3.5
   },
   {
     "game_id":401762841,
@@ -16888,7 +15488,7 @@
     "week":8,
     "home_team":"Michigan",
     "away_team":"Washington",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752744,
@@ -16909,14 +15509,14 @@
     "week":8,
     "home_team":"Toledo",
     "away_team":"Kent State",
-    "spread":-26.5
+    "spread":-24.5
   },
   {
     "game_id":401752874,
     "week":8,
     "home_team":"Northwestern",
     "away_team":"Purdue",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401761633,
@@ -16937,7 +15537,7 @@
     "week":8,
     "home_team":"Ball State",
     "away_team":"Akron",
-    "spread":-1.5
+    "spread":1.5
   },
   {
     "game_id":401752739,
@@ -16951,28 +15551,28 @@
     "week":8,
     "home_team":"Boise State",
     "away_team":"UNLV",
-    "spread":-12.5
+    "spread":-13.5
   },
   {
     "game_id":401762489,
     "week":8,
     "home_team":"Charlotte",
     "away_team":"Temple",
-    "spread":11.5
+    "spread":12.5
   },
   {
     "game_id":401754565,
     "week":8,
     "home_team":"Clemson",
     "away_team":"SMU",
-    "spread":-5.5
+    "spread":-4.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-7.5
+    "spread":-6.5
   },
   {
     "game_id":401752878,
@@ -16986,7 +15586,7 @@
     "week":8,
     "home_team":"James Madison",
     "away_team":"Old Dominion",
-    "spread":1.5
+    "spread":-2.5
   },
   {
     "game_id":401761632,
@@ -17021,7 +15621,7 @@
     "week":8,
     "home_team":"Arizona State",
     "away_team":"Texas Tech",
-    "spread":7.5
+    "spread":6.5
   },
   {
     "game_id":401762487,
@@ -17070,35 +15670,35 @@
     "week":8,
     "home_team":"UCLA",
     "away_team":"Maryland",
-    "spread":-2.5
+    "spread":-3.5
   },
   {
     "game_id":401752738,
     "week":8,
     "home_team":"Alabama",
     "away_team":"Tennessee",
-    "spread":-8.5
+    "spread":-9.5
   },
   {
     "game_id":401762490,
     "week":8,
     "home_team":"South Florida",
     "away_team":"Florida Atlantic",
-    "spread":-21.5
+    "spread":-20.5
   },
   {
     "game_id":401752871,
     "week":8,
     "home_team":"Notre Dame",
     "away_team":"USC",
-    "spread":-9.5
+    "spread":-10.5
   },
   {
     "game_id":401754568,
     "week":8,
     "home_team":"Syracuse",
     "away_team":"Pittsburgh",
-    "spread":10.5
+    "spread":9.5
   },
   {
     "game_id":401752740,
@@ -17119,7 +15719,7 @@
     "week":8,
     "home_team":"Oklahoma State",
     "away_team":"Cincinnati",
-    "spread":21.5
+    "spread":23.5
   },
   {
     "game_id":401760395,
