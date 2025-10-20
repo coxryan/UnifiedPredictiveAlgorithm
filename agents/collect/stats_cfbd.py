@@ -317,6 +317,10 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
     }
     for col, invert in metrics.items():
         scaled_col = col.replace("advanced_", "stat_")
+        if col not in advanced_df.columns:
+            advanced_df[col] = pd.NA
+            advanced_df[scaled_col] = pd.NA
+            continue
         advanced_df[scaled_col] = _scale_series(advanced_df[col], invert=invert)
 
     # For downstream merges ensure every stat_* column exists even if NaN
