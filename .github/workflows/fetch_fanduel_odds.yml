@@ -2,9 +2,8 @@ name: fetch-fanduel-odds
 
 on:
   schedule:
-    - cron: '0 7 * * 4'
+    - cron: '0 7 * * 1'
     - cron: '0 7 * * 5'
-    - cron: '0 14 * * 6'
   workflow_dispatch:
     inputs:
       year:
@@ -35,6 +34,7 @@ jobs:
           CFBD_BEARER_TOKEN: ${{ secrets.CFBD_BEARER_TOKEN }}
           DEBUG_MARKET: "1"
           FANDUEL_CACHE_ONLY: "0"
+          ODDS_CACHE_TTL_DAYS: "5"
         run: |
           YEAR_INPUT="${{ github.event.inputs.year }}"
           if [ -z "$YEAR_INPUT" ]; then
@@ -53,7 +53,7 @@ jobs:
           fi
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add data/debug/fanduel_odds_snapshot.json data/upa_data.sqlite
+          git add data/debug/fanduel_odds_snapshot.json data/debug/fanduel_no_bookmaker.json data/upa_data.sqlite
           if git diff --cached --quiet; then
             echo "No odds snapshot changes to commit."
             exit 0

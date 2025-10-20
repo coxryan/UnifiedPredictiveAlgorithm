@@ -31,8 +31,11 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             pass
         return []
 
-    day_key = pd.Timestamp.utcnow().strftime("%Y%m%d")
-    key = f"oddsapi:fanduel:daily:{day_key}"
+    now = pd.Timestamp.utcnow()
+    iso = now.isocalendar()
+    week_id = f"{iso.year}-{iso.week:02d}"
+    bucket = "mon" if now.weekday() < 3 else "fri"
+    key = f"oddsapi:fanduel:week:{week_id}:{bucket}"
     ok, cached = cache.get(key)
     cached_rows = list(cached) if ok and cached is not None else []
     _dbg(
