@@ -96,6 +96,7 @@ The `build_team_inputs_datadriven` pipeline now blends:
 - **Cross-model power ratings**: SP+, FPI (efficiencies + resume ranks), and Elo combined to anchor baselines (`sp_rating_0_100`, `fpi_rating_0_100`, `elo_rating_0_100`).
 - **Portal placeholder**: `portal_net_*` columns remain for future integration.
 - **Confidence calibration**: Weekly reliability curves (weeks 4+) generate a conservative `confidence_calibrated` value per pick, using Wilson lower bounds, spread-band adjustments, and market-source penalties. Weeks 1–3 remain purely preseason-weighted, then the model pivots to stats-backed calibration. `confidence_play_flag` marks recommendations once calibrated probability ≥ 0.62 with the usual qualification filters still applied.
+- **Seasonal weighting note**: The first three weeks lean almost entirely on preseason priors (WRPS, talent, recruiting history). Starting Week 4 the collector blends in live-season stats, rolling form, and advanced efficiencies; the calibration step explicitly excludes Weeks 1–3 when it builds the reliability curves so the confidence signal reflects in-season performance only.
 
 Position grades (QB/WR/RB/OL/DL/LB/DB/ST) now weight SP+, advanced efficiency, and availability metrics in addition to the historical WRPS/talent/SRS inputs.
 
