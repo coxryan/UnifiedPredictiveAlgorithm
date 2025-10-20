@@ -110,6 +110,23 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
         with open(os.path.join(DATA_DIR, "debug", "fanduel_raw.json"), "w") as f:
             json.dump(agg, f, indent=2)
 
+        def _normalize_team(name: Any) -> str:
+            return str(name or "").strip().lower()
+
+        def _select_outcome(outcomes: List[Dict[str, Any]], team_name: str) -> Optional[Dict[str, Any]]:
+            target = _normalize_team(team_name)
+            if not target:
+                return None
+            for cand in outcomes:
+                for key in ("name", "team", "description", "short_name"):
+                    if _normalize_team(cand.get(key)) == target:
+                        return cand
+            for cand in outcomes:
+                cand_name = _normalize_team(cand.get("name"))
+                if cand_name and (cand_name in target or target in cand_name):
+                    return cand
+            return None
+
         rows: List[Dict[str, Any]] = []
         for game in agg:
             bks = game.get("bookmakers") or []
@@ -126,14 +143,45 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             outs = mk.get("outcomes") or []
             g_home = game.get("home_team")
             g_away = game.get("away_team")
-            out_home = next((o for o in outs if o.get("name") == g_home), None)
-            if out_home is None:
-                continue
-            try:
-                point_home_book = float(out_home.get("point")) if out_home.get("point") is not None else None
-            except Exception:
-                point_home_book = None
+            out_home = _select_outcome(outs, g_home)
+            out_away = _select_outcome(outs, g_away) if outs else None
+            point_home_book: Optional[float] = None
+            if out_home is not None and out_home.get("point") is not None:
+                try:
+                    point_home_book = float(out_home.get("point"))
+                except Exception:
+                    point_home_book = None
+            elif out_away is not None and out_away.get("point") is not None:
+                try:
+                    point_home_book = -float(out_away.get("point"))
+                except Exception:
+                    point_home_book = None
+            elif len(outs) == 2:
+                try:
+                    p0 = outs[0].get("point")
+                    p1 = outs[1].get("point")
+                    if p0 is not None and p1 is not None:
+                        p0 = float(p0)
+                        p1 = float(p1)
+                        # if both points equal magnitude, assume outs[0] corresponds to home when names unclear
+                        if abs(p0) == abs(p1):
+                            point_home_book = p0 if _normalize_team(outs[0].get("name")) == _normalize_team(g_home) else -p1
+                        else:
+                            # choose outcome whose name best matches home, else default to negative of away
+                            if _normalize_team(outs[0].get("name")) == _normalize_team(g_home):
+                                point_home_book = p0
+                            elif _normalize_team(outs[1].get("name")) == _normalize_team(g_home):
+                                point_home_book = p1
+                            elif _normalize_team(outs[0].get("name")) == _normalize_team(g_away):
+                                point_home_book = -p0
+                            elif _normalize_team(outs[1].get("name")) == _normalize_team(g_away):
+                                point_home_book = -p1
+                except Exception:
+                    point_home_book = None
             if point_home_book is None:
+                _dbg(
+                    f"odds_api_fetch_fanduel: unable to map FanDuel spread for {g_away} @ {g_home}; outcomes={[o.get('name') for o in outs]}"
+                )
                 continue
             rows.append(
                 {
