@@ -558,11 +558,15 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         ]
         df = pd.DataFrame(seed)
 
-    if "conference" not in df.columns or df["conference"].isna().any():
-        if team_conf:
-            df["conference"] = df["team"].map(team_conf).fillna(df.get("conference")).fillna("FBS")
+    if team_conf:
+        mapped_conf = df["team"].map(team_conf)
+        if "conference" in df.columns:
+            df["conference"] = mapped_conf.fillna(df["conference"])
         else:
-            df["conference"] = df.get("conference", "FBS")
+            df["conference"] = mapped_conf
+    if "conference" not in df.columns:
+        df["conference"] = "FBS"
+    df["conference"] = df["conference"].fillna("FBS")
 
     if not df.empty:
         def _col(name: str, default: float = 50.0) -> pd.Series:
