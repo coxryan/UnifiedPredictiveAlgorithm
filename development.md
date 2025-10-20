@@ -88,10 +88,12 @@ The `build_team_inputs_datadriven` pipeline now blends:
   - Overall rating/rank and opponent-adjusted strength of schedule (`sp_rating`, `sp_ranking`, `sp_sos` plus 0–100 scaled variants).
   - Offensive/defensive SP+ components (`sp_off_rating`, `sp_def_rating`, success subscores) mapped to 0–100.
 - **Advanced efficiency (CFBD advanced season stats)**:
-  - Points per drive (offense/defense), success rates, total PPA, and derived yards-per-play after opponent adjustments (`stat_off_ppd_adj`, `stat_def_ppd_adj`, `stat_off_success_adj`, etc.).
-  - Raw values stored alongside scaled 0–100 columns.
+  - Points per drive, success rates, total PPA, and derived yards-per-play after opponent adjustments (`stat_off_ppd_adj`, `stat_def_success_adj`, etc.).
+  - Situational splits for passing/standard downs, points per opportunity, havoc pressure, and field-position expectation (e.g., `stat_off_pd_success`, `stat_off_havoc_front`).
+- **Rolling form metrics**: 4-game opponent-adjusted trends for success, points-per-drive, PPA, and YPP (`rolling_off_ppd_4`, `rolling_def_success_rate_4`).
 - **Legacy efficiency set**: points-per-game, yards-per-play, success rate, explosiveness for offense/defense, special-teams points/play (still pulled from CFBD team stats).
-- **Availability**: CFBD player usage-derived availability scores (overall, unit-level, QB flag).
+- **Availability & usage concentration**: CFBD player-usage availability scores plus top-contributor shares and QB usage (`availability_off_top3_usage_pct`, `availability_qb_usage_pct`).
+- **Cross-model power ratings**: SP+, FPI (efficiencies + resume ranks), and Elo combined to anchor baselines (`sp_rating_0_100`, `fpi_rating_0_100`, `elo_rating_0_100`).
 - **Portal placeholder**: `portal_net_*` columns remain for future integration.
 
 Position grades (QB/WR/RB/OL/DL/LB/DB/ST) now weight SP+, advanced efficiency, and availability metrics in addition to the historical WRPS/talent/SRS inputs.
@@ -157,9 +159,11 @@ All spreads use bookmaker sign (negative favours the home team). Metrics live pr
 | `availability_*_score` | float | Team availability metrics (0–100) derived from CFBD player usage by unit (overall/offense/defense/ST/QB). | Residual feature inputs; surfaced in team inputs datasets. |
 | `availability_flag_qb_low` | int | 1 when quarterback usage drops below threshold. | Reduces confidence; displayed in debug exports. |
 | `stat_off_ppd_adj` / `stat_def_ppd_adj` | float | Opponent-adjusted points per drive (scaled 0–100). | Captures drive efficiency beyond raw scoring rates. |
-| `stat_off_success_adj` / `stat_def_success_adj` | float | Advanced success rates from CFBD advanced stats, opponent-adjusted and scaled. | Inputs to position grades and residual model. |
-| `sp_rating_0_100` / `sp_sos_0_100` | float | SP+ rating and strength-of-schedule converted to 0–100. | Long-term power rating anchor for residual adjustments. |
-| `sp_off_rating_0_100` / `sp_def_rating_0_100` | float | Offensive/defensive SP+ units scaled to 0–100 (defense inverted). | Supplements legacy efficiency features in team inputs. |
+| `stat_off_pd_success` / `stat_def_pd_success` | float | Passing-down success splits (scaled; defense inverted). | Highlights situational strengths/weaknesses. |
+| `stat_off_havoc_front` / `stat_def_havoc_front` | float | Havoc pressure (front-seven) rates from advanced stats. | Signals disruptive units impacting spread error. |
+| `rolling_off_ppd_4` / `rolling_def_ppd_4` | float | Opponent-adjusted 4-game rolling points per drive (prior games). | Adds recent form trends to the residual adjustment. |
+| `availability_off_top3_usage_pct` | float | Share of total offensive usage accounted for by top 3 contributors. | Flags concentration risk when key players are unavailable. |
+| `fpi_rating_0_100` / `elo_rating_0_100` | float | FPI and Elo ratings rescaled to 0–100. | Blends additional power models alongside SP+. |
 
 For full column lists see `agents/collect/predictions.py` (final `cols` array) and `tests/collect/test_predictions.py` for assertions.
 

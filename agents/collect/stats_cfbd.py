@@ -160,6 +160,14 @@ def build_team_stat_features(year: int, apis: CfbdClients, cache: ApiCache) -> p
         features = advanced
     elif not advanced.empty:
         features = features.merge(advanced, on="team", how="outer")
+
+    rolling = _build_rolling_metrics(year, apis, cache)
+    _dbg(f"team_stat_features: rolling rows={len(rolling)} year={year}")
+    if features.empty:
+        features = rolling
+    elif not rolling.empty:
+        features = features.merge(rolling, on="team", how="left")
+
     return features
 
 
@@ -215,12 +223,22 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
             off_drives = getattr(offense, "drives", None) if offense is not None else None
             off_ppa = getattr(offense, "ppa", None) if offense is not None else None
             off_plays = getattr(offense, "plays", None) if offense is not None else None
+            off_passing_downs = getattr(offense, "passing_downs", None)
+            off_standard_downs = getattr(offense, "standard_downs", None)
+            off_havoc = getattr(offense, "havoc", None)
+            off_field_pos = getattr(offense, "field_position", None)
+            off_points_per_opp = getattr(offense, "points_per_opportunity", None) if offense is not None else None
+            off_total_opps = getattr(offense, "total_opportunies", None) if offense is not None else None
 
             def_success = getattr(defense, "success_rate", None) if defense is not None else None
             def_total_ppa = getattr(defense, "total_ppa", None) if defense is not None else None
             def_drives = getattr(defense, "drives", None) if defense is not None else None
             def_ppa = getattr(defense, "ppa", None) if defense is not None else None
             def_plays = getattr(defense, "plays", None) if defense is not None else None
+            def_passing_downs = getattr(defense, "passing_downs", None)
+            def_standard_downs = getattr(defense, "standard_downs", None)
+            def_havoc = getattr(defense, "havoc", None)
+            def_field_pos = getattr(defense, "field_position", None)
 
             off_ppd = _safe_div(off_total_ppa, off_drives)
             def_ppd = _safe_div(def_total_ppa, def_drives)
@@ -240,12 +258,26 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
                     "advanced_off_ypp": off_ypp_adj,
                     "advanced_off_plays": off_plays,
                     "advanced_off_drives": off_drives,
+                    "advanced_off_pd_success": getattr(off_passing_downs, "success_rate", None) if off_passing_downs is not None else None,
+                    "advanced_off_sd_success": getattr(off_standard_downs, "success_rate", None) if off_standard_downs is not None else None,
+                    "advanced_off_points_per_opp": off_points_per_opp,
+                    "advanced_off_total_opps": off_total_opps,
+                    "advanced_off_havoc_front": getattr(off_havoc, "front_seven", None) if off_havoc is not None else None,
+                    "advanced_off_havoc_db": getattr(off_havoc, "db", None) if off_havoc is not None else None,
+                    "advanced_off_field_pos_avg_start": getattr(off_field_pos, "average_start", None) if off_field_pos is not None else None,
+                    "advanced_off_field_pos_pred_pts": getattr(off_field_pos, "average_predicted_points", None) if off_field_pos is not None else None,
                     "advanced_def_success_rate": def_success,
                     "advanced_def_ppd": def_ppd,
                     "advanced_def_ppa": def_ppa,
                     "advanced_def_ypp": def_ypp_adj,
                     "advanced_def_plays": def_plays,
                     "advanced_def_drives": def_drives,
+                    "advanced_def_pd_success": getattr(def_passing_downs, "success_rate", None) if def_passing_downs is not None else None,
+                    "advanced_def_sd_success": getattr(def_standard_downs, "success_rate", None) if def_standard_downs is not None else None,
+                    "advanced_def_havoc_front": getattr(def_havoc, "front_seven", None) if def_havoc is not None else None,
+                    "advanced_def_havoc_db": getattr(def_havoc, "db", None) if def_havoc is not None else None,
+                    "advanced_def_field_pos_avg_start": getattr(def_field_pos, "average_start", None) if def_field_pos is not None else None,
+                    "advanced_def_field_pos_pred_pts": getattr(def_field_pos, "average_predicted_points", None) if def_field_pos is not None else None,
                 }
             )
         advanced_df = pd.DataFrame(rows)
@@ -265,10 +297,23 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
         "advanced_off_ppd": False,
         "advanced_off_ppa": False,
         "advanced_off_ypp": False,
+        "advanced_off_pd_success": False,
+        "advanced_off_sd_success": False,
+        "advanced_off_points_per_opp": False,
+        "advanced_off_havoc_front": False,
+        "advanced_off_havoc_db": False,
+        "advanced_off_field_pos_avg_start": False,
+        "advanced_off_field_pos_pred_pts": False,
         "advanced_def_success_rate": True,
         "advanced_def_ppd": True,
         "advanced_def_ppa": True,
         "advanced_def_ypp": True,
+        "advanced_def_pd_success": True,
+        "advanced_def_sd_success": True,
+        "advanced_def_havoc_front": True,
+        "advanced_def_havoc_db": True,
+        "advanced_def_field_pos_avg_start": True,
+        "advanced_def_field_pos_pred_pts": True,
     }
     for col, invert in metrics.items():
         scaled_col = col.replace("advanced_", "stat_")
@@ -281,6 +326,88 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
             advanced_df[stat_col] = None
 
     return advanced_df
+
+
+def _build_rolling_metrics(year: int, apis: CfbdClients, cache: ApiCache, window: int = 4) -> pd.DataFrame:
+    cache_key = f"advanced_game_stats:{year}"
+    ok, cached = cache.get(cache_key)
+    rows: List[Dict[str, Any]]
+    if ok and cached:
+        rows = cached
+        _dbg(f"team_stat_features: using cached rolling source rows={len(rows)} year={year}")
+    else:
+        if not getattr(apis, "stats_api", None):
+            return pd.DataFrame(columns=["team"])
+        try:
+            payload = apis.stats_api.get_advanced_game_stats(year=year)  # type: ignore[attr-defined]
+        except Exception as exc:  # pragma: no cover
+            _dbg(f"team_stat_features: advanced game stats fetch failed year={year} err={exc}")
+            payload = []
+        rows = []
+        for item in payload or []:
+            team = getattr(item, "team", None)
+            if not team:
+                continue
+            week = getattr(item, "week", None)
+            offense = getattr(item, "offense", None)
+            defense = getattr(item, "defense", None)
+            off_success = getattr(offense, "success_rate", None) if offense is not None else None
+            off_total_ppa = getattr(offense, "total_ppa", None) if offense is not None else None
+            off_drives = getattr(offense, "drives", None) if offense is not None else None
+            off_ppa = getattr(offense, "ppa", None) if offense is not None else None
+            off_ypp = _safe_div(off_ppa, _EXPECTED_POINTS_PER_YARD)
+
+            def_success = getattr(defense, "success_rate", None) if defense is not None else None
+            def_total_ppa = getattr(defense, "total_ppa", None) if defense is not None else None
+            def_drives = getattr(defense, "drives", None) if defense is not None else None
+            def_ppa = getattr(defense, "ppa", None) if defense is not None else None
+            def_ypp = _safe_div(def_ppa, _EXPECTED_POINTS_PER_YARD)
+
+            rows.append(
+                {
+                    "team": team,
+                    "week": week,
+                    "off_success_rate": off_success,
+                    "off_ppd": _safe_div(off_total_ppa, off_drives),
+                    "off_ppa": off_ppa,
+                    "off_ypp": off_ypp,
+                    "def_success_rate": def_success,
+                    "def_ppd": _safe_div(def_total_ppa, def_drives),
+                    "def_ppa": def_ppa,
+                    "def_ypp": def_ypp,
+                }
+            )
+        cache.set(cache_key, rows)
+        _dbg(f"team_stat_features: fetched advanced game stats rows={len(rows)} year={year}")
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return pd.DataFrame(columns=["team"])
+    df = df.dropna(subset=["team"]).copy()
+    df.sort_values(["team", "week"], inplace=True)
+
+    metrics = {
+        "off_success_rate": "rolling_off_success_rate",
+        "off_ppd": "rolling_off_ppd",
+        "off_ppa": "rolling_off_ppa",
+        "off_ypp": "rolling_off_ypp",
+        "def_success_rate": "rolling_def_success_rate",
+        "def_ppd": "rolling_def_ppd",
+        "def_ppa": "rolling_def_ppa",
+        "def_ypp": "rolling_def_ypp",
+    }
+    out_rows: List[Dict[str, Any]] = []
+    for team, grp in df.groupby("team"):
+        grp = grp.sort_values("week")
+        record: Dict[str, Any] = {"team": team}
+        for src_col, dest_prefix in metrics.items():
+            series = pd.to_numeric(grp[src_col], errors="coerce")
+            rolled = series.rolling(window, min_periods=1).mean().shift(1)
+            record[f"{dest_prefix}_{window}"] = rolled.iloc[-1] if not rolled.empty else None
+        out_rows.append(record)
+
+    out_df = pd.DataFrame(out_rows)
+    return out_df
 
 
 __all__ = ["build_team_stat_features"]

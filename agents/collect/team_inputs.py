@@ -221,6 +221,22 @@ def _build_availability_features(
         qb_score_raw, _ = _score_for_positions(grp, {"QB"}, 1, default_score)
         overall_score = 0.6 * off_score_raw + 0.3 * def_score_raw + 0.1 * st_score_raw
 
+        def _sum_top(series: pd.Series, n: int) -> float:
+            numeric = pd.to_numeric(series, errors="coerce").dropna()
+            if numeric.empty:
+                return 0.0
+            return float(numeric.sort_values(ascending=False).head(n).sum())
+
+        off_usage = grp.loc[grp["position"].isin(_AVAIL_OFF_POS), "usage_overall"]
+        def_usage = grp.loc[grp["position"].isin(_AVAIL_DEF_POS), "usage_overall"]
+        qb_usage_overall = grp.loc[grp["position"] == "QB", "usage_overall"]
+        qb_usage_pass = grp.loc[grp["position"] == "QB", "usage_pass"] if "usage_pass" in grp.columns else pd.Series([], dtype=float)
+
+        top3_off_usage = _sum_top(off_usage, 3)
+        top3_def_usage = _sum_top(def_usage, 3)
+        qb_usage_val = float(pd.to_numeric(qb_usage_overall, errors="coerce").max()) if not qb_usage_overall.empty else 0.0
+        qb_pass_usage_val = float(pd.to_numeric(qb_usage_pass, errors="coerce").max()) if not qb_usage_pass.empty else 0.0
+
         record = {
             "team": team,
             "availability_source": "cfbd_usage",
@@ -232,6 +248,10 @@ def _build_availability_features(
             "availability_flag_qb_low": int(qb_score_raw < 0.40),
             "availability_off_depth": off_depth,
             "availability_def_depth": def_depth,
+            "availability_off_top3_usage_pct": round(top3_off_usage * 100, 1),
+            "availability_def_top3_usage_pct": round(top3_def_usage * 100, 1),
+            "availability_qb_usage_pct": round(qb_usage_val * 100, 1),
+            "availability_qb_pass_usage_pct": round(qb_pass_usage_val * 100, 1),
         }
         records.append(record)
 
@@ -254,6 +274,10 @@ def _build_availability_features(
                 "availability_flag_qb_low": 0,
                 "availability_off_depth": 0,
                 "availability_def_depth": 0,
+                "availability_off_top3_usage_pct": round(default_score * 100, 1),
+                "availability_def_top3_usage_pct": round(default_score * 100, 1),
+                "availability_qb_usage_pct": round(default_score * 100, 1),
+                "availability_qb_pass_usage_pct": round(default_score * 100, 1),
             }
         )
 
@@ -512,6 +536,95 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             sp_df["sp_def_success_0_100"] = _scale_0_100(sp_df["sp_def_success"] * -1.0).round(1)
     _dbg(f"team_inputs: sp_df rows={len(sp_df)} year={year}")
 
+    # FPI ratings
+    fpi_df = read_dataset("raw_cfbd_fpi")
+    if not fpi_df.empty:
+        fpi_df = fpi_df.loc[fpi_df.get("year") == year].copy()
+    if fpi_df.empty and apis.ratings_api:
+        try:
+            fpi_payload = apis.ratings_api.get_fpi(year=year)
+            fpi_rows = []
+            for item in fpi_payload or []:
+                fpi_rows.append(
+                    {
+                        "team": getattr(item, "team", None),
+                        "conference": getattr(item, "conference", None),
+                        "fpi_rating": getattr(item, "fpi", None),
+                        "fpi_game_control_rank": getattr(getattr(item, "resume_ranks", None), "game_control", None),
+                        "fpi_sos_rank": getattr(getattr(item, "resume_ranks", None), "strength_of_schedule", None),
+                        "fpi_remaining_sos_rank": getattr(getattr(item, "resume_ranks", None), "remaining_strength_of_schedule", None),
+                        "fpi_off_eff": getattr(getattr(item, "efficiencies", None), "offense", None),
+                        "fpi_def_eff": getattr(getattr(item, "efficiencies", None), "defense", None),
+                        "fpi_st_eff": getattr(getattr(item, "efficiencies", None), "special_teams", None),
+                        "fpi_overall_eff": getattr(getattr(item, "efficiencies", None), "overall", None),
+                    }
+                )
+            fpi_df = pd.DataFrame(fpi_rows)
+            if not fpi_df.empty:
+                fpi_df["year"] = year
+                fpi_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                delete_rows("raw_cfbd_fpi", "year", year)
+                storage_write_dataset(fpi_df, "raw_cfbd_fpi", if_exists="append")
+        except Exception as exc:
+            print(f"[warn] FPI fetch failed: {exc}", file=sys.stderr)
+            fpi_df = pd.DataFrame()
+    if not fpi_df.empty:
+        fpi_df = fpi_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+        for col in [
+            "fpi_rating",
+            "fpi_game_control_rank",
+            "fpi_sos_rank",
+            "fpi_remaining_sos_rank",
+            "fpi_off_eff",
+            "fpi_def_eff",
+            "fpi_st_eff",
+            "fpi_overall_eff",
+        ]:
+            if col in fpi_df.columns:
+                fpi_df[col] = pd.to_numeric(fpi_df[col], errors="coerce")
+        if "fpi_rating" in fpi_df.columns:
+            fpi_df["fpi_rating_0_100"] = _scale_0_100(fpi_df["fpi_rating"]).round(1)
+        if "fpi_overall_eff" in fpi_df.columns:
+            fpi_df["fpi_overall_eff_0_100"] = _scale_0_100(fpi_df["fpi_overall_eff"]).round(1)
+        if "fpi_off_eff" in fpi_df.columns:
+            fpi_df["fpi_off_eff_0_100"] = _scale_0_100(fpi_df["fpi_off_eff"]).round(1)
+        if "fpi_def_eff" in fpi_df.columns:
+            fpi_df["fpi_def_eff_0_100"] = _scale_0_100(fpi_df["fpi_def_eff"] * -1.0).round(1)
+        if "fpi_st_eff" in fpi_df.columns:
+            fpi_df["fpi_st_eff_0_100"] = _scale_0_100(fpi_df["fpi_st_eff"]).round(1)
+    _dbg(f"team_inputs: fpi rows={len(fpi_df)} year={year}")
+
+    # Elo ratings
+    elo_df = read_dataset("raw_cfbd_elo")
+    if not elo_df.empty:
+        elo_df = elo_df.loc[elo_df.get("year") == year].copy()
+    if elo_df.empty and apis.ratings_api:
+        try:
+            elo_payload = apis.ratings_api.get_elo(year=year)
+            elo_rows = [
+                {
+                    "team": getattr(item, "team", None),
+                    "conference": getattr(item, "conference", None),
+                    "elo_rating": getattr(item, "elo", None),
+                }
+                for item in (elo_payload or [])
+            ]
+            elo_df = pd.DataFrame(elo_rows)
+            if not elo_df.empty:
+                elo_df["year"] = year
+                elo_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                delete_rows("raw_cfbd_elo", "year", year)
+                storage_write_dataset(elo_df, "raw_cfbd_elo", if_exists="append")
+        except Exception as exc:
+            print(f"[warn] Elo fetch failed: {exc}", file=sys.stderr)
+            elo_df = pd.DataFrame()
+    if not elo_df.empty:
+        elo_df = elo_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+        if "elo_rating" in elo_df.columns:
+            elo_df["elo_rating"] = pd.to_numeric(elo_df["elo_rating"], errors="coerce")
+            elo_df["elo_rating_0_100"] = _scale_0_100(elo_df["elo_rating"]).round(1)
+    _dbg(f"team_inputs: elo rows={len(elo_df)} year={year}")
+
     # Previous season SOS rank
     sos_df = read_dataset("raw_cfbd_sos")
     prev_season = year - 1
@@ -551,6 +664,10 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         df = df.merge(srs_cur_df, on="team", how="left")
         if not sp_df.empty:
             df = df.merge(sp_df, on="team", how="left")
+        if not fpi_df.empty:
+            df = df.merge(fpi_df, on="team", how="left")
+        if not elo_df.empty:
+            df = df.merge(elo_df, on="team", how="left")
         df = df.merge(sos_df, on="team", how="left")
         if not stats_df.empty:
             df = df.merge(stats_df, on="team", how="left")
@@ -710,14 +827,50 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_def_ppa_adj",
         "stat_off_ypp_adj",
         "stat_def_ypp_adj",
+        "stat_off_pd_success",
+        "stat_off_sd_success",
+        "stat_off_points_per_opp",
+        "stat_off_total_opps",
+        "stat_off_havoc_front",
+        "stat_off_havoc_db",
+        "stat_off_field_pos_avg_start",
+        "stat_off_field_pos_pred_pts",
+        "stat_def_pd_success",
+        "stat_def_sd_success",
+        "stat_def_havoc_front",
+        "stat_def_havoc_db",
+        "stat_def_field_pos_avg_start",
+        "stat_def_field_pos_pred_pts",
         "advanced_off_success_rate",
         "advanced_off_ppd",
         "advanced_off_ppa",
         "advanced_off_ypp",
+        "advanced_off_pd_success",
+        "advanced_off_sd_success",
+        "advanced_off_points_per_opp",
+        "advanced_off_total_opps",
+        "advanced_off_havoc_front",
+        "advanced_off_havoc_db",
+        "advanced_off_field_pos_avg_start",
+        "advanced_off_field_pos_pred_pts",
         "advanced_def_success_rate",
         "advanced_def_ppd",
         "advanced_def_ppa",
         "advanced_def_ypp",
+        "advanced_def_pd_success",
+        "advanced_def_sd_success",
+        "advanced_def_havoc_front",
+        "advanced_def_havoc_db",
+        "advanced_def_field_pos_avg_start",
+        "advanced_def_field_pos_pred_pts",
+        "rolling_off_success_rate_4",
+        "rolling_off_ppd_4",
+        "rolling_off_ppa_4",
+        "rolling_off_ypp_4",
+        "rolling_def_success_rate_4",
+        "rolling_def_ppd_4",
+        "rolling_def_ppa_4",
+        "rolling_def_ypp_4",
         "availability_source",
         "availability_offense_score",
         "availability_defense_score",
@@ -727,6 +880,10 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "availability_flag_qb_low",
         "availability_off_depth",
         "availability_def_depth",
+        "availability_off_top3_usage_pct",
+        "availability_def_top3_usage_pct",
+        "availability_qb_usage_pct",
+        "availability_qb_pass_usage_pct",
         "grade_qb_score",
         "grade_qb_percentile",
         "grade_qb_letter",
@@ -767,6 +924,21 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "sp_def_rating_0_100",
         "sp_def_success",
         "sp_def_success_0_100",
+        "fpi_rating",
+        "fpi_rating_0_100",
+        "fpi_game_control_rank",
+        "fpi_sos_rank",
+        "fpi_remaining_sos_rank",
+        "fpi_off_eff",
+        "fpi_off_eff_0_100",
+        "fpi_def_eff",
+        "fpi_def_eff_0_100",
+        "fpi_st_eff",
+        "fpi_st_eff_0_100",
+        "fpi_overall_eff",
+        "fpi_overall_eff_0_100",
+        "elo_rating",
+        "elo_rating_0_100",
     ]:
         if col not in df.columns:
             df[col] = None
