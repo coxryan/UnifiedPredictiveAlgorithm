@@ -132,6 +132,7 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             return None
 
         rows: List[Dict[str, Any]] = []
+        no_bookmaker_samples: List[Dict[str, Any]] = []
         skip_reasons = {
             "no_bookmaker": 0,
             "no_spread_market": 0,
@@ -142,6 +143,17 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             bks = game.get("bookmakers") or []
             if not bks:
                 skip_reasons["no_bookmaker"] += 1
+                if len(no_bookmaker_samples) < 10:
+                    no_bookmaker_samples.append(
+                        {
+                            "home": game.get("home_team"),
+                            "away": game.get("away_team"),
+                            "sport_key": game.get("sport_key"),
+                            "sport_title": game.get("sport_title"),
+                            "commence_time": game.get("commence_time"),
+                            "id": game.get("id"),
+                        }
+                    )
                 continue
             mk = None
             for bk in bks:
@@ -206,6 +218,13 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             _dbg(
                 f"odds_api_fetch_fanduel: game={g_away} @ {g_home} line={point_home_book} commence={game.get('commence_time')}"
             )
+
+        if no_bookmaker_samples:
+            try:
+                with open(os.path.join(DATA_DIR, "debug", "fanduel_no_bookmaker.json"), "w") as fh:
+                    json.dump(no_bookmaker_samples, fh, indent=2)
+            except Exception:
+                pass
 
         _dbg(
             f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} key={key} skip_stats={skip_reasons}"
