@@ -11,6 +11,7 @@ from .cfbd_clients import CfbdClients
 from .cache import ApiCache
 from .helpers import _normalize_percent, _scale_0_100
 from .stats_cfbd import build_team_stat_features
+from .config import _dbg
 from agents.storage import read_dataset, write_dataset as storage_write_dataset, delete_rows
 
 
@@ -104,9 +105,11 @@ def _load_cfbd_player_usage(
         usage_df = usage_df.loc[usage_df.get("year") == year].copy()
     if not usage_df.empty:
         usage_df = usage_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+        _dbg(f"team_inputs: using cached player usage rows={len(usage_df)} year={year}")
         return usage_df
 
     if not apis.players_api or not team_conf:
+        _dbg(f"team_inputs: player usage unavailable (players_api={bool(apis.players_api)} team_conf={len(team_conf)}) year={year}")
         return pd.DataFrame()
 
     conferences = sorted({c for c in team_conf.values() if c})
@@ -151,6 +154,7 @@ def _load_cfbd_player_usage(
     delete_rows("raw_cfbd_player_usage", "year", year)
     storage_write_dataset(usage_df, "raw_cfbd_player_usage", if_exists="append")
     usage_df = usage_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+    _dbg(f"team_inputs: fetched player usage rows={len(usage_df)} conferences={len(conferences)} year={year}")
     return usage_df
 
 
@@ -290,8 +294,11 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         except Exception as e:
             print(f"[warn] fbs teams fetch failed: {e}", file=sys.stderr)
 
+    _dbg(f"team_inputs: team_conf entries={len(team_conf)} year={year}")
+
     usage_df = _load_cfbd_player_usage(year, apis, cache, team_conf)
     availability_df = _build_availability_features(usage_df, team_conf)
+    _dbg(f"team_inputs: availability rows={len(availability_df)} year={year}")
 
     # Returning Production (Connelly via CFBD)
     rp_df = read_dataset("raw_cfbd_returning_production")
@@ -503,6 +510,7 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
             sp_df["sp_off_success_0_100"] = _scale_0_100(sp_df["sp_off_success"]).round(1)
         if "sp_def_success" in sp_df.columns:
             sp_df["sp_def_success_0_100"] = _scale_0_100(sp_df["sp_def_success"] * -1.0).round(1)
+    _dbg(f"team_inputs: sp_df rows={len(sp_df)} year={year}")
 
     # Previous season SOS rank
     sos_df = read_dataset("raw_cfbd_sos")
@@ -525,9 +533,11 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         sos_df = pd.DataFrame({'team': [], 'prev_season_sos_rank_1_133': []})
     if not sos_df.empty:
         sos_df = sos_df.drop(columns=["season", "retrieved_at"], errors="ignore")
+    _dbg(f"team_inputs: sos rows={len(sos_df)} prev_season={prev_season}")
 
     # Statistical feature library (offense/defense/special teams efficiency)
     stats_df = build_team_stat_features(year, apis, cache)
+    _dbg(f"team_inputs: stats_df rows={len(stats_df)} year={year}")
 
     # Transfer portal net score (placeholder: unavailable via CFBD in this context)
     portal_df = pd.DataFrame({"team": [], "portal_net_0_100": [], "portal_net_count": [], "portal_net_value": []})
@@ -558,6 +568,8 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         ]
         df = pd.DataFrame(seed)
 
+    _dbg(f"team_inputs: merged base frame rows={len(df)} year={year}")
+
     if team_conf:
         mapped_conf = df["team"].map(team_conf)
         if "conference" in df.columns:
@@ -567,6 +579,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
     if "conference" not in df.columns:
         df["conference"] = "FBS"
     df["conference"] = df["conference"].fillna("FBS")
+    conf_missing = int(df["conference"].isna().sum())
+    if conf_missing:
+        _dbg(f"team_inputs: conference still missing rows={conf_missing} year={year}")
 
     if not df.empty:
         def _col(name: str, default: float = 50.0) -> pd.Series:

@@ -139,6 +139,7 @@ def build_team_stat_features(year: int, apis: CfbdClients, cache: ApiCache) -> p
         else:
             stats_df = pd.DataFrame(columns=["team", "category", "stat_name", "stat_value"])
     features = _prepare_feature_frame(stats_df)
+    _dbg(f"team_stat_features: base features rows={len(features)} year={year}")
     if not features.empty:
         store_feats = features.copy()
         store_feats["season"] = year
@@ -154,6 +155,7 @@ def build_team_stat_features(year: int, apis: CfbdClients, cache: ApiCache) -> p
                 features = cached_feats.drop(columns=["season", "retrieved_at"], errors="ignore")
 
     advanced = _build_advanced_metrics(year, apis, cache)
+    _dbg(f"team_stat_features: advanced rows={len(advanced)} year={year}")
     if features.empty:
         features = advanced
     elif not advanced.empty:
@@ -195,6 +197,7 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
         cached_year = cached.loc[cached.get("season") == year].copy()
         if not cached_year.empty:
             advanced_df = cached_year.drop(columns=["season", "retrieved_at"], errors="ignore")
+            _dbg(f"team_stat_features: using cached advanced stats rows={len(advanced_df)} year={year}")
     if advanced_df.empty and getattr(apis, "stats_api", None):
         try:
             payload = apis.stats_api.get_advanced_season_stats(year=year)  # type: ignore[attr-defined]
@@ -252,7 +255,9 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
             store["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
             delete_rows(_ADVANCED_DATASET, "season", year)
             storage_write_dataset(store, _ADVANCED_DATASET, if_exists="append")
+            _dbg(f"team_stat_features: fetched advanced stats rows={len(advanced_df)} year={year}")
     if advanced_df.empty:
+        _dbg(f"team_stat_features: no advanced stats available year={year}")
         return pd.DataFrame(columns=["team"])
 
     metrics = {
