@@ -132,17 +132,27 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             return None
 
         rows: List[Dict[str, Any]] = []
+        skip_reasons = {
+            "no_bookmaker": 0,
+            "no_spread_market": 0,
+            "no_outcomes": 0,
+            "no_point": 0,
+        }
         for game in agg:
             bks = game.get("bookmakers") or []
             if not bks:
+                skip_reasons["no_bookmaker"] += 1
                 continue
             mk = None
             for bk in bks:
+                if bk.get("key") and _normalize_team(bk.get("key")) != "fanduel":
+                    continue
                 markets = bk.get("markets") or []
                 mk = next((m for m in markets if m.get("key") == "spreads"), None)
                 if mk:
                     break
             if not mk:
+                skip_reasons["no_spread_market"] += 1
                 continue
             outs = mk.get("outcomes") or []
             g_home = game.get("home_team")
@@ -183,9 +193,7 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                 except Exception:
                     point_home_book = None
             if point_home_book is None:
-                _dbg(
-                    f"odds_api_fetch_fanduel: unable to map FanDuel spread for {g_away} @ {g_home}; outcomes={[o.get('name') for o in outs]}"
-                )
+                skip_reasons["no_point"] += 1
                 continue
             rows.append(
                 {
@@ -199,7 +207,9 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
                 f"odds_api_fetch_fanduel: game={g_away} @ {g_home} line={point_home_book} commence={game.get('commence_time')}"
             )
 
-        _dbg(f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} (saving to cache key={key})")
+        _dbg(
+            f"odds_api_fetch_fanduel: total_items={len(agg)} usable_rows={len(rows)} key={key} skip_stats={skip_reasons}"
+        )
         cache.set(key, rows)
         return rows
     except Exception as e:
