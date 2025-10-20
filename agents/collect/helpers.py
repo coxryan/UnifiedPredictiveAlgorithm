@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, Dict, Tuple
 
 import logging
 import numpy as np
 import pandas as pd
+import math
 
 from agents.storage import (
     write_dataset as storage_write_dataset,
@@ -159,6 +160,10 @@ def write_dataset(df: pd.DataFrame, dataset: str) -> None:
                 df = _apply_book_grades(df.copy())
             except Exception:
                 pass
+            try:
+                df = _apply_confidence_calibration(df.copy())
+            except Exception:
+                logger.exception("write_dataset: confidence calibration failed")
     except Exception:
         pass
     storage_write_dataset(df, dataset)
@@ -249,6 +254,184 @@ def _apply_book_grades(df: pd.DataFrame) -> pd.DataFrame:
         for p, hp, ap, m in zip(expected_pick, df["home_points"], df["away_points"], df["market_spread_book"])
     ]
     return df
+
+
+def _apply_confidence_calibration(df: pd.DataFrame) -> pd.DataFrame:
+    if "model_confidence" not in df.columns:
+        return df
+
+    try:
+        history = read_dataset("upa_predictions")
+    except Exception:
+        history = pd.DataFrame()
+
+    conf_bins = [0.0, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 1.01]
+    spread_bins = [0.0, 3.0, 5.0, 10.0, 15.0, 20.0, float("inf")]
+    spread_labels = ["<3", "3-5", "5-10", "10-15", "15-20", "20+"]
+
+    # Prepare historical calibration data (weeks > 3, completed games only)
+    calib = pd.DataFrame()
+    if history is not None and not history.empty:
+        calib = history.copy()
+    if not calib.empty:
+        for col in ("week", "model_confidence", "market_spread_book"):
+            if col in calib.columns:
+                calib[col] = pd.to_numeric(calib[col], errors="coerce")
+        calib = calib[
+            (calib.get("played") == 1)
+            & calib.get("week").gt(3)
+            & calib["model_result"].isin(["CORRECT", "INCORRECT"])
+            & calib["model_confidence"].notna()
+        ].copy()
+    summary_blob: Dict[str, Any] = {
+        "source_rows": int(len(calib)) if not calib.empty else 0,
+        "generated_at": pd.Timestamp.utcnow().isoformat(),
+    }
+
+    # Confidence bucket lower bounds (Wilson)
+    conf_lower: Dict[Tuple[int, str], float] = {}
+    if not calib.empty:
+        calib["conf_bucket"] = pd.cut(calib["model_confidence"], bins=conf_bins, include_lowest=True)
+        grouped = calib.groupby(["qualified_edge_flag", "conf_bucket"], observed=False)
+        conf_stats = []
+        for (qualified, bucket), g in grouped:
+            wins = (g["model_result"] == "CORRECT").sum()
+            losses = (g["model_result"] == "INCORRECT").sum()
+            total = wins + losses
+            if total == 0:
+                continue
+            lower, upper = _wilson_bounds(wins, total)
+            key = (int(qualified), str(bucket))
+            conf_lower[key] = lower
+            conf_stats.append(
+                {
+                    "qualified": int(qualified),
+                    "bucket": str(bucket),
+                    "bets": int(len(g)),
+                    "wins": int(wins),
+                    "losses": int(losses),
+                    "accuracy": wins / total if total else float("nan"),
+                    "lower80": lower,
+                    "upper80": upper,
+                }
+            )
+        summary_blob["confidence_stats"] = conf_stats
+
+    # Spread band adjustment (qualified edges only)
+    band_adjust: Dict[str, float] = {}
+    if not calib.empty:
+        calib["band"] = pd.cut(
+            calib["market_spread_book"].abs(), bins=spread_bins, labels=spread_labels, right=False
+        )
+        qualified_hist = calib[calib["qualified_edge_flag"] == 1].copy()
+        qualified_hist = qualified_hist.dropna(subset=["band"])
+        wins = (qualified_hist["model_result"] == "CORRECT").sum()
+        losses = (qualified_hist["model_result"] == "INCORRECT").sum()
+        overall_total = wins + losses
+        overall_acc = wins / overall_total if overall_total else float("nan")
+        summary_blob["overall_accuracy_qualified"] = overall_acc
+
+        band_stats = []
+        if not qualified_hist.empty:
+            for label, g in qualified_hist.groupby("band", observed=False):
+                wins = (g["model_result"] == "CORRECT").sum()
+                losses = (g["model_result"] == "INCORRECT").sum()
+                total = wins + losses
+                if total == 0:
+                    continue
+                acc = wins / total
+                adj = acc - overall_acc if pd.notna(overall_acc) else 0.0
+                adj = max(min(adj, 0.05), -0.05)
+                band_adjust[str(label)] = adj
+                lower, upper = _wilson_bounds(wins, total)
+                band_stats.append(
+                    {
+                        "band": str(label),
+                        "bets": int(len(g)),
+                        "wins": int(wins),
+                        "losses": int(losses),
+                        "accuracy": acc,
+                        "lower80": lower,
+                        "upper80": upper,
+                        "adj": adj,
+                    }
+                )
+        summary_blob["band_stats"] = band_stats
+
+    # Apply calibration to current frame
+    if "market_spread_book" in df.columns:
+        df["__abs_band__"] = pd.cut(
+            pd.to_numeric(df["market_spread_book"], errors="coerce").abs(),
+            bins=spread_bins,
+            labels=spread_labels,
+            right=False,
+        )
+    else:
+        df["__abs_band__"] = pd.Series([None] * len(df))
+
+    df["__conf_bucket__"] = pd.cut(df["model_confidence"], bins=conf_bins, include_lowest=True)
+
+    calibrated = []
+    for idx, row in df.iterrows():
+        base = row.get("model_confidence", float("nan"))
+        bucket = str(row.get("__conf_bucket__"))
+        qualified = int(row.get("qualified_edge_flag") or 0)
+        band = str(row.get("__abs_band__"))
+
+        if (qualified, bucket) in conf_lower and pd.notna(conf_lower[(qualified, bucket)]):
+            base = conf_lower[(qualified, bucket)]
+
+        if pd.isna(base):
+            base = row.get("model_confidence", 0.6)
+
+        adj = band_adjust.get(band, 0.0)
+
+        # Penalize weak historical band
+        if band == "15-20":
+            adj -= 0.03
+
+        # Reward consistent 20+ band slightly (within clamp)
+        if band == "20+":
+            adj += 0.02
+
+        calibrated_prob = base + adj
+
+        source = str(row.get("market_spread_source", "")).strip().lower()
+        if source not in {"fanduel", ""}:
+            calibrated_prob -= 0.03
+
+        # Guardrails
+        calibrated_prob = max(0.45, min(0.80, calibrated_prob))
+
+        calibrated.append(calibrated_prob)
+
+    df["confidence_calibrated"] = pd.Series(calibrated, index=df.index)
+    df["confidence_bucket"] = df["__conf_bucket__"].astype(str)
+    df["confidence_band"] = df["__abs_band__"].astype(str)
+    df["confidence_play_flag"] = (
+        (df["confidence_calibrated"] >= 0.62) & (df.get("qualified_edge_flag", 0) == 1)
+    ).astype(int)
+
+    df.drop(columns=["__conf_bucket__", "__abs_band__"], inplace=True)
+
+    try:
+        write_json_blob("confidence_calibration_stats", summary_blob)
+    except Exception:
+        pass
+
+    return df
+
+
+def _wilson_bounds(wins: int, total: int, z: float = 1.2815515655446004) -> Tuple[float, float]:
+    if total == 0:
+        return float("nan"), float("nan")
+    p = wins / total
+    denom = 1 + z**2 / total
+    center = p + z**2 / (2 * total)
+    margin = z * math.sqrt((p * (1 - p) + z**2 / (4 * total)) / total)
+    lower = (center - margin) / denom
+    upper = (center + margin) / denom
+    return lower, upper
 
 
 def _mirror_book_to_legacy_columns(df: pd.DataFrame) -> pd.DataFrame:

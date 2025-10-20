@@ -95,6 +95,7 @@ The `build_team_inputs_datadriven` pipeline now blends:
 - **Availability & usage concentration**: CFBD player-usage availability scores plus top-contributor shares and QB usage (`availability_off_top3_usage_pct`, `availability_qb_usage_pct`).
 - **Cross-model power ratings**: SP+, FPI (efficiencies + resume ranks), and Elo combined to anchor baselines (`sp_rating_0_100`, `fpi_rating_0_100`, `elo_rating_0_100`).
 - **Portal placeholder**: `portal_net_*` columns remain for future integration.
+- **Confidence calibration**: Weekly reliability curves (weeks 4+) generate a conservative `confidence_calibrated` value per pick, using Wilson lower bounds, spread-band adjustments, and market-source penalties. Weeks 1–3 remain purely preseason-weighted, then the model pivots to stats-backed calibration. `confidence_play_flag` marks recommendations once calibrated probability ≥ 0.62 with the usual qualification filters still applied.
 
 Position grades (QB/WR/RB/OL/DL/LB/DB/ST) now weight SP+, advanced efficiency, and availability metrics in addition to the historical WRPS/talent/SRS inputs.
 
@@ -164,6 +165,8 @@ All spreads use bookmaker sign (negative favours the home team). Metrics live pr
 | `rolling_off_ppd_4` / `rolling_def_ppd_4` | float | Opponent-adjusted 4-game rolling points per drive (prior games). | Adds recent form trends to the residual adjustment. |
 | `availability_off_top3_usage_pct` | float | Share of total offensive usage accounted for by top 3 contributors. | Flags concentration risk when key players are unavailable. |
 | `fpi_rating_0_100` / `elo_rating_0_100` | float | FPI and Elo ratings rescaled to 0–100. | Blends additional power models alongside SP+. |
+| `confidence_calibrated` | float | Conservative probability after calibrating `model_confidence` with historical weeks ≥ 4, spread bands, and market source penalties. | Drives bet gating and mirrors what shows in recommendations. |
+| `confidence_play_flag` | int (0/1) | 1 when `confidence_calibrated ≥ 0.62` and the row is qualified. | Quickly filters the bet slate in downstream tooling. |
 
 For full column lists see `agents/collect/predictions.py` (final `cols` array) and `tests/collect/test_predictions.py` for assertions.
 
