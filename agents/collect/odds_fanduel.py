@@ -118,12 +118,16 @@ def _odds_api_fetch_fanduel(year: int, weeks: List[int], cache: ApiCache) -> Lis
             if not target:
                 return None
             for cand in outcomes:
-                for key in ("name", "team", "description", "short_name"):
+                for key in ("name", "team", "description", "short_name", "shortName"):
                     if _normalize_team(cand.get(key)) == target:
                         return cand
             for cand in outcomes:
                 cand_name = _normalize_team(cand.get("name"))
                 if cand_name and (cand_name in target or target in cand_name):
+                    return cand
+            for cand in outcomes:
+                cand_team = _normalize_team(cand.get("team"))
+                if cand_team and (cand_team in target or target in cand_team):
                     return cand
             return None
 
