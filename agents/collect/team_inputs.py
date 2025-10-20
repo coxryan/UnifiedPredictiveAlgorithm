@@ -436,6 +436,74 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
     if not srs_cur_df.empty:
         srs_cur_df = srs_cur_df.drop(columns=["year", "retrieved_at"], errors="ignore")
 
+    # SP+ ratings (opponent-adjusted efficiency, includes SOS and rankings)
+    sp_df = read_dataset("raw_cfbd_sp")
+    if not sp_df.empty:
+        sp_df = sp_df.loc[sp_df.get("year") == year].copy()
+    if sp_df.empty:
+        try:
+            if apis.ratings_api:
+                sp_payload = apis.ratings_api.get_sp(year=year)
+                sp_rows: List[Dict[str, Any]] = []
+                for item in sp_payload or []:
+                    if not getattr(item, "team", None):
+                        continue
+                    offense = getattr(item, "offense", None)
+                    defense = getattr(item, "defense", None)
+                    sp_rows.append(
+                        {
+                            "team": getattr(item, "team", None),
+                            "conference": getattr(item, "conference", None),
+                            "sp_rating": getattr(item, "rating", None),
+                            "sp_ranking": getattr(item, "ranking", None),
+                            "sp_sos": getattr(item, "sos", None),
+                            "sp_off_rating": getattr(offense, "rating", None) if offense is not None else None,
+                            "sp_off_success": getattr(offense, "success", None) if offense is not None else None,
+                            "sp_def_rating": getattr(defense, "rating", None) if defense is not None else None,
+                            "sp_def_success": getattr(defense, "success", None) if defense is not None else None,
+                        }
+                    )
+                sp_df = pd.DataFrame(sp_rows)
+                if not sp_df.empty:
+                    numeric_cols = [
+                        "sp_rating",
+                        "sp_ranking",
+                        "sp_sos",
+                        "sp_off_rating",
+                        "sp_off_success",
+                        "sp_def_rating",
+                        "sp_def_success",
+                    ]
+                    for col in numeric_cols:
+                        if col in sp_df.columns:
+                            sp_df[col] = pd.to_numeric(sp_df[col], errors="coerce")
+                    sp_df["year"] = year
+                    sp_df["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+                    delete_rows("raw_cfbd_sp", "year", year)
+                    storage_write_dataset(sp_df, "raw_cfbd_sp", if_exists="append")
+        except Exception as exc:
+            print(f"[warn] SP+ fetch failed: {exc}", file=sys.stderr)
+            sp_df = pd.DataFrame()
+    if not sp_df.empty:
+        sp_df = sp_df.drop(columns=["year", "retrieved_at"], errors="ignore")
+        for col in ["sp_rating", "sp_sos", "sp_off_rating", "sp_off_success", "sp_def_rating", "sp_def_success"]:
+            if col in sp_df.columns:
+                sp_df[col] = pd.to_numeric(sp_df[col], errors="coerce")
+        # Convert SP ratings to 0-100 scales for blending
+        if "sp_rating" in sp_df.columns:
+            sp_df["sp_rating_0_100"] = _scale_0_100(sp_df["sp_rating"]).round(1)
+        if "sp_sos" in sp_df.columns:
+            sp_df["sp_sos_0_100"] = _scale_0_100(sp_df["sp_sos"]).round(1)
+        if "sp_off_rating" in sp_df.columns:
+            sp_df["sp_off_rating_0_100"] = _scale_0_100(sp_df["sp_off_rating"]).round(1)
+        if "sp_def_rating" in sp_df.columns:
+            # Defensive SP ratings are typically negative when better. Multiply by -1 before scaling.
+            sp_df["sp_def_rating_0_100"] = _scale_0_100(sp_df["sp_def_rating"] * -1.0).round(1)
+        if "sp_off_success" in sp_df.columns:
+            sp_df["sp_off_success_0_100"] = _scale_0_100(sp_df["sp_off_success"]).round(1)
+        if "sp_def_success" in sp_df.columns:
+            sp_df["sp_def_success_0_100"] = _scale_0_100(sp_df["sp_def_success"] * -1.0).round(1)
+
     # Previous season SOS rank
     sos_df = read_dataset("raw_cfbd_sos")
     prev_season = year - 1
@@ -471,6 +539,8 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         df["conference"] = "FBS"
     if not df.empty:
         df = df.merge(srs_cur_df, on="team", how="left")
+        if not sp_df.empty:
+            df = df.merge(sp_df, on="team", how="left")
         df = df.merge(sos_df, on="team", how="left")
         if not stats_df.empty:
             df = df.merge(stats_df, on="team", how="left")
@@ -514,30 +584,69 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         off_expl = _col("stat_off_explosiveness")
         def_success = _col("stat_def_success")
         def_expl = _col("stat_def_explosiveness")
+        off_ppd_adj = _col("stat_off_ppd_adj")
+        def_ppd_adj = _col("stat_def_ppd_adj")
+        off_success_adj = _col("stat_off_success_adj")
+        def_success_adj = _col("stat_def_success_adj")
+        off_ppa_adj = _col("stat_off_ppa_adj")
+        def_ppa_adj = _col("stat_def_ppa_adj")
+        off_ypp_adj = _col("stat_off_ypp_adj")
+        def_ypp_adj = _col("stat_def_ypp_adj")
+        sp_off_rating = _col("sp_off_rating_0_100")
+        sp_def_rating = _col("sp_def_rating_0_100")
 
         def _blend(series: pd.Series) -> pd.Series:
             return series.clip(lower=0.0, upper=100.0)
 
         df["grade_qb_score"] = _blend(
-            0.30 * off_idx + 0.25 * wrps_off + 0.25 * talent + 0.20 * srs
+            0.25 * off_idx
+            + 0.20 * off_ppd_adj
+            + 0.15 * off_success_adj
+            + 0.15 * wrps_off
+            + 0.15 * talent
+            + 0.10 * srs
         )
         df["grade_wr_score"] = _blend(
-            0.35 * off_idx + 0.30 * off_expl + 0.20 * wrps_off + 0.15 * talent
+            0.30 * off_idx
+            + 0.25 * off_expl
+            + 0.15 * off_success_adj
+            + 0.15 * wrps_off
+            + 0.15 * sp_off_rating
         )
         df["grade_rb_score"] = _blend(
-            0.35 * off_idx + 0.35 * off_success + 0.15 * wrps_off + 0.15 * talent
+            0.25 * off_idx
+            + 0.25 * off_success
+            + 0.20 * off_ppd_adj
+            + 0.15 * wrps_off
+            + 0.15 * sp_off_rating
         )
         df["grade_ol_score"] = _blend(
-            0.30 * off_idx + 0.35 * off_success + 0.20 * talent + 0.15 * srs
+            0.25 * off_idx
+            + 0.25 * off_success
+            + 0.20 * off_ppd_adj
+            + 0.15 * talent
+            + 0.15 * srs
         )
         df["grade_dl_score"] = _blend(
-            0.35 * def_idx + 0.30 * def_expl + 0.20 * wrps_def + 0.15 * srs
+            0.25 * def_idx
+            + 0.25 * def_ppd_adj
+            + 0.20 * def_expl
+            + 0.15 * wrps_def
+            + 0.15 * sp_def_rating
         )
         df["grade_lb_score"] = _blend(
-            0.35 * def_idx + 0.35 * def_success + 0.15 * wrps_def + 0.15 * srs
+            0.25 * def_idx
+            + 0.25 * def_success
+            + 0.20 * def_ppd_adj
+            + 0.15 * wrps_def
+            + 0.15 * sp_def_rating
         )
         df["grade_db_score"] = _blend(
-            0.30 * def_idx + 0.40 * def_success + 0.20 * def_expl + 0.10 * wrps_def
+            0.25 * def_idx
+            + 0.30 * def_success_adj
+            + 0.20 * def_expl
+            + 0.15 * wrps_def
+            + 0.10 * sp_def_rating
         )
         df["grade_st_score"] = _blend(0.60 * st_idx + 0.20 * talent + 0.20 * wrps_off)
 
@@ -574,6 +683,22 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "stat_off_index_0_100",
         "stat_def_index_0_100",
         "stat_st_index_0_100",
+        "stat_off_success_adj",
+        "stat_def_success_adj",
+        "stat_off_ppd_adj",
+        "stat_def_ppd_adj",
+        "stat_off_ppa_adj",
+        "stat_def_ppa_adj",
+        "stat_off_ypp_adj",
+        "stat_def_ypp_adj",
+        "advanced_off_success_rate",
+        "advanced_off_ppd",
+        "advanced_off_ppa",
+        "advanced_off_ypp",
+        "advanced_def_success_rate",
+        "advanced_def_ppd",
+        "advanced_def_ppa",
+        "advanced_def_ypp",
         "availability_source",
         "availability_offense_score",
         "availability_defense_score",
@@ -610,6 +735,19 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         "portal_net_0_100",
         "portal_net_count",
         "portal_net_value",
+        "sp_rating",
+        "sp_rating_0_100",
+        "sp_ranking",
+        "sp_sos",
+        "sp_sos_0_100",
+        "sp_off_rating",
+        "sp_off_rating_0_100",
+        "sp_off_success",
+        "sp_off_success_0_100",
+        "sp_def_rating",
+        "sp_def_rating_0_100",
+        "sp_def_success",
+        "sp_def_success_0_100",
     ]:
         if col not in df.columns:
             df[col] = None

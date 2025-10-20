@@ -1,1148 +1,197 @@
-# UPA-F Development Manual (Expanded)
+# UPA-F Development Manual
 
-> **Agent Instructions**
-> - Always read this document in full when a new session starts.
-> - Follow the processes, test requirements, and logging expectations described here before making changes.
-> - Keep this document up to date with any code or workflow changes during your session.
-
----
-
-## Product Overview: Purpose, Audience & Goals
-
-## Codex Session Log (2025-10-05)
-- 2025-10-05 21:36: Kickoff session; Bets tab showing zero plays despite predictions for Week 7. Beginning data validation in `upa_predictions`.
-- 2025-10-05 21:48: Queried `upa_predictions`; all `value_points_book` magnitudes ≈0.87 because λ=0.6 dampens to `(1-λ)*|edge|`. With value cutoff still at 1.0, no rows qualify, so Bets tab renders empty. Need to retune qualification thresholds to reflect the λ change.
-- 2025-10-05 21:58: Rebased qualification thresholds to align with λ=0.6, added env-configurable defaults in `agents/collect/predictions.py`, synced UI constants, and refreshed `qualified_edge_flag` values in the SQLite artifacts.
-- 2025-10-05 22:05: Validated dataset after refresh — 181 rows satisfy Bets tab filters (|edge| ≥ 1.5, |value| ≥ 0.6) and 79 rows carry `qualified_edge_flag=1` with the new 0.8 point threshold.
-- 2025-10-05 21:54: Predictions tab layout regressed (team names overlap kickoff info, positional grade pills collide). Need to restore structured team header and adjust grade grid spacing.
-- 2025-10-05 22:08: Backtest tab empty post-SQLite migration; need one-off builder + manual workflow to hydrate 2024 datasets into `upa_data.sqlite` and deploy.
-- 2025-10-12 12:24: Added scripted backtest builder + workflow; latest run populated 2024 tables but missing graded results. Wiring helper grades now and rehydrating to restore W/L counts.
-- 2025-10-12 12:30: Cached schedule/markets/team inputs persisted for offline reuse; deploy workflow now runs `tools.build_backtest_data --offline` so model changes automatically refresh backtest results without refetching CFBD.
-- 2025-10-12 12:36: Patched live scoreboard ingestion to merge the last ~3 days and retain previous rows when ESPN responds empty, preventing the UI from wiping results on off days.
-- 2025-10-12 13:17: Updated deploy workflow to `git pull --rebase --autostash origin main` before committing artifacts, preventing push failures when remote advances mid-run.
-- 2025-10-12 13:27: Reduced stat/grade weights, made position grades opt-in (`INCLUDE_GRADE_FEATURES`), tightened qualification thresholds, and added a confidence floor so backtest accuracy targets 70%.
-- 2025-10-12 21:45: Added `fetch-fanduel-odds` workflow + `tools.fetch_fanduel_odds` helper to snapshot FanDuel spreads with verbose logging (`DEBUG_MARKET=1`) and persist results to `data/debug/fanduel_odds_snapshot.json` / `fanduel_odds_snapshot`.
-- 2025-10-13 06:??: `fetch-fanduel-odds` now also updates the canonical `raw_fanduel_lines` cache via `_persist_market_snapshot`, so the main collector reuses the latest FanDuel pulls without hitting the API again.
-- 2025-10-13 07:20: `_odds_api_fetch_fanduel` paginates until the Odds API signals completion (via `x-odds-api-page-count` or empty payload), preventing partial slates like Oregon @ Rutgers from falling back to CFBD.
-- 2025-10-13 07:33: Added `FANDUEL_CACHE_ONLY`; deploy/live workflows set it to `1` so only manual `fetch-fanduel-odds` runs hit the Odds API.
-- 2025-10-13 07:45: Ingest CFBD player usage, derive availability metrics, and merge new availability features into team inputs/model dataset.
-- 2025-10-13 07:50: Bets tab shows historical win rate for the selected spread band and clarifies the buckets used for “Most likely to hit”.
-- 2025-10-13 07:52: Status tab weekly accuracy tables now display spread-band win rates for completed games.
-- 2025-10-13 07:55: Default Bets tab spread band set to “double-digit (≥10)” after historical win-rate review; status band table uses the same definitions.
-- 2025-10-13 08:05: Documented workflow/caching overview, added odds-calculation summary, and scheduled FanDuel snapshot workflow for Thu/Fri midnight PT and Sat 7am PT.
-
-## In-Progress Changes (2025-10-13)
-
-- [x] Ingest CFBD player usage snapshots into `raw_cfbd_player_usage`.
-- [x] Derive team availability metrics (offense/defense/special/QB).
-- [x] Merge availability features into team inputs and model dataset.
-- [x] Add tests & documentation updates for availability features.
-
-**What we are trying to do (mission)**
-- Build a reliable, transparent, and continuously-updating **college football pricing engine** that:
-  - Synthesizes **team fundamentals** (WRPS, Talent, SRS, SOS) with **market lines** (FanDuel preferred) and **live context** (scores).
-  - Produces **actionable, auditable predictions** (model vs. market) with quantified **edge** and **confidence**.
-  - Publishes results to a **static site** (GitHub Pages) with accompanying **debug artifacts** so issues can be diagnosed quickly.
-  - Explicitly generate our own **model spreads** for FBS vs FBS games, grounded in and calibrated against FanDuel’s market spreads, restricted to the **current CFBD week** by default.
-- Operate under **deterministic, reproducible** workflows: every CI run **rebuilds all data**, validates freshness, and **fails hard** on emptiness/staleness.
-
-**Who we are doing it for (audience & stakeholders)**
-- **Primary users:** UPA maintainers/analysts who need trustworthy edges to guide selections and quickly debug data issues when things look off.
-- **Secondary users:** Technical contributors who evolve the model, add features, maintain integrations, and improve deployment/observability.
-- **Tertiary consumers:** Potential downstream dashboards/bots that ingest `data/upa_data.sqlite` tables to trigger alerts or produce external views.
-
-**Why this approach**
-- Betting markets move; **staleness** and **missing markets** silently destroy value. We explicitly defend against both with **freshness guards**, **backfill**, and **validation gates**.
-- Most failures are plumbing, not math. By shipping **debug files** (schedule, market_debug, unmatched, backfill summary) we shorten MTTD/MTTR.
-- Static hosting + CI keeps ops simple, secure, and cheap while still giving near-real-time updates on every push.
-- We ignore games featuring **non-FBS opponents** to ensure consistency with market availability and to avoid mismatched data coverage.
-- We restrict scope to the **current week’s spreads** when fetching and generating predictions, ensuring markets and model comparisons remain fresh and relevant.
+> **Agent instructions**  
+> 1. Read this file at the start of every session.  
+> 2. Follow the workflows, validation steps, and operational guardrails below.  
+> 3. Update this document whenever you ship changes that affect process, data flow, or automation.
 
 ---
 
-## Personas & Top Use Cases
+## Overview
 
-**Personas**
-- *Analyst*: wants ranked edges with clear confidence; needs to understand **why** an edge exists and whether inputs are trustworthy today.
-- *Engineer*: maintains collectors, cache logic, and CI; needs reproducible runs, strong logs, and failing builds when data is bad.
-- *Modeler*: experiments with feature weights and algorithms; needs quick iteration and clear checkpoints/artifacts for evaluation.
+Unified Predictive Algorithm — Full Repo (UPA-F) ships a static dashboard (Vite + React + TypeScript) backed by a Python data pipeline. GitHub Actions build the SQLite datastore (`data/upa_data.sqlite`) and JSON status artifacts; the frontend loads them with `sql.js`, so the site can be deployed as static pages without an API.
 
-**Use Cases**
-1. **Daily update**: Kick CI; regenerate schedule/markets/predictions; validate; publish.
-2. **Slate review**: Sort by `value_points_book`; inspect `qualified_edge_flag`; drill into the `market_unmatched` dataset if coverage drops.
-3. **Debug a mismatch**: Compare `market_debug` vs `upa_predictions` join keys; inspect `nan_reason` and `status` JSON.
-4. **Model tuning**: Adjust κ, λ, α-weights; re-run; compare MAE/RMSE and realized error on completed games.
-5. **Incident response**: Validation fails → halt deploy; use debug artifacts to locate source (schedule stale, market empty, token missing).
+The dashboard currently exposes seven tabs (Status, Team, Predictions, Live Results, Recommended Bets, Backtest 2024, Help) that all read from the same SQLite database plus a few JSON diagnostics under `data/`.
 
 ---
 
-## Success Criteria & KPIs
+## Architecture Snapshot
 
-**Reliability KPIs**
-- **Data freshness**: `cfb_schedule` extends ≥ today+2 (PT); FanDuel lines < 48h old on active slates.
-- **Coverage**: ≥ 90% predictions with numeric `market_spread_book` in-season.
-- **Build health**: 100% of deploy runs pass validation or fail early; no “green” deploys with empty data.
-
-**Quality KPIs**
-- **MAE(model, market)**: monitored weekly; aim for stability with improvements after feature releases.
-- **Unmatched rate**: `market_unmatched`/total market rows ≤ 3%; spikes trigger alias review.
-- **Synthetic market rate**: ≤ 5% during normal operation (outside emergencies).
-
-**Velocity KPIs**
-- CI end-to-end duration: target &lt; 10 minutes with warm caches.
-- Time to debug: &lt; 30 minutes to root-cause via `status JSON` + debug CSVs.
+- **Frontend**: `src/` React app, built with Vite. Data access lives in `src/lib/db.ts` (SQLite via `sql.js`) and `src/lib/csv.ts` (helpers for number formatting, JSON pulls).
+- **Data store**: `agents/storage/sqlite_store.py` wraps SQLite writes/reads, persists both tabular datasets and JSON blobs (`data_json` table). Primary database lives at `data/upa_data.sqlite`.
+- **Collectors & model pipeline**: Modules under `agents/collect/` produce schedule, markets, team inputs, predictions, backtests, status JSON, and diagnostics. `agents/collect/helpers.write_dataset` centralises market backfill, grading, and artifact bookkeeping.
+- **Jobs**: `agents/jobs/*.py` provide narrow entry points for automation (daily/weekly refreshes, live markets, residual model training).
+- **Tools**: `tools/` contains CLI utilities used by workflows (`build_site_data`, `build_backtest_data`, `fetch_fanduel_odds`, `validate_site_data`).
+- **Static delivery**: Deploy workflow copies everything in `data/` into `dist/data/` so the published Pages bundle always carries the latest SQLite + JSON payloads.
 
 ---
 
-## Non‑Goals (for clarity)
+## Data Flow Summary
 
-- Arbitrage execution, portfolio management, staking automation: **out of scope** here.
-- Live in-game pricing: **out of scope** (we snapshot pregame markets).
-- Non-FBS data products: excluded from this pipeline (keeps mapping clean).
-
----
-
-## Operating Constraints & Assumptions
-
-- **Environment**: Runs in GitHub Actions on Ubuntu; Python 3.11; Node 20 for UI.
-- **APIs/Quotas**: CFBD bearer token required; Odds API keys required for FanDuel; caches limit calls.
-- **Idempotency**: Re-running a build with same inputs should reproduce outputs (modulo live-market timestamp changes).
-- **Year scoping**: `.cache_cfbd/<year>`, `.cache_odds/<year>` to prevent cross-year bleed.
-- **Documentation hygiene**: Any change that touches collectors, workflows, data schemas, or UI consumption **must** update this document in the same change set so the manual stays authoritative.
+1. **Schedule & team inputs**: `agents.collect.team_inputs.build_team_inputs_datadriven` ingests CFBD team metadata, player usage, and efficiency stats (via `agents.collect.stats_cfbd`). Outputs are written with `write_dataset`, which also records artifact metadata.
+2. **Markets & live scores**: `agents.collect.markets.get_market_lines_for_current_week` (FanDuel first, CFBD fallback) and `agents.collect.live_scores.update_live_scores` hydrate bookmaker spreads plus recent ESPN scoreboard results.
+3. **Predictions**: `agents.collect.predictions.build_predictions_for_year` merges schedule, markets, team inputs, and live scores, applies the residual spread ensemble (`agents.collect.spread_model`), and flags completed games. `write_dataset` backfills missing spreads (FanDuel → CFBD → legacy → model) and grades results into `model_result`.
+4. **Status & diagnostics**: `_upsert_status_market_source` in `agents.collect.status` refreshes `data/status.json` with run metadata, market source, fallback reason, and generated timestamp. Additional debug JSON (`market_predictions_backfill.json`, `market_unmatched.json`) are emitted via helper modules.
+5. **Publishing**: `tools.build_site_data` copies curated artifacts into `dist/data/`; `tools.validate_site_data` fails the build if required datasets are empty or stale.
 
 ---
 
-## Data Governance, Secrets & Security
+## Automation & Schedules
 
-- **Secrets**: Stored in repo secrets (`CFBD_BEARER_TOKEN`, `ODDS_API_KEY`) only; never in code or logs.
-- **PII**: None handled; only public sports data; still treat tokens as sensitive.
-- **Artifact integrity**: Only `dist/` (site) is published; `data/` is copied into `dist/data/` at build-time.
-- **Reproducibility**: All inputs & transforms are materialized to CSV/JSON with exact schemas; changes must be versioned and documented.
-
----
-
-## Environments & Config
-
-- **Local**: Developers can run `collect_cfbd_all.py` with tokens to reproduce CI outputs into local `data/`.
-- **CI (build)**: Always regenerates all artifacts; hard validation blocks deploy on failure.
-- **Prod (Pages)**: Static site; data shipped alongside UI as ``dist/data/upa_data.sqlite` plus JSON keys`.
-
-**Configuration surface**
-- `MARKET_SOURCE` (default `fanduel`), `YEAR`, κ, λ, α-weights, thresholds (`τ_points`, `τ_conf`), cache TTLs.
-- `DATA_DB_PATH` (default `data/upa_data.sqlite`) stores all generated tables; `CACHE_DB_PATH` (default `data/upa_cache.sqlite`) backs collector caches.
-- All tunables defined in Python constants or env vars; changes must be reflected in `development.md`.
-
-### Deploy workflow controls (GitHub Actions)
-- Manual `workflow_dispatch` runs now expose `enable_cache`, `enable_backtest`, and `backtest_year` inputs.
-- Defaults keep both cache restore and backtest disabled (`false`) so push-triggered CI stays deterministic.
-- Setting `enable_cache=true` restores the Actions cache and re-enables optional purge; `enable_backtest=true` passes `--backtest <backtest_year>` to the collector.
-- Leave inputs untouched to run the live-only pipeline; toggle them explicitly when you need cached data or historical reruns.
-
-### External APIs & Endpoints
-- **CollegeFootballData (CFBD)** via the official Python client (`cfbd`):
-  - `GamesApi.get_games(...)` for the master schedule.
-  - `BettingApi/LlinesApi.get_lines(...)` for CFBD odds fallback.
-  - `TeamsApi.get_fbs_teams(...)` and `TeamsApi.get_talent(...)` for team metadata/talent.
-  - `PlayersApi.get_returning_production(...)` for Connelly returning production metrics.
-  - `RatingsApi.get_srs(...)` and `RatingsApi.get_sos(...)` for SRS/SOS inputs.
-- **The Odds API** (`https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds`) for FanDuel market lines (spread market, paginated via `requests.get`).
-- **ESPN Scoreboard** (`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=YYYYMMDD`) for live scores/clock state.
-
-### Data Collection Workflows
-To decouple raw data ingestion from model generation, GitHub Actions now refresh the SQLite datastore independently:
-- `refresh-cfbd-weekly` (`.github/workflows/fetch_cfbd_weekly.yml`): runs every Monday 10:00 UTC (and on demand). Calls `python -m agents.jobs.refresh_cfbd_weekly` to update team metadata (FBS teams, returning production, talent, SRS, SOS) and commits `data/upa_data.sqlite` back to `main`.
-- `refresh-cfbd-daily` (`.github/workflows/fetch_cfbd_daily.yml`): runs daily at 09:00 UTC. Executes `python -m agents.jobs.refresh_cfbd_daily`, pulling the latest CFBD schedule and CFBD lines fallback into the relational tables.
-- `refresh-markets-live` (`.github/workflows/fetch_markets_live.yml`): runs every five minutes on Fridays and Saturdays (manual dispatch available otherwise). Executes `python -m agents.jobs.refresh_markets_live` to fetch FanDuel odds and the ESPN scoreboard via `update_live_scores`, merging the past ~3 days so finals persist. Each run commits the updated SQLite DB with `[skip ci]` to avoid recursive triggers.
-- `refresh-cfbd-stats-weekly` (`.github/workflows/fetch_cfbd_stats_weekly.yml`): runs every Tuesday at 12:00 UTC (and on demand). Executes `python -m agents.jobs.refresh_cfbd_stats_weekly` to refresh `raw_cfbd_team_stats` and the normalized feature table used by team inputs, committing the SQLite database when those metrics change.
-- `train-spread-model` (`.github/workflows/train_spread_model.yml`): runs every Tuesday at 11:00 UTC (and on demand). Executes `python -m agents.jobs.train_spread_model` to fit the residual ensemble (ridge + boosted stumps), calibrate it, and persist the artifact to `models/residual_model.json`.
-
-The downstream collector (`collect_cfbd_all`) and model builders now read exclusively from `upa_data.sqlite`, so the deploy workflow can focus on transformation, validation, and publishing without re-hitting upstream APIs.
+| Workflow | Trigger | Purpose |
+| --- | --- | --- |
+| `deploy` | Push to `main` and manual dispatch | End-to-end build: collector, residual model, validation, UI build, commit data, publish Pages. Supports optional cache reuse and backtest pass. |
+| `refresh-cfbd-daily` | 09:00 UTC daily | Refresh CFBD schedule/lines snapshots via `agents.jobs.refresh_cfbd_daily`; commits `data/upa_data.sqlite` if updated. |
+| `refresh-cfbd-weekly` | 10:00 UTC Mondays | Weekly CFBD refresh (`agents.jobs.refresh_cfbd_weekly`) to capture roster/team metadata updates. |
+| `refresh-cfbd-stats-weekly` | 12:00 UTC Tuesdays | Rebuild team stat features powering `team_inputs`. |
+| `refresh-markets-live` | Every 5 min on Fri/Sat | Pull current FanDuel odds (cache-only mode) plus ESPN live scores via `agents.jobs.refresh_markets_live`. |
+| `fetch-fanduel-odds` | Thu/Fri 07:00 UTC and Sat 14:00 UTC (manual enabled) | Full FanDuel pull with `tools.fetch_fanduel_odds`, updates `data/debug/fanduel_odds_snapshot.json` and appends odds history to SQLite. |
+| `train-spread-model` | 11:00 UTC Tuesdays | Train residual spread ensemble (`agents.jobs.train_spread_model`) and persist metrics + calibrated adjustments to the DB. |
+| `build-backtest` | Manual | Generate historical season datasets with `tools.build_backtest_data` (online or offline cache mode), rebuild UI, and publish Pages artifact. |
 
 ---
 
-## Release, Deploy & Change Management
+## Key Data Artifacts
 
-- **Release cadence**: As‑needed; each push to `main` is a potential deploy.
-- **Validation gate**: Build fails if schedule stale, predictions empty, or market debug empty.
-- **Observability**: Status page shows counts, MAE, coverage, synthetic rate, and links to debug artifacts.
-- **Rollbacks**: Revert commit; CI redeploys with restored data generation.
-- **Market persistence**: Deploy workflow appends new market pulls to the committed `data/market_debug` before writing, then feeds the combined history into predictions so previously played games retain bookmaker spreads.
+| Artifact | Produced by | Notes |
+| --- | --- | --- |
+| `data/upa_data.sqlite` | All collector/tooling flows | Canonical SQLite store consumed by the UI (`sql.js`). Contains tables such as `upa_predictions`, `upa_team_inputs_datadriven_v0`, `cfb_schedule`, `market_debug`, `live_edge_report`, backtest tables, and JSON payloads in `data_json`. |
+| `data/status.json` | `_upsert_status_market_source` | Dashboard status card: timestamps, counts, market source, fallback reason. |
+| `data/market_debug.json` & `data/market_debug.csv` | Market ingestion + `write_dataset` | FanDuel + CFBD spread history, used by Status downloads and for FanDuel backfill audits. |
+| `data/market_unmatched.json` | Markets normaliser | List of events that failed FanDuel ↔ schedule matching; surfaced on Status tab for alias triage. |
+| `data/market_predictions_backfill.json` | `write_dataset("upa_predictions")` | Summary of how many predictions rows were filled by FanDuel vs fallbacks (observability for synthetic spreads). |
+| `data/debug/collector.log` | `agents.collect_cfbd_all` (file logger) | DEBUG-level log for the most recent collector run. |
+| `data/debug/fanduel_odds_snapshot.json` | `tools.fetch_fanduel_odds` | Raw Odds API response archive used to troubleshoot market coverage. |
 
----
-
-## Ops Runbook (MTTD/MTTR)
-
-1. **UI shows zeros / 404s**  
-   - Check GitHub Action logs for **validation failure**; open `status JSON`, `market_debug.json`.
-   - Verify `data/` contents in artifact; ensure files exist in `dist/data/`.
-2. **Schedule stuck at old date**  
-   - Freshness guard should refetch; if not, confirm `CFBD_BEARER_TOKEN` present; inspect `.cache_cfbd/<year>`.
-3. **Markets missing**  
-   - Confirm `ODDS_API_KEY`; check `market_unmatched`; review team alias normalizer.
-4. **Predictions empty**  
-   - Ensure predictions builder is present; verify joins; check `nan_reason` distribution.
-5. **Frequent cache misses or API throttling**  
-   - Audit cache keys; raise TTLs conservatively; reduce redundant calls.
+All artifacts are copied into `dist/data/` during deploy so the published site references static paths.
 
 ---
 
-## Current Issues & Focus Areas *(updated 2025-09-21)*
+## Recent Changes (October 2025)
 
-- **Week 5 market coverage**: FanDuel returns limited spreads early in the week. We now merge new pulls with existing `market_debug`; monitor `market_predictions_backfill.json` to ensure previously played games retain bookmaker lines and synthetic rate stays ≤ 5%.
-- **Manual workflow toggles**: Caching and backtest are disabled by default. When re-enabled for investigations, confirm toggle values in the workflow run summary and reset them to `false` afterwards.
-- **Backtest builder workflow**: Use `build-backtest` (workflow_dispatch) when you need to refresh historical seasons. It runs `python -m tools.build_backtest_data --year <season>`, copies the updated SQLite into `dist/data/`, commits with `[skip ci]`, and redeploys Pages. Provide `CFBD_BEARER_TOKEN` before triggering; this job only runs on demand. An initial online run is required to seed the cached `backtest_*` tables so future deploys can recompute offline.
-- **Schedule freshness**: Early-week runs can lag if CFBD throttles. Keep an eye on the validation check (`schedule stale`) and bump `FORCE_REFRESH_*` envs for a one-off retry if needed.
-
----
-
-## Roadmap (High Confidence Next Steps)
-
-  - Add a **Historical Predictions Archive**: after each run, persist a snapshot of that week's predictions to a year/week-scoped path (see "Historical Predictions Archive" below) so we can analyze model drift and realized error over time.
-  - Ensure collectors only ingest **current week market spreads** (default), with overrides available for testing/backfill. Document and enforce week scoping consistently.
-  - Ensure all collectors and predictions builders filter out **non-FBS matchups**; predictions and edges should only be computed for FBS vs FBS games.
-  - Implement real **portal_net_0_100** from transfer portal data.
-  - Finalize in-repo **build_predictions_for_year** with confidence model.
-  - Add **build_live_edge_report** and formalize edge/value distribution checks.
-  - Expand **validation** to require minimum **coverage** on slate days.
-  - Add **alerting** on validation failures (GitHub Issue/Slack webhook).
-  - **In flight – Statistical feature library**
-    - ✅ `agents.collect.stats_cfbd.build_team_stat_features` fetches CFBD season stats (offense/defense/special teams), normalizes them to 0–100, and persists both raw + feature tables.
-    - ✅ `build_team_inputs_datadriven` now merges efficiency features (`stat_off_ppg`, `stat_def_ppg`, etc.) for downstream modeling.
-    - ☐ Add situational splits (3rd/4th down, red zone) and rolling four-week deltas.
-    - ☐ Expand tests covering payload parsing and normalization edge cases.
-  - **In flight – Positional ranking model**
-    - ✅ Derived unit grades (QB/RB/WR/OL/DL/LB/DB/ST) from CFBD efficiency composites; letters now reflect percentile tiers across FBS (A+ top ~1%, D-/F bottom decile).
-    - ☐ Design richer positional metric schema leveraging roster/usage inputs (injuries, depth charts).
-    - ☐ Produce `raw_positional_ratings` dataset with per-unit scores and integrate into team inputs/predictions.
-  - **Next phase – Data-driven spread model**
-    - ✅ Export historical training dataset (team stat snapshots + market outcomes) via `agents.collect.model_dataset`.
-    - ✅ Train the residual spread ensemble (`agents.collect.spread_model` + `agents.jobs.train_spread_model`) using new stats/grades; model blob persisted to `models/residual_model.json` with calibration metadata.
-    - ✅ Integrate model predictions into `build_predictions_for_year` as an additive adjustment over the market spread.
-    - ☐ Calibrate residuals and monitor MAE/coverage vs. market baseline, add alerting when residual drift > threshold.
-  - **In flight – Historical baselines & drift monitoring**
-    - ☐ Snapshot pre-kick predictions weekly (using frozen spreads) into a longitudinal table for MAE/cover tracking.
-    - ☐ Expose rolling baseline metrics and alerts on the Status tab.
-  - Integrate **advanced statistical databases** (CFB Stats, PFF-style sources if available) into feature ingestion.
-  - Build automated **feature importance reports** to surface which stats are driving edge.
-  - Enhance **explainability layer** in the UI: when showing an edge, highlight which statistical categories most contributed.
-
-### Data Availability via CFBD
-
-Many of the statistical features and positional metrics planned in the roadmap can be sourced or proxied via the **CollegeFootballData (CFBD) API**. Below is a mapping of roadmap items → CFBD endpoints:
-
-- **Offensive efficiency metrics**  
-  - CFBD endpoint: `/stats/season` (with `team`, `category=offense`)  
-  - Provides: yards/play, points/play, success rate, EPA/play (if available).
-
-- **Defensive efficiency metrics**  
-  - CFBD endpoint: `/stats/season` (with `team`, `category=defense`)  
-  - Provides: opponent yards/play, points allowed/play, defensive success rate.
-
-- **Tempo & pace indicators**  
-  - CFBD endpoint: `/stats/season` (category=offense) includes plays per game, seconds/play.
-
-- **Explosiveness & chunk plays**  
-  - CFBD endpoint: `/stats/season` with advanced metrics flags.
-
-- **Red-zone efficiency**  
-  - CFBD endpoint: `/stats/season` (scoring opportunities vs conversions).
-
-- **3rd/4th down conversion rates**  
-  - CFBD endpoint: `/stats/season` or `/teams/matchup` with situational filters.
-
-- **Special teams impact**  
-  - CFBD endpoint: `/stats/season` (category=specialTeams) includes field position value, kicking efficiency.
-
-- **Position vs position matchups & positional rankings**  
-  - CFBD does not directly expose OL vs DL or WR vs CB.  
-  - Partial data can be approximated via `/teams/roster` (player positions, experience) and `/stats/season` (sack rate, pass protection metrics).  
-  - Full position grades likely require external data (e.g., PFF, custom scraping).
-
-- **Transfer portal / roster changes**  
-  - CFBD endpoint: `/player/portal` and `/teams/roster`.  
-  - Provides portal entries, incoming/outgoing players, positions.
-
-- **Historical baselines**  
-  - CFBD endpoint: `/stats/season` with `year` parameter.  
-  - Enables building rolling averages or multi-year trends.
-
-**Note**:  
-- CFBD’s `/stats/season` endpoint is the workhorse for most team-level efficiency metrics.  
-- Some advanced stats (EPA/play, explosiveness, havoc rate) may only be partially covered or require derived calculations from play-by-play endpoints (`/plays`).  
-- Positional matchups will need augmentation from external databases; CFBD provides roster and play-level context but not graded position-vs-position ratings.
-
-### How Statistical Features Influence the Model’s Predicted Spread
-
-The purpose of this model is to **calculate our own expected spread** for each FBS matchup, grounded in FanDuel’s lines but adjusted by team statistical profiles.
-
-Incorporating the expanded statistical library is not just about adding raw numbers—it is about **shaping the predicted spread (model_spread_book)** in ways that reflect both fundamental strengths and matchup-specific edges.
-
-**Key Integration Principles**
-- **Feature weighting**: Stats should not be 1-to-1 inputs; they must be normalized, weighted, and blended into composite scores (offense, defense, tempo, etc.).
-- **Contextual adjustment**: Some features matter more in certain matchups (e.g., OL vs DL strength when predicting rushing success).
-- **Stability vs signal**: Use rolling averages or multi-week samples to smooth volatility while preserving recent trends.
-
-**Examples of Influence**
-- **Offensive efficiency (yards/play, EPA/play)** → raises the baseline power score for the team’s offense, making spreads more favorable toward them.
-- **Defensive efficiency (points allowed/play, havoc rate)** → reduces opponent expected scoring, making spreads more favorable to defense-strong teams.
-- **Tempo/pace** → high tempo inflates variance; the model can adjust expected margin distribution (wider spreads and higher uncertainty).
-- **Explosiveness** → increases weight of potential blowouts; model may lean toward larger spreads if one side generates more chunk plays.
-- **Red-zone efficiency** → adjusts conversion of drives to points; poor red-zone efficiency tempers expected scoring despite strong yardage stats.
-- **3rd/4th down conversions** → influences sustained drives; strong conversion rates support model favoring that team in close spreads.
-- **Special teams** → affects hidden yardage; good ST shifts expected field position, improving team’s modeled efficiency.
-- **Position vs position matchups** → specific unit ratings (e.g., WR vs CB) adjust spread incrementally depending on mismatch severity.
-- **Transfer portal and roster changes** → significant player losses or gains shift baseline power ratings up or down, especially if affecting QB, OL, or secondary depth.
-
-**Mathematical Form (conceptual)**
-- Let $S_{off}$ = offensive composite (efficiency + explosiveness + tempo adj).
-- Let $S_{def}$ = defensive composite (efficiency + havoc + red-zone stops).
-- Let $S_{st}$ = special teams composite.
-- Let $S_{pos}$ = positional matchup adjustments (sum of unit mismatch deltas).
-- Then **team strength score**:
-  $$
-  S_{team} = \alpha_{off} S_{off} + \alpha_{def} S_{def} + \alpha_{st} S_{st} + S_{pos}
-  $$
-- Spread prediction:
-  $$
-  M_{model} = -(\kappa (S_{home} - S_{away}) + HFA)
-  $$
-  where $HFA$ = home field adjustment.
-
-**Guidance**
-- Weights ($\alpha$) should be learned or tuned empirically.
-- Early season: shrink toward priors (talent, returning production).
-- Late season: rely more on in-season stats (efficiency, matchups).
-- Always run feature importance analysis to confirm which stats drive edge.
-
-This ensures the model’s spreads are not just generic power ratings but **context-aware predictions** grounded in the statistical profile of each team and matchup.
+- Status tab now surfaces spread-band accuracy for each completed week and highlights market fallback reasons.
+- Recommended Bets tab defaults to double-digit spreads, shares spread band filters with the Status tab, and honours tightened qualification thresholds (`src/tabs/constants.tsx`).
+- Prediction builder integrates CFBD player-usage availability metrics and residual spread adjustments; `write_dataset` grades outcomes into `model_result` for MAE/weekly accuracy tables.
+- FanDuel odds ingestion runs on a dedicated workflow with cache reuse knobs (`FANDUEL_CACHE_ONLY`) so deploy runs can anchor to the latest snapshot without hammering the Odds API.
+- Deploy workflow rebases with `--autostash`, validates datasets both pre/post residual training, and uploads an auxiliary site bundle for the live markets workflow.
 
 ---
 
-## Risks & Mitigations
+## Model Inputs & Feature Blending
 
-- **Upstream API instability** → Cache with sane TTLs, retry with backoff, and clear fallbacks; surface via `status JSON`.
-- **Name/alias drift** → Centralize canonicalization; unit tests for alias tables; monitor `market_unmatched`.
-- **Sign convention mistakes** → Enforce conversions at ingress; unit tests for edge/expected calculations.
-- **Silent partial data** → Hard validation in CI; visible coverage metrics on Status page; never deploy empty headers only (except explicit placeholders).
+The `build_team_inputs_datadriven` pipeline now blends:
 
-## Repository Structure
+- **Returning production (WRPS)**: offensive/defensive/overall percentages plus a 0–100 composite (`wrps_percent_0_100`).
+- **Talent rating**: CFBD “talent” metric scaled to 0–100.
+- **Current-season SRS**: rating + rank + scaled score (`srs_score_0_100`).
+- **SP+ Ratings (2025 in-season)**:
+  - Overall rating/rank and opponent-adjusted strength of schedule (`sp_rating`, `sp_ranking`, `sp_sos` plus 0–100 scaled variants).
+  - Offensive/defensive SP+ components (`sp_off_rating`, `sp_def_rating`, success subscores) mapped to 0–100.
+- **Advanced efficiency (CFBD advanced season stats)**:
+  - Points per drive (offense/defense), success rates, total PPA, and derived yards-per-play after opponent adjustments (`stat_off_ppd_adj`, `stat_def_ppd_adj`, `stat_off_success_adj`, etc.).
+  - Raw values stored alongside scaled 0–100 columns.
+- **Legacy efficiency set**: points-per-game, yards-per-play, success rate, explosiveness for offense/defense, special-teams points/play (still pulled from CFBD team stats).
+- **Availability**: CFBD player usage-derived availability scores (overall, unit-level, QB flag).
+- **Portal placeholder**: `portal_net_*` columns remain for future integration.
 
-
-### Key Directories
-- `src/`: Source code for all pipeline components.
-- `data/raw/`: Unmodified input data.
-- `data/processed/`: Cleaned/feature-engineered data.
-- `artifacts/`: Model checkpoints and evaluation reports.
-- `logs/`: All logs (info, debug, errors).
-- `tests/`: Unit and integration tests.
-- `.github/workflows/`: CI/CD definitions.
-
----
-
-## Pipeline Overview
-
-The UPA-F pipeline is a modular, reproducible data science workflow:
-
-1. **Data Ingestion**: Fetches and validates raw data from local files, databases, or remote APIs.
-2. **Preprocessing**: Cleans, transforms, and normalizes data, handling missing values and outliers.
-3. **Feature Engineering**: Constructs new features, temporal statistics, and encodings.
-4. **Model Training**: Fits a predictive model (default: XGBoost) using training data.
-5. **Evaluation**: Produces metrics, error analysis, and visualizations.
-6. **Deployment/Export**: Saves model and predictions for downstream use.
+Position grades (QB/WR/RB/OL/DL/LB/DB/ST) now weight SP+, advanced efficiency, and availability metrics in addition to the historical WRPS/talent/SRS inputs.
 
 ---
 
-## Data Artifacts
+## In-Progress Changes *(updated 2025-10-16)*
 
-| Artifact                | Location             | Description                               |
-|-------------------------|---------------------|-------------------------------------------|
-| Raw Data                | `data/raw/`         | Original, unmodified input data           |
-| Processed Data          | `data/processed/`   | Cleaned and feature-engineered data       |
-| Model Checkpoints       | `artifacts/models/` | Trained model weights and configs         |
-| Evaluation Reports      | `artifacts/reports/`| Metrics, plots, and error analysis        |
-| Logs                    | `logs/`             | Execution, debug, and error logs          |
+- [ ] Snapshot weekly pre-kick predictions into a longitudinal history table so we can audit drift and realized error week-to-week.
+- [ ] Extend CFBD stat ingestion with situational splits (3rd/4th down, red zone) and rolling deltas; add regression tests around the new payloads.
+- [ ] Produce `raw_positional_ratings` derived from roster usage + player metrics and merge into team inputs/model dataset.
+- [ ] Document a troubleshooting playbook for deploy/validation failures (schedule stale, markets empty, cache mismatch) with pointers to logs and artifacts.
 
-## Caching Strategy & Retention Policy
-
-This section documents **what we cache**, **where it lives**, **how long it lives (TTL)**, **how to invalidate it**, and **how CI keys interact with on-disk caches**. It also includes do/don’t guidance to avoid accidentally nuking backtest caches.
-
-### 1) Cache Layers (overview)
-
-We use **two distinct cache layers**:
-
-1. **Local/Workspace caches (filesystem):**
-   - CFBD: `.cache_cfbd/<year>/...` (JSON blobs keyed by request, e.g., schedule/games endpoints)
-   - Odds/FanDuel: `.cache_odds/<year>/...` (JSON/CSV snapshots keyed by event/date/book)
-   - Purpose: *Reduce upstream API calls within a run and across runs on the same runner.*
-   - Lives in the repo workspace during CI (ephemeral VM) and also works for local developers.
-
-2. **GitHub Actions cache (artifact cache):**
-   - Restored via `actions/cache@v4`, paths:
-     - `.cache_cfbd/2025`
-     - `.cache_odds/2025`
-   - Keyed with a **composite key** that includes:
-     - OS + `MARKET_SOURCE` + season + a **version suffix** (we bump to bust),
-     - Hash of critical collector code (e.g., `hashFiles('agents/collect_cfbd_all.py')`).
-   - Purpose: *Warm-start subsequent CI runs with the latest good local/workspace caches.*
-
-> **Important:** These layers are additive. Filesystem caches are the raw objects; the Actions cache simply persists those directories across workflows keyed by our strategy.
+When a session is interrupted, resume with the first unchecked item unless context dictates otherwise. Update this checklist as work progresses.
 
 ---
 
-### 2) Default TTLs & Freshness Rules
+## Operational Notes
 
-- **CFBD (`.cache_cfbd/<year>`)**
-  - **Soft TTL:** ~90 days for static endpoints (teams, SRS, historical season endpoints).
-- **Freshness gate for schedule:** we **ignore** schedule caches if `max(date) < (today_Pacific + 2 days)` or if total rows `< 200`.
-    - This is not a time-based TTL; it’s a **content freshness** rule that **forces a refetch** if the schedule is too short or ends too early.
-  - **Reset events:** season rollover (August), schema changes to schedule loader, or widespread API corrections.
+### Market sourcing & fallbacks
+- Primary feed is FanDuel via Odds API (`MARKET_SOURCE=fanduel`). `write_dataset` fills `market_spread_book` from FanDuel (`market_debug`), then CFBD odds, then legacy schedule columns, finally the model baseline. Rows filled without a bookmaker line set `market_is_synthetic=1`.
+- `market_spread_source` is normalised (`fanduel`, `cfbd`, `model`, `unknown`) and forced to `fanduel` whenever a numeric FanDuel spread matches the stored value within tolerance.
+- `expected_market_spread_book = λ*market + (1-λ)*model` (λ=0.6). Edge/value thresholds in both Python and UI share the same defaults; override via env (`EXPECTED_MARKET_LAMBDA`, `EDGE_POINTS_QUALIFY_MIN`, etc.).
+- `model_result` / `expected_result` are derived in `_apply_book_grades` using final scores from the scoreboard snapshot so accuracy tables stay in sync with predictions.
 
-- **Odds/FanDuel (`.cache_odds/<year>`)**
-  - **TTL:** 2 days (configurable via `ODDS_CACHE_TTL_DAYS`, default 2).
-  - We prefer **fresh lines** (< 48 hours) on active slates; CI validation requires that `market_debug` is **non-empty**; if empty due to staleness, the build fails.
-  - **Reset events:** book availability changes, mapping logic updates, or alias table revisions.
+### Cache management
+- CFBD cache path defaults to `.cache_cfbd/<year>` with a soft ~90 day TTL; odds cache lives at `.cache_odds/<year>` with a two-day TTL (`ODDS_CACHE_TTL_DAYS`). Both are configurable via env in workflows.
+- Deploy workflow can optionally restore caches (manual dispatch with `enable_cache=true`). Purging caches in CI requires bumping the cache key version (`CACHE_VERSION`) or deleting the directories before restoring.
+- Manual reset: `rm -rf .cache_cfbd/2025 .cache_odds/2025` before re-running collectors. Backtest caches are year-scoped—avoid deleting other seasons unless you intend to refresh them.
 
-> **Backtest note:** Backtest caches can be retained far longer since historical endpoints are immutable; favor **year-scoped dirs** to isolate them from live-season caches.
-
----
-
-### 3) When To Reset (Playbook)
-
-Reset caches when any of the following happens:
-
-- **Stale schedule symptoms**: UI shows “stuck” week; last predictions date is 10–15 days old; CI warns schedule stale → **reset CFBD cache**.
-- **FanDuel mismatch**: `market_debug` empty while lines are clearly live; `market_unmatched` spikes → **reset Odds cache**.
-- **Alias/table updates**: You change canonicalization/regex rules → reset **both** Odds + any derived joins.
-- **Schema changes**: You add/remove columns in loaders → bump Actions cache **version suffix**.
-- **Season rollover**: Start of a new season (July/August) → create **new year directories** and **new Actions cache keys**.
-- **Bug in cache writes**: Corrupt JSON/CSV discovered → delete the affected keys/directories and re-run.
+### Validation & monitoring
+- `tools.validate_site_data` fails builds if required tables/JSON are empty (schedule, market_debug, predictions, status).
+- `python -m pytest` covers collectors, market joins, residual model, and helper utilities (see `tests/collect/`).
+- Status tab exposes generated time, next-run ETA, dataset counts, and download links for `upa_data.sqlite` and `collector.log`.
+- Monitor `market_predictions_backfill.json` to ensure FanDuel coverage; synthetic rate creeping upward usually means caches are stale or joins are failing.
 
 ---
 
-### 4) How To Reset (Safely)
+## Metrics & Definitions (Spread/Prediction Datasets)
 
-**A. Local/Workspace (filesystem)**
-- Remove the directory for the affected year:
+All spreads use bookmaker sign (negative favours the home team). Metrics live primarily in `upa_predictions` and mirrored backtest tables.
+
+| Metric | Type | Definition / Calculation | Primary Usage |
+| --- | --- | --- | --- |
+| `week` | int | CFBD week number associated with the matchup. | Tab filtering, weekly accuracy tables. |
+| `model_spread_baseline` | float | Rating differential (team inputs + home field) before any market anchoring. | Diagnose residual adjustments; fallback when markets missing. |
+| `market_spread_book` | float | Latest bookmaker line after FanDuel/CFBD joins and backfill logic. | Canonical market comparison for edges/value; displayed in UI. |
+| `market_spread_fanduel` | float | Raw FanDuel spread (when available). | Audit FanDuel coverage; forces `market_spread_source="fanduel"` when equal. |
+| `market_spread_cfbd` | float | CFBD odds API spread normalised to book sign. | Fallback when FanDuel absent; surfaced in debug downloads. |
+| `market_spread_source` | string | Origin tag for `market_spread_book` (`fanduel`, `cfbd`, `model`, `unknown`). | Status tab transparency, filtering Bets tab by source. |
+| `market_spread_effective` | float | Spread actually used in calculations (`market_spread_book` or model fallback). | Ensures calculations stay defined even when market is synthetic. |
+| `model_spread_book` | float | Baseline + residual adjustment anchored to `market_spread_book`; falls back to baseline when market missing. | Model price shown in UI; feeds edge/value math. |
+| `market_adjustment` | float | Calibrated residual adjustment applied to the market (clipped ±8). | Explains deviation between market and model. |
+| `expected_market_spread_book` | float | Blended expectation: `λ*market_spread_book + (1-λ)*model_spread_book` (λ=0.6). | Value calculation (`value_points_book`); dampens market noise. |
+| `edge_points_book` | float | `model_spread_book - market_spread_effective`. Positive means model likes away team. | Core signal for Bets/Predictions tabs; qualification input. |
+| `value_points_book` | float | `market_spread_effective - expected_market_spread_book`. | Indicates how far the book is from expectation. |
+| `model_confidence` | float | Confidence score (0–1) from residual ensemble, scaled by source and synthetic status. | Bets tab confidence buckets; qualification gating. |
+| `qualified_edge_flag` | int (0/1) | 1 when edge/value/confidence thresholds and directional agreement are met. | Drives recommended plays; surfaced in predictions download. |
+| `market_is_synthetic` | int (0/1) | 1 when a bookmaker price was not available (legacy/model backfill). | Used to discount confidence and track synthetic rate on Status tab. |
+| `played` | int (0/1) | 1 when both teams have final scores (merged from ESPN scoreboard). | Filters historical accuracy/MAE calculations. |
+| `model_result` | string | `"CORRECT"`, `"INCORRECT"`, `"P"`, or empty, graded via `_apply_book_grades`. | Weekly win/loss tables, accuracy reporting. |
+| `expected_result` | string | Grade for the `expected` pick side (same grading as `model_result`). | Backtest diagnostics; rarely surfaced in UI. |
+| `availability_*_score` | float | Team availability metrics (0–100) derived from CFBD player usage by unit (overall/offense/defense/ST/QB). | Residual feature inputs; surfaced in team inputs datasets. |
+| `availability_flag_qb_low` | int | 1 when quarterback usage drops below threshold. | Reduces confidence; displayed in debug exports. |
+| `stat_off_ppd_adj` / `stat_def_ppd_adj` | float | Opponent-adjusted points per drive (scaled 0–100). | Captures drive efficiency beyond raw scoring rates. |
+| `stat_off_success_adj` / `stat_def_success_adj` | float | Advanced success rates from CFBD advanced stats, opponent-adjusted and scaled. | Inputs to position grades and residual model. |
+| `sp_rating_0_100` / `sp_sos_0_100` | float | SP+ rating and strength-of-schedule converted to 0–100. | Long-term power rating anchor for residual adjustments. |
+| `sp_off_rating_0_100` / `sp_def_rating_0_100` | float | Offensive/defensive SP+ units scaled to 0–100 (defense inverted). | Supplements legacy efficiency features in team inputs. |
+
+For full column lists see `agents/collect/predictions.py` (final `cols` array) and `tests/collect/test_predictions.py` for assertions.
+
+---
+
+## Local Development
+
+- **Run collector locally** (requires `CFBD_BEARER_TOKEN`, optionally `ODDS_API_KEY`):  
   ```bash
-  rm -rf .cache_cfbd/2025
-  rm -rf .cache_odds/2025
+  python -m agents.collect_cfbd_all --market-source fanduel --year 2025
   ```
-- Re-run the collectors; they will re-populate from upstream APIs.
-
-**B. GitHub Actions cache (artifact cache)**
-- **Bump the cache key version** in the workflow so a fresh cache is created and used:
-  ```yaml
-  with:
-    key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-**v4**-${{ hashFiles('agents/collect_cfbd_all.py') }}
-    restore-keys: |
-      api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-
-      api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
-      api-caches-${{ runner.os }}-
+- **Fetch FanDuel snapshot manually**:  
+  ```bash
+  python -m tools.fetch_fanduel_odds --year 2025
   ```
-- Alternatively, **invalidate by code-change**: modifying `agents/collect_cfbd_all.py` changes the hashed portion of the key.
-
-**C. CI-only force refresh knobs**
-- Add env flags to bypass caches for a run:
-  - `FORCE_REFRESH_SCHEDULE=1` → always refetch schedule endpoints.
-  - `FORCE_REFRESH_MARKETS=1` → bypass odds cache and hit book endpoints.
-- Wrap loaders with: “if env flag present → ignore cache layer”.
-
----
-
-### 5) Don’t Nuke Backtests Accidentally
-
-- **Keep year-scoped directories**: `.cache_cfbd/2024` vs `.cache_cfbd/2025`.
-- **Never** run `rm -rf .cache_cfbd` at the repo root during live-season unless you intend to rebuild *all* years.
-- In CI, **do not** change the restore key prefix for backtest years unless the collectors changed in a way that invalidates history.
-- If you must refresh backtest cache, target the year explicitly and run during off-hours to avoid rate limits.
-
----
-
-### 6) Cache Key Design (Actions)
-
-Our cache key is crafted to balance reuse and control:
-
-- Prefix: `api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-`
-- **Version suffix**: manual bump (`v1`, `v2`, …) to force full invalidation on breaking changes.
-- **Hash payload**: `hashFiles('agents/collect_cfbd_all.py')` so logic changes trigger a different cache.
-- Restore key ladder allows fallback to **older** caches if the exact key is missing, which still reduces cold-starts.
-
-**Example**
-```yaml
-key: api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-v4-${{ hashFiles('agents/collect_cfbd_all.py') }}
-restore-keys: |
-  api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-season-2025-
-  api-caches-${{ runner.os }}-${{ env.MARKET_SOURCE }}-
-  api-caches-${{ runner.os }}-
-```
-
----
-
-### 7) Monitoring & Observability
-
-- **Status page** surfaces:
-  - `generated_at_utc`, counts of schedule/predictions rows.
-  - Synthetic rate and market coverage (proxy for cache/mapping health).
-- **CI logs** print:
-  - “MARKET_SOURCE (requested): …”
-  - Cache directories used (env `CACHE_DIR`, `ODDS_CACHE_DIR`).
-  - Snippets of `status JSON` and presence/rows of `market_debug.json/csv`.
-- **Alarms** (future): on validation failure, open a GitHub Issue or ping a webhook.
-
----
-
-### 8) FAQ
-
-- **Q:** *How long do caches live if I never bump keys?*  
-  **A:** Filesystem caches live as long as the workspace; Actions caches live until GitHub evicts them (LRU) or you change the key. We treat CFBD as ~90-day “soft TTL” and Odds as 2 days via loader logic.
-
-- **Q:** *When should I clear caches if FanDuel week alignment looks wrong?*  
-  **A:** First check schedule freshness; then purge `.cache_odds/<year>` (local + Actions) and re-run with `FORCE_REFRESH_MARKETS=1`.
-
-- **Q:** *Can I exclude backtest caches from resets?*  
-  **A:** Yes—use separate year directories and **never** share keys across years. Only bump the **current season** key.
-
-- **Q:** *What if I see API rate-limits after a purge?*  
-  **A:** Stagger runs, increase TTLs temporarily, or reduce breadth of endpoints per run. Consider running in two jobs: schedule first, then markets.
-
----
-
-### Historical Predictions Archive
-
-We keep immutable snapshots of **past weeks' predictions** for retrospective analysis, drift tracking, and realized error studies.
-
-**Archive Pathing**
-- Root: `archive/predictions/`
-- Structure: `archive/predictions/{year}/week_{week}/upa_predictions`
-- Optional extras per week (if present):
-  - `market_debug` (book lines snapshot)
-  - `cfb_schedule` (week slice)
-  - `status JSON` (run metadata)
-
-**When archived**
-- If the same `{year, week}` already exists, we **do not overwrite** by default; instead, write a timestamped subfolder: `week_{week}/run_{YYYYMMDD_HHMMSSZ}/...` (configurable via `ARCHIVE_OVERWRITE=1`).
-
-**Intended Use**
-- Power long-term metrics (MAE drift, coverage, synthetic rate) across weeks.
-- Enable post-mortems comparing model vs market vs final scores.
-- Provide a stable dataset for backtests without re-hitting external APIs.
-
-**Suggested CI step (pseudocode)**
-```bash
-YEAR=${YEAR:-2025}
-# Determine WEEK (auto-detected earlier in the pipeline) and pass into env
-
-    mkdir -p dist/data
-    cp data/upa_data.sqlite dist/data/ || true
-    cp -R public/* dist/ || true
-    ```
-  - If a dataset is empty, the UI surfaces an empty state; we write structural placeholders where necessary to keep links valid.
-
-### Workflow & Cache Overview
-- **Deploy (`deploy.yml`)** – runs on every push (or manually). Rebuilds schedule, markets, team inputs, predictions, residual model, live edge report, copies artifacts into `dist/`, and validates outputs. Respects caches unless `FORCE_REFRESH_*` flags are set.
-- **Live markets (`fetch_markets_live.yml`)** – runs every 5 minutes on Friday/Saturday (and manually). Refreshes the current-week markets and live scores in-place, committing the updated SQLite database. Uses `FANDUEL_CACHE_ONLY=1` to avoid extra Odds API calls.
-- **FanDuel snapshot (`fetch-fanduel-odds.yml`)** – scheduled for Thursday 00:00 PT (07:00 UTC), Friday 00:00 PT (07:00 UTC), and Saturday 07:00 PT (14:00 UTC), with manual dispatch still available. Refreshes FanDuel odds, updates `.cache_odds/<year>`, and commits the odds snapshot + SQLite DB.
-- **Backtest (`build_backtest.yml`)** – manual workflow that rebuilds a historical season’s datasets (default 2024). Supports offline mode to reuse cached API responses.
-
-**Caching:**
-- `.cache_cfbd/<year>` (90-day TTL) stores CFBD schedule/teams/stats responses. Only purge when data is stale or schema changes; clears force a full refetch the next run.
-- `.cache_odds/<year>` (2-day TTL) stores FanDuel Odds API responses. Automatically refreshed by the scheduled snapshot workflow; deploy/live collectors reuse the most recent cached payload.
-- `data/upa_data.sqlite` is regenerated or updated every run and copied into the site build (`dist/data`). Debug artifacts (`data/debug/*.json`, `collector.log`) accompany the DB for troubleshooting.
-
-### Summary Table
-
-| Table / JSON key (legacy path)            | Where Generated                         | Who Generates It                                           | UI Consumers / Links                                                | CI Validation |
-|-------------------------------------------|-----------------------------------------|-----------------------------------------------------------|----------------------------------------------------------------------|--------------|
-| `raw_cfbd_games`                          | Collector schedule fetch                | `load_schedule_for_year` (CFBD games API)                  | Source-of-truth for schedule reconciliation, cross-source joins      | —            |
-| `raw_fanduel_lines`                       | Manual odds snapshot (optional)         | `tools.fetch_fanduel_odds`                                  | Market reconciliation, debugging (analyst ad-hoc)                     | —            |
-| `raw_cfbd_lines`                          | Collector odds fallback                 | `get_market_lines_for_current_week` (CFBD lines API)       | Market reconciliation, debugging                                     | —            |
-| `raw_cfbd_fbs_teams`                      | Team metadata fetch                     | `build_team_inputs_datadriven` (CFBD teams API)            | Team dimension/alias mapping                                        | —            |
-| `raw_cfbd_returning_production`           | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD players API)          | Team inputs, feature engineering                                     | —            |
-| `raw_cfbd_player_usage`                   | Team availability fetch                  | `_load_cfbd_player_usage` (CFBD players API)                | Availability metrics, injury/usage heuristics                        | —            |
-| `raw_cfbd_talent`                         | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD teams API)            | Team inputs, feature engineering                                     | —            |
-| `raw_cfbd_srs`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
-| `raw_cfbd_sos`                            | Team inputs fetch                       | `build_team_inputs_datadriven` (CFBD ratings API)          | Team inputs, feature engineering                                     | —            |
-| `raw_espn_scoreboard`                     | Live scoreboard fetch                   | `collect_cfbd_all` (ESPN scoreboard)                       | Live monitoring, status                                              | —            |
-| `cfb_schedule`                             | Collector + ALL step                    | `load_schedule_for_year` → `write_dataset`                 | Status, week logic; optional fallback spreads                       | ✅ stale/size |
-| `upa_team_inputs_datadriven_v0`           | Collector + ALL step                    | `build_team_inputs_datadriven` → `write_dataset`           | Status counts (optional)                                            | —            |
-| `market_debug`                             | Collector + ALL step                    | `get_market_lines_for_current_week` → `write_dataset`      | Status (Market Debug), backfill source                              | ✅ non-empty |
-| `market_debug` (JSON summary)             | Collector                               | `_upsert_status_market_source` / `market_debug_entry`      | Status diagnostics                                                   | —            |
-| `fanduel_odds_snapshot`                  | `fetch-fanduel-odds` workflow           | `tools.fetch_fanduel_odds`                                 | Debug odds snapshot (`data/debug/fanduel_odds_snapshot.json`)        | —            |
-| `market_unmatched`                        | During market normalization             | Name matcher emits unresolved rows                          | Status link; analysts fix aliases                                    | — (placeholder ok) |
-| `upa_predictions`                         | Collector + ALL step                    | `build_predictions_for_year` → `write_dataset` + backfill  | **Predictions tab**, bets/live tabs                                  | ✅ non-empty |
-| `upa_predictions_2024_backtest`           | Backtest workflow                        | `build_backtest_dataset` → `write_dataset`                 | **Backtest tab** historical rows                                     | ✅ non-empty |
-| `backtest_schedule_2024`                  | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (schedule cache)                              | ✅ non-empty |
-| `backtest_markets_2024`                   | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (market cache)                                | ✅ non-empty |
-| `backtest_team_inputs_2024`               | Backtest workflow                        | `build_backtest_dataset` (online hydration)                | Offline backtest reruns (team features cache)                         | ✅ non-empty |
-| `live_edge_report`                        | ALL step                                | `build_live_edge_report` → `write_dataset`                  | Optional live edge table                                             | — (placeholder ok) |
-| `backtest_summary_2024`                   | Backtest workflow                        | `build_backtest_dataset` → `_compute_backtest_summary`     | **Backtest tab** weekly hit-rate summary                             | ✅ non-empty |
-| `live_scores`                              | ALL step / live refresh                  | `update_live_scores` (merges ~3 days of ESPN scoreboard)   | Status checks; Live Results tab, populates home/away finals          | ✅ readable  |
-| `status` (JSON)                            | Collector + ALL step                    | Status composer                                            | **Status tab** counts/metadata                                       | —            |
-| `market_predictions_backfill` (JSON)      | ALL step / diagnostics                  | Coverage summary                                           | Status link (Backfill Summary)                                       | —            |
-| `upa_data.sqlite` (copied to `dist/data/`) | After ALL step + copy to `dist/data/`   | Shell `cp data/upa_data.sqlite dist/data/`                  | **All UI SQL queries (via sql.js)**                                  | —            |
-
-
-**Key Guarantee:** Every CI run **regenerates** these artifacts. If a critical file is empty/stale, the **validation step fails** the build, preventing accidental deployment.
-
-## Market Sources & Backfill Order
-
-This section explains **how we use bookmaker odds** (FanDuel as the preferred feed with CFBD fallbacks), how the data flows into predictions, and what the **priority & fallback** rules are.
-
-### Source Priority (ingestion → predictions)
-1. **FanDuel (Odds API)** — primary source for bookmaker lines.
-   - Controlled by `MARKET_SOURCE=fanduel`.
-   - Cached under `.cache_odds/<year>` (TTL ~2 days).
-   - Populates `raw_fanduel_lines`, `market_debug.*`, and `market_debug.json`.
-   - Automated cron schedule (`fetch-fanduel-odds` workflow) refreshes snapshots every **Thursday 00:00 PT**, **Friday 00:00 PT**, and **Saturday 07:00 PT**, committing the updated odds snapshot for analysts. Manual dispatch is still available for ad-hoc pulls.
-   - Cached FanDuel pulls remain authoritative for the **current week** even when the next slate is missing; we log any upcoming-week gaps via `fanduel_cached_missing_optional_weeks` so analysts can decide whether a refresh is needed.
-2. **CFBD odds** — automatically fetched during deploy/live collectors to cover gaps or when the Odds API is unavailable.
-   - Shares the same sign convention (home-centric bookmaker sign).
-   - Merged into `market_debug.*` with `source=cfbd` metadata so we can trace fallbacks.
-3. **Legacy schedule column `market_spread`** — last-resort backfill if neither FanDuel nor CFBD provided a line.
-   - Only used when `market_spread_book` remains NaN after both feeds; rows are flagged `market_is_synthetic=1`.
-
-### Join Keys & Alignment
-We try, in order:
-- `(game_id, week)` exact
-- `(home_team_norm, away_team_norm, week)` exact
-- Fuzzy: `(home_team_norm, date)` within ±1 day and fuzzy title ≥ θ (default 0.92)
-
-**Week alignment**: we align FanDuel slates to **CFBD week numbers**. If FanDuel posts events with off-cycle “week” labeling, we trust schedule week from `cfb_schedule` and match on date ±1 day.
-
-### Sign Convention & Coercion
-- All book lines are normalized to **bookmaker sign** for the **home** team (negative favors home).
-- `market_spread_book` and `model_spread_book` must share the same sign before computing `edge_points_book`.
-- Coercion step converts strings like `"PK"`, `"+0"`, `"-0.5"` to numeric; invalid entries become **NaN** (not `0`).
-
-### Confidence & Synthetic Flag
-- `market_is_synthetic=false` for lines sourced from FanDuel/CFBD joins.
-- `market_is_synthetic = 1` whenever we had to fall back to a non-book value (legacy schedule, model fill, etc.).
-- `model_confidence` comes from the residual ensemble and decays when:
-  - the predicted residual magnitude is large relative to `model_residual_sigma`,
-  - the line is synthetic or sourced outside FanDuel/CFBD (extra 50–30% haircut),
-  - join matched on fuzzy criteria rather than exact keys.
-- Final `market_adjustment` = `residual_pred_calibrated × source_scale × model_confidence`, clipped to ±8 points. Source scales: FanDuel=1.0, CFBD=1.0, Model=0.0, Unknown=0.5 (override with `SOURCE_ADJ_SCALE_*`).
-
-### How UPA-F Calculates Spreads (Quick Overview)
-1. **Baseline rating model** – blend WRPS, Talent, SRS, and efficiency scores (weighted per `team_inputs.py`) to compute a home-minus-away rating differential, then add contextual home-field advantage.
-2. **Availability adjustments** – CFBD player-usage metrics become team availability scores (offense/defense/special/QB). Low quarterback availability triggers alerts and reduces residual confidence.
-3. **Residual ensemble** – train ridge + gradient-boosted stumps on historical residuals (market vs final margin) to learn matchup adjustments. Outputs linear, nonlinear, and calibrated components.
-4. **Anchoring to the market** – calibrated residual, scaled by confidence and source weights, yields `market_adjustment`. Adding it to the bookmaker spread (or baseline when markets are missing) gives `model_spread_book`.
-5. **Expected market blend** – compute `expected_market_spread_book = λ*M_market + (1-λ)*M_model` (λ defaults to 0.6) to derive value metrics (`edge_points_book`, `value_points_book`).
-6. **Confidence & qualification** – residual variance, availability flags, and synthetic markets feed into `model_confidence`; qualification thresholds gate recommended plays in the UI and Bets tab.
-
-### Backfill Hierarchy inside Predictions
-When building the `upa_predictions` dataset, the backfill logic enforces this per-row merge order:
-1) Preserve any existing numeric `market_spread_book` (never overwrite sourced book lines).
-2) For rows still NaN, copy from legacy `market_spread` if present and flag `market_is_synthetic`.
-3) Still NaN → join against `market_debug` (FanDuel) first on `(game_id, week)`, then `(home_team, away_team, week)`.
-4) Still NaN → join `cfb_schedule` if it carries a `market_spread_book` column (rare CFBD fallback).
-5) Rows that remain NaN after all joins get `market_spread_book = model_spread_book` and `market_is_synthetic = 1` so the UI stays populated but clearly marked synthetic.
-After backfill:
-- `expected_market_spread_book = 0.6 * market + 0.4 * model` (dampened expectation).
-- `edge_points_book = model - market` (positive = model likes away).
-- `value_points_book = market - expected` (how far the book is from the dampened expectation).
-
-### What the UI Shows (FanDuel vs “Market”)
-- **Predictions tab**:
-  - `Market` column = `market_spread_book` (bookmaker sign).
-  - `Expected` column = `expected_market_spread_book` (λ-blend of market & model).
-  - `Edge` and `Value` computed from the above.
-- **Status tab**:
-  - Shows which source was used (`fanduel` or `cfbd`) and the **synthetic rate** for transparency.
-  - Links to `market_debug` for inspection and `market_unmatched` for mapping issues.
-
-### Validation Rules Related to Markets
-- CI **fails** if `data/market_debug` is empty (non-slate days excepted only if we explicitly allow).
-- Predictions must have **> 0 rows**; if the builder is missing or the joins produce 0, the build fails.
-- Schedule must not be stale; otherwise FanDuel joins may appear “empty” due to date drift.
-
-### Troubleshooting FanDuel vs CFBD Discrepancies
-1. Query the `market_debug` dataset in the deployed site (or from the workflow artifact).
-2. Verify sign and team names (canonical forms).
-3. Check `market_unmatched` for join failures or non-FBS leakage.
-4. Confirm week/date alignment (FanDuel listings vs CFBD schedule week; date ±1 day).
-5. Inspect CI logs for “Market Source” lines and cache paths (`.cache_odds/<year>`).
-6. If CFBD is in use unexpectedly:
-   - verify `ODDS_API_KEY` presence/limits,
-   - check HTTP errors in logs,
-   - ensure `MARKET_SOURCE=fanduel` in env.
-
-### Example
-- FanDuel posts `Home -3.5`. After normalization:
-  - `market_spread_book = -3.5` (home favored).
-  - Suppose model says `M_model = -5.0` → `edge_points_book = -5.0 - (-3.5) = -1.5` (model more bullish on home by 1.5).
-
----
-
-## CI/CD Workflow
-
-**Workflow Definition**: `.github/workflows/ci.yml`
-
-### Steps:
-1. **Dependency Installation**
-   - Uses `requirements.txt`.
-2. **Unit/Integration Tests**
-   - Runs all tests in `tests/` via `pytest`.
-3. **Linting**
-   - Enforces style with `flake8`; fails on violations.
-4. **Build & Artifact Generation**
-   - Runs the full pipeline if needed.
-   - Uploads model and reports as workflow artifacts.
-5. **(Optional) Documentation Build**
-   - Generates docs if configured.
-
-### CI/CD Features:
-- **Cache Scoping**: Caches are keyed by Python version and `requirements.txt` hash for speed and reproducibility.
-- **Stale Schedule Guards**: Pipelines abort if data is outdated or incomplete, preventing propagation of stale results.
-- **Fallback Logic**: If a data source fails, the pipeline can revert to the last known good artifact (see Error Handling).
-
----
-
-## UPA-F Algorithm Logic
-
-### High-Level Description
-UPA-F (Unified Predictive Algorithm - Forecasting) is a modular, time-aware prediction pipeline optimized for reliability and reproducibility.
-
-### Mathematical Formulation
-- Let $X \in \mathbb{R}^{n \times d}$ be the feature matrix, $y \in \mathbb{R}^n$ the target.
-- Model: $f_\theta: X \to y$, where $\theta$ are model parameters.
-- Loss: $L(y, \hat{y}) = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2$ (RMSE) or $|y_i - \hat{y}_i|$ (MAE).
-- Feature engineering: $X' = \phi(X)$, where $\phi$ includes rolling means, one-hot encodings, etc.
-
-### Detailed Pseudocode
-```python
-# Input: config (dict), containing all pipeline parameters
-def run_pipeline(config):
-    # Data Ingestion
-    X_raw = ingest_data(config["data_source"])
-    log("Raw data shape: {}".format(X_raw.shape))
-
-    # Preprocessing
-    X_clean = preprocess(X_raw, **config["preprocessing"])
-    log("Preprocessed data shape: {}".format(X_clean.shape))
-
-    # Feature Engineering
-    X_feat, y = feature_engineering(X_clean, **config["features"])
-    log("Feature matrix shape: {}".format(X_feat.shape))
-
-    # Train/Test Split (time-based split if temporal)
-    X_train, X_test, y_train, y_test = split_data(X_feat, y, **config["split"])
-
-    # Model Training
-    model = Model(**config["model_params"])
-    model.fit(X_train, y_train)
-    log("Model trained.")
-
-    # Evaluation
-    y_pred = model.predict(X_test)
-    metrics = evaluate(y_test, y_pred, **config["evaluation"])
-    log("Evaluation metrics: {}".format(metrics))
-
-    # Export
-    model.save(config["output_path"])
-    save_report(metrics, config["report_path"])
-```
-
-### Core Parameters
-| Parameter         | Description                              | Example                   |
-|-------------------|------------------------------------------|---------------------------|
-| data_source       | Path/URI to input data                   | `data/raw/input_dataset`      |
-| preprocessing     | Dict of preprocessing ops                | `{normalize: True}`       |
-| features          | Feature engineering steps                | `['rolling_mean', ...]`   |
-| model_params      | Model hyperparameters                    | `{max_depth: 6, ...}`     |
-| split             | Train/test split params                  | `{method: 'time', ...}`   |
-| evaluation        | Metrics to compute                       | `{metrics: ['mae', 'rmse']}` |
-| output_path       | Where to save model                      | `artifacts/models/upa-f`  |
-| report_path       | Where to save evaluation report          | `artifacts/reports/`      |
-
-### Algorithmic Details
-- **Data Ingestion**: Supports CSV, Parquet, SQL, and REST API sources. Validates schema and checks for missing columns.
-- **Preprocessing**:
-  - Missing value imputation: mean, median, or forward fill.
-  - Outlier handling: capping or removal.
-  - Normalization: MinMaxScaler or StandardScaler.
-- **Feature Engineering**:
-  - Rolling statistics: $x'_t = \frac{1}{w} \sum_{i=t-w+1}^t x_i$ (window $w$).
-  - Time-based features: day-of-week, hour, holiday flags.
-  - One-hot encoding for categorical variables.
-- **Model**: Default is XGBoost; plug-and-play for scikit-learn, LightGBM, etc.
-- **Evaluation**:
-  - Metrics: MAE, RMSE, custom scoring.
-  - Plots: Residuals, feature importances.
-
-### Symbol Table
-- $X$ = feature matrix
-- $y$ = target vector
-- $f_\theta$ = model function with parameters $\theta$
-- $L$ = loss function
-- $w$ = window size for rolling features
-
-
-## Metrics & Definitions (Deep Dive)
-
-This section defines every metric/column that appears in the CSVs and UI, explains **why it exists**, and shows **how it is used** downstream (edge qualification, sort order, validation).
-
-### A. Spread & Model Metrics (per game)
-
-| Column / Term                       | Type      | Definition (home-centric sign)                                                                                                                                                                     | Purpose / Usage                                                                                                  |
-|------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `model_spread_book`                | float     | Anchored model spread for the **home** team in bookmaker sign. When a market line exists: `M_model = M_market + market_adjustment`. Without a market line the column falls back to `model_spread_baseline`. | Core model output for comparisons and value. Drives `expected`, `edge`, and `value`.                              |
-| `model_spread_baseline`            | float     | Rating-differential baseline prior to residual anchoring: `baseline = -(κ*(S_home - S_away) + HFA)` with the standard feature blend and home-field term.                                        | Diagnostic handle for how far the residual moved us away from the raw rating model.                              |
-| `market_spread_book`               | float     | Latest normalized market line from CFBD for the **home** side, using bookmaker sign.                                                                          | The ground truth comparator for pricing disagreement.                                                             |
-| `market_spread_fanduel`            | float     | Raw FanDuel spread (home-centric sign) when an analyst manually snapshots the Odds API.                                                                       | Optional audit aid; confirms how CFBD compares to FanDuel when available.                                         |
-| `market_spread_cfbd`               | float     | CFBD lines API spread normalized to bookmaker sign. Populated for every matchup where CFBD publishes odds.                                                    | Primary production price; cross-checkable against schedule columns or manual audits.                              |
-| `market_spread_source`             | string    | Origin of `market_spread_book`: `cfbd`, `model`, `fanduel` (manual experiments), or `unknown` (rare metadata mismatch).                                       | Lets analysts confirm whether a value was sourced from CFBD or synthesized from the model/legacy columns.         |
-| `market_spread_effective`          | float     | Spread actually used in edge/value calculations after fallback logic (`market_spread_book` where present, otherwise the model spread).                                                              | Guarantees transparency when synthetic markets are in play; equals the number used in `edge_points_book`.         |
-| `expected_market_spread_book`      | float     | Smoothed line blending market with model: `M_expected = λ*M_market + (1-λ)*M_model` (default `λ=0.6`, override via `EXPECTED_MARKET_LAMBDA`). Falls back to model if market unavailable.              | Dampens market noise; helps avoid over-reaction to early/illiquid lines.                                         |
-| `market_is_synthetic`              | boolean   | `true` if `market_spread_book` was not sourced directly from CFBD (e.g., copied from legacy column, or schedule/model fallback).                                                                    | Quality flag. Synthetic markets reduce confidence and can be excluded from MAE/edge screens if desired.          |
-| `availability_overall_score`       | float     | Weighted availability index (0–100) derived from CFBD player usage shares (60% offense, 30% defense, 10% special teams).                                     | Penalises teams missing high-usage contributors; feeds residual adjustment and edge vetting.                      |
-| `availability_offense_score`       | float     | Mean usage share (0–100) of the top five offensive contributors per CFBD player usage.                                                                        | Highlights offensive attrition; low scores dampen offensive expectations.                                        |
-| `availability_defense_score`       | float     | Mean usage share (0–100) of the top five defensive contributors per CFBD player usage.                                                                        | Captures defensive depth/injuries; feeds defensive confidence heuristics.                                        |
-| `availability_special_score`       | float     | Mean usage share (0–100) of top special-teams contributors per CFBD player usage.                                                                             | Flags special-teams volatility; contributes to the overall availability blend.                                    |
-| `availability_qb_score`            | float     | Usage share (0–100) of the primary quarterback per CFBD player usage (fallback to neutral if unavailable).                                                    | Quick signal for QB availability; low values trigger `availability_flag_qb_low`.                                  |
-| `availability_flag_qb_low`         | int       | Indicator (`1` if `availability_qb_score < 40`) flagging potential quarterback uncertainty.                                                                    | Used to further dampen model confidence when the starting QB is questionable.                                     |
-| `availability_off_depth`           | int       | Count of offensive players with usage share ≥ 40% in CFBD player usage data.                                                                                  | Measures offensive depth; lower counts imply thinner rotations.                                                   |
-| `availability_def_depth`           | int       | Count of defensive players with usage share ≥ 40% in CFBD player usage data.                                                                                  | Mirrors defensive depth/injury pressure.                                                                          |
-| `market_adjustment`                | float     | Calibrated residual adjustment applied to the market line (bookmaker sign). After scaling by confidence and market source, the value is clipped to ±8.0 points. Positive → tilt toward away; negative → home. | Primary residual output; anchoring mechanism that answers “what is the market missing?” while guarding against outlier swings. |
-| `market_adjustment_raw`            | float     | Uncalibrated residual prediction (`-residual_pred_raw`).                                                                                                                                            | Debugging aid to inspect the raw delta before isotonic scaling or damping.                                        |
-| `market_adjustment_linear`         | float     | Component contributed by the ridge fit (`-residual_pred_linear`).                                                                                                                                   | Helps attribute movement to linear vs nonlinear features; combine with `market_adjustment` to judge damping.      |
-| `market_adjustment_nonlinear`      | float     | Component contributed by the gradient-boosted stumps (`-residual_pred_nonlinear`).                                                                                                                  | Highlights where nonlinear splits add lift beyond the linear baseline.                                            |
-| `residual_pred_raw`                | float     | Raw residual prediction (`residual_pred_linear + residual_pred_nonlinear`).                                                                                                                        | Inspection metric for calibration quality; zero means market-perfect.                                             |
-| `residual_pred_calibrated`         | float     | Calibrated residual after isotonic/linear scaling (prior to sign flip for the adjustment).                                                                                                          | Should centre near zero with stable variance; feeds `market_adjustment`.                                          |
-| `model_residual_sigma`             | float     | Standard deviation of residual errors on the training set (points).                                                                                                                                | Confidence input; higher sigma → broader uncertainty.                                                             |
-| `nan_reason`                       | string    | Diagnostic reason why a numeric field is missing/NaN (e.g., `no_market_match`, `team_features_missing`, `future_game`).                                                                              | Debugging & QA; quickly surfaces systemic data gaps.                                                              |
-| `HFA` (not always persisted)       | float     | Home-field advantage points added to model before sign flip (default `2.2`, `0` if neutral site).                                                                                                     | Component of the model spread.                                                                                    |
-
-**Sign sanity:** We use **bookmaker sign** (negative = home favored). Always convert before arithmetic to avoid reversed edges.
-
----
-
-### B. Edge, Value, Confidence
-
-| Column / Term            | Type    | Formula / Definition                                                                                       | Purpose / Usage                                                                                               |
-|--------------------------|---------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `edge_points_book`       | float   | `Edge = M_model − M_market` (both in bookmaker sign). Positive → model favors **home** more than market.   | Primary disagreement measure in **points**. Used to rank opportunities.                                       |
-| `model_confidence`       | float   | Residual-based conviction in `[0,1]`: `exp(-|residual_pred_calibrated| / (σ * 1.5))`, discounted for synthetic lines or non-book sources.                         | Damps recommendations when residuals are volatile or markets are synthetic/stale.                             |
-| `value_points_book`      | float   | `Value = M_market − expected_market_spread_book`.                                                           | Magnitude of disagreement relative to the dampened expectation; input to qualification filters.              |
-| `qualified_edge_flag`    | boolean | `true` if `|Edge| ≥ 1.8`, value ≥ max(`VALUE_POINTS_QUALIFY_MIN`, 0.8) _or_ (`model_confidence ≥ 0.7` and value ≥ 0.5), baseline direction matches, and `model_confidence ≥ 0.55` (≥0.7 whenever `|market_spread_book| ≥ 14`). Overrides: `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, `HIGH_CONFIDENCE_MIN`, `HIGH_CONF_VALUE_MIN`, `LARGE_SPREAD_ABS_MIN`, `LARGE_SPREAD_CONF_MIN`. | Screening filter for the **Predictions** and **Bets** tabs. |
-
-**Interpretation of `edge_points_book`:**
-- `Edge > 0` → model is **more bullish on home** than the market is (model spread more negative than market).
-- `Edge < 0` → model is **more bullish on away** than the market is (model spread less negative / more positive).
-
-**Confidence intuition:**
-- Residuals near zero (book already correct) → confidence ~1.0.
-- Large residual magnitude or noisy spreads → exponential decay toward 0.
-- Synthetic or non-book markets are penalised multiplicatively.
-
----
-
-### C. Status & Quality Metrics (site-wide)
-
-| Metric                                  | Type    | Definition / Computation                                                                                                                      | Why it matters                                                                                           |
-|-----------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| **MAE (model vs market)**               | float   | Mean absolute error across games where both model & market are numeric: `MAE = mean( |M_model - M_market| )`.                                 | Portfolio-level disagreement; lower is tighter to book; higher may indicate signal or miscalibration.    |
-| **RMSE (optional)**                     | float   | Root mean square error: `RMSE = sqrt( mean( (M_model - M_market)^2 ) )`.                                                                      | Penalizes large deviations more than MAE; useful to detect outlier disagreements.                        |
-| **Coverage (with market)**              | float%  | Share of rows with numeric `market_spread_book`: `coverage = count_numeric / total`.                                                           | Data completeness; low coverage often points to mapping or feed outages.                                 |
-| **Realized error (if scores present)**  | float   | Optional: `mean( | (home_points - away_points) - sign_to_margin(M_model) | )` on completed games.                                             | Out-of-sample calibration vs final scores; not always computed.                                          |
-| **Unmatched market rows**               | int     | Count of entries written to `market_unmatched` (with reasons).                                                                             | Health of name matching and FBS filters; should be small.                                                |
-| **Synthetic market rate**               | float%  | `% of rows where market_is_synthetic == true`.                                                                                                 | Measures reliance on fallbacks; high values reduce trust in edge/value.                                  |
-
-> **Note:** Status page MAE uses **only finite numeric** spreads, excluding synthetic markets if configured.
-
----
-
-### D. Worked Examples
-
-**Example 1 — Home lean but not qualified**
-
-```
-Baseline rating diff → model_spread_baseline = -4.2 (home favoured by 4.2)
-Market line: M_market = -3.5
-Residual ensemble produces market_adjustment = -0.6 → anchored model M_model = -4.1
-
-Edge = M_model - M_market = (-4.1) - (-3.5) = -0.6 (model slightly stronger on home)
-Expected (λ=0.6) = 0.6*(-3.5) + 0.4*(-4.1) = -3.76
-Value = M_market - Expected = (-3.5) - (-3.76) = 0.26
-Model confidence = exp(-|residual| / (σ·1.5)) ≈ 0.58 (market-adjusted residual still noisy)
-
-Qualified?  |Edge| = 0.6 < 2.0 → **No**
-```
-
-**Example 2 — Away value that clears the gate**
-
-```
-Baseline rating diff → model_spread_baseline = +0.5 (slight away lean)
-Market line: M_market = +1.0 (home +1)
-Residual adjustment: market_adjustment = -2.6 → anchored model M_model = -1.6 (now home favoured)
-
-Edge = (-1.6) - (+1.0) = -2.6  (absolute edge 2.6 ≥ 2.0)
-Expected = 0.6*(+1.0) + 0.4*(-1.6) = -0.04
-Value = +1.0 - (-0.04) = 1.04  (≥ 1.0)
-Model confidence ≈ 0.82 (fresh line, residual within σ)
-
-Qualified?  Edge and value thresholds cleared, model/expected sides agree → **Yes**
-```
-
----
-
-### E. How Metrics Drive the UI & CI
-
-- **Predictions tab default sort:** `value_points_book` (desc), then `|edge_points_book|` (desc).
-- **Filters:** `qualified_edge_flag=true` can be used to restrict to higher-conviction spots.
-- **Status page:** displays MAE (model vs market), coverage, synthetic rate, and links to debug CSVs/JSON.
-- **CI validation:** fails build if predictions are empty, markets empty, or schedule stale—preventing deployment of misleading metrics.
-
----
-
-### F. Practical Guidance & Pitfalls
-
-- Avoid comparing raw numbers when sign conventions differ; **normalize to bookmaker sign first**.
-- Treat `expected_market_spread_book` as a **stabilizer**—don’t overfit to early-release lines.
-- Watch `market_unmatched`; rising counts usually mean alias drift or non-FBS leakage.
-- In early season, expect lower `model_confidence` and higher variance; edges should clear higher bars.
-- **Zero** is a valid spread; missing values must remain **NaN**, not `0`, to avoid inflating coverage and skewing MAE.
-
----
-
-## Design Choices Explained
-
-### Pacific Timezone
-- **Why**: All timestamps are localized to US/Pacific for consistency with our latest data processing expectations.
-- **How**: Use `pytz.timezone('US/Pacific')` (Python) or `America/Los_Angeles` (JS/Intl) in all datetime conversions.
-
-### Cache Scoping
-- **Why**: Prevents cache poisoning and ensures reproducibility between Python versions and dependency sets.
-- **How**: CI/CD caches use keys based on Python version and hash of `requirements.txt`.
-
-### Stale Schedule Guards
-- **Why**: Prevents pipeline from running on outdated or incomplete data, which could lead to incorrect models.
-- **How**: CI/CD checks data freshness; aborts if data is stale (e.g., last modified time exceeds threshold).
-
-### Fallback Logic
-- **Why**: Ensures pipeline robustness in the face of upstream data or network failures.
-- **How**: If ingestion fails, pipeline loads last successful artifact from `artifacts/` and logs a warning.
-
----
-
-## File Generation Logic
-
-- **`data/` directory**: All collector outputs land here (`cfb_schedule`, `upa_predictions`, etc.). The CI workflow copies this directory into `dist/data/` for GitHub Pages.
-- **`dist/` directory**: Built UI plus copied data files; this is the deployable artifact.
-- **Workflow artifacts**: The GitHub Actions job uploads `dist/` (site bundle) and the Pages artifact for downstream steps.
-
----
-
-## Error Handling and Fallback Strategies
-
-- **Data Ingestion Errors**:
-  - If source unavailable, log error and load last known good data from `data/raw/backup/`.
-  - If schema mismatch, abort with error message.
-- **Preprocessing Errors**:
-  - Catch missing value errors; log and skip affected rows if possible.
-- **Model Training Errors**:
-  - If model fails to converge, try fallback hyperparameters or reduce feature set.
-- **Evaluation Errors**:
-  - If metric computation fails, log and continue with available metrics.
-- **Fallback Logic**:
-  - On any critical failure, pipeline attempts to use last good artifact; if not available, aborts with clear error.
-
----
-
-## Developer Guidelines
-
-- **Code Style**: Follow PEP8; lint with `flake8`.
-- **Testing**: All PRs must include tests for new/changed logic.
-- **Commits**: Use descriptive messages (e.g., "fix: handle missing timestamps in ingestion").
-- **Documentation**: Update this file and docstrings with any new features or changes.
-- **Configuration**: Use YAML/JSON config files for all parameters; avoid hardcoding.
-- **Data Separation**: Never commit raw or processed data to git.
-- **Secrets**: Use environment variables or CI/CD secrets for credentials.
-
-### Automated Tests (Pytest)
-- **Location**: Unit tests live under `tests/collect/` and focus on collectors, backfill logic, and data shaping.
-- **Execution in CI**: The deploy workflow runs `python -m pytest --maxfail=1 --disable-warnings` after the "Validate data completeness" step. Builds fail if any test fails.
-- **Local run**: `pip install -r agents/requirements.txt` (includes `pytest`) then run `pytest` from repo root. Tests rely only on local fixtures—no external API calls.
-- **Current coverage**: `test_predictions.py` verifies that real market spreads override model fallbacks and that synthetic rows stay marked; `test_write_dataset.py` ensures `write_dataset` backfills from `market_debug` and flags synthetic gaps correctly; `test_markets.py` now hydrates the SQLite cache tables to prove FanDuel remains the primary source, exercises CFBD fallback, and asserts the new `fanduel_missing_detail` debug output includes the raw Odds API payload when spreads are missing.
-
-### Debug Logging
-- Core collectors (`predictions`, `helpers`, `collect_cfbd_all`) emit structured `logging` debug messages. Set `UPA_LOG_LEVEL=DEBUG` (or run with a custom `logging.basicConfig`) to surface them locally.
-- CI captures these logs automatically—look for lines such as `build_predictions_for_year: post-market-merge` or `write_dataset: completed market backfill` to diagnose market joins, synthetic fallbacks, or schedule freshness issues. The deploy workflow sets `UPA_LOG_LEVEL=DEBUG` by default, so production runs already emit the detailed traces.
-- Set `DEBUG_MARKET=1` to emit a per-game line (`market selection: ...`) detailing FanDuel vs CFBD spreads and the effective spread used; invaluable when chasing missing bookmaker lines.
-- With `DEBUG_MARKET=1` we now also log `fanduel_missing` summaries plus `fanduel_missing_detail {...}` entries for the first few games where FanDuel stayed `NaN`; those blobs include the normalized join keys, the CFBD fallback we used, and the raw provider payload returned by the Odds API so you can see exactly what FanDuel sent. The per-game `market selection:` line also appends `fan_duel_raw='...'` (and matching CFBD raw) whenever the numeric field is `NaN`, so the debug log immediately shows the unparsed value that came back from the provider.
-- All runs also write a rolling log file to `data/debug/collector.log`; inspect or stage this file when sharing artifacts or diagnosing CI failures.
-
-### Git Auto-Staging (optional)
-- Set `UPA_AUTO_GIT_ADD=1` before running the collector to automatically `git add` the regenerated data artifacts (CSV/JSON plus `data/debug/collector.log`).
-- This only stages changes (no commit); review and commit manually to keep history intentional.
-- The CI workflow stages `data/` and `dist/` after the build/copy steps so the generated artifacts can be inspected or uploaded from the job workspace.
-- After staging, the workflow commits and pushes those changes automatically using the repository `GITHUB_TOKEN` with the message `chore: update generated data [skip ci]`, so fresh data is always written back to the repo without retriggering the workflow.
-
----
-
-## TODOs / Future Work
-
-- [ ] Add support for distributed training (e.g., Dask, Spark).
-- [ ] Integrate model explainability (SHAP, LIME).
-- [ ] Parameterize timezone handling.
-- [ ] Add automated data drift detection.
-- [ ] Improve error reporting and notification (Slack/email alerts).
-- [ ] Expand test coverage to 100%.
-- [ ] Add more data connectors (S3, BigQuery).
-
----
-
-## Pipeline Diagram
-
-```mermaid
-graph TD
-    A[Data Ingestion] --> B[Preprocessing]
-    B --> C[Feature Engineering]
-    C --> D[Model Training]
-    D --> E[Evaluation]
-    E --> F[Deployment/Export]
-```
-
----
-
-## Codex Prompt Cookbook
-
-### How to Add a New Data Source
-> "Add a new data ingestion function to `src/data_ingestion.py` that supports [new source], and update the pipeline config to use it."
-
-### How to Change Model Architecture
-> "Modify the `Model` class in `src/model.py` to use [desired ML model/library], and update `model_params` in your config."
-
-### How to Add a Custom Metric
-> "Implement your metric in `src/evaluation.py` and add it to the `metrics` list in the pipeline config."
-
-### How to Run the Pipeline Locally
-```bash
-python -m src.run_pipeline --config configs/default.yaml
-```
-
-### How to Refresh Backtest Data
-```bash
-python -m tools.build_backtest_data --year 2024
-```
-> Uses the CFBD token + cache for the requested season. Run sparingly (data is static) and always commit the updated `upa_data.sqlite` + `dist/data/upa_data.sqlite` afterwards.
-
-```bash
-python -m tools.build_backtest_data --year 2024 --offline
-```
-> Recomputes predictions and summary using the cached `backtest_*` tables (no API access). This is what the deploy workflow runs on every push after training.
-
-### How to Run All Tests
-```bash
-pytest tests/
-```
-
-### How to Troubleshoot Data Freshness
-> "Check the last modified time of files in `data/raw/`; if stale, verify upstream sources and rerun ingestion."
-
-### How to Use Fallback Artifacts
-> "If a pipeline step fails, manually copy the last known good artifact from `artifacts/` to the expected location and re-run."
-
----
-
-## Appendix: Example Config (YAML)
-```yaml
-data_source: data/raw/input_dataset
-preprocessing:
-  normalize: true
-  fillna: median
-features:
-  - rolling_mean
-  - day_of_week
-model_params:
-  max_depth: 6
-  n_estimators: 100
-split:
-  method: time
-  test_size: 0.2
-evaluation:
-  metrics: [mae, rmse]
-output_path: artifacts/models/upa-f
-report_path: artifacts/reports/eval.json
-timezone: US/Pacific
-```
-
-## Assistant Rules for Codex
-
-These rules guide Codex/Copilot when reading this document and editing the repository. They ensure consistent logic, validation, and observability across the project.
-
-### Coding & Implementation Rules
-- Always normalize spreads to bookmaker sign (negative = home favored) before arithmetic.
-- Missing values must remain `NaN`, not `0`. Zero is a valid spread.
-- Use `.cache_cfbd/<year>` (90d TTL) and `.cache_odds/<year>` (2d TTL). Only refresh when forced (`FORCE_REFRESH_*`) or when freshness checks fail.
-- Cache CFBD player usage responses per conference (`cfbd:player_usage:{year}:{conf}`) so availability features never hammer the API within the TTL window.
-- All tunables (κ, λ, α-weights, thresholds, cache TTLs, year) must come from env vars or constants. Do not hardcode.
-- Secrets (`CFBD_BEARER_TOKEN`, `ODDS_API_KEY`) must come from environment or `.env` and never be committed.
-- Preserve historical market snapshots. We only refresh FanDuel/CFBD lines for the active and upcoming weeks; once a game's scheduled kickoff time has passed (or scores land) we keep the previously captured spread and skip overwriting it.
-
-### Data Handling & Validation Rules
-- Abort if `cfb_schedule` has <200 rows or `max(date) < today+2 PT`.
-- CI fails if `market_debug` is empty or `upa_predictions` has 0 rows.
-- Backfill order: FanDuel → CFBD → legacy `market_spread` → schedule → model fallback. Flag synthetic rows.
-- FanDuel coverage is reconciled game-by-game; CFBD fills only the specific matchups missing FanDuel spreads while preserving available FanDuel markets.
-- Every artifact must be regenerated on CI run; never rely on committed data files.
-- Only generate predictions for FBS vs FBS games; ignore non-FBS matchups.
-- Restrict ingestion and predictions to the **current week** by default; use `WEEK` override only for explicit backfill or testing.
-- When CFBD schedule endpoints lag final scores, `update_live_scores` hydrates `home_points`/`away_points` in `upa_predictions` using the merged ESPN scoreboard snapshots so the Status, Predictions, and Backtest tabs reflect completed games promptly.
-- Qualification thresholds are controlled via `EDGE_POINTS_QUALIFY_MIN`, `VALUE_POINTS_QUALIFY_MIN`, `CONFIDENCE_QUALIFY_MIN`, `HIGH_CONFIDENCE_MIN`, `HIGH_CONF_VALUE_MIN`, `LARGE_SPREAD_ABS_MIN`, and `LARGE_SPREAD_CONF_MIN` (defaults: 1.8, 0.8, 0.55, 0.7, 0.5, 14.0, 0.7). Matching UI constants for base edge/value live in `src/tabs/constants.tsx`.
-- Model spreads should always be calculated internally and then compared/calibrated against FanDuel (or CFBD fallback) spreads.
-
-### Modeling Rules
-- Features must be blended into composite scores, not raw. Default α-weights (2025 mid-season): 0.30 WRPS, 0.30 Talent, 0.20 SRS, 0.10 Offensive efficiency, 0.07 Defensive efficiency, 0.03 Special teams efficiency. These efficiency scores come from the CFBD stat feature library and are normalized 0–100.
-- Positional grade percentiles are optional (`INCLUDE_GRADE_FEATURES=1` to enable). We default them off to reduce multicollinearity; turn them back on only when the residual model is recalibrated.
-- Residual model training respects `RESIDUAL_ALPHA_GRID`, `RESIDUAL_LEARNING_RATE`, and `RESIDUAL_N_ESTIMATORS` environment overrides (defaults: `1.5,2.5,4.0,6.0`, `0.1`, and `75`).
-- Residual adjustments now apply equally to FanDuel and CFBD spreads (source scale = 1.0 for both). Use `SOURCE_ADJ_SCALE_cfbd` env override if you need to damp fallback lines.
-- Baseline spread (ratings only):
+- **Rebuild backtest dataset**:  
+  ```bash
+  python -m tools.build_backtest_data --year 2024 --offline  # drop --offline to hit APIs
   ```
-  M_baseline = - (κ * (S_home - S_away) + HFA)
-  ```
-- Residual model learns the margin miss: `residual = (actual_margin + M_market)`.
-- Anchored model spread:
-  ```
-  raw_adjustment = - f_residual(features, market_metadata)
-  damped_adjustment = clip( raw_adjustment * source_scale * confidence, ±8 )
-  M_model = 
-    \begin{cases}
-      M_market + damped_adjustment, & \text{if market available} \\
-      M_baseline, & \text{otherwise}
-    \end{cases}
-  ```
-- Expected market spread:
-  ```
-  M_expected = λ * M_market + (1-λ) * M_model
-  ```
-- Edge/value:
-  ```
-  Edge = M_model - M_market
-  Value = M_market - M_expected
-  ```
-- `model_confidence` derives from the calibrated residual magnitude and is penalised for synthetic / non-book markets.
+- **Run unit tests**: `python -m pytest --maxfail=1 --disable-warnings`
+- **Start UI locally**: `npm install` (or `npm ci`) then `npm run dev`
 
-### UI/Presentation Rules
-- Status tab must link to all debug files and show MAE, coverage, synthetic rate.
-- Predictions tab: display `—` for NaN. Sort by `value_points_book` then absolute `edge_points_book`.
-- Bets tab must keep the card and list views in sync and preserve filters for week, thresholds, market source, spread bands, and the “Most likely to hit” historical selector.
-- Bets tab surfaces the historical win rate for the active spread band(s), notes the bucket(s) powering “Most likely to hit”, and its spread filters align with the six Status-tab buckets (`<3`, `3-5`, `5-10`, `10-15`, `15-20`, `20+`) with multi-select checkboxes.
-- Predictions and Bets tabs show a “QB Impact” badge (with detailed availability metrics) when CFBD player usage indicates the listed team carries a meaningful quarterback availability risk.
-- Status tab table must include descriptions of each file.
+Environment shortcuts (see `agents/collect/config.py` for defaults): `MARKET_SOURCE`, `CACHE_DIR`, `ODDS_CACHE_DIR`, `EXPECTED_MARKET_LAMBDA`, `EDGE_POINTS_QUALIFY_MIN`, `HIGH_CONFIDENCE_MIN`, `FANDUEL_CACHE_ONLY`, `INCLUDE_GRADE_FEATURES`.
 
-### Dev Workflow Rules
-- Use structured logging with consistent tags (e.g., `build_predictions_for_year`).
-- Run the Odds API only via `tools.fetch_fanduel_odds` / `fetch-fanduel-odds` workflow. All other collectors set `FANDUEL_CACHE_ONLY=1` and must rely on cached FanDuel data.
-- Add unit tests for collector logic, backfill, sign convention, NaN handling.
-- Update `development.md` and tests whenever columns or artifacts change.
-- Fail early on critical data gaps; do not silently continue.
+---
 
-### Codex-specific Guidance
-- Always reference `development.md` before edits.
-- Extend both code and docs when adding features.
-- If a change affects validation, update `.github/workflows/deploy.yml`.
-- Use `Data Availability via CFBD` before inventing new endpoints.
-- Never remove debug artifacts; they are required for observability.
-- Provide explicit, patch-style edits instead of abstract refactors.
+## Open Items / Near-Term TODO
+
+- Snapshot weekly pre-kick predictions into a history table (year/week partition) to support drift analysis and long-term MAE tracking.
+- Expand CFBD feature ingestion with situational splits (3rd/4th down, red zone) and rolling deltas; add regression tests around stat normalisation.
+- Produce positional rating datasets (`raw_positional_ratings`) that combine roster/usage data for richer unit grades.
+- Expose rolling baseline metrics and alerting hooks on the Status tab (drift thresholds, synthetic rate, cache staleness).
+- Document troubleshooting steps for deploy failures triggered by validation scripts (e.g., schedule stale, market_debug empty) and add quick links to relevant logs/artifacts.
+
+Keep this list current—each session should either address an item or update it with new context.

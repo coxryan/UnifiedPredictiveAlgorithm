@@ -42,6 +42,10 @@ _INVERT_METRICS: frozenset[str] = frozenset(
     }
 )
 
+_ADVANCED_DATASET = "raw_cfbd_team_stats_advanced"
+
+_EXPECTED_POINTS_PER_YARD = 0.07  # Rough heuristic; 1 expected point ≈ 14 yards, i.e. 0.07 pts/yard.
+
 
 def _fetch_team_stats(year: int, apis: CfbdClients, cache: ApiCache) -> List[Dict[str, Any]]:
     cache_key = f"team-stats:{year}"
@@ -148,6 +152,129 @@ def build_team_stat_features(year: int, apis: CfbdClients, cache: ApiCache) -> p
             cached_feats = cached_feats.loc[cached_feats.get("season") == year].copy()
             if not cached_feats.empty:
                 features = cached_feats.drop(columns=["season", "retrieved_at"], errors="ignore")
+
+    advanced = _build_advanced_metrics(year, apis, cache)
+    if features.empty:
+        features = advanced
+    elif not advanced.empty:
+        features = features.merge(advanced, on="team", how="outer")
+    return features
+
+
+def _safe_div(num: Any, denom: Any) -> Optional[float]:
+    try:
+        n = float(num)
+        d = float(denom)
+        if d == 0.0:
+            return None
+        return n / d
+    except (TypeError, ValueError):
+        return None
+
+
+def _scale_series(series: pd.Series, invert: bool = False) -> pd.Series:
+    numeric = pd.to_numeric(series, errors="coerce")
+    finite = numeric.dropna()
+    if finite.empty:
+        return pd.Series([pd.NA] * len(series))
+    mn, mx = float(finite.min()), float(finite.max())
+    if mx == mn:
+        scaled = pd.Series(50.0, index=numeric.index, dtype="float64")
+    else:
+        scaled = (numeric - mn) / (mx - mn) * 100.0
+    if invert:
+        scaled = 100.0 - scaled
+    return scaled.round(2)
+
+
+def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd.DataFrame:
+    """Fetch opponent-adjusted efficiency metrics (points per drive, success, PPA)."""
+    cached = read_dataset(_ADVANCED_DATASET)
+    advanced_df = pd.DataFrame()
+    if not cached.empty:
+        cached_year = cached.loc[cached.get("season") == year].copy()
+        if not cached_year.empty:
+            advanced_df = cached_year.drop(columns=["season", "retrieved_at"], errors="ignore")
+    if advanced_df.empty and getattr(apis, "stats_api", None):
+        try:
+            payload = apis.stats_api.get_advanced_season_stats(year=year)  # type: ignore[attr-defined]
+        except Exception:  # pragma: no cover - network failure handled upstream
+            payload = []
+        rows: List[Dict[str, Any]] = []
+        for item in payload or []:
+            team = getattr(item, "team", None)
+            if not team:
+                continue
+            offense = getattr(item, "offense", None)
+            defense = getattr(item, "defense", None)
+            off_success = getattr(offense, "success_rate", None) if offense is not None else None
+            off_total_ppa = getattr(offense, "total_ppa", None) if offense is not None else None
+            off_drives = getattr(offense, "drives", None) if offense is not None else None
+            off_ppa = getattr(offense, "ppa", None) if offense is not None else None
+            off_plays = getattr(offense, "plays", None) if offense is not None else None
+
+            def_success = getattr(defense, "success_rate", None) if defense is not None else None
+            def_total_ppa = getattr(defense, "total_ppa", None) if defense is not None else None
+            def_drives = getattr(defense, "drives", None) if defense is not None else None
+            def_ppa = getattr(defense, "ppa", None) if defense is not None else None
+            def_plays = getattr(defense, "plays", None) if defense is not None else None
+
+            off_ppd = _safe_div(off_total_ppa, off_drives)
+            def_ppd = _safe_div(def_total_ppa, def_drives)
+            off_ypp_adj = None
+            def_ypp_adj = None
+            if off_ppa is not None:
+                off_ypp_adj = float(off_ppa) / _EXPECTED_POINTS_PER_YARD
+            if def_ppa is not None:
+                def_ypp_adj = float(def_ppa) / _EXPECTED_POINTS_PER_YARD
+
+            rows.append(
+                {
+                    "team": team,
+                    "advanced_off_success_rate": off_success,
+                    "advanced_off_ppd": off_ppd,
+                    "advanced_off_ppa": off_ppa,
+                    "advanced_off_ypp": off_ypp_adj,
+                    "advanced_off_plays": off_plays,
+                    "advanced_off_drives": off_drives,
+                    "advanced_def_success_rate": def_success,
+                    "advanced_def_ppd": def_ppd,
+                    "advanced_def_ppa": def_ppa,
+                    "advanced_def_ypp": def_ypp_adj,
+                    "advanced_def_plays": def_plays,
+                    "advanced_def_drives": def_drives,
+                }
+            )
+        advanced_df = pd.DataFrame(rows)
+        if not advanced_df.empty:
+            store = advanced_df.copy()
+            store["season"] = year
+            store["retrieved_at"] = pd.Timestamp.utcnow().isoformat()
+            delete_rows(_ADVANCED_DATASET, "season", year)
+            storage_write_dataset(store, _ADVANCED_DATASET, if_exists="append")
+    if advanced_df.empty:
+        return pd.DataFrame(columns=["team"])
+
+    metrics = {
+        "advanced_off_success_rate": False,
+        "advanced_off_ppd": False,
+        "advanced_off_ppa": False,
+        "advanced_off_ypp": False,
+        "advanced_def_success_rate": True,
+        "advanced_def_ppd": True,
+        "advanced_def_ppa": True,
+        "advanced_def_ypp": True,
+    }
+    for col, invert in metrics.items():
+        scaled_col = col.replace("advanced_", "stat_")
+        advanced_df[scaled_col] = _scale_series(advanced_df[col], invert=invert)
+
+    # For downstream merges ensure every stat_* column exists even if NaN
+    for col in list(metrics.keys()):
+        stat_col = col.replace("advanced_", "stat_")
+        if stat_col not in advanced_df.columns:
+            advanced_df[stat_col] = None
+
     return features
 
 
