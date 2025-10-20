@@ -275,7 +275,7 @@ def _build_advanced_metrics(year: int, apis: CfbdClients, cache: ApiCache) -> pd
         if stat_col not in advanced_df.columns:
             advanced_df[stat_col] = None
 
-    return features
+    return advanced_df
 
 
 __all__ = ["build_team_stat_features"]
