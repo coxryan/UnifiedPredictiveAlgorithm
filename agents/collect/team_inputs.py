@@ -665,9 +665,9 @@ def build_team_inputs_datadriven(year: int, apis: CfbdClients, cache: ApiCache) 
         if not sp_df.empty:
             df = df.merge(sp_df, on="team", how="left")
         if not fpi_df.empty:
-            df = df.merge(fpi_df, on="team", how="left")
+            df = df.merge(fpi_df, on=[col for col in ["team"] if col in fpi_df.columns], how="left")
         if not elo_df.empty:
-            df = df.merge(elo_df, on="team", how="left")
+            df = df.merge(elo_df.drop(columns=[c for c in ["conference"] if c in elo_df.columns]), on="team", how="left")
         df = df.merge(sos_df, on="team", how="left")
         if not stats_df.empty:
             df = df.merge(stats_df, on="team", how="left")
