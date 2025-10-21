@@ -127,7 +127,11 @@ When a session is interrupted, resume with the first unchecked item unless conte
 - Deploy workflow can optionally restore caches (manual dispatch with `enable_cache=true`). Purging caches in CI requires bumping the cache key version (`CACHE_VERSION`) or deleting the directories before restoring.
 - Manual reset: `rm -rf .cache_cfbd/2025 .cache_odds/2025` before re-running collectors. Backtest caches are year-scoped—avoid deleting other seasons unless you intend to refresh them.
 
-- **Recommended Bets logic**: `confidence_play_flag=1` only when (a) `qualified_edge_flag=1`, (b) calibrated confidence (post weeks 4+) ≥ 0.62 after band/source adjustments. UI defaults to this flag plus the existing edge/value thresholds; the table exposes a “Recommended” column so borderline (qualified but below confidence cut) plays remain visible if you relax filters.
+- **Recommended Bets logic**:
+  1. Collector marks `qualified_edge_flag=1` once edge/value/direction rules pass.
+  2. Historical reliability (weeks ≥ 4) produces `confidence_calibrated`; the play is recommended when this ≥ **0.62** after spread-band and market-source adjustments.
+  3. Synthetic/CFBD markets take a confidence haircut before step #2; FanDuel lines keep the raw value.
+  4. Bets tab defaults to |edge| ≥ 1.8, |value| ≥ 0.8, and `confidence_play_flag=1`. Cards display “Recommended” when the flag is set; relaxing the toggle/slider exposes borderline ideas for manual review.
 
 ### Validation & monitoring
 - `tools.validate_site_data` fails builds if required tables/JSON are empty (schedule, market_debug, predictions, status).
