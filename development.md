@@ -72,6 +72,7 @@ All artifacts are copied into `dist/data/` during deploy so the published site r
 - Status tab now surfaces spread-band accuracy for each completed week and highlights market fallback reasons.
 - Recommended Bets tab defaults to double-digit spreads, shares spread band filters with the Status tab, and honours tightened qualification thresholds (`src/tabs/constants.tsx`).
 - Prediction builder integrates CFBD player-usage availability metrics and residual spread adjustments; `write_dataset` grades outcomes into `model_result` for MAE/weekly accuracy tables.
+- Bets tab now consumes `confidence_calibrated` and `confidence_play_flag`: default filters require calibrated confidence ≥ 62%, and cards/tables surface a "Recommended" badge only when the play flag is set.
 - FanDuel odds ingestion runs on a dedicated workflow with cache reuse knobs (`FANDUEL_CACHE_ONLY`) so deploy runs can anchor to the latest snapshot without hammering the Odds API.
 - Deploy workflow rebases with `--autostash`, validates datasets both pre/post residual training, and uploads an auxiliary site bundle for the live markets workflow.
 
@@ -125,6 +126,8 @@ When a session is interrupted, resume with the first unchecked item unless conte
 - CFBD cache path defaults to `.cache_cfbd/<year>` with a soft ~90 day TTL; odds cache lives at `.cache_odds/<year>` with a two-day TTL (`ODDS_CACHE_TTL_DAYS`). Both are configurable via env in workflows.
 - Deploy workflow can optionally restore caches (manual dispatch with `enable_cache=true`). Purging caches in CI requires bumping the cache key version (`CACHE_VERSION`) or deleting the directories before restoring.
 - Manual reset: `rm -rf .cache_cfbd/2025 .cache_odds/2025` before re-running collectors. Backtest caches are year-scoped—avoid deleting other seasons unless you intend to refresh them.
+
+- **Recommended Bets logic**: `confidence_play_flag=1` only when (a) `qualified_edge_flag=1`, (b) calibrated confidence (post weeks 4+) ≥ 0.62 after band/source adjustments. UI defaults to this flag plus the existing edge/value thresholds; the table exposes a “Recommended” column so borderline (qualified but below confidence cut) plays remain visible if you relax filters.
 
 ### Validation & monitoring
 - `tools.validate_site_data` fails builds if required tables/JSON are empty (schedule, market_debug, predictions, status).

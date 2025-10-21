@@ -23,7 +23,7 @@ export const BETS_VALUE_MIN = parseEnvFloat(
 
 export const CONFIDENCE_MIN = parseEnvFloat(
   import.meta.env.VITE_CONFIDENCE_MIN as string | undefined,
-  0.55
+  0.62
 );
 export const HIGH_CONFIDENCE_MIN = parseEnvFloat(
   import.meta.env.VITE_HIGH_CONFIDENCE_MIN as string | undefined,

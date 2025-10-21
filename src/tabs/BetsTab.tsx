@@ -44,6 +44,10 @@ type PredRow = {
   edge_points_book?: string;
   value_points_book?: string;
   model_confidence?: string;
+  confidence_calibrated?: string;
+  confidence_bucket?: string;
+  confidence_band?: string;
+  confidence_play_flag?: string | number;
   qualified_edge_flag?: string;
   kickoff_utc?: string;
   start_date?: string;
@@ -64,7 +68,9 @@ type BetRow = PredRow & {
   _delta: number | null;
   _confidence: number | null;
   _confidenceBucket: string;
+  _confidenceRange: string;
   _qualified: boolean;
+  _playFlag: boolean;
   _spreadAbs: number | null;
   _source: string;
   _sourceKey: string;
@@ -165,7 +171,9 @@ export default function BetsTab() {
       const adjustment = toNum((r as any).market_adjustment);
       const edge = toNum(r.edge_points_book);
       const value = toNum(r.value_points_book);
-      const confidence = toNum((r as any).model_confidence);
+      const confidence = toNum((r as any).confidence_calibrated ?? (r as any).model_confidence);
+      const confidenceRangeRaw = ((r as any).confidence_bucket ?? "") as string;
+      const confidenceBand = ((r as any).confidence_band ?? "") as string;
       const delta = Number.isFinite(model) && Number.isFinite(market) ? model - market : null;
       const anchored = model;
       const rawSource = (r as any).market_spread_source ?? "";
@@ -173,6 +181,7 @@ export default function BetsTab() {
       const sourceKey = sourceKeyRaw || "unknown";
       const normalizedSource = providerLabel(rawSource);
       const qualified = Number(r.qualified_edge_flag) === 1;
+      const playFlag = Number((r as any).confidence_play_flag) === 1;
       const spreadAbs = Number.isFinite(market)
         ? Math.abs(market as number)
         : Number.isFinite(model)
@@ -195,7 +204,8 @@ export default function BetsTab() {
       const modelResult = (r.model_result || "").toString().trim().toUpperCase();
       const playedFlag = Number(r.played);
       const spreadBucket = spreadBucketFor(spreadAbs);
-            return {
+      const displayConfidenceRange = confidenceRangeRaw || (confidenceBand || "");
+      return {
         ...r,
         _model: Number.isFinite(model) ? model : null,
         _market: Number.isFinite(market) ? market : null,
@@ -207,7 +217,9 @@ export default function BetsTab() {
         _delta: Number.isFinite(delta) ? delta : null,
         _confidence: Number.isFinite(confidence) ? confidence : null,
         _confidenceBucket: confidenceBucket(confidence),
+        _confidenceRange: displayConfidenceRange || confidenceBucket(confidence),
         _qualified: qualified,
+        _playFlag: playFlag,
         _spreadAbs: spreadAbs,
         _source: normalizedSource,
         _sourceKey: sourceKey,
@@ -285,7 +297,10 @@ export default function BetsTab() {
     return shapedRows
       .filter((row) => {
         if (weekSet.size && !weekSet.has(Number(row.week))) return false;
-        if (onlyQualified && !row._qualified) return false;
+        if (onlyQualified) {
+          if (!row._qualified) return false;
+          if (!row._playFlag) return false;
+        }
         if (highConfidenceOnly) {
           if (!(Number(row._confidence ?? 0) >= HIGH_CONFIDENCE_MIN && Math.abs(row._value ?? 0) >= HIGH_CONF_VALUE_MIN)) {
             return false;
@@ -557,7 +572,7 @@ export default function BetsTab() {
       </div>
 
       <div className="note">
-        Default filters require |edge| ≥ {fmtNum(BETS_EDGE_MIN)} and |value| ≥ {fmtNum(BETS_VALUE_MIN)}. Adjust thresholds or toggles above to widen or narrow the slate.
+        Default filters require |edge| ≥ {fmtNum(BETS_EDGE_MIN)}, |value| ≥ {fmtNum(BETS_VALUE_MIN)}, and calibrated confidence ≥ {Math.round(CONFIDENCE_MIN * 100)}%. Adjust thresholds or toggles above to widen or narrow the slate.
       </div>
       {bucketInsights.bestBuckets.length > 0 && (
         <div className="note">
@@ -593,7 +608,7 @@ export default function BetsTab() {
                 <th>Source</th>
                 <th>Score</th>
                 <th>Result</th>
-                <th>Qualified</th>
+                <th>Recommended</th>
                 <th>Pick</th>
               </tr>
             </thead>
@@ -626,7 +641,7 @@ export default function BetsTab() {
                         ? "Push"
                         : "—"}
                     </td>
-                                        <td>{row._qualified ? "Yes" : "No"}</td>
+                    <td>{row._playFlag ? "Yes" : row._qualified ? "Borderline" : "No"}</td>
                     <td>{row._pick}</td>
                   </tr>
                 );
