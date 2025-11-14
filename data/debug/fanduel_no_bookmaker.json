@@ -1,82 +1,82 @@
 [
   {
-    "home": "Rutgers Scarlet Knights",
-    "away": "Maryland Terrapins",
+    "home": "NC State Wolfpack",
+    "away": "Florida State Seminoles",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-08T19:30:00Z",
-    "id": "5447f4e28c65233177a96786054ec7a9"
+    "commence_time": "2025-11-22T01:00:00Z",
+    "id": "da5a19b5f8e8746e71279c368fddfec8"
   },
   {
-    "home": "Louisville Cardinals",
-    "away": "Clemson Tigers",
+    "home": "UNLV Rebels",
+    "away": "Hawaii Rainbow Warriors",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T01:00:00Z",
-    "id": "42cca8d28245b1fbf784f639a81f2542"
+    "commence_time": "2025-11-22T03:30:00Z",
+    "id": "be5363918c8ce65bae1baa2259bbcea5"
   },
   {
-    "home": "Northwestern Wildcats",
-    "away": "Michigan Wolverines",
+    "home": "Texas Longhorns",
+    "away": "Arkansas Razorbacks",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T17:00:00Z",
-    "id": "221109619a512745557119257181ec71"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "946ab16f8cfe9004a0d3fc67ac8411d7"
   },
   {
-    "home": "USC Trojans",
-    "away": "Iowa Hawkeyes",
+    "home": "Cincinnati Bearcats",
+    "away": "BYU Cougars",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T20:30:00Z",
-    "id": "cea967651cf4258888de42948d1e99fa"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "8c8fb93b29e1f780db6a427d7274ed91"
   },
   {
-    "home": "Ole Miss Rebels",
-    "away": "Florida Gators",
+    "home": "North Carolina Tar Heels",
+    "away": "Duke Blue Devils",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-16T00:00:00Z",
-    "id": "542f9c5f191a245fb9a0d0b73b7838b7"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "c2ca3efd4fc3f87659b7366cde3a2e94"
   },
   {
-    "home": "BYU Cougars",
+    "home": "Florida Gators",
+    "away": "Tennessee Volunteers",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "887fdd527230bece5974b0cface30528"
+  },
+  {
+    "home": "Houston Cougars",
     "away": "TCU Horned Frogs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-16T03:15:00Z",
-    "id": "24d287473010335df59c46edbc012292"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "dcd183de7cecb414ad6e23d5de9c57cc"
   },
   {
-    "home": "Rutgers Scarlet Knights",
-    "away": "Maryland Terrapins",
+    "home": "SMU Mustangs",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-08T19:30:00Z",
-    "id": "5447f4e28c65233177a96786054ec7a9"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "f22a5eb25fe6c98b41dc3457a0317fe5"
   },
   {
-    "home": "Louisville Cardinals",
-    "away": "Clemson Tigers",
+    "home": "Oklahoma Sooners",
+    "away": "Missouri Tigers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T01:00:00Z",
-    "id": "42cca8d28245b1fbf784f639a81f2542"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "3ff98544de6910e3e7332504955f64df"
   },
   {
-    "home": "Northwestern Wildcats",
-    "away": "Michigan Wolverines",
+    "home": "Penn State Nittany Lions",
+    "away": "Nebraska Cornhuskers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T17:00:00Z",
-    "id": "221109619a512745557119257181ec71"
-  },
-  {
-    "home": "USC Trojans",
-    "away": "Iowa Hawkeyes",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2025-11-15T20:30:00Z",
-    "id": "cea967651cf4258888de42948d1e99fa"
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "44a2361269f83f940cea7de9319ffe61"
   }
 ]
