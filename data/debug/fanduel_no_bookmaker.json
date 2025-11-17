@@ -1,82 +1,82 @@
 [
   {
-    "home": "NC State Wolfpack",
-    "away": "Florida State Seminoles",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2025-11-22T01:00:00Z",
-    "id": "da5a19b5f8e8746e71279c368fddfec8"
-  },
-  {
-    "home": "UNLV Rebels",
-    "away": "Hawaii Rainbow Warriors",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2025-11-22T03:30:00Z",
-    "id": "be5363918c8ce65bae1baa2259bbcea5"
-  },
-  {
-    "home": "Texas Longhorns",
-    "away": "Arkansas Razorbacks",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "946ab16f8cfe9004a0d3fc67ac8411d7"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "Cincinnati Bearcats",
-    "away": "BYU Cougars",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "8c8fb93b29e1f780db6a427d7274ed91"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "North Carolina Tar Heels",
-    "away": "Duke Blue Devils",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "c2ca3efd4fc3f87659b7366cde3a2e94"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "Florida Gators",
-    "away": "Tennessee Volunteers",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "887fdd527230bece5974b0cface30528"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "Houston Cougars",
-    "away": "TCU Horned Frogs",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "dcd183de7cecb414ad6e23d5de9c57cc"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "SMU Mustangs",
-    "away": "Louisville Cardinals",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "f22a5eb25fe6c98b41dc3457a0317fe5"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "Oklahoma Sooners",
-    "away": "Missouri Tigers",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "3ff98544de6910e3e7332504955f64df"
+    "id": "2883481b61fdd600db0e709c87428332"
   },
   {
-    "home": "Penn State Nittany Lions",
-    "away": "Nebraska Cornhuskers",
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2025-11-22T17:00:00Z",
-    "id": "44a2361269f83f940cea7de9319ffe61"
+    "id": "2883481b61fdd600db0e709c87428332"
+  },
+  {
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "2883481b61fdd600db0e709c87428332"
+  },
+  {
+    "home": "Ohio State Buckeyes",
+    "away": "Rutgers Scarlet Knights",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2025-11-22T17:00:00Z",
+    "id": "2883481b61fdd600db0e709c87428332"
   }
 ]
