@@ -1,1402 +1,702 @@
 [
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
+    "game_id":401762521,
+    "week":16,
+    "home_team":"Navy",
+    "away_team":"Army",
+    "spread":-6.5
   },
   {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   },
   {
     "game_id":401762521,
     "week":16,
     "home_team":"Navy",
     "away_team":"Army",
-    "spread":-4.5
+    "spread":-6.5
   },
   {
-    "game_id":401757302,
-    "week":12,
-    "home_team":"Jacksonville State",
-    "away_team":"Kennesaw State",
-    "spread":2.5
-  },
-  {
-    "game_id":401760393,
-    "week":8,
-    "home_team":"Boise State",
-    "away_team":"UNLV",
-    "spread":-5.5
-  },
-  {
-    "game_id":401756945,
-    "week":11,
-    "home_team":"Texas Tech",
-    "away_team":"BYU",
-    "spread":-12.5
-  },
-  {
-    "game_id":401762521,
-    "week":16,
-    "home_team":"Navy",
-    "away_team":"Army",
-    "spread":-4.5
+    "game_id":401752711,
+    "week":4,
+    "home_team":"Ole Miss",
+    "away_team":"Tulane",
+    "spread":-16.5
   }
 ]
