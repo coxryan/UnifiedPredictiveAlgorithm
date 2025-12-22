@@ -1,702 +1,352 @@
 [
   {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "game_id":401752742,
+    "week":8,
+    "home_team":"Georgia",
+    "away_team":"Ole Miss",
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
+    "spread":-6.5
   },
   {
     "game_id":401752742,
     "week":8,
     "home_team":"Georgia",
     "away_team":"Ole Miss",
-    "spread":-5.5
-  },
-  {
-    "game_id":401752711,
-    "week":4,
-    "home_team":"Ole Miss",
-    "away_team":"Tulane",
-    "spread":-17.5
-  },
-  {
-    "game_id":401752742,
-    "week":8,
-    "home_team":"Georgia",
-    "away_team":"Ole Miss",
-    "spread":-5.5
+    "spread":-6.5
   }
 ]
