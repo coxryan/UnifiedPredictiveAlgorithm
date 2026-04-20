@@ -1,82 +1,82 @@
 [
   {
-    "home": "Georgia Bulldogs",
-    "away": "Miami Hurricanes",
+    "home": "Ole Miss Rebels",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "0983eaf1f34d2820503b25a9bc5ced6f"
+    "commence_time": "2026-09-06T23:30:00Z",
+    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
   },
   {
-    "home": "Ohio State Buckeyes",
-    "away": "Georgia Bulldogs",
+    "home": "Florida State Seminoles",
+    "away": "SMU Mustangs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "202c450d9ff6398e9ad98e7d9d6e9e35"
+    "commence_time": "2026-09-07T16:00:00Z",
+    "id": "a570687d47661da4982cfd885cdb4a44"
   },
   {
     "home": "Ole Miss Rebels",
-    "away": "Miami Hurricanes",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "169eeab0821162439c0ecf53db53f018"
+    "commence_time": "2026-09-06T23:30:00Z",
+    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
   },
   {
-    "home": "Ohio State Buckeyes",
-    "away": "Ole Miss Rebels",
+    "home": "Florida State Seminoles",
+    "away": "SMU Mustangs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "176037d5736e9239feb4521785de46ff"
+    "commence_time": "2026-09-07T16:00:00Z",
+    "id": "a570687d47661da4982cfd885cdb4a44"
   },
   {
-    "home": "Oregon Ducks",
-    "away": "Alabama Crimson Tide",
+    "home": "Ole Miss Rebels",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-10T00:30:00Z",
-    "id": "684cd6a0054de1920ea49fdb358b195b"
+    "commence_time": "2026-09-06T23:30:00Z",
+    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
   },
   {
-    "home": "Texas Tech Red Raiders",
-    "away": "Alabama Crimson Tide",
+    "home": "Florida State Seminoles",
+    "away": "SMU Mustangs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-10T00:30:00Z",
-    "id": "8be641ff606273aed9428222113ef65f"
+    "commence_time": "2026-09-07T16:00:00Z",
+    "id": "a570687d47661da4982cfd885cdb4a44"
   },
   {
-    "home": "Indiana Hoosiers",
-    "away": "Oregon Ducks",
+    "home": "Ole Miss Rebels",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-10T00:30:00Z",
-    "id": "cb32b2b0ea14036d2aa37918891ded69"
+    "commence_time": "2026-09-06T23:30:00Z",
+    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
   },
   {
-    "home": "Indiana Hoosiers",
-    "away": "Texas Tech Red Raiders",
+    "home": "Florida State Seminoles",
+    "away": "SMU Mustangs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-10T00:30:00Z",
-    "id": "bdd39d25f75126c0190b31313764980e"
+    "commence_time": "2026-09-07T16:00:00Z",
+    "id": "a570687d47661da4982cfd885cdb4a44"
   },
   {
-    "home": "Georgia Bulldogs",
-    "away": "Miami Hurricanes",
+    "home": "Ole Miss Rebels",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "0983eaf1f34d2820503b25a9bc5ced6f"
+    "commence_time": "2026-09-06T23:30:00Z",
+    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
   },
   {
-    "home": "Ohio State Buckeyes",
-    "away": "Georgia Bulldogs",
+    "home": "Florida State Seminoles",
+    "away": "SMU Mustangs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-01-09T00:30:00Z",
-    "id": "202c450d9ff6398e9ad98e7d9d6e9e35"
+    "commence_time": "2026-09-07T16:00:00Z",
+    "id": "a570687d47661da4982cfd885cdb4a44"
   }
 ]
