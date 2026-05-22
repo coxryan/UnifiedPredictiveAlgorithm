@@ -1,82 +1,82 @@
 [
   {
-    "home": "Ole Miss Rebels",
-    "away": "Louisville Cardinals",
+    "home": "Eastern Michigan Eagles",
+    "away": "Sacramento State Hornets",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-06T23:30:00Z",
-    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
+    "commence_time": "2026-08-29T16:00:00Z",
+    "id": "7fd4a16a262295143f08276821b259a4"
   },
   {
     "home": "Florida State Seminoles",
-    "away": "SMU Mustangs",
+    "away": "New Mexico State Aggies",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-07T16:00:00Z",
-    "id": "a570687d47661da4982cfd885cdb4a44"
+    "commence_time": "2026-08-29T17:00:00Z",
+    "id": "9bbc04340f2b3f77756a22bc44e1a4a4"
   },
   {
-    "home": "Ole Miss Rebels",
-    "away": "Louisville Cardinals",
+    "home": "Stanford Cardinal",
+    "away": "Hawaii Rainbow Warriors",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-06T23:30:00Z",
-    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
+    "commence_time": "2026-08-29T19:00:00Z",
+    "id": "24941bb5e2e6f79d944530b0b8ea4be5"
   },
   {
-    "home": "Florida State Seminoles",
-    "away": "SMU Mustangs",
+    "home": "UNLV Rebels",
+    "away": "Memphis Tigers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-07T16:00:00Z",
-    "id": "a570687d47661da4982cfd885cdb4a44"
+    "commence_time": "2026-08-29T19:00:00Z",
+    "id": "90d9b4e9c9485143021eb1535e792164"
   },
   {
-    "home": "Ole Miss Rebels",
-    "away": "Louisville Cardinals",
+    "home": "USC Trojans",
+    "away": "San Jose State Spartans",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-06T23:30:00Z",
-    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
+    "commence_time": "2026-08-29T19:00:00Z",
+    "id": "3313dcc5e91f9a2dda995a5e36e55f52"
   },
   {
-    "home": "Florida State Seminoles",
-    "away": "SMU Mustangs",
+    "home": "North Dakota State Bison",
+    "away": "Jacksonville State Gamecocks",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-07T16:00:00Z",
-    "id": "a570687d47661da4982cfd885cdb4a44"
+    "commence_time": "2026-08-29T19:30:00Z",
+    "id": "b9d8d9eeb4afdebe9f91de7f8253eb07"
   },
   {
-    "home": "Ole Miss Rebels",
-    "away": "Louisville Cardinals",
+    "home": "Wake Forest Demon Deacons",
+    "away": "Akron Zips",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-06T23:30:00Z",
-    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
+    "commence_time": "2026-09-03T23:00:00Z",
+    "id": "f089e3d943a34a9c4fe1808568b96529"
   },
   {
-    "home": "Florida State Seminoles",
-    "away": "SMU Mustangs",
+    "home": "Georgia Tech Yellow Jackets",
+    "away": "Colorado Buffaloes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-07T16:00:00Z",
-    "id": "a570687d47661da4982cfd885cdb4a44"
+    "commence_time": "2026-09-03T23:00:00Z",
+    "id": "1d6daad1c93bf7e5ae16be1db12e27d5"
   },
   {
-    "home": "Ole Miss Rebels",
-    "away": "Louisville Cardinals",
+    "home": "Rutgers Scarlet Knights",
+    "away": "UMass Minutemen",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-06T23:30:00Z",
-    "id": "4f0e1900bdc8d12bf0cc91ae291c104e"
+    "commence_time": "2026-09-03T23:00:00Z",
+    "id": "e564afb0a5ab84ab43befa56bdb90522"
   },
   {
-    "home": "Florida State Seminoles",
-    "away": "SMU Mustangs",
+    "home": "Eastern Michigan Eagles",
+    "away": "San Jose State Spartans",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-07T16:00:00Z",
-    "id": "a570687d47661da4982cfd885cdb4a44"
+    "commence_time": "2026-09-04T23:00:00Z",
+    "id": "171952045c3039d592807265d36b60d0"
   }
 ]
