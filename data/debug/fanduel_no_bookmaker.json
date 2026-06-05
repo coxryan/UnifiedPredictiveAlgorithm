@@ -1,27 +1,11 @@
 [
   {
-    "home": "North Dakota State Bison",
-    "away": "Jacksonville State Gamecocks",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-08-29T21:30:00Z",
-    "id": "b9d8d9eeb4afdebe9f91de7f8253eb07"
-  },
-  {
     "home": "Eastern Michigan Eagles",
     "away": "Sacramento State Hornets",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2026-08-29T22:30:00Z",
     "id": "7fd4a16a262295143f08276821b259a4"
-  },
-  {
-    "home": "Florida State Seminoles",
-    "away": "New Mexico State Aggies",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-08-29T23:00:00Z",
-    "id": "9bbc04340f2b3f77756a22bc44e1a4a4"
   },
   {
     "home": "Rutgers Scarlet Knights",
@@ -40,14 +24,6 @@
     "id": "f089e3d943a34a9c4fe1808568b96529"
   },
   {
-    "home": "Illinois Fighting Illini",
-    "away": "UAB Blazers",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-04T01:00:00Z",
-    "id": "1697069330d0343bdf7930ac0b0c3863"
-  },
-  {
     "home": "Eastern Michigan Eagles",
     "away": "San Jose State Spartans",
     "sport_key": "americanfootball_ncaaf",
@@ -56,27 +32,51 @@
     "id": "171952045c3039d592807265d36b60d0"
   },
   {
-    "home": "Michigan State Spartans",
-    "away": "Toledo Rockets",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-05T00:00:00Z",
-    "id": "05c2e060c97c538faeee8237a0bd60f0"
-  },
-  {
-    "home": "West Virginia Mountaineers",
-    "away": "Coastal Carolina Chanticleers",
+    "home": "Nebraska Cornhuskers",
+    "away": "Ohio Bobcats",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
     "commence_time": "2026-09-05T16:00:00Z",
-    "id": "185883640e8f90f283915ddadb0230a3"
+    "id": "0b8f9bbc0bf1b04a819f0113922998b0"
   },
   {
-    "home": "James Madison Dukes",
-    "away": "Liberty Flames",
+    "home": "South Carolina Gamecocks",
+    "away": "Kent State Golden Flashes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-05T16:00:00Z",
-    "id": "ad4b1c809d35ea03f513ccb45746e998"
+    "commence_time": "2026-09-05T16:45:00Z",
+    "id": "994c7280c9e8dcb041c260eb2c767d4d"
+  },
+  {
+    "home": "New Mexico Lobos",
+    "away": "Central Michigan Chippewas",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-06T02:00:00Z",
+    "id": "0434161af1b45c8a61dac5ba00210af1"
+  },
+  {
+    "home": "Texas A&M Aggies",
+    "away": "Arizona State Sun Devils",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-12T16:00:00Z",
+    "id": "cad3845e3f9f9e746c4bbf45487eed02"
+  },
+  {
+    "home": "Utah Utes",
+    "away": "Arkansas Razorbacks",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-13T02:15:00Z",
+    "id": "c12cd73c4077a0265acec205a572c2ec"
+  },
+  {
+    "home": "Alabama Crimson Tide",
+    "away": "Florida State Seminoles",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-19T19:30:00Z",
+    "id": "a85cea77fbd44d9135461815777f6a9c"
   }
 ]
