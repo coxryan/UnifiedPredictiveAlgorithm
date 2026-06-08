@@ -1,13 +1,5 @@
 [
   {
-    "home": "Eastern Michigan Eagles",
-    "away": "Sacramento State Hornets",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-08-29T22:30:00Z",
-    "id": "7fd4a16a262295143f08276821b259a4"
-  },
-  {
     "home": "Rutgers Scarlet Knights",
     "away": "UMass Minutemen",
     "sport_key": "americanfootball_ncaaf",
@@ -22,22 +14,6 @@
     "sport_title": "NCAAF",
     "commence_time": "2026-09-03T23:00:00Z",
     "id": "f089e3d943a34a9c4fe1808568b96529"
-  },
-  {
-    "home": "Eastern Michigan Eagles",
-    "away": "San Jose State Spartans",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-04T22:30:00Z",
-    "id": "171952045c3039d592807265d36b60d0"
-  },
-  {
-    "home": "Nebraska Cornhuskers",
-    "away": "Ohio Bobcats",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-05T16:00:00Z",
-    "id": "0b8f9bbc0bf1b04a819f0113922998b0"
   },
   {
     "home": "South Carolina Gamecocks",
@@ -78,5 +54,29 @@
     "sport_title": "NCAAF",
     "commence_time": "2026-09-19T19:30:00Z",
     "id": "a85cea77fbd44d9135461815777f6a9c"
+  },
+  {
+    "home": "Louisville Cardinals",
+    "away": "SMU Mustangs",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-19T19:30:00Z",
+    "id": "dbcfc3184e20d1ea45e910b89585071f"
+  },
+  {
+    "home": "Auburn Tigers",
+    "away": "Florida Gators",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-19T23:00:00Z",
+    "id": "7ef3b27d15de635a3e05324f2b0c56cb"
+  },
+  {
+    "home": "Texas Tech Red Raiders",
+    "away": "Houston Cougars",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-20T00:00:00Z",
+    "id": "d8c4386ede3f4cb264ac2f2b6017528c"
   }
 ]
