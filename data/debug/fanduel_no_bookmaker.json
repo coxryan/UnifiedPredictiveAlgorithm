@@ -48,6 +48,14 @@
     "id": "7ef3b27d15de635a3e05324f2b0c56cb"
   },
   {
+    "home": "Texas Tech Red Raiders",
+    "away": "Houston Cougars",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-09-20T00:00:00Z",
+    "id": "d8c4386ede3f4cb264ac2f2b6017528c"
+  },
+  {
     "home": "Georgia Bulldogs",
     "away": "Oklahoma Sooners",
     "sport_key": "americanfootball_ncaaf",
@@ -70,13 +78,5 @@
     "sport_title": "NCAAF",
     "commence_time": "2026-09-26T16:00:00Z",
     "id": "83516ad7ba3e8ef9f90498cfcaf10eb5"
-  },
-  {
-    "home": "Tennessee Volunteers",
-    "away": "Texas Longhorns",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T16:00:00Z",
-    "id": "69b1a0ff5fb2c67c6627b5c8cf8368cb"
   }
 ]
