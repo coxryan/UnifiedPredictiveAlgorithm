@@ -4,7 +4,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -25,7 +46,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -46,7 +88,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -67,7 +130,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -88,7 +172,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -109,7 +214,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -130,7 +256,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -151,7 +298,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -172,7 +340,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -193,7 +382,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -214,7 +424,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -235,7 +466,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -256,7 +508,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -277,7 +550,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -298,7 +592,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -319,7 +634,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -340,7 +676,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -361,7 +718,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -382,7 +760,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -403,7 +802,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -424,7 +844,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -445,7 +886,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -466,7 +928,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -487,7 +970,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -508,7 +1012,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -529,7 +1054,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -550,7 +1096,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -571,7 +1138,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -592,7 +1180,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -613,7 +1222,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -634,7 +1264,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -655,7 +1306,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -676,7 +1348,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -697,7 +1390,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -718,7 +1432,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -739,7 +1474,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -760,7 +1516,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -781,7 +1558,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -802,7 +1600,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -823,7 +1642,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -844,7 +1684,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -865,7 +1726,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -886,7 +1768,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -907,7 +1810,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -928,7 +1852,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -949,7 +1894,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -970,7 +1936,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -991,7 +1978,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -1012,7 +2020,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
@@ -1033,7 +2062,28 @@
     "week":14,
     "home_team":"Purdue",
     "away_team":"Indiana",
-    "spread":-32.5
+    "spread":-34.5
+  },
+  {
+    "game_id":401756884,
+    "week":2,
+    "home_team":"Rice",
+    "away_team":"Houston",
+    "spread":-24.5
+  },
+  {
+    "game_id":401761642,
+    "week":10,
+    "home_team":"South Alabama",
+    "away_team":"Louisiana",
+    "spread":-14.5
+  },
+  {
+    "game_id":401756924,
+    "week":8,
+    "home_team":"BYU",
+    "away_team":"Utah",
+    "spread":-46.5
   },
   {
     "game_id":401752719,
