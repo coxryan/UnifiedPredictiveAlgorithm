@@ -1,2452 +1,1052 @@
 [
   {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
-    "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
-  },
-  {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
-  },
-  {
-    "game_id":401752924,
-    "week":14,
-    "home_team":"Purdue",
-    "away_team":"Indiana",
-    "spread":-36.5
-  },
-  {
-    "game_id":401756884,
+    "game_id":401752687,
     "week":2,
-    "home_team":"Rice",
-    "away_team":"Houston",
-    "spread":-22.5
-  },
-  {
-    "game_id":401761642,
-    "week":10,
-    "home_team":"South Alabama",
-    "away_team":"Louisiana",
-    "spread":-12.5
-  },
-  {
-    "game_id":401756924,
-    "week":8,
-    "home_team":"BYU",
-    "away_team":"Utah",
-    "spread":-51.5
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   },
   {
     "game_id":401752709,
     "week":4,
     "home_team":"Miami",
     "away_team":"Florida",
-    "spread":-49.5
+    "spread":-53.5
   },
   {
     "game_id":401754536,
     "week":3,
     "home_team":"Virginia Tech",
     "away_team":"Old Dominion",
-    "spread":-16.5
+    "spread":-17.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":-2.5
+    "game_id":401752687,
+    "week":2,
+    "home_team":"LSU",
+    "away_team":"Louisiana Tech",
+    "spread":-32.5
   }
 ]

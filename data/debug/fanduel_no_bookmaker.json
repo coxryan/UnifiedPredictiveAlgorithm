@@ -1,82 +1,82 @@
 [
   {
-    "home": "Louisville Cardinals",
-    "away": "SMU Mustangs",
+    "home": "Kennesaw State Owls",
+    "away": "Georgia State Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-19T19:30:00Z",
-    "id": "dbcfc3184e20d1ea45e910b89585071f"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "c9c138c45cb4d0e8a39f962795671ffb"
   },
   {
-    "home": "Auburn Tigers",
-    "away": "Florida Gators",
+    "home": "Marshall Thundering Herd",
+    "away": "Middle Tennessee Blue Raiders",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-19T23:00:00Z",
-    "id": "7ef3b27d15de635a3e05324f2b0c56cb"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "703674067da3f80611ece581818f3863"
   },
   {
-    "home": "Texas Tech Red Raiders",
-    "away": "Houston Cougars",
+    "home": "Air Force Falcons",
+    "away": "North Dakota State Bison",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-20T00:00:00Z",
-    "id": "d8c4386ede3f4cb264ac2f2b6017528c"
+    "commence_time": "2026-09-13T02:00:00Z",
+    "id": "7a78c246bb38d32c3238724e57051b15"
   },
   {
-    "home": "Georgia Bulldogs",
-    "away": "Oklahoma Sooners",
+    "home": "Kennesaw State Owls",
+    "away": "Georgia State Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T16:00:00Z",
-    "id": "3848eaee7484034f3604aed922649c4e"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "c9c138c45cb4d0e8a39f962795671ffb"
   },
   {
-    "home": "LSU Tigers",
-    "away": "Texas A&M Aggies",
+    "home": "Marshall Thundering Herd",
+    "away": "Middle Tennessee Blue Raiders",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T16:00:00Z",
-    "id": "0c71c3230f930f30ac34160b38dbbaf0"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "703674067da3f80611ece581818f3863"
   },
   {
-    "home": "Tennessee Volunteers",
-    "away": "Texas Longhorns",
+    "home": "Air Force Falcons",
+    "away": "North Dakota State Bison",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T16:00:00Z",
-    "id": "69b1a0ff5fb2c67c6627b5c8cf8368cb"
+    "commence_time": "2026-09-13T02:00:00Z",
+    "id": "7a78c246bb38d32c3238724e57051b15"
   },
   {
-    "home": "Clemson Tigers",
-    "away": "Miami Hurricanes",
+    "home": "Kennesaw State Owls",
+    "away": "Georgia State Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T16:00:00Z",
-    "id": "932c7f6dfe06be77192fe000e9f3ac9d"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "c9c138c45cb4d0e8a39f962795671ffb"
   },
   {
-    "home": "Tennessee Volunteers",
-    "away": "Alabama Crimson Tide",
+    "home": "Marshall Thundering Herd",
+    "away": "Middle Tennessee Blue Raiders",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "9ed02ffe3e126a8ec8846278bf18d393"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "703674067da3f80611ece581818f3863"
   },
   {
-    "home": "Georgia Bulldogs",
-    "away": "Auburn Tigers",
+    "home": "Air Force Falcons",
+    "away": "North Dakota State Bison",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "2851c11a3831feac527b6df0b34b2a2a"
+    "commence_time": "2026-09-13T02:00:00Z",
+    "id": "7a78c246bb38d32c3238724e57051b15"
   },
   {
-    "home": "BYU Cougars",
-    "away": "Notre Dame Fighting Irish",
+    "home": "Kennesaw State Owls",
+    "away": "Georgia State Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "bd2d52fadefed8a6174e73c84cca9ce3"
+    "commence_time": "2026-09-12T23:00:00Z",
+    "id": "c9c138c45cb4d0e8a39f962795671ffb"
   }
 ]
