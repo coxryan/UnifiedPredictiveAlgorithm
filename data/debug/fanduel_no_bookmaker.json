@@ -1,82 +1,82 @@
 [
   {
-    "home": "Kennesaw State Owls",
-    "away": "Georgia State Panthers",
+    "home": "Pittsburgh Panthers",
+    "away": "Syracuse Orange",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "c9c138c45cb4d0e8a39f962795671ffb"
+    "commence_time": "2026-09-17T23:30:00Z",
+    "id": "f06e90b4212fb514f3564ded9f190107"
   },
   {
-    "home": "Marshall Thundering Herd",
-    "away": "Middle Tennessee Blue Raiders",
+    "home": "Wake Forest Demon Deacons",
+    "away": "Miami Hurricanes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "703674067da3f80611ece581818f3863"
+    "commence_time": "2026-09-18T23:30:00Z",
+    "id": "720451b07d54e435c9be484ef73ea211"
   },
   {
-    "home": "Air Force Falcons",
-    "away": "North Dakota State Bison",
+    "home": "Arkansas Razorbacks",
+    "away": "Georgia Bulldogs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-13T02:00:00Z",
-    "id": "7a78c246bb38d32c3238724e57051b15"
+    "commence_time": "2026-09-19T16:00:00Z",
+    "id": "01e9c4d460a55375a75d025e2b1ddbf5"
   },
   {
-    "home": "Kennesaw State Owls",
-    "away": "Georgia State Panthers",
+    "home": "Clemson Tigers",
+    "away": "North Carolina Tar Heels",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "c9c138c45cb4d0e8a39f962795671ffb"
+    "commence_time": "2026-09-19T16:00:00Z",
+    "id": "3fe3d77e009a7f205cce737523609a86"
   },
   {
-    "home": "Marshall Thundering Herd",
-    "away": "Middle Tennessee Blue Raiders",
+    "home": "South Carolina Gamecocks",
+    "away": "Mississippi State Bulldogs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "703674067da3f80611ece581818f3863"
+    "commence_time": "2026-09-19T20:15:00Z",
+    "id": "a4e7771497976db67e6a81bc3700b32f"
   },
   {
-    "home": "Air Force Falcons",
-    "away": "North Dakota State Bison",
+    "home": "Texas Tech Red Raiders",
+    "away": "Houston Cougars",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-13T02:00:00Z",
-    "id": "7a78c246bb38d32c3238724e57051b15"
+    "commence_time": "2026-09-20T00:00:00Z",
+    "id": "d8c4386ede3f4cb264ac2f2b6017528c"
   },
   {
-    "home": "Kennesaw State Owls",
-    "away": "Georgia State Panthers",
+    "home": "Pittsburgh Panthers",
+    "away": "Syracuse Orange",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "c9c138c45cb4d0e8a39f962795671ffb"
+    "commence_time": "2026-09-17T23:30:00Z",
+    "id": "f06e90b4212fb514f3564ded9f190107"
   },
   {
-    "home": "Marshall Thundering Herd",
-    "away": "Middle Tennessee Blue Raiders",
+    "home": "Wake Forest Demon Deacons",
+    "away": "Miami Hurricanes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "703674067da3f80611ece581818f3863"
+    "commence_time": "2026-09-18T23:30:00Z",
+    "id": "720451b07d54e435c9be484ef73ea211"
   },
   {
-    "home": "Air Force Falcons",
-    "away": "North Dakota State Bison",
+    "home": "Arkansas Razorbacks",
+    "away": "Georgia Bulldogs",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-13T02:00:00Z",
-    "id": "7a78c246bb38d32c3238724e57051b15"
+    "commence_time": "2026-09-19T16:00:00Z",
+    "id": "01e9c4d460a55375a75d025e2b1ddbf5"
   },
   {
-    "home": "Kennesaw State Owls",
-    "away": "Georgia State Panthers",
+    "home": "Clemson Tigers",
+    "away": "North Carolina Tar Heels",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-12T23:00:00Z",
-    "id": "c9c138c45cb4d0e8a39f962795671ffb"
+    "commence_time": "2026-09-19T16:00:00Z",
+    "id": "3fe3d77e009a7f205cce737523609a86"
   }
 ]
