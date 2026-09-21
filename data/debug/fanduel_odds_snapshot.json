@@ -1,702 +1,352 @@
 [
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   },
   {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
-  },
-  {
-    "game_id":401752719,
-    "week":5,
-    "home_team":"Ole Miss",
-    "away_team":"LSU",
-    "spread":2.5
-  },
-  {
-    "game_id":401760423,
-    "week":14,
-    "home_team":"San Jos\u00e9 State",
-    "away_team":"Fresno State",
-    "spread":6.5
+    "game_id":401752748,
+    "week":9,
+    "home_team":"LSU",
+    "away_team":"Texas A&M",
+    "spread":-9.5
   }
 ]
