@@ -1,82 +1,82 @@
 [
   {
-    "home": "Maryland Terrapins",
-    "away": "UCLA Bruins",
+    "home": "Virginia Tech Hokies",
+    "away": "Pittsburgh Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T17:30:00Z",
-    "id": "c48f042c91328d4d0c6351fc82286879"
+    "commence_time": "2026-10-02T23:00:00Z",
+    "id": "e61c74f0e28b46ad83270a6234b425f4"
   },
   {
-    "home": "Auburn Tigers",
+    "home": "Northwestern Wildcats",
+    "away": "Penn State Nittany Lions",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-10-03T00:00:00Z",
+    "id": "0469a451e58ca81723a7760d4bede173"
+  },
+  {
+    "home": "Georgia Bulldogs",
     "away": "Vanderbilt Commodores",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T20:15:00Z",
-    "id": "edf8d3e3699aa5cb34c50ac7de992d37"
+    "commence_time": "2026-10-03T16:00:00Z",
+    "id": "46e1be6476ed577d1b5194b46b27c643"
   },
   {
-    "home": "Michigan State Spartans",
-    "away": "Nebraska Cornhuskers",
+    "home": "NC State Wolfpack",
+    "away": "Louisville Cardinals",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T21:00:00Z",
-    "id": "023386f1b92db2259c7d52b2f244182f"
+    "commence_time": "2026-10-03T16:00:00Z",
+    "id": "a77fd3143159a9d16a75685528d9960b"
   },
   {
-    "home": "West Virginia Mountaineers",
-    "away": "Oklahoma State Cowboys",
+    "home": "North Carolina Tar Heels",
+    "away": "Notre Dame Fighting Irish",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T23:00:00Z",
-    "id": "6c95114d806556a04a0d719e62c042d7"
+    "commence_time": "2026-10-03T16:00:00Z",
+    "id": "2b8db5053d533b488c0d76f49382d219"
   },
   {
-    "home": "LSU Tigers",
-    "away": "Texas A&M Aggies",
+    "home": "South Carolina Gamecocks",
+    "away": "Kentucky Wildcats",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T23:30:00Z",
-    "id": "0c71c3230f930f30ac34160b38dbbaf0"
+    "commence_time": "2026-10-03T20:15:00Z",
+    "id": "59abc1d6262d2ea6a72c4daad4c83af2"
   },
   {
-    "home": "Maryland Terrapins",
-    "away": "UCLA Bruins",
+    "home": "TCU Horned Frogs",
+    "away": "BYU Cougars",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T17:30:00Z",
-    "id": "c48f042c91328d4d0c6351fc82286879"
+    "commence_time": "2026-10-03T23:00:00Z",
+    "id": "b58c0d24e66471e6095c0a5f9afb7ce3"
   },
   {
-    "home": "Auburn Tigers",
-    "away": "Vanderbilt Commodores",
+    "home": "USC Trojans",
+    "away": "Washington Huskies",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T20:15:00Z",
-    "id": "edf8d3e3699aa5cb34c50ac7de992d37"
+    "commence_time": "2026-10-03T23:30:00Z",
+    "id": "f981648dba0e71d8517d47d31aa2633d"
   },
   {
-    "home": "Michigan State Spartans",
-    "away": "Nebraska Cornhuskers",
+    "home": "Virginia Tech Hokies",
+    "away": "Pittsburgh Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T21:00:00Z",
-    "id": "023386f1b92db2259c7d52b2f244182f"
+    "commence_time": "2026-10-02T23:00:00Z",
+    "id": "e61c74f0e28b46ad83270a6234b425f4"
   },
   {
-    "home": "West Virginia Mountaineers",
-    "away": "Oklahoma State Cowboys",
+    "home": "Northwestern Wildcats",
+    "away": "Penn State Nittany Lions",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T23:00:00Z",
-    "id": "6c95114d806556a04a0d719e62c042d7"
-  },
-  {
-    "home": "LSU Tigers",
-    "away": "Texas A&M Aggies",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-09-26T23:30:00Z",
-    "id": "0c71c3230f930f30ac34160b38dbbaf0"
+    "commence_time": "2026-10-03T00:00:00Z",
+    "id": "0469a451e58ca81723a7760d4bede173"
   }
 ]
