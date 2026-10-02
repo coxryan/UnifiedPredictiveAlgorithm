@@ -1,82 +1,82 @@
 [
   {
-    "home": "Virginia Tech Hokies",
-    "away": "Pittsburgh Panthers",
+    "home": "Washington Huskies",
+    "away": "Iowa Hawkeyes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-02T23:00:00Z",
-    "id": "e61c74f0e28b46ad83270a6234b425f4"
+    "commence_time": "2026-10-10T01:00:00Z",
+    "id": "a168f1bed30ce7d56dc2b77dbfe37705"
   },
   {
-    "home": "Northwestern Wildcats",
-    "away": "Penn State Nittany Lions",
+    "home": "BYU Cougars",
+    "away": "Iowa State Cyclones",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T00:00:00Z",
-    "id": "0469a451e58ca81723a7760d4bede173"
+    "commence_time": "2026-10-10T02:15:00Z",
+    "id": "55d9636153ca5741d460ef2f78b663d9"
   },
   {
-    "home": "Georgia Bulldogs",
-    "away": "Vanderbilt Commodores",
+    "home": "Penn State Nittany Lions",
+    "away": "USC Trojans",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T16:00:00Z",
-    "id": "46e1be6476ed577d1b5194b46b27c643"
+    "commence_time": "2026-10-10T16:00:00Z",
+    "id": "4462f1fa168ab2a5a25fe2807ebec8ac"
   },
   {
-    "home": "NC State Wolfpack",
-    "away": "Louisville Cardinals",
+    "home": "Florida Gators",
+    "away": "South Carolina Gamecocks",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T16:00:00Z",
-    "id": "a77fd3143159a9d16a75685528d9960b"
+    "commence_time": "2026-10-10T17:00:00Z",
+    "id": "9383cbbbb905d9ee50a3341f6945eae7"
   },
   {
-    "home": "North Carolina Tar Heels",
-    "away": "Notre Dame Fighting Irish",
+    "home": "Missouri Tigers",
+    "away": "Texas A&M Aggies",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T16:00:00Z",
-    "id": "2b8db5053d533b488c0d76f49382d219"
+    "commence_time": "2026-10-10T17:00:00Z",
+    "id": "9e243e91f8f94e6431da5cc5c3cc8fda"
   },
   {
-    "home": "South Carolina Gamecocks",
-    "away": "Kentucky Wildcats",
+    "home": "Kentucky Wildcats",
+    "away": "LSU Tigers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T20:15:00Z",
-    "id": "59abc1d6262d2ea6a72c4daad4c83af2"
+    "commence_time": "2026-10-10T23:00:00Z",
+    "id": "bdfaffbf5873812f3e04de2cbd273aa6"
   },
   {
-    "home": "TCU Horned Frogs",
-    "away": "BYU Cougars",
+    "home": "Washington Huskies",
+    "away": "Iowa Hawkeyes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T23:00:00Z",
-    "id": "b58c0d24e66471e6095c0a5f9afb7ce3"
+    "commence_time": "2026-10-10T01:00:00Z",
+    "id": "a168f1bed30ce7d56dc2b77dbfe37705"
   },
   {
-    "home": "USC Trojans",
-    "away": "Washington Huskies",
+    "home": "BYU Cougars",
+    "away": "Iowa State Cyclones",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T23:30:00Z",
-    "id": "f981648dba0e71d8517d47d31aa2633d"
+    "commence_time": "2026-10-10T02:15:00Z",
+    "id": "55d9636153ca5741d460ef2f78b663d9"
   },
   {
-    "home": "Virginia Tech Hokies",
-    "away": "Pittsburgh Panthers",
+    "home": "Penn State Nittany Lions",
+    "away": "USC Trojans",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-02T23:00:00Z",
-    "id": "e61c74f0e28b46ad83270a6234b425f4"
+    "commence_time": "2026-10-10T16:00:00Z",
+    "id": "4462f1fa168ab2a5a25fe2807ebec8ac"
   },
   {
-    "home": "Northwestern Wildcats",
-    "away": "Penn State Nittany Lions",
+    "home": "Florida Gators",
+    "away": "South Carolina Gamecocks",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-03T00:00:00Z",
-    "id": "0469a451e58ca81723a7760d4bede173"
+    "commence_time": "2026-10-10T17:00:00Z",
+    "id": "9383cbbbb905d9ee50a3341f6945eae7"
   }
 ]
