@@ -1,82 +1,82 @@
 [
   {
-    "home": "Kansas State Wildcats",
-    "away": "Kansas Jayhawks",
+    "home": "Alabama Crimson Tide",
+    "away": "Texas A&M Aggies",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "9e8578b415e664eea71185131401e537"
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "173057d32ff5946d42566a0d164de287"
+  },
+  {
+    "home": "Auburn Tigers",
+    "away": "LSU Tigers",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "1f2a24570e2ca6de4516eae60b021507"
+  },
+  {
+    "home": "UCF Knights",
+    "away": "BYU Cougars",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "174cf7d3d434eeaada92afb534fb2557"
+  },
+  {
+    "home": "Clemson Tigers",
+    "away": "Virginia Tech Hokies",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "04db3b581ae63446a409f2ad30868e20"
+  },
+  {
+    "home": "Utah Utes",
+    "away": "Houston Cougars",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "47595bd2a188e4dab8a27dce97c5b45d"
   },
   {
     "home": "Michigan Wolverines",
-    "away": "Penn State Nittany Lions",
+    "away": "Indiana Hoosiers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "f8b421c996286807b6e7b8e4d5631f80"
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "259f3312084b229ac2b74d414d36869f"
   },
   {
-    "home": "Oregon Ducks",
-    "away": "Nebraska Cornhuskers",
+    "home": "Miami Hurricanes",
+    "away": "Pittsburgh Panthers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "5d147fefd2182aa2f5573ac03700a775"
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "2d125f14eca5c6eb1417f126cafde7c0"
   },
   {
-    "home": "UCLA Bruins",
-    "away": "Wisconsin Badgers",
+    "home": "Texas Longhorns",
+    "away": "Ole Miss Rebels",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "05280844ab84b8ce5e50305f7cd195d9"
+    "commence_time": "2026-10-24T16:00:00Z",
+    "id": "df510525b83238b6e856c80c353bb32a"
   },
   {
-    "home": "Duke Blue Devils",
-    "away": "North Carolina Tar Heels",
+    "home": "South Carolina Gamecocks",
+    "away": "Tennessee Volunteers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T19:30:00Z",
-    "id": "9e7a1e65bd6ffb3ff108db2a5e125170"
+    "commence_time": "2026-10-24T19:30:00Z",
+    "id": "1e9caefb58095e7560167dff561c9ff7"
   },
   {
-    "home": "Oklahoma Sooners",
-    "away": "Kentucky Wildcats",
+    "home": "Kentucky Wildcats",
+    "away": "Vanderbilt Commodores",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T23:30:00Z",
-    "id": "0728226f9c1e3aace0f64536109f4d05"
-  },
-  {
-    "home": "Kansas State Wildcats",
-    "away": "Kansas Jayhawks",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "9e8578b415e664eea71185131401e537"
-  },
-  {
-    "home": "Michigan Wolverines",
-    "away": "Penn State Nittany Lions",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "f8b421c996286807b6e7b8e4d5631f80"
-  },
-  {
-    "home": "Oregon Ducks",
-    "away": "Nebraska Cornhuskers",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "5d147fefd2182aa2f5573ac03700a775"
-  },
-  {
-    "home": "UCLA Bruins",
-    "away": "Wisconsin Badgers",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-10-17T16:00:00Z",
-    "id": "05280844ab84b8ce5e50305f7cd195d9"
+    "commence_time": "2026-10-24T23:30:00Z",
+    "id": "cc78a514047b7ed0d2c5a3acdf3cdc1e"
   }
 ]
