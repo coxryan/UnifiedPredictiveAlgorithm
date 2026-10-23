@@ -1,82 +1,82 @@
 [
   {
-    "home": "Alabama Crimson Tide",
-    "away": "Texas A&M Aggies",
+    "home": "Iowa Hawkeyes",
+    "away": "Wisconsin Badgers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "173057d32ff5946d42566a0d164de287"
+    "commence_time": "2026-10-31T16:00:00Z",
+    "id": "929937ced936976088a9562342ba0b90"
   },
   {
-    "home": "Auburn Tigers",
-    "away": "LSU Tigers",
+    "home": "Navy Midshipmen",
+    "away": "Notre Dame Fighting Irish",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "1f2a24570e2ca6de4516eae60b021507"
+    "commence_time": "2026-10-31T16:00:00Z",
+    "id": "e916f49c82de2ce0b1844ee9f6deccfa"
   },
   {
-    "home": "UCF Knights",
-    "away": "BYU Cougars",
+    "home": "Oregon Ducks",
+    "away": "Northwestern Wildcats",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "174cf7d3d434eeaada92afb534fb2557"
+    "commence_time": "2026-10-31T16:00:00Z",
+    "id": "7bac3aae16527dd33a224a2f81792033"
   },
   {
-    "home": "Clemson Tigers",
-    "away": "Virginia Tech Hokies",
+    "home": "Ole Miss Rebels",
+    "away": "Auburn Tigers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "04db3b581ae63446a409f2ad30868e20"
+    "commence_time": "2026-10-31T16:45:00Z",
+    "id": "3f36c41ee29e9339f71fada56d832914"
   },
   {
-    "home": "Utah Utes",
-    "away": "Houston Cougars",
+    "home": "BYU Cougars",
+    "away": "Arizona State Sun Devils",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "47595bd2a188e4dab8a27dce97c5b45d"
+    "commence_time": "2026-10-31T19:30:00Z",
+    "id": "b0f68c9265402a825cbbf7954b726339"
   },
   {
-    "home": "Michigan Wolverines",
-    "away": "Indiana Hoosiers",
+    "home": "Indiana Hoosiers",
+    "away": "Minnesota Golden Gophers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "259f3312084b229ac2b74d414d36869f"
+    "commence_time": "2026-10-31T19:30:00Z",
+    "id": "1e591733bae48534963359a9cff13701"
   },
   {
-    "home": "Miami Hurricanes",
-    "away": "Pittsburgh Panthers",
+    "home": "Cincinnati Bearcats",
+    "away": "Utah Utes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "2d125f14eca5c6eb1417f126cafde7c0"
+    "commence_time": "2026-10-31T19:45:00Z",
+    "id": "8480c989381049fc30c8d714be95db35"
   },
   {
-    "home": "Texas Longhorns",
-    "away": "Ole Miss Rebels",
+    "home": "Oklahoma Sooners",
+    "away": "South Carolina Gamecocks",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T16:00:00Z",
-    "id": "df510525b83238b6e856c80c353bb32a"
+    "commence_time": "2026-10-31T20:15:00Z",
+    "id": "096584989b4dd0a84650c37eb980a8b3"
   },
   {
-    "home": "South Carolina Gamecocks",
-    "away": "Tennessee Volunteers",
+    "home": "Iowa Hawkeyes",
+    "away": "Wisconsin Badgers",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T19:30:00Z",
-    "id": "1e9caefb58095e7560167dff561c9ff7"
+    "commence_time": "2026-10-31T16:00:00Z",
+    "id": "929937ced936976088a9562342ba0b90"
   },
   {
-    "home": "Kentucky Wildcats",
-    "away": "Vanderbilt Commodores",
+    "home": "Navy Midshipmen",
+    "away": "Notre Dame Fighting Irish",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-10-24T23:30:00Z",
-    "id": "cc78a514047b7ed0d2c5a3acdf3cdc1e"
+    "commence_time": "2026-10-31T16:00:00Z",
+    "id": "e916f49c82de2ce0b1844ee9f6deccfa"
   }
 ]
