@@ -1,352 +1,702 @@
 [
   {
-    "game_id":401752760,
-    "week":11,
-    "home_team":"Kentucky",
-    "away_team":"Florida",
-    "spread":-2.5
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
   },
   {
     "game_id":401752760,
     "week":11,
     "home_team":"Kentucky",
     "away_team":"Florida",
-    "spread":-2.5
+    "spread":-3.5
+  },
+  {
+    "game_id":401752750,
+    "week":9,
+    "home_team":"Oklahoma",
+    "away_team":"Ole Miss",
+    "spread":2.5
+  },
+  {
+    "game_id":401752760,
+    "week":11,
+    "home_team":"Kentucky",
+    "away_team":"Florida",
+    "spread":-3.5
   }
 ]
