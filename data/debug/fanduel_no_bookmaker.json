@@ -1,82 +1,82 @@
 [
   {
-    "home": "Arizona Wildcats",
+    "home": "Miami Hurricanes",
+    "away": "Virginia Tech Hokies",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-11-21T16:00:00Z",
+    "id": "8d53f308424d388c9003e02cac8b4cf6"
+  },
+  {
+    "home": "Baylor Bears",
+    "away": "Texas Tech Red Raiders",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "1a3e1206e330ec66aa9a0549b4d3409c"
+  },
+  {
+    "home": "Michigan Wolverines",
+    "away": "UCLA Bruins",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "ae9b81f4814e1d9dae835a13f4245ce3"
+  },
+  {
+    "home": "Nebraska Cornhuskers",
+    "away": "Ohio State Buckeyes",
+    "sport_key": "americanfootball_ncaaf",
+    "sport_title": "NCAAF",
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "03a07ec7a62fbc2d6bf4748aafd30303"
+  },
+  {
+    "home": "TCU Horned Frogs",
     "away": "Utah Utes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "7b3c2958dadc616a19ce7b9b1dd2a7e4"
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "7585fb8b12453a68ca1195319ae44c78"
   },
   {
-    "home": "BYU Cougars",
-    "away": "Baylor Bears",
+    "home": "Illinois Fighting Illini",
+    "away": "Iowa Hawkeyes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "5b6989e8ecca343c4de3e7d285b70aa3"
+    "commence_time": "2026-11-21T19:30:00Z",
+    "id": "725c6205de38f91b507a880c139eda54"
   },
   {
-    "home": "North Carolina Tar Heels",
-    "away": "Louisville Cardinals",
+    "home": "Miami Hurricanes",
+    "away": "Virginia Tech Hokies",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "3b677ea4fddccce26e4468faf7079768"
+    "commence_time": "2026-11-21T16:00:00Z",
+    "id": "8d53f308424d388c9003e02cac8b4cf6"
   },
   {
-    "home": "SMU Mustangs",
-    "away": "Wake Forest Demon Deacons",
+    "home": "Baylor Bears",
+    "away": "Texas Tech Red Raiders",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "b7d77aed1f8f75da7679a059e627dfee"
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "1a3e1206e330ec66aa9a0549b4d3409c"
   },
   {
-    "home": "Oregon Ducks",
-    "away": "Michigan Wolverines",
+    "home": "Michigan Wolverines",
+    "away": "UCLA Bruins",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T20:30:00Z",
-    "id": "4c76e6c2d67084d144ebe452d7d608a0"
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "ae9b81f4814e1d9dae835a13f4245ce3"
   },
   {
-    "home": "Arizona Wildcats",
-    "away": "Utah Utes",
+    "home": "Nebraska Cornhuskers",
+    "away": "Ohio State Buckeyes",
     "sport_key": "americanfootball_ncaaf",
     "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "7b3c2958dadc616a19ce7b9b1dd2a7e4"
-  },
-  {
-    "home": "BYU Cougars",
-    "away": "Baylor Bears",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "5b6989e8ecca343c4de3e7d285b70aa3"
-  },
-  {
-    "home": "North Carolina Tar Heels",
-    "away": "Louisville Cardinals",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "3b677ea4fddccce26e4468faf7079768"
-  },
-  {
-    "home": "SMU Mustangs",
-    "away": "Wake Forest Demon Deacons",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T17:00:00Z",
-    "id": "b7d77aed1f8f75da7679a059e627dfee"
-  },
-  {
-    "home": "Oregon Ducks",
-    "away": "Michigan Wolverines",
-    "sport_key": "americanfootball_ncaaf",
-    "sport_title": "NCAAF",
-    "commence_time": "2026-11-14T20:30:00Z",
-    "id": "4c76e6c2d67084d144ebe452d7d608a0"
+    "commence_time": "2026-11-21T17:00:00Z",
+    "id": "03a07ec7a62fbc2d6bf4748aafd30303"
   }
 ]
